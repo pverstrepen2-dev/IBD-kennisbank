@@ -1,0 +1,2234 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>IBD Kennisbank Pro v4</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-authentication-library/3.27.0/msal-browser.min.js"></script>
+<style>
+:root {
+  --primary:#667eea; --secondary:#764ba2; --success:#27ae60; --warning:#f39c12;
+  --danger:#e74c3c; --text:#2c3e50; --text-light:#7f8c8d; --bg:#f8f9fa;
+  --border:#e0e6ed; --white:#fff; --shadow:0 4px 12px rgba(0,0,0,.1);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{padding:20px;min-height:100vh;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:linear-gradient(135deg,var(--primary),var(--secondary));}
+.container{max-width:1400px;margin:0 auto;}
+/* Panels */
+.card{background:var(--white);border-radius:16px;box-shadow:var(--shadow);}
+.langbar{display:flex;gap:8px;justify-content:flex-end;padding:10px;margin-bottom:14px;}
+.lang-btn{background:#fff;border:2px solid var(--border);border-radius:10px;cursor:pointer;font-weight:700;padding:8px 12px;transition:.15s;}
+.lang-btn.active,.lang-btn:hover{background:var(--primary);color:#fff;border-color:var(--primary);}
+.header{padding:28px 32px;margin-bottom:20px;}
+.header h1{font-size:30px;margin-bottom:8px;}
+.header p{color:var(--text-light);margin-bottom:20px;}
+.storage-bar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;padding-top:18px;border-top:2px solid var(--border);}
+.storage-status{flex:1 1 300px;background:var(--bg);border:2px solid var(--border);border-radius:12px;padding:12px 14px;font-size:14px;}
+.badge{display:inline-block;margin-left:8px;background:var(--secondary);color:#fff;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:700;}
+.sync-time{display:block;color:var(--text-light);font-size:12px;margin-top:4px;}
+/* Buttons */
+.btn{border:none;border-radius:10px;padding:11px 18px;cursor:pointer;font-weight:700;font-size:14px;color:#fff;transition:.15s;}
+.btn:hover{opacity:.88;transform:translateY(-1px);}
+.btn.primary{background:var(--primary);}
+.btn.secondary{background:var(--secondary);}
+.btn.success{background:var(--success);}
+.btn.warning{background:var(--warning);}
+.btn.danger{background:var(--danger);}
+.btn.neutral{background:var(--text-light);}
+.btn.sm{padding:7px 13px;font-size:13px;}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;}
+/* Tabs */
+.tabs{display:flex;flex-wrap:wrap;gap:8px;padding:14px;margin-bottom:20px;}
+.tab-btn{border:none;background:transparent;color:var(--text-light);padding:9px 15px;border-radius:10px;font-weight:700;cursor:pointer;font-size:13px;transition:.15s;}
+.tab-btn:hover{background:var(--bg);}
+.tab-btn.active{background:var(--primary);color:#fff;}
+/* Views */
+.view{display:none;}
+.view.active{display:block;}
+/* Grids */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px;}
+.cat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));gap:18px;}
+.filter-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;}
+.backup-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;}
+.items-grid{display:grid;gap:14px;}
+/* Panel */
+.panel{padding:24px;margin-bottom:20px;}
+/* Stat card */
+.stat-card{background:var(--white);border-radius:14px;box-shadow:var(--shadow);padding:24px;text-align:center;}
+.stat-icon{font-size:40px;margin-bottom:10px;}
+.stat-val{font-size:36px;font-weight:800;color:var(--primary);margin-bottom:6px;}
+.stat-lbl{color:var(--text-light);font-size:14px;}
+/* Category card */
+.cat-card{background:var(--white);border-radius:14px;box-shadow:var(--shadow);padding:20px;border-left:5px solid var(--primary);cursor:pointer;transition:.15s;}
+.cat-card:hover{transform:translateY(-2px);}
+.cat-head{display:flex;gap:12px;align-items:center;margin-bottom:8px;}
+.cat-icon{font-size:32px;}
+.cat-name{font-size:18px;font-weight:800;}
+.cat-count{margin-left:auto;background:var(--primary);color:#fff;border-radius:999px;padding:4px 12px;font-size:12px;font-weight:700;}
+/* Result / FAQ cards */
+.result-card,.faq-card{background:var(--white);border-radius:14px;box-shadow:var(--shadow);padding:20px;transition:.15s;}
+.result-card{border-left:5px solid var(--primary);}
+.faq-card{border-left:5px solid var(--warning);}
+.result-card:hover,.faq-card:hover{transform:translateY(-2px);}
+.card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:10px;}
+.card-title{font-size:18px;font-weight:800;line-height:1.3;}
+/* Meta pills */
+.meta{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px;}
+.pill{display:inline-flex;align-items:center;border-radius:999px;padding:4px 11px;font-size:12px;font-weight:700;background:var(--bg);color:var(--text);border:1px solid var(--border);}
+.pill.web{background:#e0f2ff;color:#005999;border:none;}
+.pill.dis{background:#fce7f3;color:#831843;border:none;}
+/* Tags */
+.tag-list{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;}
+.tag{display:inline-flex;background:#eef2ff;color:#334155;border-radius:999px;padding:5px 10px;font-size:12px;font-weight:700;}
+/* Search */
+.search-box{padding:24px;margin-bottom:20px;}
+.search-wrap{position:relative;margin-bottom:12px;}
+.search-wrap input{padding-right:44px;}
+.search-ico{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:18px;pointer-events:none;}
+/* Disease pills */
+.disease-bar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;padding-bottom:14px;border-bottom:2px solid var(--border);}
+.dpill{border:2px solid var(--border);border-radius:999px;padding:6px 15px;font-size:13px;font-weight:700;cursor:pointer;background:#fff;transition:.15s;white-space:nowrap;}
+.dpill:hover{border-color:var(--primary);color:var(--primary);}
+.dpill.on{background:var(--primary);color:#fff;border-color:var(--primary);}
+/* Synonym badge */
+.syn-badge{display:none;background:#fef9c3;border:1px solid #fde047;border-radius:10px;padding:8px 14px;font-size:13px;color:#854d0e;margin-bottom:10px;}
+/* History chips */
+.hist-bar{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:10px;min-height:22px;}
+.hist-lbl{font-size:12px;color:var(--text-light);font-weight:600;}
+.hchip{background:#f0f4ff;border:1px solid #c7d2fe;border-radius:999px;padding:4px 11px;font-size:12px;font-weight:700;cursor:pointer;color:var(--primary);transition:.15s;}
+.hchip:hover{background:#e0e7ff;}
+/* Results header */
+.res-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px;}
+/* Favorite button */
+.fav-btn{background:none;border:none;font-size:20px;cursor:pointer;padding:2px 6px;border-radius:8px;transition:transform .15s;line-height:1;flex-shrink:0;}
+.fav-btn:hover{transform:scale(1.3);}
+/* Notification */
+.notif{position:fixed;right:20px;top:20px;z-index:9999;min-width:260px;padding:16px 20px;display:none;border-left:5px solid var(--success);background:#fff;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.18);font-weight:600;}
+.notif.show{display:block;}
+.notif.err{border-left-color:var(--danger);}
+.notif.warn{border-left-color:var(--warning);}
+/* Record rows (Manage) */
+.rec-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:13px 0;border-bottom:1px solid var(--border);}
+.rec-row:last-child{border-bottom:none;}
+/* Backup cards */
+.bk-card{border:3px dashed var(--border);border-radius:14px;padding:24px;text-align:center;background:#fff;box-shadow:var(--shadow);}
+.bk-icon{font-size:48px;margin-bottom:10px;}
+/* Gutflix */
+.gf-card{background:var(--white);border-radius:14px;box-shadow:var(--shadow);padding:20px;}
+/* Favorites tab */
+.fav-sec h3{font-size:17px;font-weight:800;margin-bottom:14px;}
+.empty{padding:24px;text-align:center;color:var(--text-light);}
+.empty-ico{font-size:36px;display:block;margin-bottom:8px;}
+/* Synonym result */
+.syn-found{background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:12px 16px;margin-top:10px;}
+.syn-term{display:inline-block;background:#dcfce7;color:#166534;border-radius:999px;padding:3px 10px;font-size:13px;font-weight:700;margin:3px;cursor:pointer;transition:.15s;}
+.syn-term:hover{background:#bbf7d0;}
+/* OneDrive */
+.od-hero{text-align:center;padding:10px 20px 22px;}
+.od-logo{font-size:60px;display:block;margin-bottom:12px;}
+.od-badge{display:inline-block;padding:6px 18px;border-radius:999px;font-size:13px;font-weight:700;margin-top:10px;}
+.od-badge.idle{background:#f3f4f6;color:#6b7280;}
+.od-badge.ok{background:#d1fae5;color:#065f46;}
+.od-badge.working{background:#fef3c7;color:#92400e;}
+.od-badge.err{background:#fee2e2;color:#991b1b;}
+.od-btn-row{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:20px;}
+.od-list{border:2px solid var(--border);border-radius:12px;overflow:hidden;max-height:320px;overflow-y:auto;}
+.od-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--border);transition:.15s;}
+.od-row:last-child{border-bottom:none;}
+.od-row:hover{background:var(--bg);}
+.od-fn{font-weight:700;font-size:14px;}
+.od-fm{font-size:12px;color:var(--text-light);margin-top:2px;}
+.info-box{background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:16px 20px;font-size:14px;line-height:1.75;}
+.info-box ol,.info-box ul{margin:8px 0 0 18px;}
+.warn-box{background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:14px 18px;font-size:13px;color:#9a3412;margin-top:14px;}
+/* Cloud folder picker */
+.od-folder-list{border:2px solid var(--border);border-radius:12px;overflow:hidden;max-height:280px;overflow-y:auto;margin-top:12px;}
+.od-folder-row{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:.15s;}
+.od-folder-row:last-child{border-bottom:none;}
+.od-folder-row:hover{background:#eef2ff;}
+.od-folder-row.selected{background:#e0e7ff;font-weight:700;}
+.od-folder-row .od-fn{font-size:14px;}
+.od-tabs{display:flex;gap:8px;margin-bottom:16px;}
+.od-tab{border:2px solid var(--border);border-radius:10px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;background:#fff;transition:.15s;}
+.od-tab.active{background:var(--primary);color:#fff;border-color:var(--primary);}
+.od-tab:hover:not(.active){border-color:var(--primary);color:var(--primary);}
+.guide-panel{}
+/* Forms */
+input[type="text"],input[type="url"],textarea,select{width:100%;border:2px solid var(--border);border-radius:12px;padding:13px 15px;font-size:15px;font-family:inherit;background:#fff;color:var(--text);transition:.15s;}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(102,126,234,.12);}
+textarea{min-height:110px;resize:vertical;}
+label{display:block;font-weight:700;margin-bottom:6px;font-size:14px;}
+.form-row{margin-bottom:16px;}
+.hidden{display:none!important;}
+.muted{color:var(--text-light);}
+/* Responsive */
+@media(max-width:768px){
+  body{padding:12px;}
+  .header,.panel,.search-box{padding:16px;}
+  .tabs{gap:6px;}
+  .tab-btn{padding:8px 11px;font-size:12px;}
+  .header h1{font-size:22px;}
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- Language bar -->
+<div class="card langbar" id="langBar">
+  <button class="lang-btn active" data-lang="nl">🇳🇱 NL</button>
+  <button class="lang-btn" data-lang="fr">🇫🇷 FR</button>
+  <button class="lang-btn" data-lang="en">🇬🇧 EN</button>
+</div>
+
+<!-- Header -->
+<div class="card header" style="margin-bottom:20px;">
+  <h1>🏥 IBD Kennisbank Pro</h1>
+  <p id="headerSub">Professionele versie v4 – FAQ, Favorieten, Synoniemen & OneDrive-synchronisatie.</p>
+  <div class="storage-bar">
+    <div class="storage-status">
+      <span>Opslag: browser (localStorage)</span>
+      <span class="badge">OneDrive-safe</span>
+      <span class="sync-time" id="syncTime">Klaar voor gebruik</span>
+    </div>
+    <div class="toolbar">
+      <button class="btn primary sm" id="btnDlTop">💾 Backup downloaden</button>
+      <button class="btn secondary sm" id="btnUlTop">📤 Backup laden</button>
+      <input type="file" id="fileTop" accept=".json" class="hidden">
+    </div>
+  </div>
+</div>
+
+<!-- Tabs -->
+<div class="card tabs" id="tabs">
+  <button class="tab-btn active" data-tab="dashboard">📊 Dashboard</button>
+  <button class="tab-btn" data-tab="categories">📂 Categorieën</button>
+  <button class="tab-btn" data-tab="search">🔍 Zoeken</button>
+  <button class="tab-btn" data-tab="gutflix">🎬 GutFlix</button>
+  <button class="tab-btn" data-tab="faq">❓ FAQ</button>
+  <button class="tab-btn" data-tab="favorites">⭐ Favorieten</button>
+  <button class="tab-btn" data-tab="add">➕ Toevoegen</button>
+  <button class="tab-btn" data-tab="manage">⚙️ Beheer</button>
+  <button class="tab-btn" data-tab="backup">💾 Backup</button>
+  <button class="tab-btn" data-tab="onedrive">☁️ OneDrive</button>
+</div>
+
+<!-- ═══ DASHBOARD ═══ -->
+<section id="dashboard" class="view active">
+  <div class="stats-grid" id="statsGrid" style="margin-bottom:20px;"></div>
+  <div class="card panel"><h3 style="margin-bottom:14px;">📌 Top tags</h3><div id="topTags" class="tag-list"></div></div>
+</section>
+
+<!-- ═══ CATEGORIES ═══ -->
+<section id="categories" class="view">
+  <div class="cat-grid" id="catGrid"></div>
+</section>
+
+<!-- ═══ SEARCH ═══ -->
+<section id="search" class="view">
+  <div class="card search-box">
+    <div class="search-wrap">
+      <input type="text" id="searchInput" placeholder="Zoek in titel, inhoud, bron of tags...">
+      <span class="search-ico">🔍</span>
+    </div>
+    <div class="syn-badge" id="synBadge"></div>
+    <div class="hist-bar" id="histBar"></div>
+    <div class="disease-bar" id="diseasePills">
+      <button class="dpill on" data-dis="all">🏥 Alles</button>
+      <button class="dpill" data-dis="Crohn">🟠 Crohn</button>
+      <button class="dpill" data-dis="Colitis Ulcerosa">🔵 Colitis</button>
+      <button class="dpill" data-dis="Algemeen IBD">🟣 Algemeen IBD</button>
+      <button class="dpill" data-dis="Mindfulness">🧘 Mindfulness</button>
+      <button class="dpill" data-dis="Voeding">🥦 Voeding</button>
+      <button class="dpill" data-dis="GutFlix">🎬 GutFlix</button>
+    </div>
+    <div class="filter-grid">
+      <select id="catFilter"><option value="">Alle categorieën</option></select>
+      <select id="typeFilter"><option value="">Alle types</option></select>
+      <select id="tagFilter"><option value="">Alle tags</option></select>
+      <select id="sortBy">
+        <option value="recent">Nieuwste eerst</option>
+        <option value="title">Alfabetisch (A-Z)</option>
+        <option value="cat">Per categorie</option>
+      </select>
+    </div>
+  </div>
+  <div class="card panel">
+    <div class="res-head">
+      <button class="btn secondary sm" id="btnWebOnly">🌐 Toon alleen websites</button>
+      <strong id="resCount">0 items</strong>
+      <div class="toolbar">
+        <button class="btn success sm" id="btnCsv">📊 CSV</button>
+        <button class="btn primary sm" id="btnJson">📄 JSON</button>
+      </div>
+    </div>
+    <div class="items-grid" id="resList"></div>
+  </div>
+</section>
+
+<!-- ═══ GUTFLIX ═══ -->
+<section id="gutflix" class="view">
+  <div class="card panel">
+    <h3 style="margin-bottom:6px;">🎬 GutFlix – UEG Education</h3>
+    <p class="muted" style="margin-bottom:14px;">Statische bibliotheek met educatieve items, inclusief IBD-hoofdstuk.</p>
+    <div class="filter-grid">
+      <select id="gfChapter"></select>
+      <input type="text" id="gfSearch" placeholder="Zoek in titel of onderwerp...">
+    </div>
+  </div>
+  <div class="card panel">
+    <div id="gfSummary" class="muted" style="margin-bottom:14px;"></div>
+    <div class="items-grid" id="gfGrid"></div>
+  </div>
+</section>
+
+<!-- ═══ FAQ ═══ -->
+<section id="faq" class="view">
+  <div class="card panel">
+    <h3 style="margin-bottom:16px;">❓ Nieuwe FAQ toevoegen</h3>
+    <div id="faqForm">
+      <div class="form-grid" style="margin-bottom:14px;">
+        <div class="form-row">
+          <label for="faqQ">Vraag *</label>
+          <input type="text" id="faqQ" placeholder="Typ de vraag...">
+        </div>
+        <div class="form-row">
+          <label for="faqTags">Tags</label>
+          <input type="text" id="faqTags" placeholder="bijv. crohn, medicatie">
+        </div>
+      </div>
+      <div class="form-row" style="margin-bottom:16px;">
+        <label for="faqA">Antwoord *</label>
+        <textarea id="faqA" placeholder="Typ het antwoord..."></textarea>
+      </div>
+      <button class="btn primary" id="btnSaveFaq">💾 FAQ opslaan</button>
+    </div>
+  </div>
+  <div class="card panel">
+    <div class="res-head" style="margin-bottom:14px;">
+      <h4>📋 Alle FAQ items (<span id="faqCount">0</span>)</h4>
+      <div style="max-width:280px;flex:1;">
+        <input type="text" id="faqSearch" placeholder="🔍 Zoek in FAQ..." style="margin:0;">
+      </div>
+    </div>
+    <div class="items-grid" id="faqList"></div>
+  </div>
+</section>
+
+<!-- ═══ FAVORITES ═══ -->
+<section id="favorites" class="view">
+  <div class="card panel fav-sec">
+    <h3>🔄 Synoniemenzoeker</h3>
+    <p class="muted" style="margin-bottom:12px;">Typ een IBD-term om synoniemen te vinden. Klik een synoniem om er direct op te zoeken.</p>
+    <input type="text" id="synInput" placeholder="bijv. flare, diarree, biologicals, crohn...">
+    <div id="synResult"></div>
+  </div>
+  <div class="card panel fav-sec">
+    <h3>⭐ Mijn favorieten (<span id="favCount">0</span>)</h3>
+    <div class="items-grid" id="favList"></div>
+  </div>
+  <div class="card panel fav-sec">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <h3>🕐 Recent bekeken (<span id="recentCount">0</span>)</h3>
+      <button class="btn neutral sm" id="btnClearRecent">🗑️ Wissen</button>
+    </div>
+    <div class="items-grid" id="recentList"></div>
+  </div>
+  <div class="card panel fav-sec">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <h3>🔍 Zoekgeschiedenis</h3>
+      <button class="btn neutral sm" id="btnClearHist">🗑️ Wissen</button>
+    </div>
+    <div class="hist-bar" id="favHistBar" style="margin:0;"></div>
+  </div>
+</section>
+
+<!-- ═══ ADD ═══ -->
+<section id="add" class="view">
+  <div class="card panel">
+    <h3 style="margin-bottom:16px;">➕ Nieuw item toevoegen</h3>
+    <div id="addForm">
+      <div class="form-grid" style="margin-bottom:16px;">
+        <div>
+          <label>Sectie(s)</label>
+          <div id="diseaseGroup" style="display:flex;flex-direction:column;gap:8px;margin-top:4px;">
+            <label style="font-weight:normal;"><input type="checkbox" name="dis" value="Crohn"> Crohn</label>
+            <label style="font-weight:normal;"><input type="checkbox" name="dis" value="Colitis Ulcerosa"> Colitis Ulcerosa</label>
+            <label style="font-weight:normal;"><input type="checkbox" name="dis" value="Algemeen IBD"> Algemeen IBD</label>
+            <label style="font-weight:normal;"><input type="checkbox" name="dis" value="Mindfulness"> Mindfulness</label>
+            <label style="font-weight:normal;"><input type="checkbox" name="dis" value="Voeding"> Voeding</label>
+            <label style="font-weight:normal;"><input type="checkbox" name="dis" value="GutFlix"> GutFlix</label>
+          </div>
+        </div>
+        <div>
+          <div class="form-row">
+            <label for="newCat">Categorie *</label>
+            <select id="newCat" required></select>
+          </div>
+          <div class="form-row">
+            <label for="newType">Type</label>
+            <select id="newType"></select>
+          </div>
+        </div>
+        <div>
+          <div class="form-row">
+            <label for="newTitle">Titel *</label>
+            <input type="text" id="newTitle" placeholder="Titel van het item...">
+          </div>
+          <div class="form-row">
+            <label for="newSource">Bron</label>
+            <input type="text" id="newSource" placeholder="bv. ECCO, UEG, arts...">
+          </div>
+        </div>
+      </div>
+      <div class="form-row">
+        <label for="newContent">Beschrijving / inhoud</label>
+        <textarea id="newContent" placeholder="Voeg een duidelijke beschrijving toe..."></textarea>
+      </div>
+      <div class="form-grid" style="margin-top:14px;margin-bottom:16px;">
+        <div class="form-row">
+          <label for="newUrl">URL</label>
+          <input type="url" id="newUrl" placeholder="https://...">
+        </div>
+        <div class="form-row">
+          <label for="newTags">Tags</label>
+          <input type="text" id="newTags" placeholder="bijv. behandeling, medicatie">
+        </div>
+      </div>
+      <button class="btn primary" id="btnSaveItem">💾 Opslaan</button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ MANAGE ═══ -->
+<section id="manage" class="view">
+  <div class="card panel">
+    <h3 style="margin-bottom:14px;">⚙️ Beheer items</h3>
+    <div class="form-row">
+      <input type="text" id="manSearch" placeholder="Filter op titel...">
+    </div>
+    <div id="manList"></div>
+  </div>
+</section>
+
+<!-- ═══ BACKUP ═══ -->
+<section id="backup" class="view">
+  <div class="backup-grid">
+    <div class="bk-card">
+      <div class="bk-icon">⬇️</div>
+      <h3 style="margin-bottom:8px;">Backup downloaden</h3>
+      <p class="muted" style="margin-bottom:16px;font-size:14px;">Download items, FAQ én favorieten als één JSON-bestand.</p>
+      <button class="btn success" id="btnDlBottom">📥 Download</button>
+    </div>
+    <div class="bk-card">
+      <div class="bk-icon">⬆️</div>
+      <h3 style="margin-bottom:8px;">Backup laden</h3>
+      <p class="muted" style="margin-bottom:16px;font-size:14px;">Importeer een eerder gedownloade backup.</p>
+      <button class="btn primary" id="btnUlBottom">📤 Upload</button>
+      <input type="file" id="fileBottom" accept=".json" class="hidden">
+    </div>
+    <div class="bk-card">
+      <div class="bk-icon">🗑️</div>
+      <h3 style="margin-bottom:8px;">Reset data</h3>
+      <p class="muted" style="margin-bottom:16px;font-size:14px;">Wis alle lokale gegevens en herstel de standaardset.</p>
+      <button class="btn danger" id="btnReset">Reset</button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ ONEDRIVE ═══ -->
+<section id="onedrive" class="view">
+
+  <!-- Verbinding & login -->
+  <div class="card panel">
+    <div class="od-hero">
+      <span class="od-logo">☁️</span>
+      <h2 style="margin-bottom:8px;">OneDrive Synchronisatie</h2>
+      <p class="muted" style="max-width:520px;margin:0 auto 10px;">Verbind met uw Microsoft-account om rechtstreeks mappen en bestanden uit uw OneDrive te lezen en op te slaan — zonder lokale installatie.</p>
+      <div class="od-badge idle" id="odBadge">⏸ Niet verbonden</div>
+      <div style="margin-top:8px;font-size:13px;color:var(--text-light);">Laatste sync: <strong id="odLastSync">—</strong></div>
+    </div>
+
+    <!-- Mode tabs -->
+    <div class="od-tabs" style="justify-content:center;">
+      <button class="od-tab active" id="odTabCloud" data-odmode="cloud">☁️ OneDrive Cloud</button>
+      <button class="od-tab" id="odTabLocal" data-odmode="local">💻 Lokale map (Chrome/Edge)</button>
+    </div>
+
+    <!-- CLOUD MODE -->
+    <div id="odModeCloud">
+      <div id="odLoginPanel">
+        <p class="muted" style="text-align:center;margin-bottom:16px;font-size:14px;">Meld u aan met uw Microsoft-account om uw OneDrive-mappen te koppelen.</p>
+        <div class="od-btn-row">
+          <button class="btn primary" id="odBtnLogin">🔑 Aanmelden met Microsoft</button>
+        </div>
+        <div class="info-box" style="margin-top:18px;">
+          <strong>Hoe werkt het?</strong>
+          <ol>
+            <li>Klik op <strong>"Aanmelden met Microsoft"</strong> — een pop-up opent Microsoft-login.</li>
+            <li>Log in met uw Microsoft- of schoolaccount dat toegang heeft tot OneDrive.</li>
+            <li>Kies een map uit uw OneDrive-mappenstructuur.</li>
+            <li>Laad backups of importeer documenten rechtstreeks vanuit de cloud.</li>
+          </ol>
+        </div>
+      </div>
+
+      <div id="odCloudPanel" class="hidden">
+        <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <div style="font-size:14px;">👤 Aangemeld als: <strong id="odUserName">—</strong> &nbsp;<span style="color:var(--text-light);font-size:12px;" id="odUserEmail"></span></div>
+          <button class="btn neutral sm" id="odBtnLogout">🚪 Afmelden</button>
+        </div>
+
+        <!-- Folder picker -->
+        <div style="margin-bottom:18px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:8px;">
+            <strong style="font-size:14px;">📂 Geselecteerde map: <span id="odCloudFolderName" style="color:var(--primary);">Geen map gekozen</span></strong>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button class="btn secondary sm" id="odBtnBrowse">📁 Blader naar map</button>
+              <button class="btn success sm" id="odBtnSaveCloud">💾 Backup opslaan</button>
+              <button class="btn secondary sm" id="odBtnRefreshCloud">🔄 Vernieuwen</button>
+            </div>
+          </div>
+          <!-- Folder browser -->
+          <div id="odFolderBrowser" class="od-folder-list hidden"></div>
+        </div>
+
+        <!-- Backup file list -->
+        <div>
+          <strong style="font-size:14px;display:block;margin-bottom:8px;">📄 Backupbestanden in geselecteerde map</strong>
+          <div class="od-list" id="odCloudFileList">
+            <div class="muted" style="padding:16px;">Kies een map om de bestanden te zien.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOCAL MODE -->
+    <div id="odModeLocal" class="hidden">
+      <p class="muted" style="margin-bottom:14px;font-size:14px;">Selecteer een lokaal gesynchroniseerde OneDrive-map op uw computer (vereist Chrome of Edge).</p>
+      <div class="od-btn-row">
+        <button class="btn primary" id="odBtnSelect">📁 Selecteer OneDrive-map</button>
+        <button class="btn success" id="odBtnSave">💾 Backup opslaan</button>
+        <button class="btn secondary" id="odBtnRefresh">🔄 Vernieuwen</button>
+      </div>
+      <div class="warn-box hidden" id="odNoSupport" style="margin-top:16px;">
+        ⚠️ <strong>Uw browser ondersteunt geen directe map-toegang.</strong><br>
+        Gebruik <strong>Google Chrome</strong> of <strong>Microsoft Edge</strong>. In andere browsers gebruikt u de Backup-tab.
+      </div>
+      <div style="margin-top:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <strong style="font-size:14px;">📂 Backupbestanden in geselecteerde map</strong>
+          <span id="odFolderName" style="font-size:13px;color:var(--text-light);">Geen map geselecteerd</span>
+        </div>
+        <div class="od-list" id="odFileList">
+          <div class="muted" style="padding:16px;">Selecteer een OneDrive-map om de bestanden te zien.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Document synchronisatie -->
+  <div class="card panel">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:6px;">
+      <h3>📥 Documenten synchroniseren</h3>
+      <button class="btn primary" id="odBtnSyncDocs">🔄 Documenten importeren</button>
+    </div>
+    <p class="muted" style="margin-bottom:14px;">Leest documenten (PDF, Word, Excel, afbeeldingen, tekst&#8209;/CSV&#8209;bestanden) uit de geselecteerde map en maakt er kennisbank&#8209;items van. Werkt voor zowel cloud- als lokale modus.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:18px;align-items:center;margin-bottom:14px;">
+      <label style="font-weight:normal;display:flex;align-items:center;gap:8px;cursor:pointer;">
+        <input type="checkbox" id="odSubfolders" style="width:auto;"> Ook submappen doorzoeken
+      </label>
+      <label style="font-weight:normal;display:flex;align-items:center;gap:8px;cursor:pointer;">
+        <input type="checkbox" id="odReadText" checked style="width:auto;"> Inhoud van tekst&#8209; en CSV&#8209;bestanden inlezen
+      </label>
+      <span style="flex:1;"></span>
+      <span class="muted" style="font-size:13px;">Geïmporteerd: <strong id="odSyncedCount">0</strong> bestanden</span>
+      <button class="btn neutral sm" id="odBtnResetSync">🗑️ Sync&#8209;geheugen wissen</button>
+    </div>
+    <div class="od-list" id="odSyncResult">
+      <div class="muted" style="padding:16px;">Nog niets gesynchroniseerd. Selecteer een map en klik op "Documenten importeren".</div>
+    </div>
+  </div>
+
+  <!-- App op OneDrive plaatsen + Azure config -->
+  <div class="card panel">
+    <h3 style="margin-bottom:14px;">📋 Handleiding: app op OneDrive plaatsen</h3>
+    <div class="od-tabs" style="margin-bottom:16px;">
+      <button class="od-tab active" id="guideTab1" data-guide="guide1">🚀 Snel starten</button>
+      <button class="od-tab" id="guideTab2" data-guide="guide2">☁️ Cloud-modus instellen</button>
+      <button class="od-tab" id="guideTab3" data-guide="guide3">🔗 Bestanden koppelen</button>
+    </div>
+
+    <div id="guide1" class="guide-panel">
+      <div class="info-box">
+        <strong>Stap 1 — App opslaan in OneDrive (geen server nodig)</strong>
+        <ol>
+          <li>Download dit HTML-bestand naar uw computer.</li>
+          <li>Verplaats het bestand naar uw <strong>OneDrive-map</strong> (bijv. <code>OneDrive/IBD Kennisbank/index.html</code>).</li>
+          <li>Wacht tot OneDrive het bestand synchroniseert (wolkje verdwijnt).</li>
+          <li>Dubbelklik het bestand → het opent in uw browser. De app werkt volledig offline en alle data wordt lokaal opgeslagen.</li>
+          <li>Op een <strong>ander toestel</strong>: open de OneDrive-map, dubbelklik het HTML-bestand → zelfde app, eigen lokale data per toestel.</li>
+        </ol>
+        <div class="warn-box" style="margin-top:10px;">💡 <strong>Data wordt opgeslagen in de browser (localStorage)</strong> van het toestel waarop u werkt — niet automatisch in de cloud. Gebruik de <strong>Backup-tab</strong> of de <strong>Cloud-modus</strong> hieronder om data te synchroniseren tussen toestellen.</div>
+      </div>
+    </div>
+
+    <div id="guide2" class="guide-panel hidden">
+      <div class="info-box">
+        <strong>Cloud-modus: bestanden rechtstreeks in OneDrive lezen/schrijven</strong>
+        <p style="margin-top:8px;">Dit vereist een gratis Azure App Registration (eenmalig, ~10 min):</p>
+        <ol>
+          <li>Ga naar <a href="https://portal.azure.com" target="_blank" rel="noopener">portal.azure.com</a> → <strong>Azure Active Directory</strong> → <strong>App registrations</strong> → <strong>New registration</strong>.</li>
+          <li>Naam: bijv. <em>IBD Kennisbank</em> · Accounttype: <strong>Accounts in any organizational directory and personal Microsoft accounts</strong>.</li>
+          <li>Redirect URI: kies <strong>Single-page application (SPA)</strong> en vul de URL in van uw HTML-bestand.<br>
+            — Lokaal: <code>http://localhost/index.html</code> of open via bestand → kopieer de <code>file:///...</code> URL.<br>
+            — Op een webserver: de volledige <code>https://</code> URL.</li>
+          <li>Klik <strong>Register</strong>. Kopieer de <strong>Application (client) ID</strong>.</li>
+          <li>Ga naar <strong>API permissions</strong> → <strong>Add a permission</strong> → <strong>Microsoft Graph</strong> → <strong>Delegated</strong> → voeg toe: <code>Files.ReadWrite</code> en <code>User.Read</code>.</li>
+          <li>Plak het Client ID hieronder en klik Opslaan.</li>
+        </ol>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-top:14px;">
+        <div style="flex:1;min-width:220px;">
+          <label for="odClientId" style="font-size:13px;font-weight:700;display:block;margin-bottom:4px;">Azure Client ID (Application ID)</label>
+          <input type="text" id="odClientId" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" style="font-family:monospace;font-size:13px;">
+        </div>
+        <button class="btn primary sm" id="odBtnSaveClientId">💾 Opslaan & activeren</button>
+      </div>
+    </div>
+
+    <div id="guide3" class="guide-panel hidden">
+      <div class="info-box">
+        <strong>Bestanden uit OneDrive koppelen aan de kennisbank</strong>
+        <ol>
+          <li><strong>Cloud-modus (aanbevolen):</strong> Meld u aan → klik "Blader naar map" → selecteer de map met uw bestanden → klik "Documenten importeren". Elk bestand wordt een item in de categorie <em>Documenten</em>.</li>
+          <li><strong>Lokale modus (Chrome/Edge):</strong> Klik "Selecteer OneDrive-map" en kies de gesynchroniseerde map op uw computer. Werkt hetzelfde.</li>
+          <li><strong>Welke bestandstypes worden ondersteund?</strong><br>
+            📕 PDF · 📘 Word (.doc/.docx) · 📗 Excel (.xls/.xlsx) · 📙 PowerPoint · 📝 Tekst (.txt/.md) · 📊 CSV · 🖼️ Afbeeldingen (jpg/png/webp)</li>
+          <li><strong>Tekstbestanden (.txt, .csv)</strong> worden volledig ingelezen als inhoud van het item.</li>
+          <li><strong>Overige bestanden</strong> (PDF, Word, ...) worden als verwijzing opgeslagen — naam, type en mappad zijn zichtbaar. U kunt een URL toevoegen om rechtstreeks te openen.</li>
+          <li>Nieuwe bestanden toevoegen aan de map? Klik opnieuw op "Documenten importeren" — alleen de nieuwe worden geïmporteerd.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div><!-- /container -->
+<div class="notif" id="notif"></div>
+
+<script>
+(function() {
+'use strict';
+
+/* ════════════════════════════════════════
+   SAFE STORAGE (works even when localStorage is blocked)
+════════════════════════════════════════ */
+var _mem = {};
+function lsGet(k) { try { return localStorage.getItem(k); } catch(e) { return _mem[k] !== undefined ? _mem[k] : null; } }
+function lsSet(k, v) { try { localStorage.setItem(k, String(v)); } catch(e) { _mem[k] = String(v); } }
+function lsDel(k) { try { localStorage.removeItem(k); } catch(e) { delete _mem[k]; } }
+
+/* ════════════════════════════════════════
+   KEYS & STATE
+════════════════════════════════════════ */
+var SK   = 'ibd_pro_items_v4';
+var FK   = 'ibd_pro_faq_v4';
+var FVK  = 'ibd_pro_favs_v4';
+var HK   = 'ibd_pro_hist_v4';
+var RK   = 'ibd_pro_recent_v4';
+var TK   = 'ibd_pro_tab_v4';
+var LK   = 'ibd_pro_lang_v4';
+var WK   = 'ibd_pro_web_v4';
+var SYK  = 'ibd_pro_synced_v4';
+
+var lang        = lsGet(LK) || 'nl';
+var currentTab  = lsGet(TK) || 'dashboard';
+var webOnly     = lsGet(WK) === 'true';
+var diseaseFilter = 'all';
+var odDir       = null;
+
+/* ════════════════════════════════════════
+   TRANSLATIONS
+════════════════════════════════════════ */
+var i18n = {
+  nl: { types: ['Informatie','Richtlijn','Onderzoek','Website','Tip','Video','FAQ'], 'Open link':'Open link',
+    no_results:'Geen resultaten gevonden.', no_items:'Nog geen items.',
+    item_saved:'Item opgeslagen ✅', item_del:'Item verwijderd.', faq_saved:'FAQ opgeslagen ✅',
+    faq_del:'FAQ verwijderd.', fav_add:'Toegevoegd aan favorieten ⭐', fav_rem:'Verwijderd uit favorieten.',
+    backup_dl:'Backup gedownload ✅', backup_ok:'Backup geladen ✅', backup_err:'Ongeldige backup ❌',
+    title_req:'Titel is verplicht.', faq_req:'Vraag en antwoord zijn verplicht.',
+    reset1:'Weet je zeker dat je alle data wilt wissen?', reset2:'Laatste bevestiging: alles wordt gewist.',
+    reset_done:'Data teruggezet.', hist_cleared:'Zoekgeschiedenis gewist.', recent_cleared:'Recent bekeken gewist.',
+    no_fav:'Nog geen favorieten. Klik op ☆ bij een item om te bewaren.',
+    no_recent:'Nog geen recent bekeken items.',
+    od_no_support:'Gebruik Chrome of Edge voor OneDrive-synchronisatie.',
+    od_select:'Selecteer eerst een OneDrive-map.',
+    od_saved:'Bestand opgeslagen naar OneDrive-map ✅',
+    od_loaded:'Gegevens geladen uit OneDrive-map ✅',
+    od_err:'Fout bij OneDrive-synchronisatie.',
+    gf_sum: function(n) { return n + ' GutFlix-items gevonden'; },
+    recent_lbl: 'Recente zoekopdrachten:'
+  },
+  fr: { types: ['Information','Directive','Recherche','Site web','Conseil','Vidéo','FAQ'], 'Open link':'Ouvrir le lien',
+    no_results:'Aucun résultat.', no_items:'Aucun élément.',
+    item_saved:'Élément enregistré ✅', item_del:'Élément supprimé.', faq_saved:'FAQ enregistré ✅',
+    faq_del:'FAQ supprimé.', fav_add:'Ajouté aux favoris ⭐', fav_rem:'Retiré des favoris.',
+    backup_dl:'Sauvegarde téléchargée ✅', backup_ok:'Sauvegarde chargée ✅', backup_err:'Sauvegarde invalide ❌',
+    title_req:'Le titre est obligatoire.', faq_req:'La question et la réponse sont obligatoires.',
+    reset1:'Effacer toutes les données ?', reset2:'Confirmation finale : tout sera supprimé.',
+    reset_done:'Données réinitialisées.', hist_cleared:'Historique effacé.', recent_cleared:'Historique récent effacé.',
+    no_fav:'Aucun favori. Cliquez sur ☆ pour en ajouter.',
+    no_recent:'Aucun élément récemment consulté.',
+    od_no_support:'Utilisez Chrome ou Edge pour la synchronisation OneDrive.',
+    od_select:'Sélectionnez d\'abord un dossier OneDrive.',
+    od_saved:'Fichier sauvegardé dans OneDrive ✅',
+    od_loaded:'Données chargées depuis OneDrive ✅',
+    od_err:'Erreur de synchronisation OneDrive.',
+    gf_sum: function(n) { return n + ' éléments GutFlix trouvés'; },
+    recent_lbl: 'Recherches récentes :'
+  },
+  en: { types: ['Information','Guideline','Research','Website','Tip','Video','FAQ'], 'Open link':'Open link',
+    no_results:'No results found.', no_items:'No items yet.',
+    item_saved:'Item saved ✅', item_del:'Item deleted.', faq_saved:'FAQ saved ✅',
+    faq_del:'FAQ deleted.', fav_add:'Added to favourites ⭐', fav_rem:'Removed from favourites.',
+    backup_dl:'Backup downloaded ✅', backup_ok:'Backup loaded ✅', backup_err:'Invalid backup ❌',
+    title_req:'Title is required.', faq_req:'Question and answer are required.',
+    reset1:'Are you sure you want to erase all data?', reset2:'Final confirmation: all data will be removed.',
+    reset_done:'Data reset.', hist_cleared:'Search history cleared.', recent_cleared:'Recent items cleared.',
+    no_fav:'No favourites yet. Click ☆ on an item to save it.',
+    no_recent:'No recently viewed items.',
+    od_no_support:'Use Chrome or Edge for OneDrive synchronisation.',
+    od_select:'Please select an OneDrive folder first.',
+    od_saved:'File saved to OneDrive folder ✅',
+    od_loaded:'Data loaded from OneDrive folder ✅',
+    od_err:'Error during OneDrive synchronisation.',
+    gf_sum: function(n) { return n + ' GutFlix items found'; },
+    recent_lbl: 'Recent searches:'
+  }
+};
+function t(k) {
+  var r = (i18n[lang] && i18n[lang][k] !== undefined) ? i18n[lang][k] : (i18n.nl[k] !== undefined ? i18n.nl[k] : k);
+  return r;
+}
+
+/* ════════════════════════════════════════
+   SYNONYM DICTIONARY
+════════════════════════════════════════ */
+var synDict = {
+  'crohn':        ['ziekte van crohn','morbus crohn','m. crohn','ileïtis'],
+  'colitis':      ['colitis ulcerosa','uc','zweercolitis','proctocolitis'],
+  'ibd':          ['inflammatory bowel disease','chronische darmontsteking','mici'],
+  'buikpijn':     ['abdominale pijn','buikklachten','buikkramp','krampen'],
+  'diarree':      ['losse stoelgang','dunne ontlasting','frequent toiletbezoek'],
+  'flare':        ['opvlamming','aanval','actieve fase','opstoot','exacerbatie'],
+  'remissie':     ['rustfase','stabiele fase','geen actieve ontsteking'],
+  'biologicals':  ['biologische therapie','anti-tnf','infliximab','adalimumab','vedolizumab','ustekinumab'],
+  'colonoscopie': ['coloscopie','darmonderzoek','endoscopie'],
+  'vermoeidheid': ['moeheid','uitputting','fatigue','energietekort'],
+  'ontsteking':   ['inflammatie','inflammatoir','ontstekingsactiviteit'],
+  'medicatie':    ['medicijn','geneesmiddel','therapie'],
+  'stoelgang':    ['ontlasting','feces','defecatie'],
+  'mindfulness':  ['meditatie','ontspanning','ademhaling','stressreductie'],
+  'voeding':      ['dieet','eten','nutritie','voedsel'],
+  'prednison':    ['cortisone','corticosteroïden','steroïden'],
+  'operatie':     ['chirurgie','resectie','colostomie','ileostomie'],
+  'bloedverlies': ['bloed bij ontlasting','rectaal bloedverlies','hematochezie']
+};
+
+function getSyns(term) {
+  var q = (term || '').toLowerCase().trim();
+  var res = {};
+  for (var key in synDict) {
+    var syns = synDict[key];
+    if (key === q || syns.indexOf(q) !== -1) {
+      res[key] = true;
+      for (var i = 0; i < syns.length; i++) res[syns[i]] = true;
+    }
+  }
+  delete res[q];
+  return Object.keys(res);
+}
+
+function expandQ(rawQ) {
+  var q = rawQ.toLowerCase().trim();
+  var extra = {};
+  for (var key in synDict) {
+    var syns = synDict[key];
+    var hit = q.indexOf(key) !== -1;
+    for (var i = 0; !hit && i < syns.length; i++) { if (q.indexOf(syns[i]) !== -1) hit = true; }
+    if (hit) {
+      extra[key] = true;
+      for (var j = 0; j < syns.length; j++) extra[syns[j]] = true;
+    }
+  }
+  var expanded = [q];
+  for (var k in extra) { if (expanded.indexOf(k) === -1) expanded.push(k); }
+  var found = expanded.slice(1);
+  return { all: expanded, found: found };
+}
+
+/* ════════════════════════════════════════
+   CATEGORY INFO
+════════════════════════════════════════ */
+var CATS = {
+  'Symptomen':       {icon:'🩺', desc:'Herkenbare klachten en symptomen'},
+  'Diagnose':        {icon:'🔬', desc:'Onderzoeken en diagnosestelling'},
+  'Behandeling':     {icon:'💊', desc:'Behandelopties en therapieën'},
+  'Medicatie':       {icon:'💉', desc:'Geneesmiddelen en bijwerkingen'},
+  'Complicaties':    {icon:'⚠️', desc:'Mogelijke complicaties'},
+  'Operatie':        {icon:'🏥', desc:'Chirurgische ingrepen'},
+  'Dagelijks Leven': {icon:'🏠', desc:'Leven met IBD'},
+  'Onderzoek':       {icon:'📊', desc:'Wetenschappelijke studies'},
+  'Patiëntenrechten':{icon:'⚖️', desc:'Rechten en ondersteuning'},
+  'Meditatie':       {icon:'🧘', desc:'Mindfulness en meditatie'},
+  'Stressmanagement':{icon:'😌', desc:'Stress verminderen en veerkracht'},
+  'Dieetadvies':     {icon:'📋', desc:'Voedingsadviezen'},
+  'Recepten':        {icon:'🍳', desc:'Praktische recepten en voeding'},
+  'Website':         {icon:'🌐', desc:'Externe websites en bronnen'},
+  'Documenten':      {icon:'📎', desc:'Gesynchroniseerde bestanden uit OneDrive'}
+};
+
+/* ════════════════════════════════════════
+   GUTFLIX DATA
+════════════════════════════════════════ */
+var GF_CHAPTERS = [
+  {id:'all', nl:'Alle chapters', fr:'Tous les chapitres', en:'All chapters'},
+  {id:'1',   nl:'Chapter 1 – Endoscopy', fr:'Chapitre 1 – Endoscopie', en:'Chapter 1 – Endoscopy'},
+  {id:'2',   nl:'Chapter 2 – Oesophagus and Stomach', fr:'Chapitre 2 – Oesophage et estomac', en:'Chapter 2 – Oesophagus and Stomach'},
+  {id:'3',   nl:'Chapter 3 – Small Intestine and Nutrition', fr:'Chapitre 3 – Intestin grêle et nutrition', en:'Chapter 3 – Small Intestine and Nutrition'},
+  {id:'4',   nl:'Chapter 4 – Surgery and Imaging', fr:'Chapitre 4 – Chirurgie et imagerie', en:'Chapter 4 – Surgery and Imaging'},
+  {id:'5',   nl:'Chapter 5 – Hepatobiliary and Pancreatic Disease', fr:'Chapitre 5 – Maladie hépatobiliaire et pancréatique', en:'Chapter 5 – Hepatobiliary and Pancreatic Disease'},
+  {id:'6',   nl:'Chapter 6 – Inflammatory Bowel Disease', fr:'Chapitre 6 – MICI', en:'Chapter 6 – Inflammatory Bowel Disease'},
+  {id:'7',   nl:'Chapter 7 – Neurogastroenterology and Motility', fr:'Chapitre 7 – Neurogastroentérologie et motilité', en:'Chapter 7 – Neurogastroenterology and Motility'},
+  {id:'8',   nl:'Chapter 8 – Paediatric Gastroenterology', fr:'Chapitre 8 – Gastroentérologie pédiatrique', en:'Chapter 8 – Paediatric Gastroenterology'}
+];
+var GF_ITEMS = [
+  {ch:'1', title:'Mistakes in series - Colonoscopy (02/2023)',              topic:{nl:'Colonoscopie',fr:'Coloscopie',en:'Colonoscopy'}, year:2023},
+  {ch:'1', title:'Mistakes in series - Gastroscopy (06/2022)',              topic:{nl:'Gastroscopie',fr:'Gastroscopie',en:'Gastroscopy'}, year:2022},
+  {ch:'3', title:'Mistakes in series - Coeliac Disease (01/2016)',          topic:{nl:'Coeliakie',fr:'Maladie cœliaque',en:'Coeliac disease'}, year:2016},
+  {ch:'4', title:'Mistakes in series - Perianal Disease (12/2016)',         topic:{nl:'Perianale ziekte',fr:'Maladie périanale',en:'Perianal disease'}, year:2016},
+  {ch:'5', title:'Mistakes in series - EUS (01/2021)',                      topic:{nl:'Endoscopische echografie',fr:'Échoendoscopie',en:'Endoscopic ultrasound'}, year:2021},
+  {ch:'6', title:'Mistakes in series - IBD (09/2017)',                      topic:{nl:'IBD algemeen',fr:'MICI générale',en:'General IBD'}, year:2017},
+  {ch:'6', title:'Mistakes in series - Biomarkers IBD (03/2023)',           topic:{nl:'Biomarkers IBD',fr:'Biomarqueurs MICI',en:'IBD biomarkers'}, year:2023},
+  {ch:'6', title:'Mistakes in series - Acute Severe UC (05/2023)',          topic:{nl:'Acute ernstige colitis',fr:'Colite ulcéreuse aiguë sévère',en:'Acute severe UC'}, year:2023},
+  {ch:'6', title:"Mistakes in series - Early Diagnosis Crohn's (05/2025)", topic:{nl:'Vroege diagnose Crohn',fr:'Diagnostic précoce de Crohn',en:"Early diagnosis Crohn's"}, year:2025},
+  {ch:'7', title:'Mistakes in series - IBS (09/2016)',                      topic:{nl:'Prikkelbare darm syndroom',fr:"Syndrome de l'intestin irritable",en:'Irritable bowel syndrome'}, year:2016},
+  {ch:'8', title:'Mistakes in series - Paediatric IBD (01/2018)',           topic:{nl:'Pediatrische IBD',fr:'MICI pédiatrique',en:'Paediatric IBD'}, year:2018}
+];
+
+/* ════════════════════════════════════════
+   HELPERS
+════════════════════════════════════════ */
+function esc(v) {
+  return String(v || '').replace(/[&<>"']/g, function(c) {
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
+}
+function uid() {
+  try { return window.crypto.randomUUID ? window.crypto.randomUUID() : 'id-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8); }
+  catch(e) { return 'id-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8); }
+}
+function linkify(text) {
+  return esc(text || '').replace(/(https?:\/\/[^\s<&]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+}
+function notify(msg, type) {
+  var n = document.getElementById('notif');
+  if (!n) return;
+  n.textContent = msg;
+  n.className = 'notif show' + (type === 'err' ? ' err' : type === 'warn' ? ' warn' : '');
+  setTimeout(function() { n.classList.remove('show'); }, 3200);
+}
+function setSyncTime(txt) {
+  var el = document.getElementById('syncTime');
+  if (el) el.textContent = txt;
+}
+function el(id) { return document.getElementById(id); }
+
+/* ════════════════════════════════════════
+   DATA FUNCTIONS
+════════════════════════════════════════ */
+function mkTags(raw) {
+  if (Array.isArray(raw)) return raw.map(function(v){return String(v).trim();}).filter(Boolean);
+  return String(raw || '').split(',').map(function(v){return v.trim();}).filter(Boolean);
+}
+
+function mkItem(o) {
+  return {
+    id: uid(),
+    title: String(o.title || '').trim(),
+    content: String(o.content || '').trim(),
+    category: String(o.category || 'Symptomen').trim(),
+    type: String(o.type || 'Informatie').trim(),
+    source: String(o.source || '').trim(),
+    url: String(o.url || '').trim(),
+    tags: mkTags(o.tags),
+    diseases: Array.isArray(o.diseases) ? o.diseases.filter(Boolean) : [],
+    createdAt: new Date().toISOString()
+  };
+}
+
+function sanitize(arr) {
+  if (!Array.isArray(arr)) return [];
+  return arr.map(function(x) {
+    return {
+      id: x.id || uid(),
+      title: String(x.title || '').trim(),
+      content: String(x.content || '').trim(),
+      category: CATS[x.category] ? x.category : 'Symptomen',
+      type: String(x.type || 'Informatie').trim(),
+      source: String(x.source || '').trim(),
+      url: String(x.url || '').trim(),
+      tags: mkTags(x.tags),
+      diseases: Array.isArray(x.diseases) ? x.diseases.filter(Boolean) : [],
+      createdAt: x.createdAt || new Date().toISOString()
+    };
+  }).filter(function(x) { return x.title; });
+}
+
+var SEEDS = [
+  mkItem({title:'Buikpijn bij Crohn', content:'Buikpijn komt vaak voor bij actieve ziekte van Crohn en kan verschillen in intensiteit. Let op combinatie met diarree, vermoeidheid en gewichtsverlies.', category:'Symptomen', type:'Informatie', source:'Seed data', tags:'crohn, symptomen, buikpijn', diseases:['Crohn']}),
+  mkItem({title:'Colonoscopie bij colitis', content:'Colonoscopie is een belangrijk onderzoek om colitis ulcerosa te evalueren en ontstekingsactiviteit op te volgen.', category:'Diagnose', type:'Richtlijn', source:'Seed data', tags:'colitis, diagnose, colonoscopie', diseases:['Colitis Ulcerosa']}),
+  mkItem({title:'Biologicals bij IBD', content:'Biologicals worden gebruikt bij matig tot ernstig actieve IBD wanneer klassieke behandeling onvoldoende effect heeft.', category:'Behandeling', type:'Informatie', source:'Seed data', tags:'ibd, behandeling, biologicals', diseases:['Algemeen IBD']}),
+  mkItem({title:'Eetdagboek bijhouden', content:'Een eetdagboek helpt te herkennen welke voeding klachten uitlokt of verergert.', category:'Dieetadvies', type:'Tip', source:'Seed data', tags:'voeding, tip, eetdagboek', diseases:['Voeding']}),
+  mkItem({title:'Ademhalingsoefening', content:'Adem 4 tellen in, houd 4 vast, adem 4 uit. Herhaal gedurende 2 minuten. Helpt bij stressvermindering.', category:'Meditatie', type:'Tip', source:'Seed data', tags:'mindfulness, ademhaling, stress', diseases:['Mindfulness']}),
+  mkItem({title:'CCV-VZW website', content:'Officiële website van de Belgische patiëntenvereniging voor mensen met IBD.', category:'Website', type:'Website', source:'CCV-VZW', url:'https://www.ccv-vzw.be', tags:'website, ccv, patiëntenvereniging', diseases:['Algemeen IBD']}),
+  mkItem({title:'GutFlix Chapter 6', content:"Gebruik de GutFlix-tab voor educatieve IBD-video's en documenten van UEG Education.", category:'Website', type:'Video', source:'GutFlix', tags:'gutflix, ibd, video', diseases:['GutFlix']})
+];
+
+function loadItems() {
+  try {
+    var raw = lsGet(SK);
+    if (raw) {
+      var parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length) return sanitize(parsed);
+    }
+  } catch(e) {}
+  return SEEDS.slice();
+}
+function saveItems(arr) {
+  lsSet(SK, JSON.stringify(sanitize(arr)));
+  setSyncTime('Laatste wijziging: ' + new Date().toLocaleString());
+}
+
+function loadFAQ() {
+  try { var r = lsGet(FK); return r ? JSON.parse(r) : []; } catch(e) { return []; }
+}
+function saveFAQ(arr) { lsSet(FK, JSON.stringify(arr)); }
+
+function loadFavs() {
+  try { var r = lsGet(FVK); return r ? JSON.parse(r) : []; } catch(e) { return []; }
+}
+function saveFavs(arr) { lsSet(FVK, JSON.stringify(arr)); }
+
+function loadHist() {
+  try { var r = lsGet(HK); return r ? JSON.parse(r) : []; } catch(e) { return []; }
+}
+function pushHist(q) {
+  if (!q || q.length < 2) return;
+  var h = loadHist().filter(function(x) { return x !== q; });
+  h.unshift(q);
+  lsSet(HK, JSON.stringify(h.slice(0, 20)));
+}
+function clearHist() { lsDel(HK); }
+
+function loadRecent() {
+  try { var r = lsGet(RK); return r ? JSON.parse(r) : []; } catch(e) { return []; }
+}
+function pushRecent(id) {
+  var r = loadRecent().filter(function(x) { return x !== id; });
+  r.unshift(id);
+  lsSet(RK, JSON.stringify(r.slice(0, 12)));
+}
+function clearRecent() { lsDel(RK); }
+
+function isFav(id) { return loadFavs().indexOf(id) !== -1; }
+function toggleFav(id) {
+  var favs = loadFavs();
+  var idx = favs.indexOf(id);
+  if (idx === -1) { favs.unshift(id); saveFavs(favs); notify(t('fav_add'), 'ok'); return true; }
+  else { favs.splice(idx, 1); saveFavs(favs); notify(t('fav_rem'), 'warn'); return false; }
+}
+
+/* ════════════════════════════════════════
+   BACKUP
+════════════════════════════════════════ */
+function buildPayload() {
+  return { version:'ibd-pro-v4', exportedAt:new Date().toISOString(), lang:lang, items:loadItems(), faq:loadFAQ(), favorites:loadFavs() };
+}
+function downloadBackup() {
+  try {
+    var payload = buildPayload();
+    var blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'ibd-pro-backup-' + Date.now() + '.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function() { URL.revokeObjectURL(a.href); }, 500);
+    setSyncTime('Laatste backup: ' + new Date().toLocaleString());
+    notify(t('backup_dl'), 'ok');
+  } catch(e) { notify('Fout bij download: ' + e.message, 'err'); }
+}
+function restoreText(txt) {
+  try {
+    var p = JSON.parse(txt);
+    var items = Array.isArray(p.items) ? sanitize(p.items) : Array.isArray(p) ? sanitize(p) : null;
+    if (!items) throw new Error('Invalid');
+    saveItems(items);
+    if (Array.isArray(p.faq)) saveFAQ(p.faq);
+    if (Array.isArray(p.favorites)) saveFavs(p.favorites);
+    renderAll();
+    notify(t('backup_ok'), 'ok');
+  } catch(e) { notify(t('backup_err'), 'err'); }
+}
+function restoreFile(file) {
+  if (!file) return;
+  var r = new FileReader();
+  r.onload = function() { restoreText(r.result); };
+  r.readAsText(file);
+}
+
+/* ════════════════════════════════════════
+   STATS
+════════════════════════════════════════ */
+function getStats(items) {
+  var tc = {}, bc = {};
+  items.forEach(function(x) {
+    x.tags.forEach(function(tag) { tc[tag] = (tc[tag] || 0) + 1; });
+    bc[x.category] = (bc[x.category] || 0) + 1;
+  });
+  return {
+    total: items.length,
+    webs: items.filter(function(x){return x.url;}).length,
+    cats: Object.keys(bc).length,
+    tagCounts: tc,
+    byCat: bc
+  };
+}
+
+/* ════════════════════════════════════════
+   ITEM CARD HTML
+════════════════════════════════════════ */
+function itemCard(item) {
+  var icon = (CATS[item.category] && CATS[item.category].icon) || '📁';
+  var fav = isFav(item.id);
+  var disPills = (item.diseases || []).map(function(d){return '<span class="pill dis">🏷 '+esc(d)+'</span>';}).join('');
+  return '<article class="result-card" data-iid="'+esc(item.id)+'">'
+    + '<div class="card-top"><div class="card-title">'+esc(item.title)+'</div>'
+    + '<button class="fav-btn" data-fav="'+esc(item.id)+'" title="'+(fav?'Verwijder uit favorieten':'Toevoegen aan favorieten')+'">'+(fav?'⭐':'☆')+'</button></div>'
+    + '<div class="meta"><span class="pill">'+icon+' '+esc(item.category)+'</span><span class="pill">📄 '+esc(item.type)+'</span>'
+    + (item.source ? '<span class="pill">📚 '+esc(item.source)+'</span>' : '')
+    + (item.url ? '<span class="pill web">🌐 Website</span>' : '')
+    + disPills + '</div>'
+    + (item.content ? '<div style="line-height:1.65;color:var(--text-light);margin-bottom:8px;">'+linkify(item.content)+'</div>' : '')
+    + (item.url ? '<div style="margin-top:8px;"><a href="'+esc(item.url)+'" target="_blank" rel="noopener">🔗 '+t('Open link')+'</a></div>' : '')
+    + (item.tags.length ? '<div class="tag-list">'+item.tags.map(function(tg){return '<span class="tag">🏷️ '+esc(tg)+'</span>';}).join('')+'</div>' : '')
+    + '</article>';
+}
+
+/* ════════════════════════════════════════
+   RENDER FUNCTIONS
+════════════════════════════════════════ */
+function renderDashboard() {
+  var items = loadItems();
+  var s = getStats(items);
+  var sg = el('statsGrid');
+  if (sg) sg.innerHTML = [
+    ['📚', s.total, 'Items totaal'],
+    ['🌐', s.webs,  'Items met link'],
+    ['📂', s.cats,  'Categorieën'],
+    ['🏷️', Object.keys(s.tagCounts).length, 'Unieke tags']
+  ].map(function(x){
+    return '<div class="stat-card"><div class="stat-icon">'+x[0]+'</div><div class="stat-val">'+x[1]+'</div><div class="stat-lbl">'+x[2]+'</div></div>';
+  }).join('');
+  var top = Object.entries ? Object.entries(s.tagCounts) : Object.keys(s.tagCounts).map(function(k){return [k,s.tagCounts[k]];});
+  top.sort(function(a,b){return b[1]-a[1];}); top = top.slice(0, 12);
+  var te = el('topTags');
+  if (te) te.innerHTML = top.length ? top.map(function(x){return '<span class="tag">🏷️ '+esc(x[0])+' <span class="muted">('+x[1]+')</span></span>';}).join('') : '<span class="muted">'+t('no_items')+'</span>';
+}
+
+function renderCats() {
+  var items = loadItems(); var s = getStats(items);
+  var g = el('catGrid'); if (!g) return;
+  g.innerHTML = Object.keys(CATS).map(function(name) {
+    var info = CATS[name];
+    return '<div class="cat-card" data-cat="'+esc(name)+'">'
+      + '<div class="cat-head"><span class="cat-icon">'+info.icon+'</span><span class="cat-name">'+esc(name)+'</span><span class="cat-count">'+(s.byCat[name]||0)+'</span></div>'
+      + '<div class="muted" style="font-size:13px;">'+esc(info.desc)+'</div></div>';
+  }).join('');
+}
+
+function fillFilters() {
+  var items = loadItems();
+  var cf = el('catFilter'), tf = el('typeFilter'), tagf = el('tagFilter');
+  var cats = Object.keys(CATS);
+  var types = [];
+  items.forEach(function(x){ if (x.type && types.indexOf(x.type)===-1) types.push(x.type); });
+  types.sort();
+  var tags = [];
+  items.forEach(function(x){ x.tags.forEach(function(tg){ if(tags.indexOf(tg)===-1) tags.push(tg); }); });
+  tags.sort();
+  if (cf) {
+    var cv = cf.value;
+    cf.innerHTML = '<option value="">Alle categorieën</option>' + cats.map(function(c){return '<option value="'+esc(c)+'">'+(CATS[c]?CATS[c].icon:'')+' '+esc(c)+'</option>';}).join('');
+    if (cats.indexOf(cv) !== -1) cf.value = cv;
+  }
+  if (tf) {
+    var tv = tf.value;
+    tf.innerHTML = '<option value="">Alle types</option>' + types.map(function(v){return '<option value="'+esc(v)+'">'+esc(v)+'</option>';}).join('');
+    if (types.indexOf(tv) !== -1) tf.value = tv;
+  }
+  if (tagf) {
+    var tgv = tagf.value;
+    tagf.innerHTML = '<option value="">Alle tags</option>' + tags.map(function(v){return '<option value="'+esc(v)+'">🏷️ '+esc(v)+'</option>';}).join('');
+    if (tags.indexOf(tgv) !== -1) tagf.value = tgv;
+  }
+}
+
+function renderHistBar() {
+  var hb = el('histBar');
+  if (!hb) return;
+  var h = loadHist();
+  if (!h.length) { hb.innerHTML = ''; return; }
+  hb.innerHTML = '<span class="hist-lbl">'+t('recent_lbl')+'</span>'
+    + h.slice(0, 8).map(function(q){return '<span class="hchip" data-hq="'+esc(q)+'">🔍 '+esc(q)+'</span>';}).join('');
+}
+
+function getFiltered() {
+  var items = loadItems();
+  var rawQ = (el('searchInput') ? el('searchInput').value : '').trim().toLowerCase();
+  var cat  = el('catFilter')  ? el('catFilter').value  : '';
+  var type = el('typeFilter') ? el('typeFilter').value : '';
+  var tag  = el('tagFilter')  ? el('tagFilter').value  : '';
+  var sort = el('sortBy')     ? el('sortBy').value     : 'recent';
+
+  var expanded = [], foundSyns = [];
+  if (rawQ) {
+    var ex = expandQ(rawQ);
+    expanded = ex.all;
+    foundSyns = ex.found;
+  }
+
+  var sb = el('synBadge');
+  if (sb) {
+    if (foundSyns.length && rawQ) {
+      sb.textContent = '🔄 Synoniemen ook doorzocht: ' + foundSyns.slice(0, 5).join(', ') + (foundSyns.length > 5 ? ' (+' + (foundSyns.length - 5) + ')' : '');
+      sb.style.display = 'block';
+    } else {
+      sb.style.display = 'none';
+    }
+  }
+
+  var filtered = items.filter(function(item) {
+    if (webOnly && !item.url) return false;
+    if (rawQ) {
+      var hay = [item.title, item.content, item.source, item.category, item.tags.join(' ')].join(' ').toLowerCase();
+      var match = false;
+      for (var i = 0; i < expanded.length; i++) { if (hay.indexOf(expanded[i]) !== -1) { match = true; break; } }
+      if (!match) return false;
+    }
+    if (cat && item.category !== cat) return false;
+    if (type && item.type !== type) return false;
+    if (tag && item.tags.indexOf(tag) === -1) return false;
+    if (diseaseFilter !== 'all' && (item.diseases || []).indexOf(diseaseFilter) === -1) return false;
+    return true;
+  });
+
+  if (sort === 'title') filtered.sort(function(a,b){return a.title.localeCompare(b.title);});
+  else if (sort === 'cat') filtered.sort(function(a,b){return a.category.localeCompare(b.category);});
+  else filtered.sort(function(a,b){return new Date(b.createdAt) - new Date(a.createdAt);});
+
+  return filtered;
+}
+
+function renderSearch() {
+  fillFilters();
+  renderHistBar();
+  var items = getFiltered();
+  var list = el('resList'), cnt = el('resCount');
+  if (cnt) cnt.textContent = items.length + ' items';
+  if (!list) return;
+  if (!items.length) { list.innerHTML = '<div class="muted" style="padding:16px;">'+t('no_results')+'</div>'; return; }
+  list.innerHTML = items.map(itemCard).join('');
+}
+
+function fillGFChapters() {
+  var sel = el('gfChapter'); if (!sel) return;
+  var cur = sel.value || 'all';
+  sel.innerHTML = GF_CHAPTERS.map(function(ch){
+    return '<option value="'+ch.id+'">' + (ch[lang] || ch.nl) + '</option>';
+  }).join('');
+  sel.value = cur;
+}
+
+function renderGutflix() {
+  var ch = el('gfChapter') ? el('gfChapter').value : 'all';
+  var q  = (el('gfSearch') ? el('gfSearch').value : '').trim().toLowerCase();
+  var filtered = GF_ITEMS.filter(function(x){
+    return (ch === 'all' || x.ch === ch) && (!q || x.title.toLowerCase().indexOf(q) !== -1 || (x.topic[lang] || x.topic.nl).toLowerCase().indexOf(q) !== -1);
+  });
+  filtered.sort(function(a,b){return b.year - a.year || a.title.localeCompare(b.title);});
+  var sm = el('gfSummary'); if (sm) sm.textContent = t('gf_sum')(filtered.length);
+  var g = el('gfGrid'); if (!g) return;
+  if (!filtered.length) { g.innerHTML = '<div class="muted" style="padding:16px;">'+t('no_results')+'</div>'; return; }
+  g.innerHTML = filtered.map(function(x){
+    var chLabel = ''; var chObj = null;
+    for (var i=0; i<GF_CHAPTERS.length; i++){if(GF_CHAPTERS[i].id===x.ch){chObj=GF_CHAPTERS[i];break;}}
+    if(chObj) chLabel = chObj[lang] || chObj.nl;
+    return '<div class="gf-card"><div class="card-title" style="margin-bottom:8px;">'+esc(x.title)+'</div>'
+      + '<div class="meta"><span class="pill">🎬 '+esc(chLabel)+'</span><span class="pill">🗓️ '+x.year+'</span></div>'
+      + '<div style="color:var(--text-light);font-size:14px;margin-top:6px;">'+esc(x.topic[lang]||x.topic.nl)+'</div></div>';
+  }).join('');
+}
+
+function renderFAQ() {
+  var q = (el('faqSearch') ? el('faqSearch').value : '').trim().toLowerCase();
+  var faqs = loadFAQ().filter(function(f){
+    return !q || f.question.toLowerCase().indexOf(q) !== -1 || f.answer.toLowerCase().indexOf(q) !== -1;
+  });
+  var cnt = el('faqCount'); if (cnt) cnt.textContent = loadFAQ().length;
+  var list = el('faqList'); if (!list) return;
+  if (!faqs.length) {
+    list.innerHTML = '<div class="empty"><span class="empty-ico">❓</span>' + (q ? 'Geen FAQ gevonden.' : 'Nog geen FAQ-items. Voeg er een toe hierboven.') + '</div>';
+    return;
+  }
+  list.innerHTML = faqs.map(function(f){
+    return '<div class="faq-card">'
+      + '<div class="card-top"><div class="card-title">'+esc(f.question)+'</div>'
+      + '<button class="btn danger sm" data-delfaq="'+esc(f.id)+'">🗑️</button></div>'
+      + '<div style="line-height:1.65;color:var(--text-light);margin-bottom:'+(f.tags.length?'10px':'0')+'">'+linkify(f.answer)+'</div>'
+      + (f.tags.length ? '<div class="tag-list">'+f.tags.map(function(tg){return '<span class="tag">🏷️ '+esc(tg)+'</span>';}).join('')+'</div>' : '')
+      + '<div class="muted" style="font-size:12px;margin-top:8px;">'+new Date(f.createdAt).toLocaleDateString('nl-BE')+'</div>'
+      + '</div>';
+  }).join('');
+}
+
+function renderFavTab() {
+  var allItems = loadItems();
+  var favIds = loadFavs();
+  var recentIds = loadRecent();
+
+  var fc = el('favCount'); if (fc) fc.textContent = favIds.length;
+  var fl = el('favList');
+  if (fl) {
+    var favItems = favIds.map(function(id){return allItems.filter(function(x){return x.id===id;})[0];}).filter(Boolean);
+    fl.innerHTML = favItems.length ? favItems.map(itemCard).join('') : '<div class="empty"><span class="empty-ico">⭐</span>'+t('no_fav')+'</div>';
+  }
+
+  var rc = el('recentCount'); if (rc) rc.textContent = recentIds.length;
+  var rl = el('recentList');
+  if (rl) {
+    var recentItems = recentIds.map(function(id){return allItems.filter(function(x){return x.id===id;})[0];}).filter(Boolean);
+    rl.innerHTML = recentItems.length ? recentItems.map(itemCard).join('') : '<div class="empty"><span class="empty-ico">🕐</span>'+t('no_recent')+'</div>';
+  }
+
+  var fhb = el('favHistBar');
+  if (fhb) {
+    var h = loadHist();
+    fhb.innerHTML = h.length ? h.map(function(q){return '<span class="hchip" data-hq="'+esc(q)+'">🔍 '+esc(q)+'</span>';}).join('') : '<span class="muted">Geen zoekgeschiedenis.</span>';
+  }
+}
+
+function fillAddOptions() {
+  var sc = el('newCat'), st = el('newType');
+  if (sc) {
+    var cv = sc.value;
+    sc.innerHTML = Object.keys(CATS).map(function(n){return '<option value="'+esc(n)+'">'+(CATS[n]?CATS[n].icon:'')+' '+esc(n)+'</option>';}).join('');
+    if (CATS[cv]) sc.value = cv;
+  }
+  if (st) {
+    var tv = st.value;
+    var types = t('types');
+    st.innerHTML = types.map(function(v){return '<option value="'+esc(v)+'">'+esc(v)+'</option>';}).join('');
+    if (types.indexOf(tv) !== -1) st.value = tv;
+  }
+}
+
+function renderManage() {
+  var q = (el('manSearch') ? el('manSearch').value : '').trim().toLowerCase();
+  var items = loadItems().filter(function(x){return !q || x.title.toLowerCase().indexOf(q) !== -1;});
+  var list = el('manList'); if (!list) return;
+  if (!items.length) { list.innerHTML = '<div class="muted" style="padding:12px;">'+t('no_items')+'</div>'; return; }
+  list.innerHTML = items.map(function(x){
+    var icon = CATS[x.category] ? CATS[x.category].icon : '📁';
+    return '<div class="rec-row"><div><strong>'+esc(x.title)+'</strong><br>'
+      + '<span class="muted" style="font-size:13px;">'+icon+' '+esc(x.category)+' | '+esc(x.type)
+      + (x.tags.length ? ' | '+esc(x.tags.join(', ')) : '')+'</span></div>'
+      + '<button class="btn danger sm" data-del="'+esc(x.id)+'">🗑️</button></div>';
+  }).join('');
+}
+
+/* ════════════════════════════════════════
+   ADD / DELETE
+════════════════════════════════════════ */
+function addItem() {
+  var title = el('newTitle') ? el('newTitle').value.trim() : '';
+  if (!title) { notify(t('title_req'), 'err'); return; }
+  var diseases = [];
+  var cbs = document.querySelectorAll('#diseaseGroup input[name="dis"]:checked');
+  for (var i = 0; i < cbs.length; i++) diseases.push(cbs[i].value);
+  var item = mkItem({
+    title: title,
+    content: el('newContent') ? el('newContent').value : '',
+    category: el('newCat') ? el('newCat').value : 'Symptomen',
+    type: el('newType') ? el('newType').value : 'Informatie',
+    source: el('newSource') ? el('newSource').value : '',
+    url: el('newUrl') ? el('newUrl').value : '',
+    tags: el('newTags') ? el('newTags').value : '',
+    diseases: diseases
+  });
+  var items = loadItems(); items.unshift(item); saveItems(items);
+  // Reset form fields
+  ['newTitle','newContent','newSource','newUrl','newTags'].forEach(function(id){ if(el(id)) el(id).value=''; });
+  document.querySelectorAll('#diseaseGroup input[name="dis"]').forEach(function(cb){ cb.checked=false; });
+  renderAll();
+  notify(t('item_saved'), 'ok');
+}
+
+function deleteItem(id) {
+  var items = loadItems().filter(function(x){return x.id !== id;});
+  saveItems(items);
+  saveFavs(loadFavs().filter(function(x){return x !== id;}));
+  lsSet(RK, JSON.stringify(loadRecent().filter(function(x){return x !== id;})));
+  renderAll();
+  notify(t('item_del'), 'warn');
+}
+
+function addFAQ() {
+  var q = el('faqQ') ? el('faqQ').value.trim() : '';
+  var a = el('faqA') ? el('faqA').value.trim() : '';
+  if (!q || !a) { notify(t('faq_req'), 'err'); return; }
+  var faqs = loadFAQ();
+  faqs.unshift({id:uid(), question:q, answer:a, tags:mkTags(el('faqTags')?el('faqTags').value:''), createdAt:new Date().toISOString()});
+  saveFAQ(faqs);
+  if (el('faqQ')) el('faqQ').value = '';
+  if (el('faqA')) el('faqA').value = '';
+  if (el('faqTags')) el('faqTags').value = '';
+  renderFAQ();
+  notify(t('faq_saved'), 'ok');
+}
+
+function deleteFAQ(id) {
+  saveFAQ(loadFAQ().filter(function(f){return f.id !== id;}));
+  renderFAQ();
+  notify(t('faq_del'), 'warn');
+}
+
+function exportResults(fmt) {
+  var items = getFiltered();
+  var content, name, mime = 'application/json';
+  if (fmt === 'csv') {
+    var cols = ['title','content','category','type','source','url','tags'];
+    content = [cols.join(',')].concat(items.map(function(x){
+      return cols.map(function(k){
+        var v = k==='tags' ? x.tags.join('|') : (x[k]||'');
+        return '"' + String(v).replace(/"/g,'""') + '"';
+      }).join(',');
+    })).join('\n');
+    name = 'ibd-export-' + Date.now() + '.csv'; mime = 'text/csv';
+  } else {
+    content = JSON.stringify(items, null, 2);
+    name = 'ibd-export-' + Date.now() + '.json';
+  }
+  var blob = new Blob([content], {type:mime});
+  var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function(){URL.revokeObjectURL(a.href);},500);
+}
+
+function resetData() {
+  if (!confirm(t('reset1'))) return;
+  if (!confirm(t('reset2'))) return;
+  lsDel(SK); lsDel(FK); lsDel(FVK); lsDel(HK); lsDel(RK);
+  renderAll(); notify(t('reset_done'), 'warn');
+}
+
+/* ════════════════════════════════════════
+   ONEDRIVE — MODE SWITCHER
+════════════════════════════════════════ */
+var OD_MODE_KEY = 'ibd_pro_od_mode_v4';
+var odMode = lsGet(OD_MODE_KEY) || 'cloud'; // 'cloud' | 'local'
+
+function odSwitchMode(mode) {
+  odMode = mode;
+  lsSet(OD_MODE_KEY, mode);
+  el('odModeCloud').classList[mode==='cloud'?'remove':'add']('hidden');
+  el('odModeLocal').classList[mode==='local'?'remove':'add']('hidden');
+  el('odTabCloud').classList[mode==='cloud'?'add':'remove']('active');
+  el('odTabLocal').classList[mode==='local'?'add':'remove']('active');
+}
+
+function odBadge(txt, cls) {
+  var b = el('odBadge'); if (!b) return;
+  b.textContent = txt; b.className = 'od-badge ' + cls;
+}
+
+/* ─────────── MSAL / Graph helpers ─────────── */
+var OD_CLIENT_ID_KEY = 'ibd_pro_azure_client_id';
+var msalInstance = null;
+var odAccessToken = null;
+var odCloudFolderId = null;
+var odCloudFolderPath = null;
+var odCloudFolderDisplayName = 'Geen map gekozen';
+var odBrowseFolderId = null; // for browser navigation
+
+var GRAPH_SCOPES = ['Files.ReadWrite', 'User.Read'];
+
+function odGetClientId() {
+  var stored = lsGet(OD_CLIENT_ID_KEY);
+  var inp = el('odClientId');
+  if (inp && inp.value.trim()) return inp.value.trim();
+  return stored || '';
+}
+
+function odSaveClientId() {
+  var inp = el('odClientId');
+  if (!inp) return;
+  var val = inp.value.trim();
+  if (!val) { notify('Voer een geldig Client ID in.', 'err'); return; }
+  lsSet(OD_CLIENT_ID_KEY, val);
+  notify('Client ID opgeslagen ✅', 'ok');
+  msalInstance = null; // reset so it's re-created with new ID
+}
+
+function odShowSetupGuide() {
+  var g = el('odSetupGuide');
+  if (g) g.classList.toggle('hidden');
+}
+
+function odInitMsal() {
+  var clientId = odGetClientId();
+  if (!clientId) {
+    notify('Voer eerst een Azure Client ID in.', 'warn');
+    return null;
+  }
+  if (msalInstance) return msalInstance;
+  try {
+    msalInstance = new msal.PublicClientApplication({
+      auth: {
+        clientId: clientId,
+        authority: 'https://login.microsoftonline.com/common',
+        redirectUri: window.location.href.split('?')[0].split('#')[0]
+      },
+      cache: { cacheLocation: 'localStorage', storeAuthStateInCookie: false }
+    });
+    return msalInstance;
+  } catch(e) {
+    notify('MSAL initialisatiefout: ' + e.message, 'err');
+    return null;
+  }
+}
+
+async function odGetToken() {
+  var msal2 = odInitMsal();
+  if (!msal2) return null;
+  try {
+    var accounts = msal2.getAllAccounts();
+    if (accounts.length === 0) return null;
+    var resp = await msal2.acquireTokenSilent({ scopes: GRAPH_SCOPES, account: accounts[0] });
+    return resp.accessToken;
+  } catch(e) {
+    try {
+      var resp2 = await msal2.acquireTokenPopup({ scopes: GRAPH_SCOPES });
+      return resp2.accessToken;
+    } catch(e2) { return null; }
+  }
+}
+
+async function graphRequest(path, opts) {
+  var token = odAccessToken || await odGetToken();
+  if (!token) { notify('Niet ingelogd of geen toegang.', 'err'); return null; }
+  odAccessToken = token;
+  var options = opts || {};
+  var method = options.method || 'GET';
+  var headers = { 'Authorization': 'Bearer ' + token };
+  if (options.json) { headers['Content-Type'] = 'application/json'; }
+  var res = await fetch('https://graph.microsoft.com/v1.0' + path, {
+    method: method,
+    headers: headers,
+    body: options.json ? JSON.stringify(options.json) : (options.body || undefined)
+  });
+  if (!res.ok) {
+    var errText = '';
+    try { var errJson = await res.json(); errText = errJson.error && errJson.error.message ? errJson.error.message : ''; } catch(e) {}
+    throw new Error('Graph API fout ' + res.status + (errText ? ': ' + errText : ''));
+  }
+  if (res.status === 204) return {};
+  return res.json();
+}
+
+/* ─────────── Login / logout ─────────── */
+async function odLogin() {
+  var msal2 = odInitMsal();
+  if (!msal2) return;
+  odBadge('⏳ Aanmelden...', 'working');
+  try {
+    var resp = await msal2.loginPopup({ scopes: GRAPH_SCOPES });
+    odAccessToken = resp.accessToken;
+    await odCloudAfterLogin();
+  } catch(e) {
+    if (e.errorCode !== 'user_cancelled') {
+      odBadge('❌ Aanmelden mislukt', 'err');
+      notify('Aanmelden mislukt: ' + (e.message || e.errorCode), 'err');
+    } else {
+      odBadge('⏸ Niet verbonden', 'idle');
+    }
+  }
+}
+
+async function odCloudAfterLogin() {
+  try {
+    var me = await graphRequest('/me');
+    var name = (me.displayName || me.userPrincipalName || 'Onbekend');
+    var email = me.userPrincipalName || '';
+    var nameEl = el('odUserName'); if (nameEl) nameEl.textContent = name;
+    var emailEl = el('odUserEmail'); if (emailEl) emailEl.textContent = email;
+    odBadge('✅ Verbonden als ' + name, 'ok');
+    el('odLoginPanel').classList.add('hidden');
+    el('odCloudPanel').classList.remove('hidden');
+    notify('Aangemeld als ' + name + ' ✅', 'ok');
+  } catch(e) {
+    odBadge('❌ Fout bij ophalen profiel', 'err');
+    notify('Fout: ' + e.message, 'err');
+  }
+}
+
+function odLogout() {
+  odAccessToken = null;
+  msalInstance = null;
+  odCloudFolderId = null;
+  odCloudFolderPath = null;
+  odCloudFolderDisplayName = 'Geen map gekozen';
+  var nameEl = el('odCloudFolderName'); if (nameEl) nameEl.textContent = 'Geen map gekozen';
+  var fl = el('odCloudFileList'); if (fl) fl.innerHTML = '<div class="muted" style="padding:16px;">Kies een map om de bestanden te zien.</div>';
+  var fb = el('odFolderBrowser'); if (fb) { fb.innerHTML = ''; fb.classList.add('hidden'); }
+  el('odLoginPanel').classList.remove('hidden');
+  el('odCloudPanel').classList.add('hidden');
+  odBadge('⏸ Niet verbonden', 'idle');
+  notify('Afgemeld.', 'warn');
+}
+
+/* ─────────── Folder browser ─────────── */
+async function odCloudBrowseRoot() {
+  odBrowseFolderId = 'root';
+  await odCloudRenderFolderBrowser('root', 'OneDrive (root)');
+}
+
+async function odCloudRenderFolderBrowser(folderId, folderName) {
+  var fb = el('odFolderBrowser');
+  if (!fb) return;
+  fb.classList.remove('hidden');
+  fb.innerHTML = '<div class="muted" style="padding:12px 16px;">⏳ Mappen laden...</div>';
+  try {
+    var path = folderId === 'root' ? '/me/drive/root/children' : '/me/drive/items/' + folderId + '/children';
+    var data = await graphRequest(path + '?$filter=folder ne null&$select=id,name,folder&$orderby=name asc&$top=50');
+    var folders = (data && data.value) ? data.value.filter(function(i){return i.folder;}) : [];
+    var html = '';
+    html += '<div class="od-folder-row" style="background:#e0e7ff;" data-odselfolder="' + esc(folderId) + '" data-odselname="' + esc(folderName) + '">'
+      + '<span style="font-size:18px;">✅</span><div class="od-fn">Kies <em>' + esc(folderName) + '</em> als map</div></div>';
+    if (folderId !== 'root') {
+      html += '<div class="od-folder-row" data-odbrowse="root" data-odbrowsename="OneDrive (root)">'
+        + '<span style="font-size:18px;">⬆️</span><div class="od-fn">← Terug naar root</div></div>';
+    }
+    if (folders.length === 0) {
+      html += '<div class="od-row muted" style="padding:12px 16px;">Geen submappen gevonden.</div>';
+    } else {
+      folders.forEach(function(f) {
+        html += '<div class="od-folder-row" data-odbrowse="' + esc(f.id) + '" data-odbrowsename="' + esc(f.name) + '">'
+          + '<span style="font-size:18px;">📁</span><div class="od-fn">' + esc(f.name) + '</div><span style="color:var(--text-light);font-size:12px;">▶</span></div>';
+      });
+    }
+    fb.innerHTML = html;
+  } catch(e) {
+    fb.innerHTML = '<div class="muted" style="padding:12px 16px;color:var(--danger);">Fout bij laden mappen: ' + esc(e.message) + '</div>';
+  }
+}
+
+function odCloudSelectFolder(folderId, folderName) {
+  odCloudFolderId = folderId;
+  odCloudFolderDisplayName = folderName;
+  var nameEl = el('odCloudFolderName'); if (nameEl) nameEl.textContent = '📁 ' + folderName;
+  var fb = el('odFolderBrowser'); if (fb) fb.classList.add('hidden');
+  odBadge('✅ Map: ' + folderName, 'ok');
+  notify('Map geselecteerd: ' + folderName, 'ok');
+  odCloudRefresh();
+}
+
+/* ─────────── Cloud file list (backups) ─────────── */
+async function odCloudRefresh() {
+  var fl = el('odCloudFileList');
+  if (!fl) return;
+  if (!odCloudFolderId) { fl.innerHTML = '<div class="muted" style="padding:16px;">Kies eerst een map.</div>'; return; }
+  fl.innerHTML = '<div class="muted" style="padding:16px;">⏳ Laden...</div>';
+  try {
+    var path = odCloudFolderId === 'root'
+      ? '/me/drive/root/children'
+      : '/me/drive/items/' + odCloudFolderId + '/children';
+    var data = await graphRequest(path + '?$select=id,name,size,lastModifiedDateTime&$orderby=lastModifiedDateTime desc&$top=100');
+    var files = (data && data.value) ? data.value.filter(function(f){ return !f.folder && f.name.endsWith('.json'); }) : [];
+    if (!files.length) { fl.innerHTML = '<div class="muted" style="padding:16px;">Geen JSON-bestanden gevonden.</div>'; return; }
+    fl.innerHTML = files.map(function(f){
+      var mod = f.lastModifiedDateTime ? new Date(f.lastModifiedDateTime).toLocaleString('nl-BE') : '?';
+      var size = f.size ? (f.size/1024).toFixed(1) + ' KB' : '';
+      return '<div class="od-row"><div><div class="od-fn">📄 '+esc(f.name)+'</div>'
+        + '<div class="od-fm">Gewijzigd: '+mod+(size?' · '+size:'')+'</div></div>'
+        + '<button class="btn success sm" data-odcloudload="' + esc(f.id) + '" data-odcloudname="' + esc(f.name) + '">📥 Laden</button></div>';
+    }).join('');
+  } catch(e) {
+    fl.innerHTML = '<div class="muted" style="padding:16px;color:var(--danger);">Fout: ' + esc(e.message) + '</div>';
+  }
+}
+
+async function odCloudSave() {
+  if (!odCloudFolderId) { notify('Kies eerst een OneDrive-map.', 'warn'); return; }
+  odBadge('⏳ Opslaan...', 'working');
+  try {
+    var fname = 'ibd-pro-' + new Date().toISOString().slice(0,10) + '.json';
+    var content = JSON.stringify(buildPayload(), null, 2);
+    var blob = new Blob([content], {type:'application/json'});
+    var uploadPath = odCloudFolderId === 'root'
+      ? '/me/drive/root:/' + encodeURIComponent(fname) + ':/content'
+      : '/me/drive/items/' + odCloudFolderId + ':/' + encodeURIComponent(fname) + ':/content';
+    var token = odAccessToken || await odGetToken();
+    var res = await fetch('https://graph.microsoft.com/v1.0' + uploadPath, {
+      method: 'PUT',
+      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+      body: content
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    el('odLastSync').textContent = new Date().toLocaleString('nl-BE');
+    odBadge('✅ Opgeslagen: ' + fname, 'ok');
+    notify(t('od_saved'), 'ok');
+    await odCloudRefresh();
+  } catch(e) { odBadge('❌ Fout', 'err'); notify(t('od_err') + ': ' + e.message, 'err'); }
+}
+
+async function odCloudLoad(fileId, fname) {
+  odBadge('⏳ Laden...', 'working');
+  try {
+    var token = odAccessToken || await odGetToken();
+    var res = await fetch('https://graph.microsoft.com/v1.0/me/drive/items/' + fileId + '/content', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    var text = await res.text();
+    restoreText(text);
+    el('odLastSync').textContent = new Date().toLocaleString('nl-BE');
+    odBadge('✅ Geladen: ' + fname, 'ok');
+  } catch(e) { odBadge('❌ Fout', 'err'); notify(t('od_err') + ': ' + e.message, 'err'); }
+}
+
+/* ─────────── Cloud doc sync ─────────── */
+async function odCloudSyncDocs() {
+  if (!odCloudFolderId) { notify('Kies eerst een OneDrive-map.', 'warn'); return; }
+  var resEl = el('odSyncResult');
+  if (resEl) resEl.innerHTML = '<div class="muted" style="padding:16px;">⏳ Documenten worden gescand...</div>';
+  odBadge('⏳ Documenten synchroniseren...', 'working');
+  var includeSub = el('odSubfolders') ? el('odSubfolders').checked : false;
+  var readText = el('odReadText') ? el('odReadText').checked : true;
+  try {
+    var allFiles = [];
+    await odCloudCollectFiles(odCloudFolderId, '', includeSub, allFiles);
+    var synced = loadSynced();
+    var items = loadItems();
+    var added = [], skipped = [], importedItems = 0;
+    for (var i = 0; i < allFiles.length; i++) {
+      var f = allFiles[i];
+      var info = fileKind(f.name);
+      if (synced.indexOf(f.path) !== -1) { skipped.push({path:f.path, reason:'al geïmporteerd', icon:info.icon}); continue; }
+      var content = '';
+      // Fetch file content
+      var token = odAccessToken || await odGetToken();
+      if (info.kind === 'backup') {
+        try {
+          var r = await fetch('https://graph.microsoft.com/v1.0/me/drive/items/' + f.id + '/content', {headers:{'Authorization':'Bearer '+token}});
+          var txt = await r.text();
+          if (looksLikeBackup(f.name, txt)) { skipped.push({path:f.path, reason:'backupbestand', icon:'🗂️'}); synced.push(f.path); continue; }
+          try {
+            var parsed = JSON.parse(txt);
+            var arr = Array.isArray(parsed) ? parsed : (Array.isArray(parsed.items) ? parsed.items : null);
+            if (arr) {
+              var clean = sanitize(arr);
+              for (var j=0;j<clean.length;j++) {
+                var exists = items.some(function(x){return x.title===clean[j].title&&x.category===clean[j].category;});
+                if (!exists) { items.unshift(clean[j]); importedItems++; }
+              }
+              added.push({path:f.path, icon:'🗂️', note:clean.length+' items'});
+              synced.push(f.path); continue;
+            }
+          } catch(e) {}
+        } catch(e) {}
+      }
+      if (readText && (info.kind === 'text' || info.kind === 'csv')) {
+        try {
+          var r2 = await fetch('https://graph.microsoft.com/v1.0/me/drive/items/' + f.id + '/content', {headers:{'Authorization':'Bearer '+token}});
+          var raw = await r2.text();
+          content = raw.length > 8000 ? raw.slice(0,8000) + '\n…(ingekort)' : raw;
+        } catch(e) { content = ''; }
+      }
+      var newItem = mkItem({
+        title: baseName(f.name),
+        content: content || ('📎 ' + info.type + ' uit OneDrive: ' + f.path + ' · ' + (f.size ? (f.size/1024).toFixed(1)+' KB' : '')),
+        category: 'Documenten',
+        type: info.type,
+        source: 'OneDrive Cloud: ' + odCloudFolderDisplayName,
+        tags: 'onedrive, ' + (f.name.split('.').pop()||'bestand').toLowerCase(),
+        diseases: []
+      });
+      items.unshift(newItem); importedItems++;
+      added.push({path:f.path, icon:info.icon, note:info.type});
+      synced.push(f.path);
+    }
+    saveItems(items); saveSynced(synced); updateSyncedCount(); renderAll(); switchTab('onedrive');
+    el('odLastSync').textContent = new Date().toLocaleString('nl-BE');
+    odBadge('✅ '+importedItems+' nieuwe items geïmporteerd', 'ok');
+    notify(importedItems+' nieuwe items toegevoegd uit OneDrive ✅','ok');
+    if (resEl) {
+      var html = '<div style="padding:12px 16px;border-bottom:1px solid var(--border);background:var(--bg);">'
+        +'<strong>'+added.length+'</strong> nieuw · <strong>'+skipped.length+'</strong> overgeslagen · totaal: '+allFiles.length+'</div>';
+      added.forEach(function(a){ html+='<div class="od-row"><div><div class="od-fn">'+a.icon+' '+esc(a.path)+'</div><div class="od-fm" style="color:var(--success);">✓ '+esc(a.note)+'</div></div></div>'; });
+      skipped.forEach(function(s){ html+='<div class="od-row"><div><div class="od-fn" style="color:var(--text-light);">'+s.icon+' '+esc(s.path)+'</div><div class="od-fm">↷ overgeslagen ('+esc(s.reason)+')</div></div></div>'; });
+      resEl.innerHTML = html;
+    }
+  } catch(e) {
+    odBadge('❌ Fout','err'); notify(t('od_err')+': '+e.message,'err');
+    if (resEl) resEl.innerHTML = '<div class="muted" style="padding:16px;color:var(--danger);">Fout: '+esc(e.message)+'</div>';
+  }
+}
+
+async function odCloudCollectFiles(folderId, prefix, includeSub, out) {
+  var path = folderId === 'root' ? '/me/drive/root/children' : '/me/drive/items/' + folderId + '/children';
+  var data = await graphRequest(path + '?$select=id,name,size,folder&$top=100');
+  if (!data || !data.value) return;
+  for (var i=0; i<data.value.length; i++) {
+    var item = data.value[i];
+    if (!item.folder) {
+      out.push({id:item.id, name:item.name, path:prefix+item.name, size:item.size||0});
+    } else if (includeSub) {
+      await odCloudCollectFiles(item.id, prefix+item.name+'/', includeSub, out);
+    }
+  }
+}
+
+/* ─────────── LOCAL MODE (File System Access API) ─────────── */
+function checkOdSupport() {
+  var ok = !!(window.showDirectoryPicker);
+  var ns = el('odNoSupport');
+  if (ns) ns.className = ok ? 'warn-box hidden' : 'warn-box';
+  return ok;
+}
+
+async function odSelect() {
+  if (!checkOdSupport()) { notify(t('od_no_support'), 'warn'); return; }
+  try {
+    odDir = await window.showDirectoryPicker({mode:'readwrite'});
+    el('odFolderName').textContent = '📁 ' + odDir.name;
+    odBadge('✅ ' + odDir.name, 'ok');
+    await odRefresh();
+  } catch(e) { if (e.name !== 'AbortError') notify(t('od_err'), 'err'); }
+}
+
+async function odRefresh() {
+  var fl = el('odFileList'); if (!fl) return;
+  if (!odDir) { fl.innerHTML = '<div class="muted" style="padding:16px;">Selecteer een OneDrive-map.</div>'; return; }
+  fl.innerHTML = '<div class="muted" style="padding:16px;">⏳ Laden...</div>';
+  try {
+    var files = [];
+    for await (var [name, handle] of odDir.entries()) {
+      if (handle.kind === 'file' && name.endsWith('.json')) {
+        var f = await handle.getFile();
+        files.push({name:name, size:(f.size/1024).toFixed(1)+'KB', mod:new Date(f.lastModified).toLocaleString('nl-BE')});
+      }
+    }
+    files.sort(function(a,b){return b.mod.localeCompare(a.mod);});
+    fl.innerHTML = files.length ? files.map(function(f){
+      return '<div class="od-row"><div><div class="od-fn">📄 '+esc(f.name)+'</div><div class="od-fm">Gewijzigd: '+f.mod+' · '+f.size+'</div></div>'
+        + '<button class="btn success sm" data-odload="'+esc(f.name)+'">📥 Laden</button></div>';
+    }).join('') : '<div class="muted" style="padding:16px;">Geen JSON-bestanden gevonden.</div>';
+  } catch(e) { fl.innerHTML = '<div class="muted" style="padding:16px;color:var(--danger);">Fout bij lezen map.</div>'; }
+}
+
+async function odSave() {
+  if (!odDir) { notify(t('od_select'), 'warn'); return; }
+  odBadge('⏳ Opslaan...', 'working');
+  try {
+    var fname = 'ibd-pro-' + new Date().toISOString().slice(0,10) + '.json';
+    var fh = await odDir.getFileHandle(fname, {create:true});
+    var w = await fh.createWritable();
+    await w.write(JSON.stringify(buildPayload(), null, 2));
+    await w.close();
+    el('odLastSync').textContent = new Date().toLocaleString('nl-BE');
+    odBadge('✅ Opgeslagen: ' + fname, 'ok');
+    notify(t('od_saved'), 'ok');
+    await odRefresh();
+  } catch(e) { odBadge('❌ Fout', 'err'); notify(t('od_err') + ': ' + e.message, 'err'); }
+}
+
+async function odLoad(fname) {
+  if (!odDir) return;
+  odBadge('⏳ Laden...', 'working');
+  try {
+    var fh = await odDir.getFileHandle(fname);
+    var f = await fh.getFile();
+    restoreText(await f.text());
+    el('odLastSync').textContent = new Date().toLocaleString('nl-BE');
+    odBadge('✅ Geladen: ' + fname, 'ok');
+  } catch(e) { odBadge('❌ Fout', 'err'); notify(t('od_err') + ': ' + e.message, 'err'); }
+}
+
+/* ─────────── Document synchronisatie (dispatcher) ─────────── */
+function loadSynced() {
+  try { var r = lsGet(SYK); return r ? JSON.parse(r) : []; } catch(e) { return []; }
+}
+function saveSynced(arr) { lsSet(SYK, JSON.stringify(arr)); }
+function updateSyncedCount() {
+  var c = el('odSyncedCount'); if (c) c.textContent = loadSynced().length;
+}
+
+// Map a file extension to {type, icon, kind}. kind: 'text' | 'csv' | 'backup' | 'ref'
+function fileKind(name) {
+  var ext = (name.split('.').pop() || '').toLowerCase();
+  var map = {
+    txt:{type:'Tekstdocument', icon:'📝', kind:'text'},
+    md:{type:'Tekstdocument', icon:'📝', kind:'text'},
+    csv:{type:'Dataset', icon:'📊', kind:'csv'},
+    json:{type:'Dataset', icon:'🗂️', kind:'backup'},
+    pdf:{type:'PDF', icon:'📕', kind:'ref'},
+    doc:{type:'Word', icon:'📘', kind:'ref'},
+    docx:{type:'Word', icon:'📘', kind:'ref'},
+    xls:{type:'Excel', icon:'📗', kind:'ref'},
+    xlsx:{type:'Excel', icon:'📗', kind:'ref'},
+    ppt:{type:'PowerPoint', icon:'📙', kind:'ref'},
+    pptx:{type:'PowerPoint', icon:'📙', kind:'ref'},
+    jpg:{type:'Afbeelding', icon:'🖼️', kind:'ref'},
+    jpeg:{type:'Afbeelding', icon:'🖼️', kind:'ref'},
+    png:{type:'Afbeelding', icon:'🖼️', kind:'ref'},
+    gif:{type:'Afbeelding', icon:'🖼️', kind:'ref'},
+    webp:{type:'Afbeelding', icon:'🖼️', kind:'ref'},
+    heic:{type:'Afbeelding', icon:'🖼️', kind:'ref'}
+  };
+  return map[ext] || {type:'Bestand', icon:'📎', kind:'ref'};
+}
+
+function baseName(name) {
+  var i = name.lastIndexOf('.');
+  return i > 0 ? name.slice(0, i) : name;
+}
+
+// Is this a backup file produced by the app itself? (skip these in doc-sync)
+function looksLikeBackup(name, text) {
+  if (/^ibd-pro-.*\.json$/i.test(name) || /^ibd-pro-backup-.*\.json$/i.test(name)) return true;
+  if (text && text.indexOf('"version"') !== -1 && text.indexOf('ibd-pro-v4') !== -1) return true;
+  return false;
+}
+
+// Recursively collect file entries with their relative path
+async function odCollectFiles(dirHandle, prefix, includeSub, out) {
+  for await (var entry of dirHandle.values()) {
+    if (entry.kind === 'file') {
+      out.push({ handle: entry, name: entry.name, path: prefix + entry.name });
+    } else if (entry.kind === 'directory' && includeSub) {
+      await odCollectFiles(entry, prefix + entry.name + '/', includeSub, out);
+    }
+  }
+}
+
+async function odSyncDocs() {
+  if (odMode === 'cloud') { await odCloudSyncDocs(); return; }
+  if (!checkOdSupport()) { notify(t('od_no_support'), 'warn'); return; }
+  if (!odDir) { notify(t('od_select'), 'warn'); return; }
+  var resEl = el('odSyncResult');
+  if (resEl) resEl.innerHTML = '<div class="muted" style="padding:16px;">⏳ Documenten worden gescand...</div>';
+  odBadge('⏳ Documenten synchroniseren...', 'working');
+
+  var includeSub = el('odSubfolders') ? el('odSubfolders').checked : false;
+  var readText   = el('odReadText') ? el('odReadText').checked : true;
+
+  try {
+    var all = [];
+    await odCollectFiles(odDir, '', includeSub, all);
+
+    var synced = loadSynced();
+    var items = loadItems();
+    var added = [], skipped = [], importedItems = 0;
+
+    for (var i = 0; i < all.length; i++) {
+      var f = all[i];
+      var info = fileKind(f.name);
+
+      // Already synced before? Skip.
+      if (synced.indexOf(f.path) !== -1) { skipped.push({path:f.path, reason:'al geïmporteerd', icon:info.icon}); continue; }
+
+      var fileObj = await f.handle.getFile();
+
+      // Backup JSON → import its items instead of creating a reference
+      if (info.kind === 'backup') {
+        var txt = '';
+        try { txt = await fileObj.text(); } catch(e) {}
+        if (looksLikeBackup(f.name, txt)) { skipped.push({path:f.path, reason:'backupbestand', icon:'🗂️'}); synced.push(f.path); continue; }
+        try {
+          var parsed = JSON.parse(txt);
+          var arr = Array.isArray(parsed) ? parsed : (Array.isArray(parsed.items) ? parsed.items : null);
+          if (arr) {
+            var clean = sanitize(arr);
+            for (var j = 0; j < clean.length; j++) {
+              var exists = items.some(function(x){ return x.title === clean[j].title && x.category === clean[j].category; });
+              if (!exists) { items.unshift(clean[j]); importedItems++; }
+            }
+            added.push({path:f.path, icon:'🗂️', note:clean.length + ' items'});
+            synced.push(f.path);
+            continue;
+          }
+        } catch(e) {}
+        // Not a recognisable item-JSON → treat as reference
+      }
+
+      // Text / CSV → read content
+      var content = '';
+      if (readText && (info.kind === 'text' || info.kind === 'csv')) {
+        try {
+          var raw = await fileObj.text();
+          content = raw.length > 8000 ? raw.slice(0, 8000) + '\n…(ingekort)' : raw;
+        } catch(e) { content = ''; }
+      }
+
+      var sizeKb = (fileObj.size / 1024).toFixed(1) + ' KB';
+      var folderNote = f.path.indexOf('/') !== -1 ? ' (map: ' + f.path.slice(0, f.path.lastIndexOf('/')) + ')' : '';
+      var newItem = mkItem({
+        title: baseName(f.name),
+        content: content || ('📎 ' + info.type + ' uit OneDrive-map: ' + f.path + folderNote + ' · ' + sizeKb),
+        category: 'Documenten',
+        type: info.type,
+        source: 'OneDrive: ' + odDir.name,
+        tags: 'onedrive, ' + (f.name.split('.').pop() || 'bestand').toLowerCase(),
+        diseases: []
+      });
+      items.unshift(newItem);
+      importedItems++;
+      added.push({path:f.path, icon:info.icon, note:info.type});
+      synced.push(f.path);
+    }
+
+    saveItems(items);
+    saveSynced(synced);
+    updateSyncedCount();
+    renderAll();
+    switchTab('onedrive');
+
+    el('odLastSync').textContent = new Date().toLocaleString('nl-BE');
+    odBadge('✅ ' + importedItems + ' nieuwe items geïmporteerd', 'ok');
+    notify(importedItems + ' nieuwe items toegevoegd uit OneDrive ✅', 'ok');
+
+    if (resEl) {
+      var html = '<div style="padding:12px 16px;border-bottom:1px solid var(--border);background:var(--bg);">'
+        + '<strong>' + added.length + '</strong> nieuw geïmporteerd · <strong>' + skipped.length + '</strong> overgeslagen · totaal gescand: ' + all.length + '</div>';
+      if (!added.length && !skipped.length) html += '<div class="muted" style="padding:16px;">Geen bestanden gevonden in deze map.</div>';
+      added.forEach(function(a){
+        html += '<div class="od-row"><div><div class="od-fn">' + a.icon + ' ' + esc(a.path) + '</div><div class="od-fm" style="color:var(--success);">✓ geïmporteerd als ' + esc(a.note) + '</div></div></div>';
+      });
+      skipped.forEach(function(s){
+        html += '<div class="od-row"><div><div class="od-fn" style="color:var(--text-light);">' + s.icon + ' ' + esc(s.path) + '</div><div class="od-fm">↷ overgeslagen (' + esc(s.reason) + ')</div></div></div>';
+      });
+      resEl.innerHTML = html;
+    }
+  } catch(e) {
+    odBadge('❌ Fout', 'err');
+    notify(t('od_err') + ': ' + e.message, 'err');
+    if (resEl) resEl.innerHTML = '<div class="muted" style="padding:16px;color:var(--danger);">Fout bij synchroniseren: ' + esc(e.message) + '</div>';
+  }
+}
+
+function odResetSync() {
+  if (!confirm('Sync-geheugen wissen? Bij de volgende synchronisatie worden alle documenten in de map opnieuw geïmporteerd (dubbele items mogelijk).')) return;
+  lsDel(SYK);
+  updateSyncedCount();
+  var resEl = el('odSyncResult');
+  if (resEl) resEl.innerHTML = '<div class="muted" style="padding:16px;">Sync-geheugen gewist. Klik op "Documenten importeren" om alles opnieuw in te lezen.</div>';
+  notify('Sync-geheugen gewist.', 'warn');
+}
+
+/* ════════════════════════════════════════
+   TAB SWITCHING
+════════════════════════════════════════ */
+function switchTab(tab) {
+  currentTab = tab;
+  lsSet(TK, tab);
+  var tbs = document.querySelectorAll('.tab-btn');
+  for (var i = 0; i < tbs.length; i++) tbs[i].classList[tbs[i].dataset.tab === tab ? 'add' : 'remove']('active');
+  var vs = document.querySelectorAll('.view');
+  for (var j = 0; j < vs.length; j++) vs[j].classList[vs[j].id === tab ? 'add' : 'remove']('active');
+  if (tab === 'dashboard')  renderDashboard();
+  if (tab === 'categories') renderCats();
+  if (tab === 'search')     { fillFilters(); renderSearch(); }
+  if (tab === 'gutflix')    renderGutflix();
+  if (tab === 'faq')        renderFAQ();
+  if (tab === 'favorites')  renderFavTab();
+  if (tab === 'manage')     renderManage();
+  if (tab === 'onedrive') { checkOdSupport(); updateSyncedCount(); odSwitchMode(odMode); }
+}
+
+function renderAll() {
+  fillAddOptions();
+  fillGFChapters();
+  renderDashboard();
+  renderCats();
+  renderSearch();
+  renderGutflix();
+  renderFAQ();
+  renderFavTab();
+  renderManage();
+  switchTab(currentTab);
+}
+
+/* ════════════════════════════════════════
+   SYNONYM TOOL (Favorites tab)
+════════════════════════════════════════ */
+function renderSynResult(term) {
+  var res = el('synResult'); if (!res) return;
+  if (!term) { res.innerHTML = ''; return; }
+  var syns = getSyns(term);
+  if (syns.length) {
+    res.innerHTML = '<div class="syn-found">Synoniemen voor "<strong>'+esc(term)+'</strong>":<br>'
+      + syns.map(function(s){return '<span class="syn-term" data-synq="'+esc(s)+'">'+esc(s)+'</span>';}).join('') + '</div>';
+  } else {
+    res.innerHTML = '<div class="muted" style="margin-top:10px;">Geen synoniemen gevonden voor "'+esc(term)+'".</div>';
+  }
+}
+
+/* ════════════════════════════════════════
+   EVENT BINDING
+════════════════════════════════════════ */
+function bindEvents() {
+
+  // Tabs
+  var tabsEl = el('tabs');
+  if (tabsEl) tabsEl.addEventListener('click', function(e) {
+    var btn = e.target.closest ? e.target.closest('.tab-btn') : null;
+    if (!btn && e.target.classList.contains('tab-btn')) btn = e.target;
+    if (btn && btn.dataset.tab) switchTab(btn.dataset.tab);
+  });
+
+  // Language
+  var lb = el('langBar');
+  if (lb) lb.addEventListener('click', function(e) {
+    var btn = e.target.closest ? e.target.closest('.lang-btn') : e.target;
+    if (btn && btn.dataset.lang) {
+      lang = btn.dataset.lang; lsSet(LK, lang);
+      var lbs = document.querySelectorAll('.lang-btn');
+      for (var i=0;i<lbs.length;i++) lbs[i].classList[lbs[i].dataset.lang===lang?'add':'remove']('active');
+      fillAddOptions(); fillGFChapters(); renderAll();
+    }
+  });
+
+  // Search
+  var si = el('searchInput');
+  if (si) {
+    si.addEventListener('input', renderSearch);
+    si.addEventListener('blur', function() { var q = si.value.trim(); if (q.length > 1) { pushHist(q); renderHistBar(); } });
+  }
+  ['catFilter','typeFilter','tagFilter','sortBy'].forEach(function(id){
+    var el2 = el(id); if (el2) el2.addEventListener('change', renderSearch);
+  });
+
+  // Disease pills
+  var dp = el('diseasePills');
+  if (dp) dp.addEventListener('click', function(e) {
+    var pill = e.target.closest ? e.target.closest('.dpill') : e.target;
+    if (pill && pill.dataset.dis) {
+      diseaseFilter = pill.dataset.dis;
+      var pills = document.querySelectorAll('.dpill');
+      for (var i=0;i<pills.length;i++) pills[i].classList[pills[i].dataset.dis===diseaseFilter?'add':'remove']('on');
+      renderSearch();
+    }
+  });
+
+  // Website toggle
+  var wt = el('btnWebOnly');
+  if (wt) wt.addEventListener('click', function() {
+    webOnly = !webOnly; lsSet(WK, String(webOnly));
+    wt.textContent = webOnly ? '🌐 Toon alle items' : '🌐 Toon alleen websites';
+    renderSearch();
+  });
+
+  // Export
+  var bc = el('btnCsv'); if (bc) bc.addEventListener('click', function(){exportResults('csv');});
+  var bj = el('btnJson'); if (bj) bj.addEventListener('click', function(){exportResults('json');});
+
+  // GutFlix
+  var gc = el('gfChapter'); if (gc) gc.addEventListener('change', renderGutflix);
+  var gs = el('gfSearch'); if (gs) gs.addEventListener('input', renderGutflix);
+
+  // Add item
+  var bsi = el('btnSaveItem');
+  if (bsi) bsi.addEventListener('click', addItem);
+
+  // FAQ form
+  var bsf = el('btnSaveFaq');
+  if (bsf) bsf.addEventListener('click', addFAQ);
+  var fqs = el('faqSearch');
+  if (fqs) fqs.addEventListener('input', renderFAQ);
+
+  // Manage search
+  var ms = el('manSearch'); if (ms) ms.addEventListener('input', renderManage);
+
+  // Backup buttons
+  var dt = el('btnDlTop');     if (dt) dt.addEventListener('click', downloadBackup);
+  var db = el('btnDlBottom');  if (db) db.addEventListener('click', downloadBackup);
+  var ut = el('btnUlTop');     if (ut) ut.addEventListener('click', function(){var fi=el('fileTop');if(fi)fi.click();});
+  var ub = el('btnUlBottom');  if (ub) ub.addEventListener('click', function(){var fi=el('fileBottom');if(fi)fi.click();});
+  var ft = el('fileTop');      if (ft) ft.addEventListener('change', function(){restoreFile(ft.files[0]);ft.value='';});
+  var fb = el('fileBottom');   if (fb) fb.addEventListener('change', function(){restoreFile(fb.files[0]);fb.value='';});
+  var br = el('btnReset');     if (br) br.addEventListener('click', resetData);
+
+  // Favorites tab
+  var clh = el('btnClearHist');   if (clh) clh.addEventListener('click', function(){ clearHist(); renderFavTab(); renderHistBar(); notify(t('hist_cleared')); });
+  var clr = el('btnClearRecent'); if (clr) clr.addEventListener('click', function(){ clearRecent(); renderFavTab(); notify(t('recent_cleared')); });
+  var syn = el('synInput');       if (syn) syn.addEventListener('input', function(){ renderSynResult(syn.value.trim()); });
+
+  // OneDrive — client ID field restore
+  var ck = el('odClientId');
+  if (ck) { var stored = lsGet(OD_CLIENT_ID_KEY); if (stored) ck.value = stored; }
+
+  // OneDrive mode tabs
+  var odTabsEl = document.querySelectorAll('[data-odmode]');
+  for (var oti = 0; oti < odTabsEl.length; oti++) {
+    odTabsEl[oti].addEventListener('click', (function(btn){
+      return function(){ odSwitchMode(btn.getAttribute('data-odmode')); };
+    })(odTabsEl[oti]));
+  }
+
+  // Guide tabs
+  var guideTabs = document.querySelectorAll('[data-guide]');
+  for (var gi = 0; gi < guideTabs.length; gi++) {
+    guideTabs[gi].addEventListener('click', (function(btn){
+      return function(){
+        var target = btn.getAttribute('data-guide');
+        var allPanels = document.querySelectorAll('.guide-panel');
+        var allGTabs = document.querySelectorAll('[data-guide]');
+        for (var p=0;p<allPanels.length;p++) allPanels[p].classList.add('hidden');
+        for (var q=0;q<allGTabs.length;q++) allGTabs[q].classList.remove('active');
+        var panel = el(target); if (panel) panel.classList.remove('hidden');
+        btn.classList.add('active');
+      };
+    })(guideTabs[gi]));
+  }
+
+  // Cloud mode buttons
+  var btnLogin = el('odBtnLogin');         if (btnLogin) btnLogin.addEventListener('click', odLogin);
+  var btnLogout = el('odBtnLogout');       if (btnLogout) btnLogout.addEventListener('click', odLogout);
+  var btnBrowse = el('odBtnBrowse');       if (btnBrowse) btnBrowse.addEventListener('click', odCloudBrowseRoot);
+  var btnSaveCloud = el('odBtnSaveCloud'); if (btnSaveCloud) btnSaveCloud.addEventListener('click', odCloudSave);
+  var btnRefCloud = el('odBtnRefreshCloud'); if (btnRefCloud) btnRefCloud.addEventListener('click', odCloudRefresh);
+  var btnSaveCI = el('odBtnSaveClientId'); if (btnSaveCI) btnSaveCI.addEventListener('click', odSaveClientId);
+
+  // Local mode buttons
+  var btnSel = el('odBtnSelect');   if (btnSel) btnSel.addEventListener('click', odSelect);
+  var btnSav = el('odBtnSave');     if (btnSav) btnSav.addEventListener('click', odSave);
+  var btnRef = el('odBtnRefresh');  if (btnRef) btnRef.addEventListener('click', odRefresh);
+
+  // Sync / reset
+  var btnSync = el('odBtnSyncDocs');   if (btnSync) btnSync.addEventListener('click', odSyncDocs);
+  var btnRstS = el('odBtnResetSync');  if (btnRstS) btnRstS.addEventListener('click', odResetSync);
+
+  // Global delegated events
+  document.addEventListener('click', function(e) {
+    var tgt = e.target;
+
+    // Delete item
+    var dd = tgt.closest ? tgt.closest('[data-del]') : (tgt.dataset && tgt.dataset.del ? tgt : null);
+    if (dd && dd.dataset.del) { deleteItem(dd.dataset.del); return; }
+
+    // Delete FAQ
+    var df = tgt.closest ? tgt.closest('[data-delfaq]') : (tgt.dataset && tgt.dataset.delfaq ? tgt : null);
+    if (df && df.dataset.delfaq) { deleteFAQ(df.dataset.delfaq); return; }
+
+    // Toggle favorite
+    var fv = tgt.closest ? tgt.closest('[data-fav]') : (tgt.dataset && tgt.dataset.fav ? tgt : null);
+    if (fv && fv.dataset.fav) {
+      var added = toggleFav(fv.dataset.fav);
+      fv.textContent = added ? '⭐' : '☆';
+      fv.title = added ? 'Verwijder uit favorieten' : 'Toevoegen aan favorieten';
+      renderFavTab();
+      return;
+    }
+
+    // History chip → search
+    var hc = tgt.closest ? tgt.closest('[data-hq]') : (tgt.dataset && tgt.dataset.hq ? tgt : null);
+    if (hc && hc.dataset.hq) {
+      var si2 = el('searchInput'); if (si2) si2.value = hc.dataset.hq;
+      switchTab('search'); renderSearch(); return;
+    }
+
+    // Synonym term → search
+    var st = tgt.closest ? tgt.closest('[data-synq]') : (tgt.dataset && tgt.dataset.synq ? tgt : null);
+    if (st && st.dataset.synq) {
+      var si3 = el('searchInput'); if (si3) si3.value = st.dataset.synq;
+      switchTab('search'); renderSearch(); return;
+    }
+
+    // OneDrive load file (local)
+    var ol = tgt.closest ? tgt.closest('[data-odload]') : (tgt.dataset && tgt.dataset.odload ? tgt : null);
+    if (ol && ol.dataset.odload) { odLoad(ol.dataset.odload); return; }
+
+    // OneDrive cloud load file
+    var ocl = tgt.closest ? tgt.closest('[data-odcloudload]') : null;
+    if (ocl && ocl.dataset.odcloudload) { odCloudLoad(ocl.dataset.odcloudload, ocl.dataset.odcloudname); return; }
+
+    // OneDrive folder browser — navigate into subfolder
+    var obr = tgt.closest ? tgt.closest('[data-odbrowse]') : null;
+    if (obr && obr.dataset.odbrowse) { odCloudRenderFolderBrowser(obr.dataset.odbrowse, obr.dataset.odbrowsename || obr.dataset.odbrowse); return; }
+
+    // OneDrive folder browser — select this folder
+    var osf = tgt.closest ? tgt.closest('[data-odselfolder]') : null;
+    if (osf && osf.dataset.odselfolder) { odCloudSelectFolder(osf.dataset.odselfolder, osf.dataset.odselname || osf.dataset.odselfolder); return; }
+
+    // Category card → search
+    var cc = tgt.closest ? tgt.closest('[data-cat]') : null;
+    if (cc && cc.dataset.cat && el('categories') && el('categories').classList.contains('active')) {
+      switchTab('search');
+      var cf = el('catFilter'); if (cf) cf.value = cc.dataset.cat;
+      renderSearch(); return;
+    }
+
+    // Item card click → track recent viewed
+    var ic = tgt.closest ? tgt.closest('[data-iid]') : null;
+    if (ic && ic.dataset.iid && !tgt.closest('button') && !tgt.closest('a')) {
+      pushRecent(ic.dataset.iid);
+      var rc2 = el('recentCount'); if (rc2) rc2.textContent = loadRecent().length;
+    }
+  });
+}
+
+/* ════════════════════════════════════════
+   INIT
+════════════════════════════════════════ */
+function init() {
+  try {
+    fillAddOptions();
+    fillGFChapters();
+    setSyncTime('Klaar voor gebruik');
+    renderAll();
+    bindEvents();
+    checkOdSupport();
+    updateSyncedCount();
+    odSwitchMode(odMode);
+    // Restore saved client ID in input
+    var ck = el('odClientId');
+    if (ck) { var saved = lsGet(OD_CLIENT_ID_KEY); if (saved) ck.value = saved; }
+  } catch(e) {
+    console.error('IBD Pro init error:', e);
+    try { bindEvents(); } catch(e2) {}
+  }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+
+})();
+</script>
+</body>
+</html>

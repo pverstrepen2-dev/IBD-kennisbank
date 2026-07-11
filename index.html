@@ -1154,7 +1154,7 @@ window.addEventListener("load", async () => {
 
     await msalInstance.initialize();
 
-    console.log("MSAL Instance =", msalInstance);
+    await msalInstance.handleRedirectPromise();
 
     console.log("MSAL geïnitialiseerd");
 
@@ -1835,23 +1835,16 @@ async function loadData(){
 
 async function loginMicrosoft(){
 
-    alert("Login knop werkt");
-
     try{
 
-        const loginResponse =
-            await msalInstance.loginPopup(
-                loginRequest
-            );
+        if(!msalInstance){
+            alert("MSAL nog niet geïnitialiseerd");
+            return;
+        }
 
-        accessToken =
-            loginResponse.accessToken;
-
-        document.getElementById(
-            "loginStatus"
-        ).innerHTML =
-            "✅ " +
-            loginResponse.account.username;
+        await msalInstance.loginRedirect(
+            loginRequest
+        );
 
     }
     catch(error){

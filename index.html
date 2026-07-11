@@ -1126,11 +1126,12 @@ placeholder="Zoeken..."
 ========================== */
 
 const msalConfig = {
-    auth: {
-        clientId: "d4d940de-49a5-4328-bb87-c0b65aeea942",
-        authority: "https://login.microsoftonline.com/common",
-        redirectUri: "https://pverstrepen2-dev.github.io/IBD-kennisbank/"
-    }
+auth: {
+	clientId: "d4d940de-49a5-4328-bb87-c0b65aeea942",
+	authority: "https://login.microsoftonline.com/consumers",
+	redirectUri: "https://pverstrepen2-dev.github.io/IBD-kennisbank/"
+
+}
 };
 
 const loginRequest = {
@@ -1152,12 +1153,12 @@ window.addEventListener("load", async () => {
         );
 
     await msalInstance.initialize();
+    
+    console.log("MSAL Instance =", msalInstance);
 
     console.log("MSAL geïnitialiseerd");
 
 });
-
-console.log("MSAL Instance =", msalInstance);
 
 let accessToken = null;
 

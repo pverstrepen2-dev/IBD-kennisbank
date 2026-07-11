@@ -1837,27 +1837,13 @@ async function loginMicrosoft(){
 
     try{
 
-        if(!msalInstance){
-
-            alert(
-                "MSAL nog niet geïnitialiseerd"
-            );
-
-            return;
-        }
-
         const loginResponse =
-            await msalInstance.loginRedirect(
-    loginRequest
-);
-
-        const tokenResponse =
-            await msalInstance.acquireTokenSilent(
+            await msalInstance.loginPopup(
                 loginRequest
             );
 
         accessToken =
-            tokenResponse.accessToken;
+            loginResponse.accessToken;
 
         document.getElementById(
             "loginStatus"
@@ -1871,7 +1857,6 @@ async function loginMicrosoft(){
         console.error(error);
 
         alert(error.message);
-
     }
 }
 

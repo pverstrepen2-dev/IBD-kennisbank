@@ -1170,11 +1170,11 @@ function checkLogin(){
    CONFIGURATIE
 ================================== */
 
-const DATAFILE = "IBD-Kennisbank/database.json";
+const DATAFILE = "CCV-VZW/Database/database.json";
 
 const CONFIG = {
     graphEnabled: true,
-    documentFolder: "/IBD-Kennisbank/documenten/"
+    documentFolder: "/CCV-VZW/Documenten/"
 };
 
 /* ==================================
@@ -1875,7 +1875,7 @@ async function uploadDocument(){
 
     await fetch(
 
-        `https://graph.microsoft.com/v1.0/me/drive/root:/IBD-Kennisbank/documenten/${file.name}:/content`,
+        `https://graph.microsoft.com/v1.0/me/drive/root:/CCV-VZW/Documenten/${file.name}:/content`,
 
         {
 

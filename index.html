@@ -845,6 +845,39 @@ placeholder="Zoeken..."
     <div class="card">
 
         <h2>🤝 CCV-VZW Beheerplatform</h2>
+</div>
+ <!-- NIEUW DASHBOARD OVERZICHT -->
+
+    <div class="card">
+
+        <h2>📊 Overzicht</h2>
+
+        <div class="dashboard-grid">
+
+            <button>
+                🚀 Projecten<br>
+                <span id="projectCount">0</span>
+            </button>
+
+            <button>
+                📅 Vergaderingen<br>
+                <span id="meetingCount">0</span>
+            </button>
+
+            <button>
+                ✅ Taken<br>
+                <span id="taskCount">0</span>
+            </button>
+
+            <button>
+                👥 Leden<br>
+                <span id="memberCount">0</span>
+            </button>
+
+        </div>
+
+    </div>
+
     <!-- SNELLE ACTIES -->
 
 <div class="card">
@@ -969,18 +1002,125 @@ placeholder="Zoeken..."
 
 <div id="beheer" class="page hidden">
 
-<div class="card">
-<h2>Beheer</h2>
+    <div class="card">
+        <h2>⚙️ Beheer</h2>
 
-<button onclick="loadData()">
-📥 Gegevens laden
-</button>
+        <button onclick="loadData()">
+            📥 Gegevens laden
+        </button>
 
-<button onclick="saveData()">
-💾 Gegevens opslaan
-</button>
+        <button onclick="saveData()">
+            💾 Gegevens opslaan
+        </button>
+    </div>
+
+    <!-- HIER KOMT HET NIEUWE FORMULIER -->
+
+    <div id="beheerInvoer" class="card">
+
+        <h2>➕ Nieuwe Informatie Toevoegen</h2>
+
+        <label>
+            <strong>
+                De gebruiker kiest zelf hoe de informatie wordt toegevoegd
+            </strong>
+        </label>
+
+        <br><br>
+
+        <select id="inputMode" onchange="toggleInputMode()">
+            <option value="manual">
+                ✍️ Manueel invoeren
+            </option>
+
+            <option value="ai">
+                🤖 AI-ondersteunde invoer
+            </option>
+
+            <option value="hybrid">
+                🤝 AI + Manueel
+            </option>
+        </select>
+
+        <br><br>
+
+        <div id="manualSection">
+
+    <h3>✍️ Manuele invoer</h3>
+
+    <input type="text"
+           id="manualTitle"
+           placeholder="Titel">
+
+    <br><br>
+
+    <input type="text"
+           id="manualCategory"
+           placeholder="Categorie">
+
+    <br><br>
+
+    <input type="text"
+           id="manualSubCategory"
+           placeholder="Subcategorie">
+
+    <br><br>
+
+    <input type="date"
+           id="manualDate">
+
+    <br><br>
+
+    <textarea
+        id="manualDescription"
+        placeholder="Omschrijving">
+    </textarea>
+
+    <br><br>
+
+    <input type="text"
+           id="manualKeywords"
+           placeholder="Keywords">
+
+    <br><br>
+
+    <button onclick="saveManualEntry()">
+        💾 Opslaan
+    </button>
 
 </div>
+
+        <div id="aiSection" style="display:none;">
+
+    <h3>🤖 AI-ondersteunde invoer</h3>
+
+    <p>
+        Upload een document of plak tekst.
+    </p>
+
+    <input type="file" id="aiFile">
+
+    <br><br>
+
+    <textarea
+        id="aiText"
+        rows="8"
+        placeholder="Plak hier tekst...">
+    </textarea>
+
+    <br><br>
+
+    <button onclick="analyzeWithAI()">
+        🤖 Analyseer met AI
+    </button>
+
+    <br><br>
+
+    <div id="aiSuggestions"></div>
+
+</div>
+
+    </div>
 
 </div>
 
@@ -1403,6 +1543,7 @@ meetings.push({
 });
 
 renderMeetings();
+updateDashboardStats();
 
 }
 
@@ -1520,8 +1661,52 @@ async function saveProject(){
 
    await saveData();
 
+   updateDashboardStats();
+
    alert("✅ Project opgeslagen");
 }
+
+/* NIEUWE FUNCTIE HIER PLAATSEN */
+
+async function saveManualEntry(){
+
+    const entry = {
+
+        categorie:
+            document.getElementById("manualCategory").value,
+
+        subcategorie:
+            document.getElementById("manualSubCategory").value,
+
+        titel:
+            document.getElementById("manualTitle").value,
+
+        datum:
+            document.getElementById("manualDate").value,
+
+        omschrijving:
+            document.getElementById("manualDescription").value,
+
+        keywords:
+            document.getElementById("manualKeywords").value
+
+    };
+
+    knowledgeData.push(entry);
+
+    await saveData();
+
+    alert("✅ Informatie opgeslagen");
+}
+
+function analyzeWithAI(){
+
+    alert(
+        "AI-module wordt later gekoppeld aan Azure OpenAI of ChatGPT."
+    );
+}
+
+
 
 function showCCVDashboard(){
 
@@ -1543,6 +1728,23 @@ document.getElementById("documentList").innerHTML = `
 `;
 
 }
+
+function updateDashboardStats(){
+
+    document.getElementById("projectCount").innerText =
+        projects.length;
+
+    document.getElementById("meetingCount").innerText =
+        meetings.length;
+
+    document.getElementById("taskCount").innerText =
+        tasks.length;
+
+    document.getElementById("memberCount").innerText =
+        members.length;
+}
+
+
 /* ==================================
    TOEKOMSTIGE ONEDRIVE KOPPELING
 ================================== */
@@ -1608,6 +1810,8 @@ async function loadData(){
         knowledgeData = data.knowledgeData || [];
 
         renderMeetings();
+
+        updateDashboardStats();
 
         alert("✅ Gegevens geladen");
 
@@ -1751,6 +1955,22 @@ function searchItems(){
 /* ==================================
    START
 ================================== */
+
+function toggleInputMode(){
+
+    const mode =
+    document.getElementById("inputMode").value;
+
+    document.getElementById("manualSection").style.display =
+        (mode === "manual" || mode === "hybrid")
+        ? "block"
+        : "none";
+
+    document.getElementById("aiSection").style.display =
+        (mode === "ai" || mode === "hybrid")
+        ? "block"
+        : "none";
+}
 
 console.log(
     "IBD Kennisbank V7 gestart"

@@ -1145,10 +1145,23 @@ const loginRequest = {
     ]
 };
 
-const msalInstance =
-new msal.PublicClientApplication(
-    msalConfig
-);
+console.log("MSAL object =", msal);
+let msalInstance;
+
+window.onload = () => {
+
+    msalInstance =
+        new msal.PublicClientApplication(
+            msalConfig
+        );
+
+    console.log(
+        "MSAL geïnitialiseerd"
+    );
+
+};
+
+console.log("MSAL Instance =", msalInstance);
 
 let accessToken = null;
 
@@ -1825,31 +1838,46 @@ async function loadData(){
 
 async function loginMicrosoft(){
 
+    if(!msalInstance){
+
+        alert(
+            "MSAL is nog niet geïnitialiseerd"
+        );
+
+        return;
+    }
+
     try{
 
         const loginResponse =
-        await msalInstance.loginPopup(loginRequest);
+            await msalInstance.loginPopup(
+                loginRequest
+            );
 
         const tokenResponse =
-        await msalInstance.acquireTokenSilent(loginRequest);
+            await msalInstance.acquireTokenSilent(
+                loginRequest
+            );
 
         accessToken =
-        tokenResponse.accessToken;
+            tokenResponse.accessToken;
 
         document.getElementById(
             "loginStatus"
         ).innerHTML =
-        "✅ " +
-        loginResponse.account.username;
+            "✅ " +
+            loginResponse.account.username;
 
     }
     catch(error){
 
         console.error(error);
 
-    }
+        alert(error.message);
 
+    }
 }
+
 function logoutMicrosoft(){
 
     msalInstance.logoutPopup();

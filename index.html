@@ -316,7 +316,11 @@ placeholder="Zoeken..."
 🩺 Symptomen
 </button>
 
-<button onclick="openCategory('Crohn','Diagnose')">
+<button onclick="
+showDocumentsBySubCategory(
+'Crohn',
+'Diagnose'
+)">
 🔬 Diagnose
 </button>
 
@@ -1137,8 +1141,19 @@ placeholder="Zoeken..."
         <strong>Keywords:</strong>
         <span id="suggestedKeywords"></span>
     </p>
+<p>
+    <strong>Samenvatting:</strong>
+</p>
 
+<div id="suggestedSummary"
+	style="
+	background:#f5f7fa;
+	padding:10px;
+	border-radius:8px;
+	min-height:60px;
+	">
 </div>
+
 
 <br><br>
 
@@ -1330,6 +1345,16 @@ function openCategory(mainCategory, subCategory){
     openPage("documents");
 }
 
+function openCategory(
+    categorie,
+    subcategorie
+){
+
+    showDocumentsBySubCategory(
+        categorie,
+        subcategorie
+    );
+}
 
 function showBestuur(){
 
@@ -1759,64 +1784,101 @@ async function saveProject(){
 
 function analyzeDocument(){
 
+    let categorie = "Algemeen";
+    let subcategorie = "Algemeen";
+    let keywords = "";
+    let summary = "";
+
     const title =
-        document.getElementById("manualTitle").value
+        document
+        .getElementById("manualTitle")
+        .value
         .toLowerCase();
 
     if(title.includes("vergadering")){
 
-        document.getElementById("manualCategory").value =
-            "Bestuur";
-
-        document.getElementById("manualSubCategory").value =
-            "Vergaderingen";
-
-        document.getElementById("manualKeywords").value =
+        categorie = "Bestuur";
+        subcategorie = "Vergaderingen";
+        keywords =
             "vergadering,notulen,actiepunten";
+        summary =
+
+"Dit document lijkt betrekking te hebben op een vergadering of bestuursbijeenkomst.";
     }
 
     else if(title.includes("crohn")){
 
-        document.getElementById("manualCategory").value =
-            "Crohn";
-
-        document.getElementById("manualSubCategory").value =
-            "Algemeen";
-
-        document.getElementById("manualKeywords").value =
+        categorie = "Crohn";
+        subcategorie = "Ziektebeeld";
+        keywords =
             "crohn,ibd,darmziekte";
+        summary =
+	"Dit document bevat vermoedelijk informatie over de ziekte van Crohn.";
     }
 
-    else{
+    document.getElementById(
+        "suggestedCategory"
+    ).innerText = categorie;
 
-        document.getElementById("manualCategory").value =
-            "Algemeen";
-    }
+    document.getElementById(
+        "suggestedSubCategory"
+    ).innerText = subcategorie;
+
+    document.getElementById(
+        "suggestedKeywords"
+    ).innerText = keywords;
+
+    document.getElementById(
+    "suggestedSummary"
+    ).innerText = summary;
+
+    document.getElementById(
+        "aiSuggestionBox"
+    ).style.display = "block";
+
+    document.getElementById(
+        "manualCategory"
+    ).value = categorie;
+
+    document.getElementById(
+        "manualSubCategory"
+    ).value = subcategorie;
+
+    document.getElementById(
+        "manualKeywords"
+    ).value = keywords;
 }
 
 async function saveManualEntry(){
 
     const entry = {
 
-        categorie:
-            document.getElementById("manualCategory").value,
+    categorie:
+        document.getElementById("manualCategory").value,
 
-        subcategorie:
-            document.getElementById("manualSubCategory").value,
+    subcategorie:
+        document.getElementById("manualSubCategory").value,
 
-        titel:
-            document.getElementById("manualTitle").value,
+    titel:
+        document.getElementById("manualTitle").value,
 
-        datum:
-            document.getElementById("manualDate").value,
+    datum:
+        document.getElementById("manualDate").value,
 
-        omschrijving:
-            document.getElementById("manualDescription").value,
+    omschrijving:
+        document.getElementById("manualDescription").value,
 
-        keywords:
-            document.getElementById("manualKeywords").value
+    keywords:
+        document.getElementById("manualKeywords").value,
 
-    };
+    bestand:
+        currentUploadedFile,
+
+    samenvatting:
+        document.getElementById(
+            "suggestedSummary"
+        ).innerText
+};
 
     knowledgeData.push(entry);
 
@@ -1870,7 +1932,74 @@ function updateDashboardStats(){
         members.length;
 }
 
+function showCategoryDocuments(
+    categorie
+){
 
+    const docs =
+        knowledgeData.filter(
+            x => x.categorie === categorie
+        );
+
+    let html = "";
+
+    docs.forEach(doc => {
+
+        html += `
+        <div class="card">
+
+            <h3>${doc.titel}</h3>
+
+            <p>
+                ${doc.samenvatting}
+            </p>
+
+        </div>`;
+    });
+
+    document.getElementById(
+        "documentList"
+    ).innerHTML = html;
+
+    openPage("documents");
+}
+
+function showDocumentsBySubCategory(
+    categorie,
+    subcategorie
+){
+
+    const docs = knowledgeData.filter(
+        doc =>
+            doc.categorie === categorie &&
+            doc.subcategorie === subcategorie
+    );
+
+    let html = "";
+
+    docs.forEach(doc => {
+
+        html += `
+        <div class="card">
+
+            <h3>${doc.titel}</h3>
+
+            <p>${doc.samenvatting || ""}</p>
+
+            <button>
+                📄 Open document
+            </button>
+
+        </div>
+        `;
+    });
+
+    document.getElementById(
+        "documentList"
+    ).innerHTML = html;
+
+    openPage("documents");
+}
 /* ==================================
    TOEKOMSTIGE ONEDRIVE KOPPELING
 ================================== */

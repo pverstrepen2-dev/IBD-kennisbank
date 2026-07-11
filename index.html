@@ -256,6 +256,10 @@ Nog geen gegevens.
 📤 Upload document
 </button>
 
+<button onclick="analyzeDocument()">
+🤖 Analyseer document
+</button>
+
 </div>
 
 <div class="card">
@@ -1102,14 +1106,45 @@ placeholder="Zoeken..."
     <br><br>
 
     <input type="text"
-           id="manualKeywords"
-           placeholder="Keywords">
+       id="manualKeywords"
+       placeholder="Keywords">
 
-    <br><br>
+<br><br>
 
-    <button onclick="saveManualEntry()">
-        💾 Opslaan
-    </button>
+<button onclick="analyzeDocument()">
+    🤖 Analyseer document
+</button>
+
+<br><br>
+
+<div id="aiSuggestionBox"
+     class="card"
+     style="display:none; margin-top:15px;">
+
+    <h3>🤖 AI Voorstel</h3>
+
+    <p>
+        <strong>Categorie:</strong>
+        <span id="suggestedCategory"></span>
+    </p>
+
+    <p>
+        <strong>Subcategorie:</strong>
+        <span id="suggestedSubCategory"></span>
+    </p>
+
+    <p>
+        <strong>Keywords:</strong>
+        <span id="suggestedKeywords"></span>
+    </p>
+
+</div>
+
+<br><br>
+
+<button onclick="saveManualEntry()">
+    💾 Opslaan
+</button>
 
 </div>
 
@@ -1721,6 +1756,43 @@ async function saveProject(){
 }
 
 /* NIEUWE FUNCTIE HIER PLAATSEN */
+
+function analyzeDocument(){
+
+    const title =
+        document.getElementById("manualTitle").value
+        .toLowerCase();
+
+    if(title.includes("vergadering")){
+
+        document.getElementById("manualCategory").value =
+            "Bestuur";
+
+        document.getElementById("manualSubCategory").value =
+            "Vergaderingen";
+
+        document.getElementById("manualKeywords").value =
+            "vergadering,notulen,actiepunten";
+    }
+
+    else if(title.includes("crohn")){
+
+        document.getElementById("manualCategory").value =
+            "Crohn";
+
+        document.getElementById("manualSubCategory").value =
+            "Algemeen";
+
+        document.getElementById("manualKeywords").value =
+            "crohn,ibd,darmziekte";
+    }
+
+    else{
+
+        document.getElementById("manualCategory").value =
+            "Algemeen";
+    }
+}
 
 async function saveManualEntry(){
 

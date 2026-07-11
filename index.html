@@ -1153,7 +1153,7 @@ window.addEventListener("load", async () => {
         );
 
     await msalInstance.initialize();
-    
+
     console.log("MSAL Instance =", msalInstance);
 
     console.log("MSAL geïnitialiseerd");
@@ -1847,9 +1847,9 @@ async function loginMicrosoft(){
         }
 
         const loginResponse =
-            await msalInstance.loginPopup(
-                loginRequest
-            );
+            await msalInstance.loginRedirect(
+    loginRequest
+);
 
         const tokenResponse =
             await msalInstance.acquireTokenSilent(

@@ -6,15 +6,7 @@
 
 <title>IBD Kennisbank V7</title>
 
-<script>
-alert("MSAL = " + typeof msal);
-</script>
-
 <script src="https://unpkg.com/@azure/msal-browser@latest/lib/msal-browser.min.js"></script>
-
-<script>
-console.log("MSAL =", typeof msal);
-</script>
 
 <style>
 body{
@@ -1152,18 +1144,18 @@ const loginRequest = {
 console.log("MSAL object =", msal);
 let msalInstance;
 
-window.onload = () => {
+window.addEventListener("load", async () => {
 
     msalInstance =
         new msal.PublicClientApplication(
             msalConfig
         );
 
-    console.log(
-        "MSAL geïnitialiseerd"
-    );
+    await msalInstance.initialize();
 
-};
+    console.log("MSAL geïnitialiseerd");
+
+});
 
 console.log("MSAL Instance =", msalInstance);
 
@@ -1842,16 +1834,16 @@ async function loadData(){
 
 async function loginMicrosoft(){
 
-    if(!msalInstance){
-
-        alert(
-            "MSAL is nog niet geïnitialiseerd"
-        );
-
-        return;
-    }
-
     try{
+
+        if(!msalInstance){
+
+            alert(
+                "MSAL nog niet geïnitialiseerd"
+            );
+
+            return;
+        }
 
         const loginResponse =
             await msalInstance.loginPopup(

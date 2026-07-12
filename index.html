@@ -1034,21 +1034,43 @@ showDocumentsBySubCategory(
 <div id="beheer" class="page hidden">
 
     <div class="card">
-        <h2>⚙️ Beheer</h2>
+    <h2>⚙️ Beheer</h2>
 
-        <button onclick="loadData()">
-            📥 Gegevens laden
-        </button>
+    <button onclick="loadData()">
+        📥 Gegevens laden
+    </button>
 
-         <button onclick="bulkImport()">
-    📂 Bulkimport OneDrive
-        </button>
+    <button onclick="saveData()">
+        💾 Gegevens opslaan
+    </button>
 
-        <button onclick="saveData()">
-            💾 Gegevens opslaan
-        </button>
+    <hr>
 
-       </div>
+    <h3>📂 Bulkimport</h3>
+
+    <select id="importFolder">
+
+        <option value="Crohn_Colitis_NL">
+            Crohn_Colitis_NL
+        </option>
+
+        <option value="Dieet_en_FODMAP">
+            Dieet_en_FODMAP
+        </option>
+
+        <option value="Psyche">
+            Psyche
+        </option>
+
+    </select>
+
+    <br><br>
+
+    <button onclick="bulkImportSelectedFolder()">
+        📂 Importeer geselecteerde map
+    </button>
+
+</div>
 
     <!-- HIER KOMT HET NIEUWE FORMULIER -->
 
@@ -2173,6 +2195,71 @@ function determineCategory(folderName){
         default:
             return "Algemeen";
     }
+}
+
+function determineCategory(
+    folderName
+){
+
+    switch(folderName){
+
+        case "Crohn_Colitis_NL":
+            return "Crohn";
+
+        case "Dieet_en_FODMAP":
+            return "Voeding";
+
+        case "Psyche":
+            return "Mindfulness & Welzijn";
+
+        default:
+            return "Algemeen";
+    }
+}
+
+async function bulkImportSelectedFolder(){
+
+    const folderName =
+        document.getElementById(
+            "importFolder"
+        ).value;
+
+    alert(
+        "Import gestart voor: " +
+        folderName
+    );
+
+    const categorie =
+        determineCategory(
+            folderName
+        );
+
+    knowledgeData.push({
+
+        titel:
+            folderName,
+
+        categorie:
+            categorie,
+
+        subcategorie:
+            folderName,
+
+        datum:
+            new Date()
+            .toISOString()
+
+    });
+
+    await saveData();
+
+    alert(
+        "✅ Import voltooid\n\n" +
+        "Categorie: " +
+        categorie +
+        "\nSubcategorie: " +
+        folderName
+    );
 }
 
 async function uploadDocument(){

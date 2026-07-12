@@ -144,6 +144,24 @@ Niet aangemeld
 
 </header>
 
+<div style="
+padding:10px;
+display:flex;
+gap:10px;
+background:white;
+border-bottom:1px solid #ddd;
+">
+
+<button onclick="goBack()">
+⬅ Vorige
+</button>
+
+<button onclick="openPage('dashboard')">
+🏠 Dashboard
+</button>
+
+</div>
+
 <div class="container">
 
 <div class="sidebar">
@@ -1370,11 +1388,28 @@ url:"https://www.cochranelibrary.com"
 
 };
 
-/* ==================================
-   PAGINA'S
-================================== */
+
+// =======================
+// PAGINA GESCHIEDENIS
+// =======================
+let pageHistory = [];
 
 function openPage(page){
+
+    const activePage =
+        document.querySelector(
+            ".page:not(.hidden)"
+        );
+
+    if(
+        activePage &&
+        activePage.id !== page
+    ){
+        pageHistory.push(
+            activePage.id
+        );
+    }
+
     document
         .querySelectorAll(".page")
         .forEach(p => p.classList.add("hidden"));
@@ -1382,6 +1417,22 @@ function openPage(page){
     document
         .getElementById(page)
         .classList.remove("hidden");
+}
+
+function goBack(){
+
+    if(pageHistory.length === 0){
+
+        openPage("dashboard");
+        return;
+
+    }
+
+    const previousPage =
+        pageHistory.pop();
+
+    openPage(previousPage);
+
 }
 
 function openCategory(mainCategory, subCategory){

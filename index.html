@@ -1394,11 +1394,19 @@ function openPage(page){
 
     document
         .querySelectorAll(".page")
-        .forEach(p => p.classList.add("hidden"));
+        .forEach(
+            p => p.classList.add("hidden")
+        );
 
     document
         .getElementById(page)
         .classList.remove("hidden");
+
+    // Beheerpagina openen
+    if(page === "beheer"){
+        loadFolders();
+    }
+
 }
 
 function goBack(){
@@ -1413,7 +1421,9 @@ function goBack(){
     const previousPage =
         pageHistory.pop();
 
-    openPage(previousPage);
+    openPage(
+        previousPage
+    );
 
 }
 
@@ -2293,6 +2303,51 @@ async function scanFolder(
 
         }
     }
+}
+
+async function loadFolders(){
+
+    const container =
+        document.getElementById(
+            "folderList"
+        );
+
+    if(!container){
+        return;
+    }
+
+    container.innerHTML =
+        "📥 OneDrive mappen laden...";
+
+    const response = await fetch(
+        "https://graph.microsoft.com/v1.0/me/drive/root:/CCV-VZW/Documenten:/children",
+        {
+            headers:{
+                Authorization:
+                    `Bearer ${accessToken}`
+            }
+        }
+    );
+
+    const data =
+        await response.json();
+
+    container.innerHTML = "";
+
+    data.value.forEach(folder => {
+
+        if(!folder.folder){
+            return;
+        }
+
+        container.innerHTML += `
+            <div class="card">
+                📁 ${folder.name}
+            </div>
+        `;
+
+    });
+
 }
 
 async function bulkImport(){

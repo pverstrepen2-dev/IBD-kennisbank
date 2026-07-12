@@ -161,7 +161,6 @@ border-bottom:1px solid #ddd;
 </button>
 
 </div>
-
 <div class="container">
 
 <div class="sidebar">
@@ -255,63 +254,71 @@ border-bottom:1px solid #ddd;
 </div>
 
 <div class="card">
-<h3>Laatste wijzigingen</h3>
-<div id="activityFeed">
-Nog geen gegevens.
-</div>
-</div>
-
+    <h3>Laatste wijzigingen</h3>
+    <div id="activityFeed">
+        Nog geen gegevens.
+    </div>
 </div>
 
-<div id="documents" class="page hidden">
+ </div><!-- dashboard sluiten -->
 
-<div class="card">
-<h2>Documentbibliotheek</h2>
+<div id="documents"
+     class="page hidden">
 
-<input type="file" id="fileUpload">
+    <h2>
+        📚 Documentbibliotheek
+    </h2>
 
-<button onclick="uploadDocument()">
-📤 Upload document
-</button>
+    <div id="documentsContainer"></div>
 
-<button onclick="analyzeDocument()">
-🤖 Analyseer document
-</button>
+    <br>
 
-</div>
+    <input type="file"
+           id="fileUpload">
 
-<div class="card">
-<h3>Beschikbare documenten</h3>
+    <button onclick="uploadDocument()">
+        📤 Upload document
+    </button>
 
-<div id="documentList">
+    <br><br>
 
-</div>
+    <button onclick="analyzeDocument()">
+        🤖 Analyseer document
+    </button>
 
-</div>
+    <br><br>
+
+    <div class="card">
+
+        <h3>
+            Beschikbare documenten
+        </h3>
+
+        <div id="documentList"></div>
+
+    </div>
 
 </div>
 
 <div id="knowledge" class="page hidden">
 
-<div class="card">
+    <div class="card">
 
-<h2>Kennisbank</h2>
+        <h2>Kennisbank</h2>
 
-<input
-type="text"
-id="searchInput"
-placeholder="Zoeken..."
->
+        <input
+            type="text"
+            id="searchInput"
+            placeholder="Zoeken..."
+        >
 
-<button onclick="searchItems()">
-🔍 Zoeken
-</button>
+        <button onclick="searchItems()">
+            🔍 Zoeken
+        </button>
 
-</div>
+    </div>
 
-<div id="searchResults">
-
-</div>
+    <div id="searchResults"></div>
 
 </div>
 
@@ -2219,15 +2226,16 @@ function logoutMicrosoft(){
 ================================== */
 async function syncOneDrive(){
 
-    if(!checkLogin()){
-        return;
-    }
-
     try{
 
         knowledgeData = [];
 
         await bulkImport();
+
+        console.log(
+            "Aantal documenten:",
+            knowledgeData.length
+        );
 
         alert(
             "✅ OneDrive synchronisatie voltooid"
@@ -2305,6 +2313,55 @@ async function scanFolder(
     }
 }
 
+async function buildFolderTree(
+    folderId,
+    level = 0
+){
+
+    const response = await fetch(
+        `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`,
+        {
+            headers:{
+                Authorization:`Bearer ${accessToken}`
+            }
+        }
+    );
+
+    const data = await response.json();
+
+    let html = "";
+
+    if(!data.value){
+        return html;
+    }
+
+    for(const item of data.value){
+
+        if(item.folder){
+
+            html += `
+                <div style="
+                    margin-left:${level * 20}px;
+                    padding:4px;
+                ">
+                    📁 ${item.name}
+<small>
+(${item.folder.childCount || 0} items)
+</small>
+                </div>
+            `;
+
+            html += await buildFolderTree(
+                item.id,
+                level + 1
+            );
+        }
+
+    }
+
+    return html;
+}
+
 async function loadFolders(){
 
     const container =
@@ -2334,19 +2391,39 @@ async function loadFolders(){
 
     container.innerHTML = "";
 
-    data.value.forEach(folder => {
+    for(const folder of data.value){
 
         if(!folder.folder){
-            return;
+            continue;
         }
 
         container.innerHTML += `
-            <div class="card">
+            <div class="card"
+                 onclick="
+                    importSingleFolder(
+                        '${folder.id}',
+                        '${folder.name}'
+                    )
+                 "
+                 style="cursor:pointer">
+
                 📁 ${folder.name}
+
+                <br>
+
+                <small>
+                    Klik om te importeren
+                </small>
+
             </div>
         `;
 
-    });
+        container.innerHTML += await buildFolderTree(
+            folder.id,
+            1
+        );
+
+    }
 
 }
 

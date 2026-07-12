@@ -1040,10 +1040,15 @@ showDocumentsBySubCategory(
             📥 Gegevens laden
         </button>
 
+         <button onclick="bulkImport()">
+    📂 Bulkimport OneDrive
+        </button>
+
         <button onclick="saveData()">
             💾 Gegevens opslaan
         </button>
-    </div>
+
+       </div>
 
     <!-- HIER KOMT HET NIEUWE FORMULIER -->
 
@@ -2103,6 +2108,72 @@ function logoutMicrosoft(){
 /* ==================================
    DOCUMENTEN
 ================================== */
+
+async function bulkImport(){
+
+    const response = await fetch(
+
+        `https://graph.microsoft.com/v1.0/me/drive/root:/CCV-VZW/Documenten:/children`,
+
+        {
+            headers:{
+                Authorization:
+                    `Bearer ${accessToken}`
+            }
+        }
+    );
+
+    const data = await response.json();
+
+    data.value.forEach(folder => {
+
+        const categorie =
+            determineCategory(
+                folder.name
+            );
+
+        knowledgeData.push({
+
+            titel: folder.name,
+
+            categorie: categorie,
+
+            subcategorie: folder.name,
+
+            bestand: folder.webUrl
+
+        });
+
+    });
+
+    await saveData();
+
+    alert(
+        "✅ Bulkimport voltooid"
+    );
+
+}
+
+function determineCategory(folderName){
+
+    switch(folderName){
+
+        case "Crohn_Colitis_NL":
+            return "Crohn";
+
+        case "Dieet_en_FODMAP":
+            return "Voeding";
+
+        case "Psyche":
+            return "Mindfulness & Welzijn";
+
+        case "Rechten_Plichten_patient_werkgever":
+            return "Sociale Gids";
+
+        default:
+            return "Algemeen";
+    }
+}
 
 async function uploadDocument(){
 

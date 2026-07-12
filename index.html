@@ -1319,6 +1319,53 @@ let projects = [];
 let tasks = [];
 let members = [];
 
+// ==========================
+// WEBSITES PER LAND
+// ==========================
+const websites = {
+
+Belgie:[
+{
+naam:"CCV-VZW",
+url:"https://www.ccv-vzw.be"
+},
+{
+naam:"Vlaams Patiëntenplatform",
+url:"https://vlaamspatientenplatform.be"
+}
+],
+
+Nederland:[
+{
+naam:"Crohn & Colitis NL",
+url:"https://crohn-colitis.nl"
+},
+{
+naam:"RIVM",
+url:"https://www.rivm.nl"
+}
+],
+
+Europa:[
+{
+naam:"ECCO",
+url:"https://www.ecco-ibd.eu"
+}
+],
+
+Internationaal:[
+{
+naam:"PubMed",
+url:"https://pubmed.ncbi.nlm.nih.gov"
+},
+{
+naam:"Cochrane Library",
+url:"https://www.cochranelibrary.com"
+}
+]
+
+};
+
 /* ==================================
    PAGINA'S
 ================================== */
@@ -1359,7 +1406,6 @@ function openCategory(mainCategory, subCategory){
                 showNewActivityForm();
                 return;
         }
-
     }
 
     document.getElementById("documentList").innerHTML = `
@@ -1369,18 +1415,12 @@ function openCategory(mainCategory, subCategory){
         </div>
     `;
 
-    openPage("documents");
-}
-
-function openCategory(
-    categorie,
-    subcategorie
-){
-
     showDocumentsBySubCategory(
-        categorie,
-        subcategorie
+        mainCategory,
+        subCategory
     );
+
+    openPage("documents");
 }
 
 function showBestuur(){
@@ -2134,87 +2174,105 @@ function logoutMicrosoft(){
 async function bulkImport(){
 
     const response = await fetch(
-
-        `https://graph.microsoft.com/v1.0/me/drive/root:/CCV-VZW/Documenten:/children`,
-
+        "https://graph.microsoft.com/v1.0/me/drive/root:/CCV-VZW/Documenten:/children",
         {
             headers:{
-                Authorization:
-                    `Bearer ${accessToken}`
+                Authorization:`Bearer ${accessToken}`
             }
         }
     );
 
     const data = await response.json();
 
-    data.value.forEach(folder => {
+    for(const folder of data.value){
 
-        const categorie =
-            determineCategory(
-                folder.name
-            );
+        const categorie = determineCategory(
+            folder.name
+        );
 
         knowledgeData.push({
-
             titel: folder.name,
-
             categorie: categorie,
-
             subcategorie: folder.name,
+            bestand: folder.webUrl,
+            type: "Map"
+        });
 
-            bestand: folder.webUrl
+        const childrenResponse = await fetch(
+            `https://graph.microsoft.com/v1.0/me/drive/items/${folder.id}/children`,
+            {
+                headers:{
+                    Authorization:`Bearer ${accessToken}`
+                }
+            }
+        );
+
+        const children = await childrenResponse.json();
+        
+if(!children.value){
+	console.error(children);
+	continue;
+}
+        children.value.forEach(file => {
+
+            knowledgeData.push({
+
+                titel:file.name,
+
+                categorie:categorie,
+
+                subcategorie:folder.name,
+
+                bestand:file.webUrl,
+
+                type:file.file
+                    ? file.file.mimeType
+                    : "Bestand"
+
+            });
 
         });
 
-    });
+    }
 
     await saveData();
 
-    alert(
-        "✅ Bulkimport voltooid"
-    );
-
+    alert("✅ Bulkimport voltooid");
 }
 
 function determineCategory(folderName){
 
-    switch(folderName){
+    const mapping = {
 
-        case "Crohn_Colitis_NL":
-            return "Crohn";
+        "Crohn_Colitis_NL":"Crohn",
 
-        case "Dieet_en_FODMAP":
-            return "Voeding";
+        "Crohn":"Crohn",
 
-        case "Psyche":
-            return "Mindfulness & Welzijn";
+        "Colitis":"Colitis",
 
-        case "Rechten_Plichten_patient_werkgever":
-            return "Sociale Gids";
+        "Dieet_en_FODMAP":"Voeding",
 
-        default:
-            return "Algemeen";
-    }
-}
+        "Psyche":"Mindfulness & Welzijn",
 
-function determineCategory(
-    folderName
-){
+        "Rechten_Plichten_patient_werkgever":"Sociale Gids",
 
-    switch(folderName){
+        "Medicatie":"Medicatie",
 
-        case "Crohn_Colitis_NL":
-            return "Crohn";
+        "Diagnose":"Diagnose",
 
-        case "Dieet_en_FODMAP":
-            return "Voeding";
+        "Symptomen":"Symptomen",
 
-        case "Psyche":
-            return "Mindfulness & Welzijn";
+        "Complicaties":"Complicaties",
 
-        default:
-            return "Algemeen";
-    }
+        "Operaties":"Operaties",
+
+        "Onderzoek":"Onderzoek",
+
+        "Patiëntenrechten":"Patiëntenrechten"
+
+    };
+
+    return mapping[folderName] || "Algemeen";
 }
 
 async function bulkImportSelectedFolder(){

@@ -1062,35 +1062,17 @@ showDocumentsBySubCategory(
         💾 Gegevens opslaan
     </button>
 
-    <button onclick="syncOneDrive()">
-    🔄 Synchroniseer OneDrive
-    </button>
-
     <hr>
 
-    <h3>📂 Bulkimport</h3>
+    <h3>📁 OneDrive mappen</h3>
 
-    <select id="importFolder">
+<div id="folderList"></div>
 
-        <option value="Crohn_Colitis_NL">
-            Crohn_Colitis_NL
-        </option>
+<br>
 
-        <option value="Dieet_en_FODMAP">
-            Dieet_en_FODMAP
-        </option>
-
-        <option value="Psyche">
-            Psyche
-        </option>
-
-    </select>
-
-    <br><br>
-
-    <button onclick="bulkImportSelectedFolder()">
-        📂 Importeer geselecteerde map
-    </button>
+<button onclick="syncOneDrive()">
+    🔄 Synchroniseer OneDrive
+</button>
 
 </div>
 

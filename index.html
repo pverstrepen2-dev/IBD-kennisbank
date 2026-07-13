@@ -2179,7 +2179,7 @@ function showDocumentsBySubCategory(
             doc.subcategorie === subcategorie
     );
 
-    let html = "";
+  let html = "";
 
 docs.forEach(doc => {
 
@@ -2191,14 +2191,7 @@ docs.forEach(doc => {
 
                 ${doc.bestand}
                     📄 ${doc.titel}
-                <a
-    href="${doc.bestand}"
-    target="_blank"
->
-
-    📄 ${doc.titel}
-
-<
+                </a>
 
             </h3>
 
@@ -2206,21 +2199,17 @@ docs.forEach(doc => {
                 ${doc.samenvatting || ""}
             </p>
 
-            <span>
-                📂 Klik op de titel om het document te openen
-            </span>
-
         </div>
 
     `;
 
 });
 
-    document.getElementById(
-        "documentList"
-    ).innerHTML = html;
+document.getElementById(
+    "documentList"
+).innerHTML = html;
 
-    openPage("documents");
+openPage("documents");
 }
 /* ==================================
    TOEKOMSTIGE ONEDRIVE KOPPELING
@@ -2440,7 +2429,7 @@ async function scanFolder(
 
                 titel:item.name,
 
-                ssamenvatting:
+                samenvatting:
     buildSummary(
         item.name
     ),
@@ -2799,62 +2788,67 @@ function countDocumentsByCategory(
 
     container.innerHTML =
 
-        knowledgeData
+    knowledgeData
 
-        .filter(
-            doc => doc.type !== "Map"
-        )
+    .filter(
+        doc => doc.type !== "Map"
+    )
 
-       .map(doc => `
+    .map(doc => `
 
-    <div class="card">
+        <div class="card">
 
-        <input
-    type="checkbox"
-    class="pdfSelect"
-    value="${doc.bestand}"
->
+            <input
+                type="checkbox"
+                class="pdfSelect"
+                value="${doc.bestand}"
+            >
 
-        <h3>
-            📄 ${doc.titel}
-        </h3>
+            <h3>
 
-        <span class="tag">
-            ${doc.categorie}
-        </span>
+                📄 ${doc.titel}
 
-        <span class="tag">
-            ${doc.subcategorie || ""}
-        </span>
+            </h3>
 
-        <br><br>
+            <span class="tag">
+                ${doc.categorie}
+            </span>
 
-        🏷 ${
-            doc.tags
+            <span class="tag">
+                ${doc.subcategorie || ""}
+            </span>
+
+            <br><br>
+
+            🏷 ${
+                doc.tags
                 ? doc.tags.join(", ")
                 : ""
-        }
+            }
 
-        <br><br>
+            <br><br>
 
-        <a
-    href="${doc.bestand}"
-    target="_blank"
-    style="
-        color:#2563eb;
-        text-decoration:none;
-       nd}'
-        )
-    "
->
-    👁 Preview
-</button>
+            ${doc.bestand}
+                📂 Open document
+            </a>
 
-    </div>
+            &nbsp;
 
-`)
+            <button
+                onclick="
+                    previewDocument(
+                        '${doc.bestand}'
+                    )
+                "
+            >
+                👁 Preview
+            </button>
 
-        .join("");
+        </div>
+
+    `)
+
+    .join("");
 
 }
 
@@ -2994,9 +2988,7 @@ function previewMultiple(urls){
 
         container.innerHTML += `
 
-    <iframe
-        src="${url}"
-        style
+            ${url}
             </iframe>
 
         `;

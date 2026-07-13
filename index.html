@@ -181,6 +181,10 @@ border-bottom:1px solid #ddd;
 📚 Kennisbank
 </button>
 
+<button onclick="openPage('documents')">
+📚 Documentbibliotheek
+</button>
+
 <button onclick="openPage('faq')">
 ❓ FAQ
 </button>
@@ -214,7 +218,15 @@ border-bottom:1px solid #ddd;
 <div class="dashboard-grid">
 
 <button onclick="openPage('crohn')">
+
 🩺 Crohn
+
+<br>
+
+<span id="crohnCount">
+0
+</span>
+
 </button>
 
 <button onclick="openPage('colitis')">
@@ -1414,6 +1426,9 @@ function openPage(page){
         loadFolders();
     }
 
+    if(page === "documents"){
+    renderDocuments();
+}
 }
 
 function goBack(){
@@ -2107,9 +2122,9 @@ function showDocumentsBySubCategory(
 
             <p>${doc.samenvatting || ""}</p>
 
-            ${doc.bestand}
-   📄 Open document
-</a>
+          <a
+    href="${doc.bestand}"
+    target
 
         </div>
         `;
@@ -2231,6 +2246,7 @@ async function syncOneDrive(){
         knowledgeData = [];
 
         await bulkImport();
+        updateCategoryCounts();
 
         console.log(
             "Aantal documenten:",
@@ -2251,6 +2267,16 @@ async function syncOneDrive(){
         );
 
     }
+
+}
+
+function generateTags(filename){
+
+    return filename
+        .replace(".pdf","")
+        .replace(".docx","")
+        .replace(".pptx","")
+        .split(/[\s_-]+/);
 
 }
 
@@ -2298,6 +2324,11 @@ async function scanFolder(
                 titel:item.name,
 
                 categorie:categorie,
+
+                tags:
+                generateTags(
+                 item.name
+        ),
 
                 subcategorie:huidigeSubcategorie,
 
@@ -2468,39 +2499,41 @@ async function bulkImport(){
 
 }
 
-function determineCategory(folderName){
+function determineCategory(
+    folderName
+){
 
-    const mapping = {
+    const naam =
+        folderName.toLowerCase();
 
-        "Crohn_Colitis_NL":"Crohn",
+    if(
+        naam.includes("crohn")
+    ){
+        return "Crohn";
+    }
 
-        "Crohn":"Crohn",
+    if(
+        naam.includes("voeding")
+    ||
+        naam.includes("fodmap")
+    ){
+        return "Voeding";
+    }
 
-        "Colitis":"Colitis",
+    if(
+        naam.includes("psyche")
+    ){
+        return "Mindfulness";
+    }
 
-        "Dieet_en_FODMAP":"Voeding",
+    if(
+        naam.includes("rechten")
+    ){
+        return "Sociale Gids";
+    }
 
-        "Psyche":"Mindfulness & Welzijn",
+    return "Algemeen";
 
-        "Rechten_Plichten_patient_werkgever":"Sociale Gids",
-
-        "Medicatie":"Medicatie",
-
-        "Diagnose":"Diagnose",
-
-        "Symptomen":"Symptomen",
-
-        "Complicaties":"Complicaties",
-
-        "Operaties":"Operaties",
-
-        "Onderzoek":"Onderzoek",
-
-        "Patiëntenrechten":"Patiëntenrechten"
-
-    };
-
-    return mapping[folderName] || "Algemeen";
 }
 
 async function bulkImportSelectedFolder(){
@@ -2588,29 +2621,54 @@ async function uploadDocument(){
 
 }
 
+function countDocumentsByCategory(
+    categorie
+){
+
+    return knowledgeData.filter(
+        d => d.categorie === categorie
+    ).length;
+
+}
+
 function renderDocuments(){
 
-    const html = documents
-        .map(doc => `
-            <div class="card">
-                <strong>${doc.name}</strong>
+    const container =
+        document.getElementById(
+            "documentsContainer"
+        );
 
+    if(!container){
+        return;
+    }
+
+    container.innerHTML =
+        knowledgeData.map(doc => `
+
+            <div class="card">
+
+                <h3>
+                    📄 ${doc.titel}
+                </h3>
+
+                <span class="tag">
+                    ${doc.categorie}
+                </span>
+
+                <span class="tag">
+                    ${doc.subcategorie || ""}
+                </span>
                 <br><br>
 
-                <button>
-                    Open
-                </button>
+🏷 ${
+    doc.tags
+    ? doc.tags.join(", ")
+    : ""
+}
 
-                <button>
-                    Download
-                </button>
             </div>
-        `)
-        .join("");
 
-    document.getElementById(
-        "documentList"
-    ).innerHTML = html;
+        `).join("");
 
 }
 
@@ -2627,11 +2685,20 @@ function searchItems(){
         .toLowerCase();
 
     const result =
-        knowledgeData.filter(item =>
-            item.title
+    knowledgeData.filter(item =>
+
+        (item.titel || "")
             .toLowerCase()
             .includes(q)
-        );
+
+        ||
+
+        (item.tags || [])
+            .join(" ")
+            .toLowerCase()
+            .includes(q)
+
+    );
 
     document.getElementById(
         "searchResults"
@@ -2658,6 +2725,24 @@ function toggleInputMode(){
         (mode === "ai" || mode === "hybrid")
         ? "block"
         : "none";
+}
+
+function updateCategoryCounts(){
+
+    const crohn =
+        document.getElementById(
+            "crohnCount"
+        );
+
+    if(crohn){
+
+        crohn.innerText =
+            countDocumentsByCategory(
+                "Crohn"
+            );
+
+    }
+
 }
 
 console.log(

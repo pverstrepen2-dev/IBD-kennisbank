@@ -173,10 +173,6 @@ border-bottom:1px solid #ddd;
 🤝 CCV-VZW
 </button>
 
-<button onclick="openPage('documents')">
-📂 Documenten
-</button>
-
 <button onclick="openPage('knowledge')">
 📚 Kennisbank
 </button>
@@ -280,6 +276,20 @@ border-bottom:1px solid #ddd;
     <h2>
         📚 Documentbibliotheek
     </h2>
+
+<input
+    type="text"
+    id="documentSearch"
+    placeholder="🔍 Zoek document..."
+>
+
+<button
+    onclick="filterDocuments()"
+>
+    🔍 Zoeken
+</button>
+
+<br><br>
 
     <div id="documentsContainer"></div>
 
@@ -2991,6 +3001,67 @@ function closeAllPreviews(){
     document.getElementById(
         "previewArea"
     ).innerHTML = "";
+
+}
+
+function filterDocuments(){
+
+    const searchText =
+
+        document
+            .getElementById(
+                "documentSearch"
+            )
+            .value
+            .toLowerCase();
+
+    const filtered =
+
+        knowledgeData.filter(doc =>
+
+            (doc.titel || "")
+            .toLowerCase()
+            .includes(searchText)
+
+        );
+
+    renderFilteredDocuments(
+        filtered
+    );
+
+}
+
+function renderFilteredDocuments(
+    docs
+){
+
+    const container =
+
+        document.getElementById(
+            "documentsContainer"
+        );
+
+    container.innerHTML =
+
+        docs
+
+        .filter(
+            doc => doc.type !== "Map"
+        )
+
+        .map(doc => `
+
+            <div class="card">
+
+                <h3>
+                    📄 ${doc.titel}
+                </h3>
+
+            </div>
+
+        `)
+
+        .join("");
 
 }
 

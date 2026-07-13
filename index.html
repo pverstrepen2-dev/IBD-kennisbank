@@ -204,6 +204,16 @@ border-bottom:1px solid #ddd;
 </div>
 
 <div class="content">
+    <div id="breadcrumb"
+     style="
+        margin-bottom:15px;
+        padding:10px;
+        background:white;
+        border-radius:8px;
+        font-size:14px;
+     ">
+    🏠 Dashboard
+</div>
 
 <div id="dashboard" class="page">
 
@@ -270,6 +280,21 @@ border-bottom:1px solid #ddd;
 
  </div><!-- dashboard sluiten -->
 
+<!-- NIEUWE CATEGORIE WEERGAVE -->
+
+<div id="categoryView" class="page hidden">
+
+    <div class="card">
+        <h2 id="categoryTitle"></h2>
+        <h3 id="subCategoryTitle"></h3>
+    </div>
+
+    <div id="categoryDocuments"></div>
+
+</div>
+
+<!-- BESTAANDE DOCUMENTBIBLIOTHEEK -->
+
 <div id="documents"
      class="page hidden">
 
@@ -291,8 +316,7 @@ border-bottom:1px solid #ddd;
 
 <br><br>
 
-    <div id="documentsContainer"></div>
-
+    
     <br>
 
 <button
@@ -336,7 +360,7 @@ border-bottom:1px solid #ddd;
             Beschikbare documenten
         </h3>
 
-        <div id="documentList"></div>
+        <div id="documentsContainer"></div>
 
     </div>
 
@@ -1465,7 +1489,31 @@ let lastSync = null;
 
 function openPage(page){
 
-    const activePage =
+    const pageNames = {
+
+    dashboard:"🏠 Dashboard",
+    knowledge:"📚 Kennisbank",
+    documents:"📂 Documentbibliotheek",
+    faq:"❓ FAQ",
+    beheer:"⚙️ Beheer",
+    ccv:"🤝 CCV-VZW",
+    zorggids:"🏥 Zorggids",
+    sociaal:"⚖️ Sociale Gids",
+    media:"🎥 Media Bibliotheek"
+};
+
+if(document.getElementById("breadcrumb")){
+
+    document.getElementById(
+        "breadcrumb"
+    ).innerHTML =
+
+    pageNames[page] ||
+
+    "🏠 Dashboard";
+}
+
+       const activePage =
         document.querySelector(
             ".page:not(.hidden)"
         );
@@ -1519,52 +1567,35 @@ function goBack(){
 
 function openCategory(mainCategory, subCategory){
 
-    if(mainCategory === "CCV-VZW"){
+    document.getElementById(
+        "breadcrumb"
+    ).innerHTML =
+        "🏠 Dashboard > " +
+        mainCategory +
+        " > " +
+        subCategory;
 
-        switch(subCategory){
+    document.getElementById(
+        "categoryTitle"
+    ).innerText = mainCategory;
 
-            case "Nieuwe Vergadering":
-                showNewMeetingForm();
-                return;
+    document.getElementById(
+        "subCategoryTitle"
+    ).innerText = subCategory;
 
-            case "Nieuw Project":
-                showNewProjectForm();
-                return;
-
-            case "Nieuw Lid":
-                showNewMemberForm();
-                return;
-
-            case "Nieuwe Taak":
-                showNewTaskForm();
-                return;
-
-            case "Nieuwe Activiteit":
-                showNewActivityForm();
-                return;
-        }
-    }
-
-    document.getElementById("documentList").innerHTML = `
-        <div class="card">
-            <h2>${mainCategory}</h2>
-            <h3>${subCategory}</h3>
-        </div>
-    `;
+    openPage("categoryView");
 
     showDocumentsBySubCategory(
         mainCategory,
         subCategory
     );
-
-    openPage("documents");
 }
 
 function showBestuur(){
 
 openPage("documents");
 
-document.getElementById("documentList").innerHTML = `
+document.getElementById("documentsContainer").innerHTML = `
 
 <div class="card">
 
@@ -1590,7 +1621,7 @@ function showCommunity(){
 
 openPage("documents");
 
-document.getElementById("documentList").innerHTML = `
+document.getElementById("documentsContainer").innerHTML = `
 
 <div class="card">
 
@@ -1616,7 +1647,7 @@ function showProjecten(){
 
 openPage("documents");
 
-document.getElementById("documentList").innerHTML = `
+document.getElementById("documentsContainer").innerHTML = `
 
 <div class="card">
 
@@ -1642,7 +1673,7 @@ function showNewProjectForm(){
 
     openPage("documents");
 
-    document.getElementById("documentList").innerHTML = `
+    document.getElementById("documentsContainer").innerHTML = `
 
     <div class="card">
 
@@ -1673,7 +1704,7 @@ function showNewMemberForm(){
 
     openPage("documents");
 
-    document.getElementById("documentList").innerHTML = `
+    document.getElementById("documentsContainer").innerHTML = `
 
     <div class="card">
 
@@ -1704,7 +1735,7 @@ function showNewTaskForm(){
 
     openPage("documents");
 
-    document.getElementById("documentList").innerHTML = `
+    document.getElementById("documentsContainer").innerHTML = `
 
     <div class="card">
 
@@ -1734,7 +1765,7 @@ function showNewActivityForm(){
 
     openPage("documents");
 
-    document.getElementById("documentList").innerHTML = `
+    document.getElementById("documentsContainer").innerHTML = `
 
     <div class="card">
 
@@ -1765,7 +1796,7 @@ function showOrganisatie(){
 
 openPage("documents");
 
-document.getElementById("documentList").innerHTML = `
+document.getElementById("documentsContainer").innerHTML = `
 
 <div class="card">
 
@@ -1792,7 +1823,7 @@ function showKennisDocumenten(){
 
 openPage("documents");
 
-document.getElementById("documentList").innerHTML = `
+document.getElementById("documentsContainer").innerHTML = `
 
 <div class="card">
 
@@ -1820,7 +1851,7 @@ function showMeetings(){
 
 openPage("documents");
 
-document.getElementById("documentList").innerHTML = `
+document.getElementById("documentsContainer").innerHTML = `
 
 <div class="card">
 
@@ -1869,7 +1900,7 @@ function showNewMeetingForm(){
 
     openPage("documents");
 
-    document.getElementById("documentList").innerHTML = `
+    document.getElementById("documentsContainer").innerHTML = `
 
     <div class="card">
 
@@ -1949,7 +1980,7 @@ function showProjects(){
 
 openPage("documents");
 
-document.getElementById("documentList").innerHTML = `
+document.getElementById("documentsContainer").innerHTML = `
 
 <div class="card">
 
@@ -2102,7 +2133,7 @@ function analyzeWithAI(){
 
 function showCCVDashboard(){
 
-document.getElementById("documentList").innerHTML = `
+document.getElementById("documentsContainer").innerHTML = `
 
 <div class="card">
 
@@ -2162,7 +2193,7 @@ function showCategoryDocuments(
     });
 
     document.getElementById(
-        "documentList"
+        "documentsContainer"
     ).innerHTML = html;
 
     openPage("documents");
@@ -2173,40 +2204,49 @@ function showDocumentsBySubCategory(
     subcategorie
 ){
 
+    document.getElementById(
+    "categoryDocuments"
+).innerHTML = html;
+
+        "🏠 Dashboard > " +
+
+        categorie +
+
+        " > " +
+
+        subcategorie;
+
     const docs = knowledgeData.filter(
         doc =>
             doc.categorie === categorie &&
             doc.subcategorie === subcategorie
     );
 
-  let html = "";
+    let html = "";
 
-docs.forEach(doc => {
+    docs.forEach(doc => {
 
-    html += `
-
+        html += `
         <div class="card">
 
             <h3>
-    <a href="${doc.bestand}"
-       target    </a>
-</h3>
+                <a href="${doc.bestand}"
+                   target</a>
+            </h3>
 
             <p>
                 ${doc.samenvatting || ""}
             </p>
 
         </div>
+        `;
+    });
 
-    `;
+    document.getElementById(
+        "documentsContainer"
+    ).innerHTML = html;
 
-});
-
-document.getElementById(
-    "documentList"
-).innerHTML = html;
-
-openPage("documents");
+    openPage("documents");
 }
 /* ==================================
    TOEKOMSTIGE ONEDRIVE KOPPELING
@@ -2371,6 +2411,13 @@ console.log(
 
     }
 
+}
+
+function updateBreadcrumb(text){
+
+    document.getElementById(
+        "breadcrumb"
+    ).innerHTML = text;
 }
 
 function generateTags(filename){
@@ -2827,7 +2874,8 @@ function countDocumentsByCategory(
 
            <a href="${doc.bestand}"
    target
-</a>
+   
+   </a>
 
             &nbsp;
 

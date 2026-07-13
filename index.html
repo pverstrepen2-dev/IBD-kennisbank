@@ -285,6 +285,26 @@ border-bottom:1px solid #ddd;
 
     <br>
 
+<button
+    onclick="previewSelected()"
+>
+    👁 Vergelijk geselecteerde documenten
+</button>
+
+<br><br>
+
+<button
+    onclick="closeAllPreviews()"
+>
+    ❌ Sluit previews
+</button>
+
+<br><br>
+
+<div id="previewArea">
+
+</div>
+
     <input type="file"
            id="fileUpload">
 
@@ -2772,6 +2792,12 @@ function countDocumentsByCategory(
 
     <div class="card">
 
+        <input
+    type="checkbox"
+    class="pdfSelect"
+    value="${doc.bestand}"
+>
+
         <h3>
             📄 ${doc.titel}
         </h3>
@@ -2911,6 +2937,63 @@ function closePreview(){
     ).src = "";
 
 }
+
+function previewSelected(){
+
+    const urls =
+
+        [...document.querySelectorAll(
+            ".pdfSelect:checked"
+        )]
+
+        .map(
+            checkbox => checkbox.value
+        );
+
+    if(urls.length === 0){
+
+        alert(
+            "Selecteer eerst documenten"
+        );
+
+        return;
+
+    }
+
+    previewMultiple(urls);
+
+}
+
+function previewMultiple(urls){
+
+    const container =
+        document.getElementById(
+            "previewArea"
+        );
+
+    container.innerHTML = "";
+
+    urls.forEach(url => {
+
+        container.innerHTML += `
+
+            <iframe
+            </iframe>
+
+        `;
+
+    });
+
+}
+
+function closeAllPreviews(){
+
+    document.getElementById(
+        "previewArea"
+    ).innerHTML = "";
+
+}
+
 console.log(
     "IBD Kennisbank V7 gestart"
 );

@@ -1125,7 +1125,7 @@ showDocumentsBySubCategory(
     Nog niet gesynchroniseerd
 </div>
 
-<<div id="documentCountInfo"
+<div id="documentCountInfo"
      style="
         padding:8px;
         background:#f5f7fa;
@@ -2191,7 +2191,14 @@ docs.forEach(doc => {
 
                 ${doc.bestand}
                     📄 ${doc.titel}
-                </a>
+                <a
+    href="${doc.bestand}"
+    target="_blank"
+>
+
+    📄 ${doc.titel}
+
+<
 
             </h3>
 
@@ -2831,17 +2838,17 @@ function countDocumentsByCategory(
         <br><br>
 
         <a
-            href="${doc.bestand}"
-            target="_blank"
-            style="
-                 onclick="
-                previewDocument(
-                    '${doc.bestand}'
-                )
-            "
-        >
-            👁 Preview
-        </button>
+    href="${doc.bestand}"
+    target="_blank"
+    style="
+        color:#2563eb;
+        text-decoration:none;
+       nd}'
+        )
+    "
+>
+    👁 Preview
+</button>
 
     </div>
 
@@ -2987,7 +2994,9 @@ function previewMultiple(urls){
 
         container.innerHTML += `
 
-            <iframe
+    <iframe
+        src="${url}"
+        style
             </iframe>
 
         `;

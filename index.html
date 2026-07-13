@@ -1085,6 +1085,36 @@ showDocumentsBySubCategory(
 
     <h3>📁 OneDrive mappen</h3>
 
+<div id="lastSyncInfo"
+     style="
+        padding:8px;
+        background:#f5f7fa;
+        border-radius:8px;
+        margin-bottom:10px;
+     ">
+    Nog niet gesynchroniseerd
+</div>
+
+<<div id="documentCountInfo"
+     style="
+        padding:8px;
+        background:#f5f7fa;
+        border-radius:8px;
+        margin-bottom:10px;
+     ">
+    📄 Documenten: 0
+</div>
+
+<div id="folderCountInfo"
+     style="
+        padding:8px;
+        background:#f5f7fa;
+        border-radius:8px;
+        margin-bottom:10px;
+     ">
+    📁 Mappen: 0
+</div>
+
 <div id="folderList"></div>
 
 <br>
@@ -1298,6 +1328,12 @@ if(response){
         "Succesvol ingelogd",
         response.account.username
     );
+
+    if(accessToken){
+
+    await syncOneDrive();
+
+}
 }
 
 console.log("MSAL geïnitialiseerd");
@@ -1394,6 +1430,8 @@ url:"https://www.cochranelibrary.com"
 // PAGINA GESCHIEDENIS
 // =======================
 let pageHistory = [];
+let lastSync = null;
+
 
 function openPage(page){
 
@@ -2246,12 +2284,43 @@ async function syncOneDrive(){
         knowledgeData = [];
 
         await bulkImport();
-        updateCategoryCounts();
 
-        console.log(
-            "Aantal documenten:",
-            knowledgeData.length
-        );
+lastSync =
+    new Date().toISOString();
+
+document.getElementById(
+    "lastSyncInfo"
+).innerText =
+    "Laatste synchronisatie: " +
+    new Date(lastSync)
+        .toLocaleString("nl-BE");
+
+const totalDocuments =
+    knowledgeData.filter(
+        item => item.type !== "Map"
+    ).length;
+
+const totalFolders =
+    knowledgeData.filter(
+        item => item.type === "Map"
+    ).length;
+
+document.getElementById(
+    "documentCountInfo"
+).innerText =
+    "📄 Documenten: " +
+    totalDocuments;
+
+document.getElementById(
+    "folderCountInfo"
+).innerText =
+    "📁 Mappen: " +
+    totalFolders;
+
+console.log(
+    "Aantal documenten:",
+    knowledgeData.length
+);
 
         alert(
             "✅ OneDrive synchronisatie voltooid"

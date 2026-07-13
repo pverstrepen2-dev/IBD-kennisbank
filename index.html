@@ -2403,6 +2403,11 @@ async function scanFolder(
 
                 titel:item.name,
 
+                ssamenvatting:
+    buildSummary(
+        item.name
+    ),
+
                 categorie:categorie,
 
                 tags:
@@ -2422,6 +2427,39 @@ async function scanFolder(
 
         }
     }
+}
+
+function buildSummary(filename){
+
+    const naam =
+        filename.toLowerCase();
+
+    if(naam.includes("crohn")){
+
+        return "Document over de ziekte van Crohn.";
+
+    }
+
+    if(naam.includes("medicatie")){
+
+        return "Document over IBD-medicatie.";
+
+    }
+
+    if(naam.includes("voeding")){
+
+        return "Document over voeding en dieet.";
+
+    }
+
+    if(naam.includes("onderzoek")){
+
+        return "Wetenschappelijk onderzoeksdocument.";
+
+    }
+
+    return "Document uit de kennisbank.";
+
 }
 
 async function buildFolderTree(
@@ -2730,53 +2768,48 @@ function countDocumentsByCategory(
             doc => doc.type !== "Map"
         )
 
-        .map(doc => `
+       .map(doc => `
 
-            <div class="card">
+    <div class="card">
 
-                <h3>
-                    📄 ${doc.titel}
-                </h3>
+        <h3>
+            📄 ${doc.titel}
+        </h3>
 
-<br>
+        <span class="tag">
+            ${doc.categorie}
+        </span>
 
-<a
-    href="${doc.bestand}"
-    target="_blank"
-    style="
-        color:#2563eb;
-        text-decoration:none;
-        font-weight:bold;
-    "
->
-    📂 Open document
-</a>
+        <span class="tag">
+            ${doc.subcategorie || ""}
+        </span>
 
-                <span class="tag">
-                    ${doc.categorie}
-                </span>
+        <br><br>
 
-                <span class="tag">
-                    ${doc.subcategorie || ""}
-                </span>
+        🏷 ${
+            doc.tags
+                ? doc.tags.join(", ")
+                : ""
+        }
 
-                <br><br>
+        <br><br>
 
-                🏷 ${
-                    doc.tags
-                    ? doc.tags.join(", ")
-                    : ""
-                }
+        <a
+            href="${doc.bestand}"
+            target="_blank"
+            style="
+                 onclick="
+                previewDocument(
+                    '${doc.bestand}'
+                )
+            "
+        >
+            👁 Preview
+        </button>
 
-                <br><br>
+    </div>
 
-                ${doc.bestand}
-                    📂 Open document
-                </a>
-
-            </div>
-
-        `)
+`)
 
         .join("");
 
@@ -2855,11 +2888,83 @@ function updateCategoryCounts(){
 
 }
 
+function previewDocument(url){
+
+    document.getElementById(
+        "previewFrame"
+    ).src = url;
+
+    document.getElementById(
+        "previewModal"
+    ).style.display = "block";
+
+}
+
+function closePreview(){
+
+    document.getElementById(
+        "previewModal"
+    ).style.display = "none";
+
+    document.getElementById(
+        "previewFrame"
+    ).src = "";
+
+}
 console.log(
     "IBD Kennisbank V7 gestart"
 );
 
 </script>
+
+<div id="previewModal"
+     style="
+        display:none;
+        position:fixed;
+        top:0;
+        left:0;
+        width:100%;
+        height:100%;
+        background:rgba(0,0,0,.7);
+        z-index:9999;
+     ">
+
+    <div
+        style="
+            width:90%;
+            height:90%;
+            background:white;
+            margin:2% auto;
+            padding:10px;
+            border-radius:12px;
+        ">
+
+        <button
+            onclick="closePreview()"
+            style="
+                float:right;
+                background:red;
+                color:white;
+            "
+        >
+            ❌ Sluiten
+        </button>
+
+        <br><br>
+
+        <iframe
+            id="previewFrame"
+            style="
+                width:100%;
+                height:90%;
+                border:none;
+            "
+        >
+        </iframe>
+
+    </div>
+
+</div>
 
 </body>
 </html>

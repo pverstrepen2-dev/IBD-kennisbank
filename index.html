@@ -2151,22 +2151,33 @@ function showDocumentsBySubCategory(
 
     let html = "";
 
-    docs.forEach(doc => {
+docs.forEach(doc => {
 
-        html += `
+    html += `
+
         <div class="card">
 
-            <h3>${doc.titel}</h3>
+            <h3>
 
-            <p>${doc.samenvatting || ""}</p>
+                ${doc.bestand}
+                    📄 ${doc.titel}
+                </a>
 
-          <a
-    href="${doc.bestand}"
-    target
+            </h3>
+
+            <p>
+                ${doc.samenvatting || ""}
+            </p>
+
+            <span>
+                📂 Klik op de titel om het document te openen
+            </span>
 
         </div>
-        `;
-    });
+
+    `;
+
+});
 
     document.getElementById(
         "documentList"
@@ -2700,7 +2711,7 @@ function countDocumentsByCategory(
 
 }
 
-function renderDocuments(){
+    function renderDocuments(){
 
     const container =
         document.getElementById(
@@ -2712,13 +2723,34 @@ function renderDocuments(){
     }
 
     container.innerHTML =
-        knowledgeData.map(doc => `
+
+        knowledgeData
+
+        .filter(
+            doc => doc.type !== "Map"
+        )
+
+        .map(doc => `
 
             <div class="card">
 
                 <h3>
                     📄 ${doc.titel}
                 </h3>
+
+<br>
+
+<a
+    href="${doc.bestand}"
+    target="_blank"
+    style="
+        color:#2563eb;
+        text-decoration:none;
+        font-weight:bold;
+    "
+>
+    📂 Open document
+</a>
 
                 <span class="tag">
                     ${doc.categorie}
@@ -2727,17 +2759,26 @@ function renderDocuments(){
                 <span class="tag">
                     ${doc.subcategorie || ""}
                 </span>
+
                 <br><br>
 
-🏷 ${
-    doc.tags
-    ? doc.tags.join(", ")
-    : ""
-}
+                🏷 ${
+                    doc.tags
+                    ? doc.tags.join(", ")
+                    : ""
+                }
+
+                <br><br>
+
+                ${doc.bestand}
+                    📂 Open document
+                </a>
 
             </div>
 
-        `).join("");
+        `)
+
+        .join("");
 
 }
 

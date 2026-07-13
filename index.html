@@ -2188,12 +2188,9 @@ docs.forEach(doc => {
         <div class="card">
 
             <h3>
-
-                ${doc.bestand}
-                    📄 ${doc.titel}
-                </a>
-
-            </h3>
+    <a href="${doc.bestand}"
+       target    </a>
+</h3>
 
             <p>
                 ${doc.samenvatting || ""}
@@ -2828,9 +2825,9 @@ function countDocumentsByCategory(
 
             <br><br>
 
-            ${doc.bestand}
-                📂 Open document
-            </a>
+           <a href="${doc.bestand}"
+   target
+</a>
 
             &nbsp;
 
@@ -2987,9 +2984,10 @@ function previewMultiple(urls){
     urls.forEach(url => {
 
         container.innerHTML += `
-
-            ${url}
-            </iframe>
+            <iframe
+                src="${url}"
+                style="
+ 
 
         `;
 

@@ -1538,9 +1538,12 @@ if(document.getElementById("breadcrumb")){
         .classList.remove("hidden");
 
     // Beheerpagina openen
-    if(page === "beheer"){
-        loadFolders();
-    }
+    if(
+    page === "beheer" &&
+    accessToken
+){
+    loadFolders();
+}
 
     if(page === "documents"){
     renderDocuments();
@@ -2587,12 +2590,19 @@ async function loadFolders(){
         }
     );
 
-    const data =
-        await response.json();
+    const data = await response.json();
 
-    container.innerHTML = "";
+if(!data.value){
 
-    for(const folder of data.value){
+    console.error(data);
+
+    container.innerHTML =
+        "❌ Geen toegang tot OneDrive of niet aangemeld";
+
+    return;
+}
+
+for(const folder of data.value){
 
         if(!folder.folder){
             continue;
@@ -2641,7 +2651,17 @@ async function bulkImport(){
 
     const data = await response.json();
 
-    for(const folder of data.value){
+if(!data.value){
+
+    console.error(data);
+
+    container.innerHTML =
+        "❌ Geen toegang tot OneDrive of niet aangemeld";
+
+    return;
+}
+
+for(const folder of data.value){
 
         const categorie = determineCategory(
             folder.name

@@ -2713,41 +2713,60 @@ for(const folder of data.value){
 
 }
 
-function determineCategory(
-    folderName
-){
+function determineCategory(folderName){
 
     const naam =
         folderName.toLowerCase();
 
-    if(
-        naam.includes("crohn")
-    ){
+    if(naam.includes("crohn"))
         return "Crohn";
-    }
+
+    if(
+        naam.includes("colitis")
+    )
+        return "Colitis Ulcerosa";
+
+    if(
+        naam.includes("ibd")
+    )
+        return "IBD";
 
     if(
         naam.includes("voeding")
-    ||
+        ||
         naam.includes("fodmap")
-    ){
+    )
         return "Voeding";
-    }
 
     if(
-        naam.includes("psyche")
-    ){
-        return "Mindfulness";
-    }
+        naam.includes("zorg")
+    )
+        return "Zorggids";
 
     if(
+        naam.includes("sociaal")
+        ||
         naam.includes("rechten")
-    ){
+    )
         return "Sociale Gids";
-    }
+
+    if(
+        naam.includes("mindfulness")
+        ||
+        naam.includes("psyche")
+    )
+        return "Mindfulness & Welzijn";
+
+    if(
+        naam.includes("media")
+        ||
+        naam.includes("webinar")
+        ||
+        naam.includes("podcast")
+    )
+        return "Media";
 
     return "Algemeen";
-
 }
 
 async function bulkImportSelectedFolder(){

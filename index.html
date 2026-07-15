@@ -408,7 +408,7 @@ border-bottom:1px solid #ddd;
 </button>
 
 <button onclick="
-showDocumentsBySubCategory(
+openCategory(
 'Crohn',
 'Diagnose'
 )">
@@ -2204,18 +2204,6 @@ function showDocumentsBySubCategory(
     subcategorie
 ){
 
-    document.getElementById(
-    "categoryDocuments"
-).innerHTML = html;
-
-        "🏠 Dashboard > " +
-
-        categorie +
-
-        " > " +
-
-        subcategorie;
-
     const docs = knowledgeData.filter(
         doc =>
             doc.categorie === categorie &&
@@ -2228,25 +2216,19 @@ function showDocumentsBySubCategory(
 
         html += `
         <div class="card">
-
-            <h3>
-                <a href="${doc.bestand}"
-                   target</a>
-            </h3>
+            <h3>${doc.titel}</h3>
 
             <p>
                 ${doc.samenvatting || ""}
             </p>
-
         </div>
         `;
+
     });
 
     document.getElementById(
-        "documentsContainer"
+        "categoryDocuments"
     ).innerHTML = html;
-
-    openPage("documents");
 }
 /* ==================================
    TOEKOMSTIGE ONEDRIVE KOPPELING
@@ -2872,10 +2854,9 @@ function countDocumentsByCategory(
 
             <br><br>
 
-           <a href="${doc.bestand}"
-   target
-   
-   </a>
+          <a href="${doc.bestand}"
+n document
+</a>
 
             &nbsp;
 

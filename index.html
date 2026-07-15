@@ -1954,31 +1954,31 @@ function showNewMeetingForm(){
 
 function renderMeetings(){
 
-let html = "";
+    const meetingList =
+        document.getElementById(
+            "meetingList"
+        );
 
-meetings.forEach(m => {
+    if(!meetingList){
+        return;
+    }
 
-html += `
+    let html = "";
 
-<div class="card">
+    meetings.forEach(m => {
 
-<b>${m.naam}</b>
+        html += `
+        <div class="card">
+            <b>${m.naam}</b><br>
+            ${m.datum}
+        </div>
+        `;
 
-<br>
+    });
 
-${m.datum}
-
-</div>
-
-`;
-
-});
-
-document.getElementById(
-"meetingList"
-).innerHTML = html;
-
+    meetingList.innerHTML = html;
 }
+
 function showProjects(){
 
 openPage("documents");
@@ -2997,13 +2997,10 @@ function updateCategoryCounts(){
 
 function previewDocument(url){
 
-    document.getElementById(
-        "previewFrame"
-    ).src = url;
-
-    document.getElementById(
-        "previewModal"
-    ).style.display = "block";
+    window.open(
+        url,
+        "_blank"
+    );
 
 }
 
@@ -3134,6 +3131,48 @@ function renderFilteredDocuments(
         `)
 
         .join("");
+
+}
+
+async function importSingleFolder(
+    folderId,
+    folderName
+){
+
+    if(
+        knowledgeData.some(
+            x => x.titel === folderName &&
+                 x.type === "Map"
+        )
+    ){
+        alert(
+            "Deze map werd al geïmporteerd"
+        );
+        return;
+    }
+
+    const categorie =
+        determineCategory(folderName);
+
+    knowledgeData.push({
+        titel: folderName,
+        categorie: categorie,
+        subcategorie: folderName,
+        type: "Map"
+    });
+
+    await scanFolder(
+        folderId,
+        categorie,
+        folderName
+    );
+
+    await saveData();
+
+    alert(
+        "✅ Map geïmporteerd: "
+        + folderName
+    );
 
 }
 

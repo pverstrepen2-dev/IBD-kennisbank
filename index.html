@@ -2432,6 +2432,26 @@ async function scanFolder(
 
     const data = await response.json();
 
+if(!response.ok){
+
+    console.error(
+        "Folder ID:",
+        folderId
+    );
+
+    console.error(
+        "Status:",
+        response.status
+    );
+
+    console.error(
+        "Graph fout:",
+        data
+    );
+
+    return;
+}
+
     if(!data.value){
         console.error(data);
         return;

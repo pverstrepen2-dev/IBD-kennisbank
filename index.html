@@ -9,6 +9,7 @@
 <script src="https://unpkg.com/@azure/msal-browser@latest/lib/msal-browser.min.js"></script>
 
 <style>
+
 body{
     font-family:Segoe UI,Arial,sans-serif;
     margin:0;
@@ -98,6 +99,8 @@ header{
 
 }
 
+
+
 .dashboard-grid button{
 
     background:#2563eb;
@@ -123,6 +126,21 @@ header{
     background:#1d4ed8;
 
 }
+
+.tag{
+    display:inline-block;
+    background:#2563eb;
+    color:white;
+    padding:4px 10px;
+    border-radius:20px;
+    margin:2px;
+    font-size:12px;
+}
+
+.tagContainer{
+    margin-top:8px;
+}
+
 </style>
 </head>
 
@@ -2486,9 +2504,9 @@ if(!response.ok){
                 categorie:categorie,
 
                 tags:
-                generateTags(
-                 item.name
-        ),
+determineTags(
+    item.name
+),
 
                 subcategorie:huidigeSubcategorie,
 
@@ -2693,11 +2711,17 @@ for(const folder of data.value){
         determineCategory(folder.name);
 
     knowledgeData.push({
+
         titel: folder.name,
+
         categorie: categorie,
+
         subcategorie: folder.name,
+
         bestand: folder.webUrl,
+
         type: "Map"
+
     });
 
     await scanFolder(
@@ -2705,12 +2729,6 @@ for(const folder of data.value){
         categorie,
         folder.name
     );
-}
-
-    await saveData();
-
-    alert("✅ Bulkimport voltooid");
-
 }
 
 function determineCategory(folderName){
@@ -2767,6 +2785,32 @@ function determineCategory(folderName){
         return "Media";
 
     return "Algemeen";
+}
+
+function determineTags(folderName){
+
+    const tags = [];
+    const naam = folderName.toLowerCase();
+
+    if(naam.includes("crohn"))
+        tags.push("Crohn");
+
+    if(naam.includes("colitis"))
+        tags.push("Colitis Ulcerosa");
+
+    if(naam.includes("ibd"))
+        tags.push("IBD");
+
+    if(naam.includes("voeding"))
+        tags.push("Voeding");
+
+    if(naam.includes("medicatie"))
+        tags.push("Medicatie");
+
+    if(naam.includes("diagnose"))
+        tags.push("Diagnose");
+
+    return tags;
 }
 
 async function bulkImportSelectedFolder(){
@@ -2909,11 +2953,20 @@ function countDocumentsByCategory(
 
             <br><br>
 
-            🏷 ${
-                doc.tags
-                ? doc.tags.join(", ")
-                : ""
-            }
+           <div class="tagContainer">
+    ${
+        doc.tags
+        ? doc.tags.map(tag =>
+            `<span
+                class="tag"
+                onclick="filterByTag('${tag}')"
+            >
+                ${tag}
+            </span>`
+        ).join("")
+        : ""
+    }
+</div>
 
             <br><br>
 
@@ -3090,6 +3143,19 @@ function closeAllPreviews(){
         "previewArea"
     ).innerHTML = "";
 
+}
+
+function filterByTag(tag){
+
+    const docs = knowledgeData.filter(
+        doc =>
+            doc.tags &&
+            doc.tags.includes(tag)
+    );
+
+    renderFilteredDocuments(docs);
+
+    openPage("documents");
 }
 
 function filterDocuments(){

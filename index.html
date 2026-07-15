@@ -2665,25 +2665,27 @@ if(!data.value){
 
 for(const folder of data.value){
 
-        const categorie = determineCategory(
-            folder.name
-        );
-
-        knowledgeData.push({
-            titel: folder.name,
-            categorie: categorie,
-            subcategorie: folder.name,
-            bestand: folder.webUrl,
-            type: "Map"
-        });
-
-        await scanFolder(
-            folder.id,
-            categorie,
-            folder.name
-        );
-
+    if(!folder.folder){
+        continue;
     }
+
+    const categorie =
+        determineCategory(folder.name);
+
+    knowledgeData.push({
+        titel: folder.name,
+        categorie: categorie,
+        subcategorie: folder.name,
+        bestand: folder.webUrl,
+        type: "Map"
+    });
+
+    await scanFolder(
+        folder.id,
+        categorie,
+        folder.name
+    );
+}
 
     await saveData();
 
@@ -2877,7 +2879,7 @@ function countDocumentsByCategory(
             <br><br>
 
           <a href="${doc.bestand}"
-n document
+   target
 </a>
 
             &nbsp;

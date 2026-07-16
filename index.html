@@ -2496,56 +2496,44 @@ if(!response.ok){
         }
 
         // BESTAND
-        if(item.file){
+      if(item.file){
 
     const tags =
         determineTags(
             item.name
         );
 
-    let categorie =
-        "Algemeen";
-
-    if(tags.includes("crohn"))
-        categorie = "Crohn";
-
-    else if(tags.includes("colitis"))
-        categorie = "Colitis Ulcerosa";
-
-    else if(tags.includes("ibd"))
-        categorie = "IBD";
-
-    else if(tags.includes("voeding"))
-        categorie = "Voeding";
-
-   knowledgeData.push({
-
-    titel:item.name,
-
-    categorie:
-        classification.categorie,
-
-    subcategorie:
-        classification.subcategorie,
-
-    tags:
-        determineTags(
+    const classification =
+        classifyDocument(
             item.name
-        ),
+        );
 
-    bestand:item.webUrl,
+    knowledgeData.push({
 
-    gewijzigd:
-        item.lastModifiedDateTime,
+        titel:item.name,
 
-    type:
-        item.file.mimeType
+        categorie:
+            classification.categorie,
 
-});
+        subcategorie:
+            classification.subcategorie,
+
+        tags:tags,
+
+        bestand:item.webUrl,
+
+        gewijzigd:
+            item.lastModifiedDateTime,
+
+        type:
+            item.file.mimeType
+
+    });
+
+}
 
 }
     }
-}
 
 function buildSummary(filename){
 
@@ -2631,46 +2619,69 @@ async function buildFolderTree(
 
 const KNOWLEDGE_ENGINE = {
 
-    "Crohn":{
+   "Crohn":{
 
-        keywords:[
+    keywords:[
+        "crohn",
+        "ziektevancrohn"
+    ],
+
+    subcategories:{
+
+        "Ziektebeeld":[
             "crohn",
-            "ziektevancrohn"
+            "ziektebeeld"
         ],
 
-        subcategories:{
+        "Symptomen":[
+            "symptoom",
+            "symptomen",
+            "klachten"
+        ],
 
-            "Ziektebeeld":[
-                "ziektebeeld"
-            ],
+        "Diagnose":[
+            "diagnose",
+            "onderzoek",
+            "colonoscopie",
+            "mri"
+        ],
 
-            "Diagnose":[
-                "diagnose",
-                "onderzoek"
-            ],
+        "Behandelingen":[
+            "behandeling",
+            "therapie"
+        ],
 
-            "Medicatie":[
-                "medicatie",
-                "humira",
-                "stelara",
-                "remicade",
-                "rinvoq",
-                "skyrizi"
-            ],
+        "Medicatie":[
+            "medicatie",
+            "humira",
+            "stellara",
+            "remicade",
+            "rinvoq",
+            "jak",
+            "infliximab"
+        ],
 
-            "Voeding":[
-                "voeding",
-                "dieet",
-                "fodmap"
-            ],
+        "Operaties":[
+            "operatie",
+            "chirurgie",
+            "resectie"
+        ],
 
-            "Symptomen":[
-                "symptomen"
-            ]
+        "Complicaties":[
+            "complicatie",
+            "fistel",
+            "stenose"
+        ],
 
-        }
+        "Voeding":[
+            "voeding",
+            "dieet",
+            "fodmap"
+        ]
 
-    },
+    }
+
+},
 
     "Colitis Ulcerosa":{
 
@@ -2681,41 +2692,300 @@ const KNOWLEDGE_ENGINE = {
 
         subcategories:{
 
-            "Diagnose":[
-                "diagnose"
-            ],
+             "Symptomen":[
+            "symptoom",
+            "symptomen",
+            "klachten"
+        ],
 
-            "Medicatie":[
-                "medicatie"
-            ],
+        "Diagnose":[
+            "diagnose",
+            "onderzoek",
+            "colonoscopie",
+            "mri"
+        ],
 
-            "Voeding":[
-                "voeding"
-            ]
+        "Behandelingen":[
+            "behandeling",
+            "therapie"
+        ],
 
-        }
+        "Medicatie":[
+            "medicatie",
+            "humira",
+            "stellara",
+            "remicade",
+            "rinvoq",
+            "jak",
+            "infliximab"
+        ],
 
-    },
+        "Operaties":[
+            "operatie",
+            "chirurgie",
+            "resectie"
+        ],
+
+        "Complicaties":[
+            "complicatie",
+            "fistel",
+            "stenose"
+        ],
+
+        "Voeding":[
+            "voeding",
+            "dieet",
+            "fodmap"
+        ]
+
+    }
+
+},
 
     "IBD":{
 
-        keywords:[
+    keywords:[
+        "ibd"
+    ],
+
+    subcategories:{
+
+        "Wat is IBD":[
             "ibd"
         ],
 
-        subcategories:{
+        "Diagnose":[
+            "diagnose",
+            "onderzoek",
+            "colonoscopie"
+        ],
 
-            "Diagnose":[
-                "diagnose"
-            ],
+        "Behandelingen":[
+            "behandeling",
+            "therapie"
+        ],
 
-            "Behandelingen":[
-                "behandeling"
-            ]
+        "Medicatie":[
+            "medicatie",
+            "jak",
+            "rinvoq",
+            "humira",
+            "stelara",
+            "remicade",
+            "skyrizi"
+        ],
 
-        }
+        "Pediatrie":[
+            "pediatric",
+            "paediatric",
+            "pediatrie",
+            "kinderen",
+            "jongeren"
+        ],
+
+        "Vaccinaties":[
+            "vaccin",
+            "vaccinatie"
+        ],
+
+        "Erfelijkheid":[
+            "erfelijkheid",
+            "genetica"
+        ],
+
+        "Onderzoeken":[
+            "onderzoek",
+            "studie"
+        ],
+
+        "Richtlijnen":[
+            "richtlijn",
+            "ecco"
+        ]
 
     }
+
+},
+"CCV-VZW":{
+
+    keywords:[
+        "ccv",
+        "ccv-vzw"
+    ],
+
+    subcategories:{
+
+        "Bestuur":[
+            "bestuur",
+            "raad van bestuur",
+            "rvb"
+        ],
+
+        "Community":[
+            "community",
+            "leden",
+            "vrijwilligers"
+        ],
+
+        "Projecten":[
+            "project",
+            "projecten"
+        ],
+
+        "Organisatie":[
+            "organisatie",
+            "statuten",
+            "financieel"
+        ],
+
+        "Kennis & Documenten":[
+            "document",
+            "kennis"
+        ],
+
+        "Infostand":[
+            "infostand",
+            "beurs",
+            "stand"
+        ]
+
+    }
+
+},
+"Voeding":{
+
+    keywords:[
+        "voeding",
+        "dieet",
+        "fodmap",
+        "nutrition"
+    ],
+
+    subcategories:{
+
+        "Basisvoeding":[
+            "basisvoeding"
+        ],
+
+        "Eliminatiediëten":[
+            "eliminatiedieet",
+            "eliminatie"
+        ],
+
+        "Enterale voeding":[
+            "enterale voeding"
+        ],
+
+        "Sondevoeding":[
+            "sondevoeding"
+        ],
+
+        "Vitamines & supplementen":[
+            "vitamine",
+            "supplement"
+        ],
+
+        "Voeding tijdens opvlamming":[
+            "opvlamming",
+            "flare"
+        ],
+
+        "Voeding tijdens remissie":[
+            "remissie"
+        ],
+
+        "Recepten":[
+            "recept",
+            "recepten"
+        ],
+
+        "Diëtisten":[
+            "diëtist",
+            "dietist"
+        ]
+
+    }
+
+},
+"Pediatrie":{
+
+    keywords:[
+        "pediatric",
+        "paediatric",
+        "pediatrie",
+        "kinderen",
+        "jongeren"
+    ],
+
+    subcategories:{
+
+        "IBD bij kinderen":[
+            "pediatric",
+            "paediatric"
+        ],
+
+        "Diagnose":[
+            "diagnose"
+        ],
+
+        "Behandeling":[
+            "behandeling"
+        ],
+
+        "Medicatie":[
+            "medicatie",
+            "jak",
+            "remicade"
+        ],
+
+        "School & onderwijs":[
+            "school",
+            "onderwijs"
+        ]
+
+    }
+
+},
+"Mindfulness & Welzijn":{
+
+    keywords:[
+        "mindfulness",
+        "welzijn",
+        "stress",
+        "meditatie"
+    ],
+
+    subcategories:{
+
+        "Stressmanagement":[
+            "stress"
+        ],
+
+        "Mindfulness":[
+            "mindfulness"
+        ],
+
+        "Meditatie":[
+            "meditatie"
+        ],
+
+        "Slaap":[
+            "slaap"
+        ],
+
+        "Burn-out":[
+            "burnout",
+            "burn-out"
+        ],
+
+        "Psychologische begeleiding":[
+            "psycholoog",
+            "psychologische"
+        ]
+
+    }
+
+},
 
 };
 
@@ -3002,6 +3272,9 @@ function determineTags(filename){
     "humira",
     "stelara",
     "remicade",
+    "jak",
+    "inhibitor",
+    "inhibitoren",
 
     "diagnose",
     "symptomen",

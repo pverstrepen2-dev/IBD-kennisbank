@@ -2511,7 +2511,6 @@ if(!response.ok){
 
 
         // BESTAND
-
     
       if(item.file){
 
@@ -2521,39 +2520,69 @@ if(!response.ok){
             .split(".")
             .pop();
 
-    const toegelatenBestanden = [
+  let toegelatenExtensies = [
+
+    "pdf",
+    "doc",
+    "docx",
+    "ppt",
+    "pptx"
+
+];
+
+if(categorie === "Media"){
+
+    toegelatenExtensies = [
+
         "pdf",
         "doc",
         "docx",
         "ppt",
-        "pptx"
+        "pptx",
+
         "mp3",
+        "wav",
+        "m4a",
+
         "mp4",
         "mov",
-        "jpg",
         "avi",
-        "png",
-        "webm",
-        "wav",
+        "webm"
+
     ];
 
-    if(
-        !toegelatenBestanden.includes(
-            extensie
-        )
-    ){
-        continue;
-    }
+}
+
+if(
+    !toegelatenExtensies.includes(
+        extensie
+    )
+){
+    continue;
+}
 
     const tags =
         determineTags(
             item.name
         );
 
-    const classification =
-        classifyDocument(
-            item.name
-        );
+   const zoekTekst =
+
+    categorie +
+
+    " " +
+
+    huidigeSubcategorie +
+
+    " " +
+
+    item.name;
+
+const classification =
+
+    classifyDocument(
+        zoekTekst
+    );
 
     knowledgeData.push({
 

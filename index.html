@@ -2500,32 +2500,30 @@ if(!response.ok){
 
             knowledgeData.push({
 
-                titel:item.name,
+    titel:item.name,
 
-                samenvatting:
-    buildSummary(
-        item.name
-    ),
+    categorie:
+        determineCategory(
+            item.name
+        ),
 
-                categorie:
-    determineCategory(
-        item.name
-    ),
+    tags:
+        determineTags(
+            item.name
+        ),
 
-                tags:
-determineTags(
-    item.name
-),
+    subcategorie:
+        determineSubCategory(
+            item.name
+        ),
 
-                subcategorie:huidigeSubcategorie,
+    bestand:item.webUrl,
 
-                bestand:item.webUrl,
+    gewijzigd:item.lastModifiedDateTime,
 
-                gewijzigd:item.lastModifiedDateTime,
+    type:item.file.mimeType
 
-                type:item.file.mimeType
-
-            });
+});
 
         }
     }
@@ -2612,6 +2610,30 @@ async function buildFolderTree(
 
     return html;
 }
+
+const CATEGORY_RULES = {
+
+    "Crohn":[
+        "crohn",
+        "ziektevancrohn"
+    ],
+
+    "Colitis Ulcerosa":[
+        "colitis",
+        "ulcerosa"
+    ],
+
+    "IBD":[
+        "ibd"
+    ],
+
+    "Voeding":[
+        "voeding",
+        "fodmap",
+        "dieet"
+    ]
+
+};
 
 async function loadFolders(){
 
@@ -2734,58 +2756,27 @@ for(const folder of data.value){
 
 }
 
-function determineCategory(folderName){
+function determineCategory(filename){
 
     const naam =
-        folderName.toLowerCase();
+        filename.toLowerCase();
 
-    if(naam.includes("crohn"))
-        return "Crohn";
+    for(
+        const [categorie, keywords]
+        of Object.entries(CATEGORY_RULES)
+    ){
 
-    if(
-        naam.includes("colitis")
-    )
-        return "Colitis Ulcerosa";
-
-    if(
-        naam.includes("ibd")
-    )
-        return "IBD";
-
-    if(
-        naam.includes("voeding")
-        ||
-        naam.includes("fodmap")
-    )
-        return "Voeding";
-
-    if(
-        naam.includes("zorg")
-    )
-        return "Zorggids";
-
-    if(
-        naam.includes("sociaal")
-        ||
-        naam.includes("rechten")
-    )
-        return "Sociale Gids";
-
-    if(
-        naam.includes("mindfulness")
-        ||
-        naam.includes("psyche")
-    )
-        return "Mindfulness & Welzijn";
-
-    if(
-        naam.includes("media")
-        ||
-        naam.includes("webinar")
-        ||
-        naam.includes("podcast")
-    )
-        return "Media";
+        if(
+            keywords.some(
+                keyword =>
+                    naam.includes(
+                        keyword.toLowerCase()
+                    )
+            )
+        ){
+            return categorie;
+        }
+    }
 
     return "Algemeen";
 }
@@ -2813,30 +2804,40 @@ function determineSubCategory(filename){
     return "Algemeen";
 }
 
-function determineTags(folderName){
+function determineTags(filename){
 
     const tags = [];
-    const naam = folderName.toLowerCase();
+    const naam = filename.toLowerCase();
 
-    if(naam.includes("crohn"))
-        tags.push("Crohn");
+    const KEYWORDS = [
 
-    if(naam.includes("colitis"))
-        tags.push("Colitis Ulcerosa");
+        "crohn",
+        "colitis",
+        "ibd",
+        "voeding",
+        "medicatie",
+        "diagnose",
+        "operatie",
+        "symptomen",
+        "complicaties",
+        "zwangerschap",
+        "pediatrie",
+        "mindfulness"
 
-    if(naam.includes("ibd"))
-        tags.push("IBD");
+    ];
 
-    if(naam.includes("voeding"))
-        tags.push("Voeding");
+    KEYWORDS.forEach(keyword => {
 
-    if(naam.includes("medicatie"))
-        tags.push("Medicatie");
+        if(
+            naam.includes(keyword)
+        ){
+            tags.push(keyword);
+        }
 
-    if(naam.includes("diagnose"))
-        tags.push("Diagnose");
+    });
 
-    return tags;
+    return [...new Set(tags)];
+
 }
 
 async function bulkImportSelectedFolder(){

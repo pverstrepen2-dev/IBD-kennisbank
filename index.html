@@ -2510,24 +2510,12 @@ if(!response.ok){
 
     knowledgeData.push({
 
-        titel:item.name,
-
-        categorie:
+            categorie:
             classification.categorie,
 
         subcategorie:
             classification.subcategorie,
-
-        tags:tags,
-
-        bestand:item.webUrl,
-
-        gewijzigd:
-            item.lastModifiedDateTime,
-
-        type:
-            item.file.mimeType
-
+      
     });
 
 }
@@ -2617,6 +2605,188 @@ async function buildFolderTree(
     return html;
 }
 
+const MEDICAL_DICTIONARY = {
+
+    Basic:[
+        "ibd",
+        "inflammatoire darmziekte",
+        "crohn",
+        "colitis ulcerosa",
+        "ibd-u",
+        "opflakkering",
+        "opstoot",
+        "flare",
+        "remissie"
+    ],
+
+    Symptomen:[
+        "buikpijn",
+        "diarree",
+        "rectale bloeding",
+        "gewichtsverlies",
+        "vermoeidheid",
+        "urgentie",
+        "tenesmen",
+        "nachtelijke diarree",
+        "slijm",
+        "opgeblazen gevoel",
+        "koorts"
+    ],
+
+    Complicaties:[
+        "fistel",
+        "perianale fistel",
+        "abces",
+        "strictuur",
+        "stenose",
+        "obstructie",
+        "ileus",
+        "perforatie",
+        "toxisch megacolon",
+        "artritis"
+    ],
+
+    Diagnose:[
+        "colonoscopie",
+        "sigmoidoscopie",
+        "gastroscopie",
+        "endoscopie",
+        "capsule-endoscopie",
+        "ct",
+        "ct-enterografie",
+        "mri",
+        "mr-enterografie",
+        "echografie",
+        "biopsie",
+        "histologie"
+    ],
+
+    Labo:[
+        "crp",
+        "fecaal calprotectine",
+        "bse",
+        "hemoglobine",
+        "ferritine",
+        "vitamine b12",
+        "foliumzuur",
+        "albumine",
+        "creatinine",
+        "elektrolyten"
+    ],
+
+    Medicatie:[
+        "mesalazine",
+        "mesalamine",
+        "sulfasalazine",
+        "olsalazine",
+        "balsalazide",
+
+        "prednison",
+        "prednisolon",
+        "budesonide",
+        "hydrocortison",
+        "methylprednisolon",
+
+        "azathioprine",
+        "6-mp",
+        "mercaptopurine",
+        "methotrexaat",
+
+        "infliximab",
+        "adalimumab",
+        "golimumab",
+        "vedolizumab",
+        "ustekinumab",
+
+        "tofacitinib",
+        "upadacitinib",
+        "filgotinib",
+
+        "jak",
+        "jak-remmer",
+        "jak inhibitor",
+
+        "humira",
+        "remicade",
+        "entyvio",
+        "stelara",
+        "rinvoq",
+        "skyrizi"
+    ],
+
+    Voeding:[
+        "een",
+        "enterale voeding",
+        "pen",
+        "partiele enterale voeding",
+        "low-fodmap",
+        "fodmap",
+        "laagrestdieet",
+        "mediterraan dieet"
+    ],
+
+    Psychologisch:[
+        "stress",
+        "angst",
+        "depressie",
+        "mindfulness",
+        "cbt",
+        "cognitieve gedragstherapie",
+        "mbsr"
+    ],
+
+    Chirurgie:[
+        "ileostoma",
+        "j-pouch",
+        "proctocolectomie",
+        "darmresectie",
+        "segmentresectie",
+        "stricturoplastiek",
+        "seton",
+        "abcesdrainage",
+        "proctectomie"
+    ]
+
+};
+
+function getMedicalMatches(filename){
+
+    const naam =
+        filename.toLowerCase();
+
+    let matches = [];
+
+    Object.entries(
+        MEDICAL_DICTIONARY
+    ).forEach(
+
+        ([groep,termen]) => {
+
+            termen.forEach(term => {
+
+                if(
+                    naam.includes(
+                        term.toLowerCase()
+                    )
+                ){
+
+                    matches.push({
+                        groep,
+                        term
+                    });
+
+                }
+
+            });
+
+        }
+
+    );
+
+    return matches;
+
+}
+
 const KNOWLEDGE_ENGINE = {
 
    "Crohn":{
@@ -2677,8 +2847,51 @@ const KNOWLEDGE_ENGINE = {
             "voeding",
             "dieet",
             "fodmap"
-        ]
+        ],
 
+"Opvolging":[
+    "controle",
+    "follow-up",
+    "calprotectine",
+    "crp"
+],
+
+"DagelijksLeven":[
+    "dagelijks leven",
+    "reizen",
+    "vakantie"
+],
+
+"WerkStudie":[
+    "werk",
+    "studie",
+    "school",
+    "onderwijs"
+],
+
+"Zwangerschap":[
+    "zwangerschap",
+    "fertiliteit",
+    "borstvoeding"
+],
+
+"Patiëntenrechten":[
+    "rechten",
+    "invaliditeit",
+    "attest"
+],
+
+"Ervaringsverhalen":[
+    "ervaring",
+    "getuigenis",
+    "verhaal"
+],
+
+"Downloads":[
+    "brochure",
+    "download",
+    "pdf"
+]        
     }
 
 },
@@ -2806,6 +3019,39 @@ const KNOWLEDGE_ENGINE = {
     }
 
 },
+
+"Sport & Beweging":{
+
+    keywords:[
+        "sport",
+        "beweging",
+        "fitness",
+        "training"
+    ],
+
+    subcategories:{
+
+        "Sporten met IBD":[
+            "sport",
+            "fitness"
+        ],
+
+        "Training":[
+            "training"
+        ],
+
+        "Wandelen":[
+            "wandelen"
+        ],
+
+        "Revalidatie":[
+            "revalidatie"
+        ]
+
+    }
+
+},
+
 "CCV-VZW":{
 
     keywords:[
@@ -2994,73 +3240,115 @@ function classifyDocument(filename){
     const naam =
         filename.toLowerCase();
 
-    for(
+        const medicalMatches =
+    getMedicalMatches(
+        filename
+    );
 
-        const [categorie,data]
+    let bestCategory =
+        "Algemeen";
 
-        of Object.entries(
-            KNOWLEDGE_ENGINE
-        )
+    let bestSubCategory =
+        "Algemeen";
 
-    ){
+    let highestScore = 0;
 
-        const categoryMatch =
+   for(
 
-            data.keywords.some(
+    const [categorie,data]
 
-                keyword =>
+    of Object.entries(
+        KNOWLEDGE_ENGINE
+    )
 
-                    naam.includes(keyword)
+){
 
-            );
+    let categoryScore = 0;
 
-        if(categoryMatch){
+    medicalMatches.forEach(match => {
 
-            for(
+        if(match.groep === "Medicatie")
+            categoryScore += 2;
 
-                const [subcategorie,keywords]
+        if(match.groep === "Diagnose")
+            categoryScore += 2;
 
-                of Object.entries(
-                    data.subcategories
-                )
+        if(match.groep === "Voeding")
+            categoryScore += 2;
 
-            ){
+        if(match.groep === "Complicaties")
+            categoryScore += 2;
+
+    });
+
+    data.keywords.forEach(keyword => {
+
+        if(
+            naam.includes(
+                keyword.toLowerCase()
+            )
+        ){
+            categoryScore++;
+        }
+
+    });
+
+        let bestSubScore = 0;
+        let currentSubCategory = "Algemeen";
+
+        Object.entries(
+            data.subcategories
+        ).forEach(
+
+            ([subcategorie,keywords]) => {
+
+                let subScore = 0;
+
+                keywords.forEach(keyword => {
+
+                    if(
+                        naam.includes(
+                            keyword.toLowerCase()
+                        )
+                    ){
+                        subScore++;
+                    }
+
+                });
 
                 if(
-
-                    keywords.some(
-
-                        keyword =>
-
-                            naam.includes(keyword)
-
-                    )
-
+                    subScore > bestSubScore
                 ){
 
-                    return {
+                    bestSubScore =
+                        subScore;
 
-                        categorie:
-                            categorie,
-
-                        subcategorie:
-                            subcategorie
-
-                    };
+                    currentSubCategory =
+                        subcategorie;
 
                 }
 
             }
 
-            return {
+        );
 
-                categorie:
-                    categorie,
+        const totalScore =
+            categoryScore +
+            bestSubScore;
 
-                subcategorie:
-                    "Ziektebeeld"
+        if(
+            totalScore >
+            highestScore
+        ){
 
-            };
+            highestScore =
+                totalScore;
+
+            bestCategory =
+                categorie;
+
+            bestSubCategory =
+                currentSubCategory;
 
         }
 
@@ -3069,10 +3357,10 @@ function classifyDocument(filename){
     return {
 
         categorie:
-            "Algemeen",
+            bestCategory,
 
         subcategorie:
-            "Algemeen"
+            bestSubCategory
 
     };
 
@@ -3182,7 +3470,9 @@ for(const folder of data.value){
     }
 
     const categorie =
-        determineCategory(folder.name);
+    classifyDocument(
+        folder.name
+    ).categorie;
 
        await scanFolder(
         folder.id,
@@ -3197,31 +3487,6 @@ for(const folder of data.value){
         
     );
 
-}
-
-function determineCategory(filename){
-
-    const naam =
-        filename.toLowerCase();
-
-    for(
-        const [categorie, keywords]
-        of Object.entries(CATEGORY_RULES)
-    ){
-
-        if(
-            keywords.some(
-                keyword =>
-                    naam.includes(
-                        keyword.toLowerCase()
-                    )
-            )
-        ){
-            return categorie;
-        }
-    }
-
-    return "Ziektebeeld";
 }
 
 function determineSubCategory(filename){
@@ -3254,39 +3519,40 @@ function determineTags(filename){
 
     const KEYWORDS = [
 
-    "crohn",
-    "ziektevancrohn",
-    "crohns",
+   "jak",
+"jak inhibitor",
+"infliximab",
+"adalimumab",
+"humira",
+"remicade",
+"rinvoq",
+"stelara",
+"entyvio",
+"vedolizumab",
+"skyrizi",
+"ustekinumab",
 
-    "colitis",
-    "ulcerosa",
+"colonoscopie",
+"endoscopie",
+"mri",
+"echo",
 
-    "ibd",
+"pediatric",
+"paediatric",
+"kinderen",
 
-    "voeding",
-    "dieet",
-    "fodmap",
+"stress",
+"mindfulness",
+"meditatie",
 
-    "medicatie",
-    "biological",
-    "humira",
-    "stelara",
-    "remicade",
-    "jak",
-    "inhibitor",
-    "inhibitoren",
+"sport",
+"beweging",
+"fitness",
 
-    "diagnose",
-    "symptomen",
-    "operatie",
-    "complicaties",
-
-    "zwangerschap",
-    "pediatrie",
-
-    "mindfulness",
-    "stress",
-    "welzijn"
+"dieet",
+"fodmap",
+"nutrition",
+"voeding"
 
 ];
 
@@ -3317,9 +3583,9 @@ async function bulkImportSelectedFolder(){
     );
 
     const categorie =
-        determineCategory(
-            folderName
-        );
+    classifyDocument(
+        folder.name
+    ).categorie;
 
     knowledgeData.push({
 
@@ -3731,7 +3997,9 @@ async function importSingleFolder(
     }
 
     const categorie =
-        determineCategory(folderName);
+    classifyDocument(
+        folderName
+    ).categorie;
 
     knowledgeData.push({
 

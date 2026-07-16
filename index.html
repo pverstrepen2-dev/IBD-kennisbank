@@ -2498,34 +2498,48 @@ if(!response.ok){
         // BESTAND
         if(item.file){
 
-            knowledgeData.push({
-
-    titel:item.name,
-
-    categorie:
-        determineCategory(
-            item.name
-        ),
-
-    tags:
+    const tags =
         determineTags(
             item.name
-        ),
+        );
 
-    subcategorie:
-        determineSubCategory(
-            item.name
-        ),
+    let categorie =
+        "Algemeen";
 
-    bestand:item.webUrl,
+    if(tags.includes("crohn"))
+        categorie = "Crohn";
 
-    gewijzigd:item.lastModifiedDateTime,
+    else if(tags.includes("colitis"))
+        categorie = "Colitis Ulcerosa";
 
-    type:item.file.mimeType
+    else if(tags.includes("ibd"))
+        categorie = "IBD";
 
-});
+    else if(tags.includes("voeding"))
+        categorie = "Voeding";
 
-        }
+    knowledgeData.push({
+
+        titel:item.name,
+
+        categorie:categorie,
+
+        tags:tags,
+
+        subcategorie:
+            determineSubCategory(
+                item.name
+            ),
+
+        bestand:item.webUrl,
+
+        gewijzigd:item.lastModifiedDateTime,
+
+        type:item.file.mimeType
+
+    });
+
+}
     }
 }
 

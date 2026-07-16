@@ -2507,7 +2507,10 @@ if(!response.ok){
         item.name
     ),
 
-                categorie:categorie,
+                categorie:
+    determineCategory(
+        item.name
+    ),
 
                 tags:
 determineTags(

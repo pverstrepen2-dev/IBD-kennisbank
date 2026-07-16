@@ -1,0 +1,3387 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>IBD Kennisbank</title>
+
+<script src="https://unpkg.com/@azure/msal-browser@latest/lib/msal-browser.min.js"></script>
+
+<style>
+
+body{
+    font-family:Segoe UI,Arial,sans-serif;
+    margin:0;
+    background:#f5f7fa;
+}
+
+header{
+    background:#2563eb;
+    color:white;
+    padding:15px 25px;
+}
+
+.container{
+    display:flex;
+    min-height:100vh;
+}
+
+.sidebar{
+    width:260px;
+    background:#1e293b;
+    color:white;
+    padding:20px;
+}
+
+.sidebar button{
+    width:100%;
+    margin-bottom:10px;
+    padding:12px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+.content{
+    flex:1;
+    padding:25px;
+    width:100%;
+}
+
+.page{
+    width:100%;
+}
+
+.page .card{
+    margin:0 auto 20px auto;
+    max-width:1200px;
+}
+.card{
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    margin-bottom:20px;
+    box-shadow:0 2px 10px rgba(0,0,0,.08);
+}
+
+#faq{
+    width:100%;
+}
+
+#faq .card{
+    max-width:1200px;
+    margin:0 auto;
+}
+
+#beheer{
+    width:100%;
+}
+
+#beheer .card{
+    max-width:1200px;
+    margin:0 auto 20px auto;
+}
+
+.hidden{
+    display:none;
+}
+.dashboard-grid{
+
+    display:grid;
+
+    grid-template-columns:
+    repeat(auto-fit,minmax(220px,1fr));
+
+    gap:15px;
+
+    margin-top:20px;
+
+}
+
+
+
+.dashboard-grid button{
+
+    background:#2563eb;
+
+    color:white;
+
+    border:none;
+
+    border-radius:12px;
+
+    padding:15px;
+
+    cursor:pointer;
+
+    font-weight:bold;
+
+    text-align:center;
+
+}
+
+.dashboard-grid button:hover{
+
+    background:#1d4ed8;
+
+}
+
+.tag{
+    display:inline-block;
+    background:#2563eb;
+    color:white;
+    padding:4px 10px;
+    border-radius:20px;
+    margin:2px;
+    font-size:12px;
+}
+
+.tagContainer{
+    margin-top:8px;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>🏥 IBD Kennisbank</h1>
+<div id="loginStatus">
+Niet aangemeld
+</div>
+
+<button onclick="loginMicrosoft()">
+🔐 Inloggen Microsoft
+</button>
+
+<button onclick="logoutMicrosoft()">
+🚪 Uitloggen
+</button>
+
+</header>
+
+<div style="
+padding:10px;
+display:flex;
+gap:10px;
+background:white;
+border-bottom:1px solid #ddd;
+">
+
+<button onclick="goBack()">
+⬅ Vorige
+</button>
+
+<button onclick="openPage('dashboard')">
+🏠 Dashboard
+</button>
+
+</div>
+<div class="container">
+
+<div class="sidebar">
+
+<button onclick="openPage('dashboard')">
+📊 Dashboard
+</button>
+
+<button onclick="openPage('ccv')">
+🤝 CCV-VZW
+</button>
+
+<button onclick="openPage('knowledge')">
+📚 Kennisbank
+</button>
+
+<button onclick="openPage('documents')">
+📚 Documentbibliotheek
+</button>
+
+<button onclick="openPage('faq')">
+❓ FAQ
+</button>
+
+<button onclick="openPage('beheer')">
+⚙️ Beheer
+</button>
+
+<button onclick="openPage('zorggids')">
+🏥 Zorggids
+</button>
+
+<button onclick="openPage('sociaal')">
+⚖️ Sociale Gids
+</button>
+
+<button onclick="openPage('media')">
+🎥 Media Bibliotheek
+</button>
+
+</div>
+
+<div class="content">
+    <div id="breadcrumb"
+     style="
+        margin-bottom:15px;
+        padding:10px;
+        background:white;
+        border-radius:8px;
+        font-size:14px;
+     ">
+    🏠 Dashboard
+</div>
+
+<div id="dashboard" class="page">
+
+<div class="card">
+
+<h2>Dashboard</h2>
+
+<div class="dashboard-grid">
+
+<button onclick="openPage('crohn')">
+
+🩺 Crohn
+
+<br>
+
+<span id="crohnCount">
+0
+</span>
+
+</button>
+
+<button onclick="openPage('colitis')">
+🔬 Colitis
+</button>
+
+<button onclick="openPage('ibd')">
+💊 Alle IBD informatie
+</button>
+
+<button onclick="openPage('mindfulness')">
+🧘 Mindfulness
+</button>
+
+<button onclick="openPage('voeding')">
+🍎 Voeding
+</button>
+
+<button onclick="openPage('pediatrie')">
+👶 Pediatrie
+</button>
+
+<button onclick="openPage('expert')">
+🎓 Patiënten Expert Opleiding
+</button>
+
+<button onclick="openPage('websites')">
+🌐 Websites
+</button>
+
+<button onclick="openPage('verenigingen')">
+🏢 IBD Verenigingen
+</button>
+
+</div>
+
+</div>
+
+<div class="card">
+    <h3>Laatste wijzigingen</h3>
+    <div id="activityFeed">
+        Nog geen gegevens.
+    </div>
+</div>
+
+ </div><!-- dashboard sluiten -->
+
+<!-- NIEUWE CATEGORIE WEERGAVE -->
+
+<div id="categoryView" class="page hidden">
+
+    <div class="card">
+        <h2 id="categoryTitle"></h2>
+        <h3 id="subCategoryTitle"></h3>
+    </div>
+
+    <div id="categoryDocuments"></div>
+
+</div>
+
+<!-- BESTAANDE DOCUMENTBIBLIOTHEEK -->
+
+<div id="documents"
+     class="page hidden">
+
+    <h2>
+        📚 Documentbibliotheek
+    </h2>
+
+<input
+    type="text"
+    id="documentSearch"
+    placeholder="🔍 Zoek document..."
+>
+
+<button
+    onclick="filterDocuments()"
+>
+    🔍 Zoeken
+</button>
+
+<br><br>
+
+    
+    <br>
+
+<button
+    onclick="previewSelected()"
+>
+    👁 Vergelijk geselecteerde documenten
+</button>
+
+<br><br>
+
+<button
+    onclick="closeAllPreviews()"
+>
+    ❌ Sluit previews
+</button>
+
+<br><br>
+
+<div id="previewArea">
+
+</div>
+
+    <input type="file"
+           id="fileUpload">
+
+    <button onclick="uploadDocument()">
+        📤 Upload document
+    </button>
+
+    <br><br>
+
+    <button onclick="analyzeDocument()">
+        🤖 Analyseer document
+    </button>
+
+    <br><br>
+
+    <div class="card">
+
+        <h3>
+            Beschikbare documenten
+        </h3>
+
+        <div id="documentsContainer"></div>
+
+    </div>
+
+</div>
+
+<div id="knowledge" class="page hidden">
+
+    <div class="card">
+
+        <h2>Kennisbank</h2>
+
+        <input
+            type="text"
+            id="searchInput"
+            placeholder="Zoeken..."
+        >
+
+        <button onclick="searchItems()">
+            🔍 Zoeken
+        </button>
+
+    </div>
+
+    <div id="searchResults"></div>
+
+</div>
+
+<!-- KENNISBANK NU AFGESLOTEN -->
+
+
+<div id="crohn" class="page hidden">
+
+<div class="card">
+
+<h2>🩺 Crohn</h2>
+
+<div class="dashboard-grid">
+
+<button onclick="openCategory('Crohn','Ziektebeeld')">
+📖 Ziektebeeld
+</button>
+
+<button onclick="openCategory('Crohn','Symptomen')">
+🩺 Symptomen
+</button>
+
+<button onclick="
+openCategory(
+'Crohn',
+'Diagnose'
+)">
+🔬 Diagnose
+</button>
+
+<button onclick="openCategory('Crohn','Behandelingen')">
+💊 Behandelingen
+</button>
+
+<button onclick="openCategory('Crohn','Medicatie')">
+💉 Medicatie
+</button>
+
+<button onclick="openCategory('Crohn','Operaties')">
+🏥 Operaties
+</button>
+
+<button onclick="openCategory('Crohn','Complicaties')">
+⚠️ Complicaties
+</button>
+
+<button onclick="openCategory('Crohn','Opvolging')">
+📋 Opvolging & controles
+</button>
+
+<button onclick="openCategory('Crohn','Voeding')">
+🍎 Voeding
+</button>
+
+<button onclick="openCategory('Crohn','DagelijksLeven')">
+🏡 Dagelijks leven
+</button>
+
+<button onclick="openCategory('Crohn','WerkStudie')">
+🎒 Werk & studie
+</button>
+
+<button onclick="openCategory('Crohn','Zwangerschap')">
+🤰 Zwangerschap
+</button>
+
+<button onclick="openCategory('Crohn','Patiëntenrechten')">
+⚖️ Patiëntenrechten
+</button>
+
+<button onclick="openCategory('Crohn','Ervaringsverhalen')">
+💬 Ervaringsverhalen
+</button>
+
+<button onclick="openCategory('Crohn','Downloads')">
+📂 Downloads
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<div id="colitis" class="page hidden">
+
+<div class="card">
+
+<h2>🔬 Colitis Ulcerosa</h2>
+
+<div class="dashboard-grid">
+
+<button onclick="openCategory('Colitis Ulcerosa','Ziektebeeld')">📖 Ziektebeeld</button>
+<button onclick="openCategory('Colitis Ulcerosa','Symptomen')">🩺 Symptomen</button>
+<button onclick="openCategory('Colitis Ulcerosa','Diagnose')">🔬 Diagnose</button>
+<button onclick="openCategory('Colitis Ulcerosa','Behandelingen')">💊 Behandelingen</button>
+<button onclick="openCategory('Colitis Ulcerosa','Medicatie')">💉 Medicatie</button>
+<button onclick="openCategory('Colitis Ulcerosa','Operaties')">🏥 Operaties</button>
+<button onclick="openCategory('Colitis Ulcerosa','Complicaties')">⚠️ Complicaties</button>
+<button onclick="openCategory('Colitis Ulcerosa','Opvolging & controles')">📋 Opvolging & controles</button>
+<button onclick="openCategory('Colitis Ulcerosa','Voeding')">🍎 Voeding</button>
+<button onclick="openCategory('Colitis Ulcerosa','Dagelijks leven')">🏡 Dagelijks leven</button>
+<button onclick="openCategory('Colitis Ulcerosa','Werk & studie')">🎒 Werk & studie</button>
+<button onclick="openCategory('Colitis Ulcerosa','Zwangerschap')">🤰 Zwangerschap</button>
+<button onclick="openCategory('Colitis Ulcerosa','Patiëntenrechten')">⚖️ Patiëntenrechten</button>
+<button onclick="openCategory('Colitis Ulcerosa','Ervaringsverhalen')">💬 Ervaringsverhalen</button>
+<button onclick="openCategory('Colitis Ulcerosa','Downloads')">📂 Downloads</button>
+
+</div>
+
+</div>
+
+</div>
+
+<div id="ibd" class="page hidden">
+<div class="card">
+<h2>💊 Algemene IBD</h2>
+<div class="dashboard-grid">
+
+<button onclick="openCategory('IBD','Wat is IBD')">
+📖 Wat is IBD
+</button>
+
+<button onclick="openCategory('IBD','Diagnose')">
+🔬 Diagnose
+</button>
+
+<button onclick="openCategory('IBD','Behandelingen')">
+💊 Behandelingen
+</button>
+
+<button onclick="openCategory('IBD','Erfelijkheid')">
+🧬 Erfelijkheid
+</button>
+
+<button onclick="openCategory('IBD','Vaccinaties')">
+💉 Vaccinaties
+</button>
+
+<button onclick="openCategory('IBD','Onderzoeken')">
+🔎 Onderzoeken
+</button>
+
+<button onclick="openCategory('IBD','Richtlijnen')">
+📚 Richtlijnen
+</button>
+
+</div>
+</div>
+</div>
+
+<div id="zorggids" class="page hidden">
+
+    <div class="card">
+
+        <h2>🏥 Zorggids</h2>
+
+        <div class="dashboard-grid">
+
+            <button onclick="openCategory('Zorggids','IBD Centra')">
+                🏥 IBD Centra
+            </button>
+
+            <button onclick="openCategory('Zorggids','Ziekenhuizen')">
+                🏨 Ziekenhuizen
+            </button>
+
+            <button onclick="openCategory('Zorggids','Gastro-enterologen')">
+                👨‍⚕️ Gastro-enterologen
+            </button>
+
+            <button onclick="openCategory('Zorggids','IBD Verpleegkundigen')">
+                👩‍⚕️ IBD Verpleegkundigen
+            </button>
+
+            <button onclick="openCategory('Zorggids','Diëtisten')">
+                🥗 Diëtisten
+            </button>
+
+            <button onclick="openCategory('Zorggids','Psychologen')">
+                🧠 Psychologen
+            </button>
+
+            <button onclick="openCategory('Zorggids','Sociale Diensten')">
+                🤝 Sociale Diensten
+            </button>
+
+            <button onclick="openCategory('Zorggids','Apothekers')">
+                💊 Apothekers
+            </button>
+
+            <button onclick="openCategory('Zorggids','Patiëntenbegeleiding')">
+                👥 Patiëntenbegeleiding
+            </button>
+
+            <button onclick="openCategory('Zorggids','Noodnummers')">
+                🚨 Noodnummers
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div id="sociaal" class="page hidden">
+
+    <div class="card">
+
+        <h2>⚖️ Sociale Gids</h2>
+
+        <div class="dashboard-grid">
+
+            <button onclick="openCategory('Sociale Gids','Patiëntenrechten')">
+                ⚖️ Patiëntenrechten
+            </button>
+
+            <button onclick="openCategory('Sociale Gids','Invaliditeit')">
+                🏥 Invaliditeit
+            </button>
+
+            <button onclick="openCategory('Sociale Gids','Werk')">
+                💼 Werk
+            </button>
+
+            <button onclick="openCategory('Sociale Gids','Studie')">
+                🎓 Studie
+            </button>
+
+            <button onclick="openCategory('Sociale Gids','Terugbetalingen')">
+                💰 Terugbetalingen
+            </button>
+
+            <button onclick="openCategory('Sociale Gids','Attesten')">
+                📄 Attesten
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div id="media" class="page hidden">
+
+    <div class="card">
+
+        <h2>🎥 Media Bibliotheek</h2>
+
+        <div class="dashboard-grid">
+
+            <button onclick="openCategory('Media','Webinars')">
+                🎥 Webinars
+            </button>
+
+            <button onclick="openCategory('Media','Video')">
+                📺 Video
+            </button>
+
+            <button onclick="openCategory('Media','Podcasts')">
+                🎙️ Podcasts
+            </button>
+
+            <button onclick="openCategory('Media','Getuigenissen')">
+                👥 Getuigenissen
+            </button>
+
+            <button onclick="openCategory('Media','Expertinterviews')">
+                🎤 Expertinterviews
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div id="voeding" class="page hidden">
+
+<div class="card">
+
+<h2>🍎 Voeding</h2>
+
+<div class="dashboard-grid">
+
+<button onclick="openCategory('Voeding','Basisvoeding')">
+🥗 Basisvoeding
+</button>
+
+<button onclick="openCategory('Voeding','Eliminatiediëten')">
+🚫 Eliminatiediëten
+</button>
+
+<button onclick="openCategory('Voeding','Enterale voeding')">
+🧃 Enterale voeding
+</button>
+
+<button onclick="openCategory('Voeding','Sondevoeding')">
+🩺 Sondevoeding
+</button>
+
+<button onclick="openCategory('Voeding','Vitamines & supplementen')">
+💊 Vitamines & supplementen
+</button>
+
+<button onclick="openCategory('Voeding','Voeding tijdens opvlamming')">
+🔥 Voeding tijdens opvlamming
+</button>
+
+<button onclick="openCategory('Voeding','Voeding tijdens remissie')">
+✅ Voeding tijdens remissie
+</button>
+
+<button onclick="openCategory('Voeding','Recepten')">
+🍽️ Recepten
+</button>
+
+<button onclick="openCategory('Voeding','Diëtisten')">
+👨‍⚕️ Diëtisten
+</button>
+
+<button onclick="openCategory('Voeding','Downloads')">
+📂 Downloads
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<div id="pediatrie" class="page hidden">
+
+<div class="card">
+
+<h2>👶 Pediatrie</h2>
+
+<div class="dashboard-grid">
+
+<button onclick="openCategory('Pediatrie','IBD bij kinderen')">
+👶 IBD bij kinderen
+</button>
+
+<button onclick="openCategory('Pediatrie','Diagnose')">
+🔬 Diagnose
+</button>
+
+<button onclick="openCategory('Pediatrie','Groeiontwikkeling')">
+📏 Groeiontwikkeling
+</button>
+
+<button onclick="openCategory('Pediatrie','Behandeling')">
+💊 Behandeling
+</button>
+
+<button onclick="openCategory('Pediatrie','Medicatie')">
+💉 Medicatie
+</button>
+
+<button onclick="openCategory('Pediatrie','School & onderwijs')">
+🎒 School & onderwijs
+</button>
+
+<button onclick="openCategory('Pediatrie','Psychosociale begeleiding')">
+🧠 Psychosociale begeleiding
+</button>
+
+<button onclick="openCategory('Pediatrie','Ouders & mantelzorgers')">
+👨‍👩‍👧 Ouders & mantelzorgers
+</button>
+
+<button onclick="openCategory('Pediatrie','Overgang naar volwassenenzorg')">
+➡️ Overgang naar volwassenenzorg
+</button>
+
+<button onclick="openCategory('Pediatrie','Downloads')">
+📂 Downloads
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<div id="mindfulness" class="page hidden">
+
+<div class="card">
+
+<h2>🧘 Mindfulness & Welzijn</h2>
+
+<div class="dashboard-grid">
+
+<button onclick="openCategory('Mindfulness & Welzijn','Stressmanagement')">
+🧠 Stressmanagement
+</button>
+
+<button onclick="openCategory('Mindfulness & Welzijn','Mindfulness')">
+🧘 Mindfulness
+</button>
+
+<button onclick="openCategory('Mindfulness & Welzijn','Ontspanningsoefeningen')">
+🌿 Ontspanningsoefeningen
+</button>
+
+<button onclick="openCategory('Mindfulness & Welzijn','Meditatie')">
+🙏 Meditatie
+</button>
+
+<button onclick="openCategory('Mindfulness & Welzijn','Slaap')">
+😴 Slaap
+</button>
+
+<button onclick="openCategory('Mindfulness & Welzijn','Burn-out')">
+🔥 Burn-out
+</button>
+
+<button onclick="openCategory('Mindfulness & Welzijn','Angst & depressie')">
+💙 Angst & depressie
+</button>
+
+<button onclick="openCategory('Mindfulness & Welzijn','Psychologische begeleiding')">
+👨‍⚕️ Psychologische begeleiding
+</button>
+
+<button onclick="openCategory('Mindfulness & Welzijn','Video''s')">
+🎥 Video's
+</button>
+
+<button onclick="openCategory('Mindfulness & Welzijn','Downloads')">
+📂 Downloads
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<div id="expert" class="page hidden">
+
+<div class="card">
+
+<h2>🎓 Patiënten Expert Opleiding</h2>
+
+<div class="dashboard-grid">
+
+<button onclick="openCategory('Patiënten Expert Opleiding','Opleidingsprogramma')">
+📚 Opleidingsprogramma
+</button>
+
+<button onclick="openCategory('Patiënten Expert Opleiding','Modules')">
+📖 Modules
+</button>
+
+<button onclick="openCategory('Patiënten Expert Opleiding','Agenda')">
+📅 Agenda
+</button>
+
+<button onclick="openCategory('Patiënten Expert Opleiding','Presentaties')">
+🖥️ Presentaties
+</button>
+
+<button onclick="openCategory('Patiënten Expert Opleiding','Lesmateriaal')">
+📝 Lesmateriaal
+</button>
+
+<button onclick="openCategory('Patiënten Expert Opleiding','Certificaten')">
+🏆 Certificaten
+</button>
+
+<button onclick="openCategory('Patiënten Expert Opleiding','Inschrijvingen')">
+✅ Inschrijvingen
+</button>
+
+<button onclick="openCategory('Patiënten Expert Opleiding','Downloads')">
+📂 Downloads
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<div id="websites" class="page hidden">
+    <div class="card">
+        <h2>🌐 Websites</h2>
+
+        <div class="dashboard-grid">
+
+            <button onclick="openCategory('Websites','Belgische organisaties')">
+                🇧🇪 Belgische organisaties
+            </button>
+
+            <button onclick="openCategory('Websites','Internationale organisaties')">
+                🌍 Internationale organisaties
+            </button>
+
+            <button onclick="openCategory('Websites','Universitaire centra')">
+                🎓 Universitaire centra
+            </button>
+
+            <button onclick="openCategory('Websites','Ziekenhuizen')">
+                🏥 Ziekenhuizen
+            </button>
+
+            <button onclick="openCategory('Websites','Wetenschappelijke bronnen')">
+                🔬 Wetenschappelijke bronnen
+            </button>
+
+            <button onclick="openCategory('Websites','Patiëntenplatformen')">
+                👥 Patiëntenplatformen
+            </button>
+
+            <button onclick="openCategory('Websites','Video & Media')">
+                🎥 Video & Media
+            </button>
+
+            <button onclick="openCategory('Websites','Downloads')">
+                📂 Downloads
+            </button>
+
+        </div>
+    </div>
+</div>
+
+<div id="verenigingen" class="page hidden">
+    <div class="card">
+        <h2>🏢 IBD Verenigingen</h2>
+
+        <div class="dashboard-grid">
+
+            <button onclick="openCategory('IBD Verenigingen','België')">
+                🇧🇪 België
+            </button>
+
+            <button onclick="openCategory('IBD Verenigingen','Nederland')">
+                🇳🇱 Nederland
+            </button>
+
+            <button onclick="openCategory('IBD Verenigingen','Europa')">
+                🇪🇺 Europa
+            </button>
+
+            <button onclick="openCategory('IBD Verenigingen','Wereldwijd')">
+                🌍 Wereldwijd
+            </button>
+
+            <button onclick="openCategory('IBD Verenigingen','Patiëntenverenigingen')">
+                👥 Patiëntenverenigingen
+            </button>
+
+            <button onclick="openCategory('IBD Verenigingen','Jongerenwerkingen')">
+                🧑‍🎓 Jongerenwerkingen
+            </button>
+
+            <button onclick="openCategory('IBD Verenigingen','Lotgenotencontact')">
+                🤝 Lotgenotencontact
+            </button>
+
+            <button onclick="openCategory('IBD Verenigingen','Evenementen')">
+                📅 Evenementen
+            </button>
+
+            <button onclick="openCategory('IBD Verenigingen','Contactgegevens')">
+                📞 Contactgegevens
+            </button>
+
+            <button onclick="openCategory('IBD Verenigingen','Downloads')">
+                📂 Downloads
+            </button>
+
+        </div>
+    </div>
+</div>
+
+<div id="ccv" class="page hidden">
+
+    <div class="card">
+
+        <h2>🤝 CCV-VZW Beheerplatform</h2>
+</div>
+ <!-- NIEUW DASHBOARD OVERZICHT -->
+
+    <div class="card">
+
+        <h2>📊 Overzicht</h2>
+
+        <div class="dashboard-grid">
+
+            <button>
+                🚀 Projecten<br>
+                <span id="projectCount">0</span>
+            </button>
+
+            <button>
+                📅 Vergaderingen<br>
+                <span id="meetingCount">0</span>
+            </button>
+
+            <button>
+                ✅ Taken<br>
+                <span id="taskCount">0</span>
+            </button>
+
+            <button>
+                👥 Leden<br>
+                <span id="memberCount">0</span>
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- SNELLE ACTIES -->
+
+<div class="card">
+
+    <h3>⚡ Snelle Acties</h3>
+
+    <div class="dashboard-grid">
+
+        <button onclick="openCategory('CCV-VZW','Nieuwe Vergadering')">
+            ➕ Vergadering
+        </button>
+
+        <button onclick="openCategory('CCV-VZW','Nieuw Project')">
+            ➕ Project
+        </button>
+
+        <button onclick="openCategory('CCV-VZW','Nieuwe Taak')">
+            ➕ Taak
+        </button>
+
+        <button onclick="openCategory('CCV-VZW','Nieuw Lid')">
+            ➕ Lid
+        </button>
+
+        <button onclick="openCategory('CCV-VZW','Nieuwe Activiteit')">
+            ➕ Activiteit
+        </button>
+
+        <button onclick="openCategory('CCV-VZW','Nieuw Document')">
+            ➕ Document
+        </button>
+
+    </div>
+
+</div>
+
+       <div class="dashboard-grid">
+
+    <button onclick="openCategory('CCV-VZW','Bestuur')">
+        🏠 Bestuur
+    </button>
+
+    <button onclick="openCategory('CCV-VZW','Community')">
+        👥 Community
+    </button>
+
+    <button onclick="openCategory('CCV-VZW','Projecten')">
+        🎯 Projecten
+    </button>
+
+    <button onclick="openCategory('CCV-VZW','Organisatie')">
+        💰 Organisatie
+    </button>
+
+    <button onclick="openCategory('CCV-VZW','Kennis & Documenten')">
+        📂 Kennis & Documenten
+    </button>
+
+</div>
+
+    </div>
+
+</div>
+
+<div id="faq" class="page hidden">
+    <div class="card">
+        <h2>❓ FAQ</h2>
+
+        <div class="dashboard-grid">
+
+            <button onclick="openCategory('FAQ','Algemeen')">
+                ℹ️ Algemeen
+            </button>
+
+            <button onclick="openCategory('FAQ','Diagnose')">
+                🔬 Diagnose
+            </button>
+
+            <button onclick="openCategory('FAQ','Medicatie')">
+                💊 Medicatie
+            </button>
+
+            <button onclick="openCategory('FAQ','Voeding')">
+                🍎 Voeding
+            </button>
+
+            <button onclick="openCategory('FAQ','Operaties')">
+                🏥 Operaties
+            </button>
+
+            <button onclick="openCategory('FAQ','Werk & Studie')">
+                🎒 Werk & Studie
+            </button>
+
+            <button onclick="openCategory('FAQ','Reizen')">
+                ✈️ Reizen
+            </button>
+
+            <button onclick="openCategory('FAQ','Zwangerschap')">
+                🤰 Zwangerschap
+            </button>
+
+            <button onclick="openCategory('FAQ','Kinderen & Jongeren')">
+                👶 Kinderen & Jongeren
+            </button>
+
+            <button onclick="openCategory('FAQ','Patiëntenrechten')">
+                ⚖️ Patiëntenrechten
+            </button>
+
+            <button onclick="openCategory('FAQ','Psychologisch Welzijn')">
+                🧠 Psychologisch Welzijn
+            </button>
+
+            <button onclick="openCategory('FAQ','Praktische Tips')">
+                💡 Praktische Tips
+            </button>
+
+        </div>
+    </div>
+</div>
+
+<div id="beheer" class="page hidden">
+
+    <div class="card">
+    <h2>⚙️ Beheer</h2>
+
+    <button onclick="loadData()">
+        📥 Gegevens laden
+    </button>
+
+    <button onclick="saveData()">
+        💾 Gegevens opslaan
+    </button>
+
+    <hr>
+
+    <h3>📁 OneDrive mappen</h3>
+
+<div id="lastSyncInfo"
+     style="
+        padding:8px;
+        background:#f5f7fa;
+        border-radius:8px;
+        margin-bottom:10px;
+     ">
+    Nog niet gesynchroniseerd
+</div>
+
+<div id="documentCountInfo"
+     style="
+        padding:8px;
+        background:#f5f7fa;
+        border-radius:8px;
+        margin-bottom:10px;
+     ">
+    📄 Documenten: 0
+</div>
+
+<div id="folderCountInfo"
+     style="
+        padding:8px;
+        background:#f5f7fa;
+        border-radius:8px;
+        margin-bottom:10px;
+     ">
+    📁 Mappen: 0
+</div>
+
+<div id="folderList"></div>
+
+<br>
+
+<button onclick="syncOneDrive()">
+    🔄 Synchroniseer OneDrive
+</button>
+
+</div>
+
+    <!-- HIER KOMT HET NIEUWE FORMULIER -->
+
+    <div id="beheerInvoer" class="card">
+
+        <h2>➕ Nieuwe Informatie Toevoegen</h2>
+
+        <label>
+            <strong>
+                De gebruiker kiest zelf hoe de informatie wordt toegevoegd
+            </strong>
+        </label>
+
+        <br><br>
+
+        <select id="inputMode" onchange="toggleInputMode()">
+            <option value="manual">
+                ✍️ Manueel invoeren
+            </option>
+
+            <option value="ai">
+                🤖 AI-ondersteunde invoer
+            </option>
+
+            <option value="hybrid">
+                🤝 AI + Manueel
+            </option>
+        </select>
+
+        <br><br>
+
+        <div id="manualSection">
+
+    <h3>✍️ Manuele invoer</h3>
+
+    <input type="text"
+           id="manualTitle"
+           placeholder="Titel">
+
+    <br><br>
+
+    <input type="text"
+           id="manualCategory"
+           placeholder="Categorie">
+
+    <br><br>
+
+    <input type="text"
+           id="manualSubCategory"
+           placeholder="Subcategorie">
+
+    <br><br>
+
+    <input type="date"
+           id="manualDate">
+
+    <br><br>
+
+    <textarea
+        id="manualDescription"
+        placeholder="Omschrijving">
+    </textarea>
+
+    <br><br>
+
+    <input type="text"
+       id="manualKeywords"
+       placeholder="Keywords">
+
+<br><br>
+
+<button onclick="analyzeDocument()">
+    🤖 Analyseer document
+</button>
+
+<br><br>
+
+<div id="aiSuggestionBox"
+     class="card"
+     style="display:none; margin-top:15px;">
+
+    <h3>🤖 AI Voorstel</h3>
+
+    <p>
+        <strong>Categorie:</strong>
+        <span id="suggestedCategory"></span>
+    </p>
+
+    <p>
+        <strong>Subcategorie:</strong>
+        <span id="suggestedSubCategory"></span>
+    </p>
+
+    <p>
+        <strong>Keywords:</strong>
+        <span id="suggestedKeywords"></span>
+    </p>
+<p>
+    <strong>Samenvatting:</strong>
+</p>
+
+<div id="suggestedSummary"
+	style="
+	background:#f5f7fa;
+	padding:10px;
+	border-radius:8px;
+	min-height:60px;
+	">
+</div>
+
+
+<br><br>
+
+<button onclick="saveManualEntry()">
+    💾 Opslaan
+</button>
+
+</div>
+
+        <div id="aiSection" style="display:none;">
+
+    <h3>🤖 AI-ondersteunde invoer</h3>
+
+    <p>
+        Upload een document of plak tekst.
+    </p>
+
+    <input type="file" id="aiFile">
+
+    <br><br>
+
+    <textarea
+        id="aiText"
+        rows="8"
+        placeholder="Plak hier tekst...">
+    </textarea>
+
+    <br><br>
+
+    <button onclick="analyzeWithAI()">
+        🤖 Analyseer met AI
+    </button>
+
+    <br><br>
+
+    <div id="aiSuggestions"></div>
+
+</div>
+
+    </div>
+
+</div>
+
+<script>
+    /* ==========================
+   MICROSOFT LOGIN
+========================== */
+
+const msalConfig = {
+auth: {
+	clientId: "d4d940de-49a5-4328-bb87-c0b65aeea942",
+	authority: "https://login.microsoftonline.com/consumers",
+	redirectUri: "https://pverstrepen2-dev.github.io/IBD-kennisbank/"
+
+}
+};
+
+const loginRequest = {
+    scopes: [
+        "User.Read",
+        "Files.ReadWrite",
+        "Files.ReadWrite.All"
+    ]
+};
+
+console.log("MSAL object =", msal);
+let msalInstance;
+
+window.addEventListener("load", async () => {
+
+    msalInstance =
+        new msal.PublicClientApplication(
+            msalConfig
+        );
+
+    await msalInstance.initialize();
+
+    const response =
+    await msalInstance.handleRedirectPromise();
+
+if(response){
+
+    accessToken = response.accessToken;
+
+    document.getElementById(
+        "loginStatus"
+    ).innerHTML =
+        "✅ " +
+        response.account.username;
+
+    console.log(
+        "Succesvol ingelogd",
+        response.account.username
+    );
+
+    if(accessToken){
+
+    await loadData();
+
+    if(
+        knowledgeData.length === 0
+    ){
+        await syncOneDrive();
+    }
+
+}
+}
+
+console.log("MSAL geïnitialiseerd");
+
+});
+
+let accessToken = null;
+
+function checkLogin(){
+
+    if(!accessToken){
+
+        alert(
+            "Log eerst in met Microsoft"
+        );
+
+        return false;
+    }
+
+    return true;
+}
+
+/* ==================================
+   CONFIGURATIE
+================================== */
+
+const DATAFILE = "CCV-VZW/Database/database.json";
+
+const CONFIG = {
+    graphEnabled: true,
+    documentFolder: "/CCV-VZW/Documenten/"
+};
+
+/* ==================================
+   CENTRALE DATA
+================================== */
+
+let knowledgeData = [];
+let documents = [];
+let meetings = [];
+let projects = [];
+let tasks = [];
+let members = [];
+
+// ==========================
+// WEBSITES PER LAND
+// ==========================
+const websites = {
+
+Belgie:[
+{
+naam:"CCV-VZW",
+url:"https://www.ccv-vzw.be"
+},
+{
+naam:"Vlaams Patiëntenplatform",
+url:"https://vlaamspatientenplatform.be"
+}
+],
+
+Nederland:[
+{
+naam:"Crohn & Colitis NL",
+url:"https://crohn-colitis.nl"
+},
+{
+naam:"RIVM",
+url:"https://www.rivm.nl"
+}
+],
+
+Europa:[
+{
+naam:"ECCO",
+url:"https://www.ecco-ibd.eu"
+}
+],
+
+Internationaal:[
+{
+naam:"PubMed",
+url:"https://pubmed.ncbi.nlm.nih.gov"
+},
+{
+naam:"Cochrane Library",
+url:"https://www.cochranelibrary.com"
+}
+]
+
+};
+
+
+// =======================
+// PAGINA GESCHIEDENIS
+// =======================
+let pageHistory = [];
+let lastSync = null;
+
+
+function openPage(page){
+
+    const pageNames = {
+
+    dashboard:"🏠 Dashboard",
+    knowledge:"📚 Kennisbank",
+    documents:"📂 Documentbibliotheek",
+    faq:"❓ FAQ",
+    beheer:"⚙️ Beheer",
+    ccv:"🤝 CCV-VZW",
+    zorggids:"🏥 Zorggids",
+    sociaal:"⚖️ Sociale Gids",
+    media:"🎥 Media Bibliotheek"
+};
+
+if(document.getElementById("breadcrumb")){
+
+    document.getElementById(
+        "breadcrumb"
+    ).innerHTML =
+
+    pageNames[page] ||
+
+    "🏠 Dashboard";
+}
+
+       const activePage =
+        document.querySelector(
+            ".page:not(.hidden)"
+        );
+
+    if(
+        activePage &&
+        activePage.id !== page
+    ){
+        pageHistory.push(
+            activePage.id
+        );
+    }
+
+    document
+        .querySelectorAll(".page")
+        .forEach(
+            p => p.classList.add("hidden")
+        );
+
+    document
+        .getElementById(page)
+        .classList.remove("hidden");
+
+    // Beheerpagina openen
+    if(
+    page === "beheer" &&
+    accessToken
+){
+    loadFolders();
+}
+
+    if(page === "documents"){
+    renderDocuments();
+}
+}
+
+function goBack(){
+
+    if(pageHistory.length === 0){
+
+        openPage("dashboard");
+        return;
+
+    }
+
+    const previousPage =
+        pageHistory.pop();
+
+    openPage(
+        previousPage
+    );
+
+}
+
+function openCategory(mainCategory, subCategory){
+
+    document.getElementById(
+        "breadcrumb"
+    ).innerHTML =
+        "🏠 Dashboard > " +
+        mainCategory +
+        " > " +
+        subCategory;
+
+    document.getElementById(
+        "categoryTitle"
+    ).innerText = mainCategory;
+
+    document.getElementById(
+        "subCategoryTitle"
+    ).innerText = subCategory;
+
+    openPage("categoryView");
+
+    showDocumentsBySubCategory(
+        mainCategory,
+        subCategory
+    );
+}
+
+function showBestuur(){
+
+openPage("documents");
+
+document.getElementById("documentsContainer").innerHTML = `
+
+<div class="card">
+
+<h2>🏠 Bestuur</h2>
+
+<div class="dashboard-grid">
+
+<button>📅 Vergaderingen</button>
+<button>🏛 Algemene Vergadering</button>
+<button>👨‍💼 Raad van Bestuur</button>
+<button>📄 Notulen</button>
+<button>✅ Actiepunten</button>
+
+</div>
+
+</div>
+
+`;
+
+}
+
+function showCommunity(){
+
+openPage("documents");
+
+document.getElementById("documentsContainer").innerHTML = `
+
+<div class="card">
+
+<h2>👥 Community</h2>
+
+<div class="dashboard-grid">
+
+<button>👥 Leden</button>
+<button>🙋 Vrijwilligers</button>
+<button>🎓 Patiëntenexperten</button>
+<button>🤝 Lotgenoten</button>
+<button>📧 Nieuwsbrieven</button>
+
+</div>
+
+</div>
+
+`;
+
+}
+
+function showProjecten(){
+
+openPage("documents");
+
+document.getElementById("documentsContainer").innerHTML = `
+
+<div class="card">
+
+<h2>🎯 Projecten</h2>
+
+<div class="dashboard-grid">
+
+<button>🚀 Actieve Projecten</button>
+<button>✅ Afgeronde Projecten</button>
+<button>🌍 Wereld IBD Dag</button>
+<button>🎓 Patiënten Expert Opleiding</button>
+<button>💡 Nieuwe Initiatieven</button>
+
+</div>
+
+</div>
+
+`;
+
+}
+
+function showNewProjectForm(){
+
+    openPage("documents");
+
+    document.getElementById("documentsContainer").innerHTML = `
+
+    <div class="card">
+
+        <h2>🚀 Nieuw Project</h2>
+
+        <input type="text"
+        id="projectName"
+        placeholder="Projectnaam">
+
+        <br><br>
+
+        <textarea
+        id="projectDesc"
+        placeholder="Beschrijving"></textarea>
+
+        <br><br>
+
+        <button onclick="saveProject()">
+            💾 Opslaan
+        </button>
+
+    </div>
+
+    `;
+}
+
+function showNewMemberForm(){
+
+    openPage("documents");
+
+    document.getElementById("documentsContainer").innerHTML = `
+
+    <div class="card">
+
+        <h2>👥 Nieuw Lid</h2>
+
+        <input type="text"
+        id="memberName"
+        placeholder="Naam">
+
+        <br><br>
+
+        <input type="email"
+        id="memberEmail"
+        placeholder="Email">
+
+        <br><br>
+
+        <button>
+            💾 Opslaan
+        </button>
+
+    </div>
+
+    `;
+}
+
+function showNewTaskForm(){
+
+    openPage("documents");
+
+    document.getElementById("documentsContainer").innerHTML = `
+
+    <div class="card">
+
+        <h2>✅ Nieuwe Taak</h2>
+
+        <input type="text"
+        id="taskTitle"
+        placeholder="Taak">
+
+        <br><br>
+
+        <input type="date"
+        id="taskDate">
+
+        <br><br>
+
+        <button>
+            💾 Opslaan
+        </button>
+
+    </div>
+
+    `;
+}
+
+function showNewActivityForm(){
+
+    openPage("documents");
+
+    document.getElementById("documentsContainer").innerHTML = `
+
+    <div class="card">
+
+        <h2>🎉 Nieuwe Activiteit</h2>
+
+        <input type="text"
+        id="activityName"
+        placeholder="Naam activiteit">
+
+        <br><br>
+
+        <input type="date"
+        id="activityDate">
+
+        <br><br>
+
+        <button>
+            💾 Opslaan
+        </button>
+
+    </div>
+
+    `;
+}
+
+
+function showOrganisatie(){
+
+openPage("documents");
+
+document.getElementById("documentsContainer").innerHTML = `
+
+<div class="card">
+
+<h2>💰 Organisatie</h2>
+
+<div class="dashboard-grid">
+
+<button>💳 Lidgelden</button>
+<button>💰 Financieel</button>
+<button>🏛 Subsidies</button>
+<button>🤝 Sponsoring</button>
+<button>📈 Rapportering</button>
+<button>📜 Statuten</button>
+
+</div>
+
+</div>
+
+`;
+
+}
+
+function showKennisDocumenten(){
+
+openPage("documents");
+
+document.getElementById("documentsContainer").innerHTML = `
+
+<div class="card">
+
+<h2>📂 Kennis & Documenten</h2>
+
+<div class="dashboard-grid">
+
+<button>📂 Documentbibliotheek</button>
+<button>🌐 Websites</button>
+<button>🏢 Verenigingen</button>
+<button>🏥 Zorggids</button>
+<button>🎥 Media</button>
+<button>📚 Intern Kenniscentrum</button>
+
+</div>
+
+</div>
+
+`;
+
+}
+
+
+function showMeetings(){
+
+openPage("documents");
+
+document.getElementById("documentsContainer").innerHTML = `
+
+<div class="card">
+
+<h2>📅 Vergaderingen</h2>
+
+<input id="meetingName"
+placeholder="Naam vergadering">
+
+<input type="date"
+id="meetingDate">
+
+<br><br>
+
+<button onclick="saveMeeting()">
+➕ Vergadering toevoegen
+</button>
+
+<div id="meetingList"></div>
+
+</div>
+
+`;
+
+renderMeetings();
+
+}
+
+function saveMeeting(){
+
+meetings.push({
+
+    naam:
+    document.getElementById("meetingName").value,
+
+    datum:
+    document.getElementById("meetingDate").value
+
+});
+
+renderMeetings();
+updateDashboardStats();
+
+}
+
+function showNewMeetingForm(){
+
+    openPage("documents");
+
+    document.getElementById("documentsContainer").innerHTML = `
+
+    <div class="card">
+
+        <h2>📅 Nieuwe Vergadering</h2>
+
+        <input
+            type="text"
+            id="meetingName"
+            placeholder="Naam vergadering">
+
+        <br><br>
+
+        <input
+            type="date"
+            id="meetingDate">
+
+        <br><br>
+
+        <input
+            type="time"
+            id="meetingStart">
+
+        <br><br>
+
+        <input
+            type="text"
+            id="meetingLocation"
+            placeholder="Locatie">
+
+        <br><br>
+
+        <textarea
+            id="meetingAgenda"
+            placeholder="Agenda">
+        </textarea>
+
+        <br><br>
+
+        <button onclick="saveMeeting()">
+            💾 Opslaan
+        </button>
+
+    </div>
+
+    `;
+
+}
+
+function renderMeetings(){
+
+    const meetingList =
+        document.getElementById(
+            "meetingList"
+        );
+
+    if(!meetingList){
+        return;
+    }
+
+    let html = "";
+
+    meetings.forEach(m => {
+
+        html += `
+        <div class="card">
+            <b>${m.naam}</b><br>
+            ${m.datum}
+        </div>
+        `;
+
+    });
+
+    meetingList.innerHTML = html;
+}
+
+function showProjects(){
+
+openPage("documents");
+
+document.getElementById("documentsContainer").innerHTML = `
+
+<div class="card">
+
+<h2>🚀 Projecten</h2>
+
+<input id="projectName"
+placeholder="Projectnaam">
+
+<button onclick="saveProject()">
+➕ Project toevoegen
+</button>
+
+<div id="projectList"></div>
+
+</div>
+
+`;
+
+}
+
+async function saveProject(){
+
+   projects.push({
+      naam: document.getElementById("projectName").value,
+      created: new Date().toISOString()
+   });
+
+   await saveData();
+
+   updateDashboardStats();
+
+   alert("✅ Project opgeslagen");
+}
+
+/* NIEUWE FUNCTIE HIER PLAATSEN */
+
+function analyzeDocument(){
+
+    let categorie = "Algemeen";
+    let subcategorie = "Algemeen";
+    let keywords = "";
+    let summary = "";
+
+    const title =
+        document
+        .getElementById("manualTitle")
+        .value
+        .toLowerCase();
+
+    if(title.includes("vergadering")){
+
+        categorie = "Bestuur";
+        subcategorie = "Vergaderingen";
+        keywords =
+            "vergadering,notulen,actiepunten";
+        summary =
+
+"Dit document lijkt betrekking te hebben op een vergadering of bestuursbijeenkomst.";
+    }
+
+    else if(title.includes("crohn")){
+
+        categorie = "Crohn";
+        subcategorie = "Ziektebeeld";
+        keywords =
+            "crohn,ibd,darmziekte";
+        summary =
+	"Dit document bevat vermoedelijk informatie over de ziekte van Crohn.";
+    }
+
+    document.getElementById(
+        "suggestedCategory"
+    ).innerText = categorie;
+
+    document.getElementById(
+        "suggestedSubCategory"
+    ).innerText = subcategorie;
+
+    document.getElementById(
+        "suggestedKeywords"
+    ).innerText = keywords;
+
+    document.getElementById(
+    "suggestedSummary"
+    ).innerText = summary;
+
+    document.getElementById(
+        "aiSuggestionBox"
+    ).style.display = "block";
+
+    document.getElementById(
+        "manualCategory"
+    ).value = categorie;
+
+    document.getElementById(
+        "manualSubCategory"
+    ).value = subcategorie;
+
+    document.getElementById(
+        "manualKeywords"
+    ).value = keywords;
+}
+
+async function saveManualEntry(){
+
+    const entry = {
+
+    categorie:
+        document.getElementById("manualCategory").value,
+
+    subcategorie:
+        document.getElementById("manualSubCategory").value,
+
+    titel:
+        document.getElementById("manualTitle").value,
+
+    datum:
+        document.getElementById("manualDate").value,
+
+    omschrijving:
+        document.getElementById("manualDescription").value,
+
+    keywords:
+        document.getElementById("manualKeywords").value,
+
+    bestand:
+        currentUploadedFile,
+
+    samenvatting:
+        document.getElementById(
+            "suggestedSummary"
+        ).innerText
+};
+
+    knowledgeData.push(entry);
+
+    await saveData();
+
+    alert("✅ Informatie opgeslagen");
+}
+
+function analyzeWithAI(){
+
+    alert(
+        "AI-module wordt later gekoppeld aan Azure OpenAI of ChatGPT."
+    );
+}
+
+
+
+function showCCVDashboard(){
+
+document.getElementById("documentsContainer").innerHTML = `
+
+<div class="card">
+
+<h2>📊 Dashboard</h2>
+
+<ul>
+<li>📅 Vergaderingen: ${meetings.length}</li>
+<li>🚀 Projecten: ${projects.length}</li>
+<li>✅ Taken: ${tasks.length}</li>
+<li>👥 Leden: ${members.length}</li>
+</ul>
+
+</div>
+
+`;
+
+}
+
+function updateDashboardStats(){
+
+    document.getElementById("projectCount").innerText =
+        projects.length;
+
+    document.getElementById("meetingCount").innerText =
+        meetings.length;
+
+    document.getElementById("taskCount").innerText =
+        tasks.length;
+
+    document.getElementById("memberCount").innerText =
+        members.length;
+}
+
+function showCategoryDocuments(
+    categorie
+){
+
+    const docs =
+        knowledgeData.filter(
+            x => x.categorie === categorie
+        );
+
+    let html = "";
+
+    docs.forEach(doc => {
+
+        html += `
+        <div class="card">
+
+            <h3>${doc.titel}</h3>
+
+            <p>
+                ${doc.samenvatting}
+            </p>
+
+        </div>`;
+    });
+
+    document.getElementById(
+        "documentsContainer"
+    ).innerHTML = html;
+
+    openPage("documents");
+}
+
+function showDocumentsBySubCategory(
+    categorie,
+    subcategorie
+){
+
+    const docs = knowledgeData.filter(
+        doc =>
+            doc.categorie === categorie &&
+            doc.subcategorie === subcategorie
+    );
+
+    let html = "";
+
+    docs.forEach(doc => {
+
+        html += `
+        <div class="card">
+            <h3>${doc.titel}</h3>
+
+            <p>
+                ${doc.samenvatting || ""}
+            </p>
+        </div>
+        `;
+
+    });
+
+    document.getElementById(
+        "categoryDocuments"
+    ).innerHTML = html;
+}
+/* ==================================
+   TOEKOMSTIGE ONEDRIVE KOPPELING
+================================== */
+
+async function uploadJson(data){
+
+    await fetch(
+        `https://graph.microsoft.com/v1.0/me/drive/root:/${DATAFILE}:/content`,
+        {
+            method:"PUT",
+            headers:{
+                Authorization:`Bearer ${accessToken}`,
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify(data,null,2)
+        }
+    );
+}
+
+async function downloadJson(){
+
+    const response = await fetch(
+        `https://graph.microsoft.com/v1.0/me/drive/root:/${DATAFILE}:/content`,
+        {
+            headers:{
+                Authorization:`Bearer ${accessToken}`
+            }
+        }
+    );
+
+    return await response.json();
+}
+
+async function saveData(){
+
+    if(!checkLogin()) return;
+
+    const data = {
+        meetings,
+        projects,
+        tasks,
+        members,
+        knowledgeData
+    };
+
+    await uploadJson(data);
+
+    alert("✅ Gegevens opgeslagen in OneDrive");
+}
+
+async function loadData(){
+
+    if(!checkLogin()) return;
+
+    try{
+
+        const data = await downloadJson();
+
+        meetings = data.meetings || [];
+        projects = data.projects || [];
+        tasks = data.tasks || [];
+        members = data.members || [];
+        knowledgeData = data.knowledgeData || [];
+
+        renderMeetings();
+
+        updateDashboardStats();
+
+        alert("✅ Gegevens geladen");
+
+    }catch(error){
+
+        console.error(error);
+
+        alert("Geen database gevonden");
+    }
+}
+
+async function loginMicrosoft(){
+
+    try {
+
+        await msalInstance.loginRedirect(
+            loginRequest
+        );
+
+    } catch(error){
+
+        console.error(error);
+        alert(error.message);
+
+    }
+}
+
+function logoutMicrosoft(){
+
+    msalInstance.logoutPopup();
+
+}
+
+/* ==================================
+   DOCUMENTEN
+================================== */
+async function syncOneDrive(){
+
+    try{
+
+        knowledgeData = [];
+
+        await bulkImport();
+
+lastSync =
+    new Date().toISOString();
+
+document.getElementById(
+    "lastSyncInfo"
+).innerText =
+    "Laatste synchronisatie: " +
+    new Date(lastSync)
+        .toLocaleString("nl-BE");
+
+const totalDocuments =
+    knowledgeData.filter(
+        item => item.type !== "Map"
+    ).length;
+
+const totalFolders =
+    knowledgeData.filter(
+        item => item.type === "Map"
+    ).length;
+
+document.getElementById(
+    "documentCountInfo"
+).innerText =
+    "📄 Documenten: " +
+    totalDocuments;
+
+document.getElementById(
+    "folderCountInfo"
+).innerText =
+    "📁 Mappen: " +
+    totalFolders;
+
+console.log(
+    "Aantal documenten:",
+    knowledgeData.length
+);
+
+        alert(
+            "✅ OneDrive synchronisatie voltooid"
+        );
+
+    }
+    catch(error){
+
+        console.error(error);
+
+        alert(
+            "❌ Fout tijdens synchronisatie"
+        );
+
+    }
+
+}
+
+function updateBreadcrumb(text){
+
+    document.getElementById(
+        "breadcrumb"
+    ).innerHTML = text;
+}
+
+function generateTags(filename){
+
+    return filename
+        .replace(".pdf","")
+        .replace(".docx","")
+        .replace(".pptx","")
+        .split(/[\s_-]+/);
+
+}
+
+async function scanFolder(
+    folderId,
+    categorie,
+    huidigeSubcategorie = ""
+){
+
+    const response = await fetch(
+        `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`,
+        {
+            headers:{
+                Authorization:`Bearer ${accessToken}`
+            }
+        }
+    );
+
+    const data = await response.json();
+
+if(!response.ok){
+
+    console.error(
+        "Folder ID:",
+        folderId
+    );
+
+    console.error(
+        "Status:",
+        response.status
+    );
+
+    console.error(
+        "Graph fout:",
+        data
+    );
+
+    return;
+}
+
+    if(!data.value){
+        console.error(data);
+        return;
+    }
+
+    for(const item of data.value){
+
+        // SUBMAP
+        if(item.folder){
+
+            await scanFolder(
+                item.id,
+                categorie,
+                item.name
+            );
+
+            continue;
+        }
+
+        // BESTAND
+        if(item.file){
+
+    const tags =
+        determineTags(
+            item.name
+        );
+
+    let categorie =
+        "Algemeen";
+
+    if(tags.includes("crohn"))
+        categorie = "Crohn";
+
+    else if(tags.includes("colitis"))
+        categorie = "Colitis Ulcerosa";
+
+    else if(tags.includes("ibd"))
+        categorie = "IBD";
+
+    else if(tags.includes("voeding"))
+        categorie = "Voeding";
+
+    knowledgeData.push({
+
+        titel:item.name,
+
+        categorie:categorie,
+
+        tags:tags,
+
+        subcategorie:
+            determineSubCategory(
+                item.name
+            ),
+
+        bestand:item.webUrl,
+
+        gewijzigd:item.lastModifiedDateTime,
+
+        type:item.file.mimeType
+
+    });
+
+}
+    }
+}
+
+function buildSummary(filename){
+
+    const naam =
+        filename.toLowerCase();
+
+    if(naam.includes("crohn")){
+
+        return "Document over de ziekte van Crohn.";
+
+    }
+
+    if(naam.includes("medicatie")){
+
+        return "Document over IBD-medicatie.";
+
+    }
+
+    if(naam.includes("voeding")){
+
+        return "Document over voeding en dieet.";
+
+    }
+
+    if(naam.includes("onderzoek")){
+
+        return "Wetenschappelijk onderzoeksdocument.";
+
+    }
+
+    return "Document uit de kennisbank.";
+
+}
+
+async function buildFolderTree(
+    folderId,
+    level = 0
+){
+
+    const response = await fetch(
+        `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`,
+        {
+            headers:{
+                Authorization:`Bearer ${accessToken}`
+            }
+        }
+    );
+
+    const data = await response.json();
+
+    let html = "";
+
+    if(!data.value){
+        return html;
+    }
+
+    for(const item of data.value){
+
+        if(item.folder){
+
+            html += `
+                <div style="
+                    margin-left:${level * 20}px;
+                    padding:4px;
+                ">
+                    📁 ${item.name}
+<small>
+(${item.folder.childCount || 0} items)
+</small>
+                </div>
+            `;
+
+            html += await buildFolderTree(
+                item.id,
+                level + 1
+            );
+        }
+
+    }
+
+    return html;
+}
+
+const CATEGORY_RULES = {
+
+    "Crohn":[
+        "crohn",
+        "ziektevancrohn"
+    ],
+
+    "Colitis Ulcerosa":[
+        "colitis",
+        "ulcerosa"
+    ],
+
+    "IBD":[
+        "ibd"
+    ],
+
+    "Voeding":[
+        "voeding",
+        "fodmap",
+        "dieet"
+    ]
+
+};
+
+async function loadFolders(){
+
+    const container =
+        document.getElementById(
+            "folderList"
+        );
+
+    if(!container){
+        return;
+    }
+
+    container.innerHTML =
+        "📥 OneDrive mappen laden...";
+
+    const response = await fetch(
+        "https://graph.microsoft.com/v1.0/me/drive/root:/CCV-VZW/Documenten:/children",
+        {
+            headers:{
+                Authorization:
+                    `Bearer ${accessToken}`
+            }
+        }
+    );
+
+    const data = await response.json();
+
+if(!data.value){
+
+    console.error(data);
+
+    alert(
+        "❌ Geen toegang tot OneDrive of niet aangemeld"
+    );
+
+    return;
+}
+
+for(const folder of data.value){
+
+        if(!folder.folder){
+            continue;
+        }
+
+        container.innerHTML += `
+            <div class="card"
+                 onclick="
+                    importSingleFolder(
+                        '${folder.id}',
+                        '${folder.name}'
+                    )
+                 "
+                 style="cursor:pointer">
+
+                📁 ${folder.name}
+
+                <br>
+
+                <small>
+                    Klik om te importeren
+                </small>
+
+            </div>
+        `;
+
+        container.innerHTML += await buildFolderTree(
+            folder.id,
+            1
+        );
+
+    }
+
+}
+
+async function bulkImport(){
+
+    const response = await fetch(
+        "https://graph.microsoft.com/v1.0/me/drive/root:/CCV-VZW/Documenten:/children",
+        {
+            headers:{
+                Authorization:`Bearer ${accessToken}`
+            }
+        }
+    );
+
+    const data = await response.json();
+
+if(!data.value){
+
+    console.error(data);
+
+    alert(
+        "❌ Geen toegang tot OneDrive of niet aangemeld"
+    );
+
+    return;
+}
+
+for(const folder of data.value){
+
+    if(!folder.folder){
+        continue;
+    }
+
+    const categorie =
+        determineCategory(folder.name);
+
+       await scanFolder(
+        folder.id,
+        categorie,
+        folder.name
+    );
+}
+
+    await saveData();
+
+    alert("✅ Bulkimport voltooid"
+        
+    );
+
+}
+
+function determineCategory(filename){
+
+    const naam =
+        filename.toLowerCase();
+
+    for(
+        const [categorie, keywords]
+        of Object.entries(CATEGORY_RULES)
+    ){
+
+        if(
+            keywords.some(
+                keyword =>
+                    naam.includes(
+                        keyword.toLowerCase()
+                    )
+            )
+        ){
+            return categorie;
+        }
+    }
+
+    return "Ziektebeeld";
+}
+
+function determineSubCategory(filename){
+
+    const naam =
+        filename.toLowerCase();
+
+    if(naam.includes("medicatie"))
+        return "Medicatie";
+
+    if(naam.includes("diagnose"))
+        return "Diagnose";
+
+    if(naam.includes("voeding"))
+        return "Voeding";
+
+    if(naam.includes("symptoom"))
+        return "Symptomen";
+
+    if(naam.includes("operatie"))
+        return "Operaties";
+
+    return "Ziektebeeld";
+}
+
+function determineTags(filename){
+
+    const tags = [];
+    const naam = filename.toLowerCase();
+
+    const KEYWORDS = [
+
+    "crohn",
+    "ziektevancrohn",
+    "crohns",
+
+    "colitis",
+    "ulcerosa",
+
+    "ibd",
+
+    "voeding",
+    "dieet",
+    "fodmap",
+
+    "medicatie",
+    "biological",
+    "humira",
+    "stelara",
+    "remicade",
+
+    "diagnose",
+    "symptomen",
+    "operatie",
+    "complicaties",
+
+    "zwangerschap",
+    "pediatrie",
+
+    "mindfulness",
+    "stress",
+    "welzijn"
+
+];
+
+    KEYWORDS.forEach(keyword => {
+
+        if(
+            naam.includes(keyword)
+        ){
+            tags.push(keyword);
+        }
+
+    });
+
+    return [...new Set(tags)];
+
+}
+
+async function bulkImportSelectedFolder(){
+
+    const folderName =
+        document.getElementById(
+            "importFolder"
+        ).value;
+
+    alert(
+        "Import gestart voor: " +
+        folderName
+    );
+
+    const categorie =
+        determineCategory(
+            folderName
+        );
+
+    knowledgeData.push({
+
+        titel:
+            folderName,
+
+        categorie:
+            categorie,
+
+        subcategorie:
+            folderName,
+
+        datum:
+            new Date()
+            .toISOString()
+
+    });
+
+    await saveData();
+
+    alert(
+        "✅ Import voltooid\n\n" +
+        "Categorie: " +
+        categorie +
+        "\nSubcategorie: " +
+        folderName
+    );
+}
+
+async function uploadDocument(){
+
+    if(!checkLogin())
+        return;
+
+    const file =
+    document.getElementById(
+        "fileUpload"
+    ).files[0];
+
+    if(!file)
+        return;
+
+    await fetch(
+
+        `https://graph.microsoft.com/v1.0/me/drive/root:/CCV-VZW/Documenten/${file.name}:/content`,
+
+        {
+
+            method:"PUT",
+
+            headers:{
+
+                Authorization:
+                `Bearer ${accessToken}`
+
+            },
+
+            body:file
+
+        }
+
+    );
+
+    alert(
+        "Bestand opgeslagen"
+    );
+
+}
+
+function countDocumentsByCategory(
+    categorie
+){
+
+    return knowledgeData.filter(
+        d => d.categorie === categorie
+    ).length;
+
+}
+
+    function renderDocuments(){
+
+    const container =
+        document.getElementById(
+            "documentsContainer"
+        );
+
+    if(!container){
+        return;
+    }
+
+    container.innerHTML =
+
+    knowledgeData
+
+    .filter(
+        doc => doc.type !== "Map"
+    )
+
+    .map(doc => `
+
+        <div class="card">
+
+            <input
+                type="checkbox"
+                class="pdfSelect"
+                value="${doc.bestand}"
+            >
+
+            <h3>
+
+                📄 ${doc.titel}
+
+            </h3>
+
+            <span class="tag">
+                ${doc.categorie}
+            </span>
+
+            <span class="tag">
+                ${doc.subcategorie || ""}
+            </span>
+
+            <br><br>
+
+           <div class="tagContainer">
+    ${
+        doc.tags
+        ? doc.tags.map(tag =>
+            `<span
+                class="tag"
+                onclick="filterByTag('${tag}')"
+            >
+                ${tag}
+            </span>`
+        ).join("")
+        : ""
+    }
+</div>
+
+            <br><br>
+
+          <br><br>
+
+<a
+    ${doc.bestand}
+    📄 Open document
+</a>
+
+&nbsp;
+
+<button
+    onclick="
+        previewDocument(
+            '${doc.bestand}'
+        )
+    "
+>
+    👁 Preview
+</button>
+
+        </div>
+
+    `)
+
+    .join("");
+
+}
+
+/* ==================================
+   ZOEKEN
+================================== */
+
+function searchItems(){
+
+    const q =
+        document
+        .getElementById("searchInput")
+        .value
+        .toLowerCase();
+
+    const result =
+    knowledgeData.filter(item =>
+
+        (item.titel || "")
+            .toLowerCase()
+            .includes(q)
+
+        ||
+
+        (item.tags || [])
+            .join(" ")
+            .toLowerCase()
+            .includes(q)
+
+    );
+
+    document.getElementById(
+        "searchResults"
+    ).innerHTML =
+        JSON.stringify(result,null,2);
+
+}
+
+/* ==================================
+   START
+================================== */
+
+function toggleInputMode(){
+
+    const mode =
+    document.getElementById("inputMode").value;
+
+    document.getElementById("manualSection").style.display =
+        (mode === "manual" || mode === "hybrid")
+        ? "block"
+        : "none";
+
+    document.getElementById("aiSection").style.display =
+        (mode === "ai" || mode === "hybrid")
+        ? "block"
+        : "none";
+}
+
+function updateCategoryCounts(){
+
+    const crohn =
+        document.getElementById(
+            "crohnCount"
+        );
+
+    if(crohn){
+
+        crohn.innerText =
+            countDocumentsByCategory(
+                "Crohn"
+            );
+
+    }
+
+}
+
+function previewDocument(url){
+
+    window.open(
+        url,
+        "_blank"
+    );
+
+}
+
+function closePreview(){
+
+    document.getElementById(
+        "previewModal"
+    ).style.display = "none";
+
+    document.getElementById(
+        "previewFrame"
+    ).src = "";
+
+}
+
+function previewSelected(){
+
+    const urls =
+
+        [...document.querySelectorAll(
+            ".pdfSelect:checked"
+        )]
+
+        .map(
+            checkbox => checkbox.value
+        );
+
+    if(urls.length === 0){
+
+        alert(
+            "Selecteer eerst documenten"
+        );
+
+        return;
+
+    }
+
+    previewMultiple(urls);
+
+}
+
+function previewMultiple(urls){
+
+    const container =
+        document.getElementById(
+            "previewArea"
+        );
+
+    container.innerHTML = "";
+
+    urls.forEach(url => {
+
+        container.innerHTML += `
+            <iframe
+                src="${url}"
+                style="
+ 
+
+        `;
+
+    });
+
+}
+
+function closeAllPreviews(){
+
+    document.getElementById(
+        "previewArea"
+    ).innerHTML = "";
+
+}
+
+function filterByTag(tag){
+
+    const docs = knowledgeData.filter(
+        doc =>
+            doc.tags &&
+            doc.tags.includes(tag)
+    );
+
+    renderFilteredDocuments(docs);
+
+    openPage("documents");
+}
+
+function filterDocuments(){
+
+    const searchText =
+
+        document
+            .getElementById(
+                "documentSearch"
+            )
+            .value
+            .toLowerCase();
+
+    const filtered =
+
+        knowledgeData.filter(doc =>
+
+            (doc.titel || "")
+            .toLowerCase()
+            .includes(searchText)
+
+        );
+
+    renderFilteredDocuments(
+        filtered
+    );
+
+}
+
+function renderFilteredDocuments(
+    docs
+){
+
+    const container =
+
+        document.getElementById(
+            "documentsContainer"
+        );
+
+    container.innerHTML =
+
+        docs
+
+        .filter(
+            doc => doc.type !== "Map"
+        )
+
+        .map(doc => `
+
+            <div class="card">
+
+                <h3>
+                    📄 ${doc.titel}
+                </h3>
+
+            </div>
+
+        `)
+
+        .join("");
+
+}
+
+async function importSingleFolder(
+    folderId,
+    folderName
+){
+
+    if(
+        knowledgeData.some(
+            x => x.titel === folderName &&
+                 x.type === "Map"
+        )
+    ){
+        alert(
+            "Deze map werd al geïmporteerd"
+        );
+        return;
+    }
+
+    const categorie =
+        determineCategory(folderName);
+
+    knowledgeData.push({
+
+    titel: folderName,
+
+    categorie: categorie,
+
+    subcategorie: folderName,
+
+    type: "Map"
+
+});
+
+    await scanFolder(
+        folderId,
+        categorie,
+        folderName
+    );
+
+    await saveData();
+
+    alert(
+        "✅ Map geïmporteerd: "
+        + folderName
+    );
+
+}
+
+console.log(
+    "IBD Kennisbank V7 gestart"
+);
+
+</script>
+
+<div id="previewModal"
+     style="
+        display:none;
+        position:fixed;
+        top:0;
+        left:0;
+        width:100%;
+        height:100%;
+        background:rgba(0,0,0,.7);
+        z-index:9999;
+     ">
+
+    <div
+        style="
+            width:90%;
+            height:90%;
+            background:white;
+            margin:2% auto;
+            padding:10px;
+            border-radius:12px;
+        ">
+
+        <button
+            onclick="closePreview()"
+            style="
+                float:right;
+                background:red;
+                color:white;
+            "
+        >
+            ❌ Sluiten
+        </button>
+
+        <br><br>
+
+        <iframe
+            id="previewFrame"
+            style="
+                width:100%;
+                height:90%;
+                border:none;
+            "
+        >
+        </iframe>
+
+    </div>
+
+</div>
+
+</body>
+</html>

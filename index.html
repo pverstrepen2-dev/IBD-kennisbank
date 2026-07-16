@@ -1403,7 +1403,13 @@ if(response){
 
     if(accessToken){
 
-    await syncOneDrive();
+    await loadData();
+
+    if(
+        knowledgeData.length === 0
+    ){
+        await syncOneDrive();
+    }
 
 }
 }
@@ -2710,25 +2716,19 @@ for(const folder of data.value){
     const categorie =
         determineCategory(folder.name);
 
-    knowledgeData.push({
-
-        titel: folder.name,
-
-        categorie: categorie,
-
-        subcategorie: folder.name,
-
-        bestand: folder.webUrl,
-
-        type: "Map"
-
-    });
-
-    await scanFolder(
+       await scanFolder(
         folder.id,
         categorie,
         folder.name
     );
+}
+
+    await saveData();
+
+    alert("✅ Bulkimport voltooid"
+        
+    );
+
 }
 
 function determineCategory(folderName){
@@ -2783,6 +2783,29 @@ function determineCategory(folderName){
         naam.includes("podcast")
     )
         return "Media";
+
+    return "Algemeen";
+}
+
+function determineSubCategory(filename){
+
+    const naam =
+        filename.toLowerCase();
+
+    if(naam.includes("medicatie"))
+        return "Medicatie";
+
+    if(naam.includes("diagnose"))
+        return "Diagnose";
+
+    if(naam.includes("voeding"))
+        return "Voeding";
+
+    if(naam.includes("symptoom"))
+        return "Symptomen";
+
+    if(naam.includes("operatie"))
+        return "Operaties";
 
     return "Algemeen";
 }
@@ -2970,21 +2993,24 @@ function countDocumentsByCategory(
 
             <br><br>
 
-          <a href="${doc.bestand}"
-   target
+          <br><br>
+
+<a
+    href="${doc.bestand}"
+    nt
 </a>
 
-            &nbsp;
+&nbsp;
 
-            <button
-                onclick="
-                    previewDocument(
-                        '${doc.bestand}'
-                    )
-                "
-            >
-                👁 Preview
-            </button>
+<button
+    onclick="
+        previewDocument(
+            '${doc.bestand}'
+        )
+    "
+>
+    👁 Preview
+</button>
 
         </div>
 
@@ -3240,11 +3266,16 @@ async function importSingleFolder(
         determineCategory(folderName);
 
     knowledgeData.push({
-        titel: folderName,
-        categorie: categorie,
-        subcategorie: folderName,
-        type: "Map"
-    });
+
+    titel: folderName,
+
+    categorie: categorie,
+
+    subcategorie: folderName,
+
+    type: "Map"
+
+});
 
     await scanFolder(
         folderId,

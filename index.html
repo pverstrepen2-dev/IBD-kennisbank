@@ -2518,26 +2518,30 @@ if(!response.ok){
     else if(tags.includes("voeding"))
         categorie = "Voeding";
 
-    knowledgeData.push({
+   knowledgeData.push({
 
-        titel:item.name,
+    titel:item.name,
 
-        categorie:categorie,
+    categorie:
+        classification.categorie,
 
-        tags:tags,
+    subcategorie:
+        classification.subcategorie,
 
-        subcategorie:
-            determineSubCategory(
-                item.name
-            ),
+    tags:
+        determineTags(
+            item.name
+        ),
 
-        bestand:item.webUrl,
+    bestand:item.webUrl,
 
-        gewijzigd:item.lastModifiedDateTime,
+    gewijzigd:
+        item.lastModifiedDateTime,
 
-        type:item.file.mimeType
+    type:
+        item.file.mimeType
 
-    });
+});
 
 }
     }
@@ -2625,29 +2629,184 @@ async function buildFolderTree(
     return html;
 }
 
-const CATEGORY_RULES = {
+const KNOWLEDGE_ENGINE = {
 
-    "Crohn":[
-        "crohn",
-        "ziektevancrohn"
-    ],
+    "Crohn":{
 
-    "Colitis Ulcerosa":[
-        "colitis",
-        "ulcerosa"
-    ],
+        keywords:[
+            "crohn",
+            "ziektevancrohn"
+        ],
 
-    "IBD":[
-        "ibd"
-    ],
+        subcategories:{
 
-    "Voeding":[
-        "voeding",
-        "fodmap",
-        "dieet"
-    ]
+            "Ziektebeeld":[
+                "ziektebeeld"
+            ],
+
+            "Diagnose":[
+                "diagnose",
+                "onderzoek"
+            ],
+
+            "Medicatie":[
+                "medicatie",
+                "humira",
+                "stelara",
+                "remicade",
+                "rinvoq",
+                "skyrizi"
+            ],
+
+            "Voeding":[
+                "voeding",
+                "dieet",
+                "fodmap"
+            ],
+
+            "Symptomen":[
+                "symptomen"
+            ]
+
+        }
+
+    },
+
+    "Colitis Ulcerosa":{
+
+        keywords:[
+            "colitis",
+            "ulcerosa"
+        ],
+
+        subcategories:{
+
+            "Diagnose":[
+                "diagnose"
+            ],
+
+            "Medicatie":[
+                "medicatie"
+            ],
+
+            "Voeding":[
+                "voeding"
+            ]
+
+        }
+
+    },
+
+    "IBD":{
+
+        keywords:[
+            "ibd"
+        ],
+
+        subcategories:{
+
+            "Diagnose":[
+                "diagnose"
+            ],
+
+            "Behandelingen":[
+                "behandeling"
+            ]
+
+        }
+
+    }
 
 };
+
+function classifyDocument(filename){
+
+    const naam =
+        filename.toLowerCase();
+
+    for(
+
+        const [categorie,data]
+
+        of Object.entries(
+            KNOWLEDGE_ENGINE
+        )
+
+    ){
+
+        const categoryMatch =
+
+            data.keywords.some(
+
+                keyword =>
+
+                    naam.includes(keyword)
+
+            );
+
+        if(categoryMatch){
+
+            for(
+
+                const [subcategorie,keywords]
+
+                of Object.entries(
+                    data.subcategories
+                )
+
+            ){
+
+                if(
+
+                    keywords.some(
+
+                        keyword =>
+
+                            naam.includes(keyword)
+
+                    )
+
+                ){
+
+                    return {
+
+                        categorie:
+                            categorie,
+
+                        subcategorie:
+                            subcategorie
+
+                    };
+
+                }
+
+            }
+
+            return {
+
+                categorie:
+                    categorie,
+
+                subcategorie:
+                    "Ziektebeeld"
+
+            };
+
+        }
+
+    }
+
+    return {
+
+        categorie:
+            "Algemeen",
+
+        subcategorie:
+            "Algemeen"
+
+    };
+
+}
 
 async function loadFolders(){
 
@@ -2792,7 +2951,7 @@ function determineCategory(filename){
         }
     }
 
-    return "Algemeen";
+    return "Ziektebeeld";
 }
 
 function determineSubCategory(filename){
@@ -2815,7 +2974,7 @@ function determineSubCategory(filename){
     if(naam.includes("operatie"))
         return "Operaties";
 
-    return "Algemeen";
+    return "Ziektebeeld";
 }
 
 function determineTags(filename){

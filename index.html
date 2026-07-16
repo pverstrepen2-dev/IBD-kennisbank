@@ -2486,17 +2486,64 @@ if(!response.ok){
         // SUBMAP
         if(item.folder){
 
-            await scanFolder(
-                item.id,
-                categorie,
-                item.name
-            );
+    const verbodenMappen = [
+        "Financieel",
+        "Kasboeken",
+        "Foto's"
+    ];
 
-            continue;
-        }
+    if(
+        verbodenMappen.includes(
+            item.name
+        )
+    ){
+        continue;
+    }
+
+    await scanFolder(
+        item.id,
+        categorie,
+        item.name
+    );
+
+    continue;
+}
+
 
         // BESTAND
+
+    
       if(item.file){
+
+    const extensie =
+        item.name
+            .toLowerCase()
+            .split(".")
+            .pop();
+
+    const toegelatenBestanden = [
+        "pdf",
+        "doc",
+        "docx",
+        "ppt",
+        "pptx"
+        "mp3",
+        "mp4",
+        "mov",
+        "jpg",
+        "avi",
+        "png",
+        "webm",
+        "wav",
+    ];
+
+    if(
+        !toegelatenBestanden.includes(
+            extensie
+        )
+    ){
+        continue;
+    }
 
     const tags =
         determineTags(

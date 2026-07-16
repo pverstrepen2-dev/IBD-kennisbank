@@ -2510,13 +2510,25 @@ if(!response.ok){
 
     knowledgeData.push({
 
-            categorie:
-            classification.categorie,
+    titel:item.name,
 
-        subcategorie:
-            classification.subcategorie,
-      
-    });
+    categorie:
+        classification.categorie,
+
+    subcategorie:
+        classification.subcategorie,
+
+    tags:tags,
+
+    bestand:item.webUrl,
+
+    gewijzigd:
+        item.lastModifiedDateTime,
+
+    type:
+        item.file.mimeType
+
+});
 
 }
 
@@ -2905,7 +2917,7 @@ const KNOWLEDGE_ENGINE = {
 
         subcategories:{
 
-             "Symptomen":[
+            "Symptomen":[
             "symptoom",
             "symptomen",
             "klachten"
@@ -2949,8 +2961,51 @@ const KNOWLEDGE_ENGINE = {
             "voeding",
             "dieet",
             "fodmap"
-        ]
+        ],
 
+"Opvolging":[
+    "controle",
+    "follow-up",
+    "calprotectine",
+    "crp"
+],
+
+"DagelijksLeven":[
+    "dagelijks leven",
+    "reizen",
+    "vakantie"
+],
+
+"WerkStudie":[
+    "werk",
+    "studie",
+    "school",
+    "onderwijs"
+],
+
+"Zwangerschap":[
+    "zwangerschap",
+    "fertiliteit",
+    "borstvoeding"
+],
+
+"Patiëntenrechten":[
+    "rechten",
+    "invaliditeit",
+    "attest"
+],
+
+"Ervaringsverhalen":[
+    "ervaring",
+    "getuigenis",
+    "verhaal"
+],
+
+"Downloads":[
+    "brochure",
+    "download",
+    "pdf"
+]        
     }
 
 },
@@ -3233,6 +3288,152 @@ const KNOWLEDGE_ENGINE = {
 
 },
 
+"Zorggids":{
+    
+    keywords:[
+        "zorggids",
+        "zorg",
+        "hulpverlening"
+    ],
+
+    subcategories:{
+
+        "Ziekenhuizen":[
+            "ziekenhuis"
+        ],
+
+        "Specialisten":[
+            "specialist"
+        ],
+
+        "Huisartsen":[
+            "huisarts"
+        ],
+
+        "Diëtisten":[
+            "diëtist",
+            "dietist"
+        ],
+
+        "Psychologen":[
+            "psycholoog"
+        ],
+
+        "Fysiotherapeuten":[
+            "fysiotherapeut"
+        ],
+
+    "IBD Centra":[
+        "ibd centrum"
+    ],
+
+    "Ziekenhuizen":[
+        "ziekenhuis"
+    ],
+
+    "Gastro-enterologen":[
+        "gastro-enteroloog"
+    ],
+
+    "IBD Verpleegkundigen":[
+        "ibd verpleegkundige"
+    ],
+
+    "Diëtisten":[
+        "diëtist"
+    ],
+
+    "Psychologen":[
+        "psycholoog"
+    ],
+
+    "Sociale Diensten":[
+        "sociale dienst"
+    ],
+
+    "Apothekers":[
+        "apotheker"
+    ],
+
+    "Patiëntenbegeleiding":[
+        "begeleiding"
+    ],
+
+    "Noodnummers":[
+        "noodnummer"
+    ]
+
+}
+
+},
+
+"FAQ":{
+
+    keywords:[
+        "faq",
+        "veelgestelde vragen"
+    ],
+
+    subcategories:{
+
+        "Algemeen":[
+            "faq"
+        ],
+
+        "Diagnose":[
+            "diagnose"
+        ],
+
+        "Medicatie":[
+            "medicatie"
+        ],
+
+        "Voeding":[
+            "voeding"
+        ],
+
+        "Operaties":[
+            "operatie"
+        ],
+
+        "Werk & Studie":[
+            "werk",
+            "studie"
+        ],
+
+        "Reizen":[
+            "reis",
+            "reizen"
+        ],
+
+        "Zwangerschap":[
+            "zwangerschap"
+        ],
+
+        "Kinderen & Jongeren":[
+            "kinderen",
+            "jongeren"
+        ],
+
+        "Patiëntenrechten":[
+            "rechten"
+        ],
+
+        "Psychologisch Welzijn":[
+            "stress",
+            "angst",
+            "depressie"
+        ],
+
+        "Praktische Tips":[
+            "tips"
+        ]
+
+    }
+
+},
+
+
 };
 
 function classifyDocument(filename){
@@ -3278,6 +3479,11 @@ function classifyDocument(filename){
 
         if(match.groep === "Complicaties")
             categoryScore += 2;
+
+            if(match.groep === "Labo"){
+            currentSubCategory =
+            "Opvolging";
+}
 
     });
 
@@ -3354,6 +3560,14 @@ function classifyDocument(filename){
 
     }
 
+    if(highestScore < 2){
+
+    return {
+        categorie:"Te beoordelen",
+        subcategorie:"Te beoordelen"
+    };
+
+}
     return {
 
         categorie:
@@ -3487,29 +3701,6 @@ for(const folder of data.value){
         
     );
 
-}
-
-function determineSubCategory(filename){
-
-    const naam =
-        filename.toLowerCase();
-
-    if(naam.includes("medicatie"))
-        return "Medicatie";
-
-    if(naam.includes("diagnose"))
-        return "Diagnose";
-
-    if(naam.includes("voeding"))
-        return "Voeding";
-
-    if(naam.includes("symptoom"))
-        return "Symptomen";
-
-    if(naam.includes("operatie"))
-        return "Operaties";
-
-    return "Ziektebeeld";
 }
 
 function determineTags(filename){

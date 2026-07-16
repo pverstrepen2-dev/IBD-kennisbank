@@ -3991,10 +3991,41 @@ for(const folder of data.value){
         continue;
     }
 
-    const categorie =
-    classifyDocument(
-        folder.name
-    ).categorie;
+    const categorieMap = {
+
+    "Crohn":"Crohn",
+
+    "Colitis":"Colitis Ulcerosa",
+
+    "IBD":"IBD",
+
+    "Voeding":"Voeding",
+
+    "Pediatrie":"Pediatrie",
+
+    "Mindfulness":"Mindfulness & Welzijn",
+
+    "FAQ":"FAQ",
+
+    "Zorggids":"Zorggids",
+
+    "Sociale Gids":"Sociale Gids",
+
+    "Media":"Media",
+
+    "Websites":"Websites",
+
+    "IBD Verenigingen":"IBD Verenigingen",
+
+    "CCV-VZW":"CCV-VZW",
+
+    "Patiënten Expert Opleiding":"Patiënten Expert Opleiding"
+
+};
+
+const categorie =
+    categorieMap[folder.name]
+    || folder.name;
 
        await scanFolder(
         folder.id,

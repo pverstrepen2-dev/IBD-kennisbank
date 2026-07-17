@@ -2241,17 +2241,25 @@ function showDocumentsBySubCategory(
 
     docs.forEach(doc => {
 
-        html += `
+    html += `
+
         <div class="card">
+
             <h3>${doc.titel}</h3>
 
             <p>
                 ${doc.samenvatting || ""}
             </p>
-        </div>
-        `;
 
-    });
+            ${doc.bestand}
+                📄 Open document
+            </a>
+
+        </div>
+
+    `;
+
+});
 
     document.getElementById(
         "categoryDocuments"

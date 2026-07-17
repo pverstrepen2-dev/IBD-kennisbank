@@ -2231,12 +2231,20 @@ async function loadData(){
 
         alert("✅ Gegevens geladen");
 
-    }catch(error){
-
-        console.error(error);
-
-        alert("Geen database gevonden");
     }
+    
+    catch(error){
+
+    console.error(
+        "LoadData fout:",
+        error
+    );
+
+    alert(
+        error.message
+    );
+
+}
 }
 
 async function loginMicrosoft(){

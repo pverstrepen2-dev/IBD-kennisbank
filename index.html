@@ -2278,7 +2278,7 @@ function showDocumentsBySubCategory(
 
     let html = "";
 
-   docs.forEach(doc => {
+  docs.forEach(doc => {
 
     html += `
 
@@ -2287,10 +2287,9 @@ function showDocumentsBySubCategory(
         <h3>${doc.titel}</h3>
 
         <div style="
-            margin-top:15px;
             display:flex;
             gap:10px;
-            flex-wrap:wrap;
+            margin-top:15px;
         ">
 
             <a
@@ -2309,6 +2308,7 @@ function showDocumentsBySubCategory(
     </div>
 
     `;
+
 });
 
     document.getElementById(
@@ -2558,11 +2558,13 @@ if(!response.ok){
         continue;
     }
 
-    await scanFolder(
-        item.id,
-        categorie,
-        item.name
-    );
+   await scanFolder(
+    item.id,
+    categorie,
+    huidigeSubcategorie +
+    " " +
+    item.name
+);
 
     continue;
 }
@@ -2641,6 +2643,20 @@ const classification =
     classifyDocument(
         zoekTekst
     );
+
+    if(
+    classification.categorie ===
+    "Te beoordelen"
+){
+
+    classification.categorie =
+        categorie;
+
+    classification.subcategorie =
+        huidigeSubcategorie ||
+        "Algemeen";
+
+}
 
     knowledgeData.push({
 

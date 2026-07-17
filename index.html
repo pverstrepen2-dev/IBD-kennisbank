@@ -727,9 +727,43 @@ border-bottom:1px solid #ddd;
     </div>
 </div>
 
-<div id="ccv"
-     class="page hidden">
-</div>
+<div id="ccv" class="page hidden">
+
+    <div class="card">
+
+        <h2>🤝 CCV-VZW Beheerplatform</h2>
+
+    </div>
+
+    <div class="card">
+
+        <h2>📊 Overzicht</h2>
+
+        <div class="dashboard-grid">
+
+            <button>
+                🚀 Projecten<br>
+                <span id="projectCount">0</span>
+            </button>
+
+            <button>
+                📅 Vergaderingen<br>
+                <span id="meetingCount">0</span>
+            </button>
+
+            <button>
+                ✅ Taken<br>
+                <span id="taskCount">0</span>
+            </button>
+
+            <button>
+                👥 Leden<br>
+                <span id="memberCount">0</span>
+            </button>
+
+        </div>
+
+    </div>
 
     <!-- SNELLE ACTIES -->
 
@@ -1282,8 +1316,25 @@ if(document.getElementById("breadcrumb")){
     loadFolders();
 }
 
-    if(page === "documents"){
+  if(page === "documents"){
     renderDocuments();
+}
+
+if(document.getElementById("documentCountInfo")){
+
+    document.getElementById(
+        "documentCountInfo"
+    ).innerText =
+        "📄 Documenten: " +
+        knowledgeData.length;
+}
+
+if(document.getElementById("lastSyncInfo")){
+
+    document.getElementById(
+        "lastSyncInfo"
+    ).innerText =
+        "✅ Database geladen uit OneDrive";
 }
 }
 
@@ -2223,11 +2274,31 @@ async function loadData(){
         members = data.members || [];
         knowledgeData = data.knowledgeData || [];
 
+        document.getElementById(
+    "documentCountInfo"
+).innerText =
+    "📄 Documenten: " +
+    knowledgeData.length;
+
+
         renderMeetings();
 
         updateDashboardStats();
 
-        renderAllCategories();
+       renderAllCategories();
+
+document.getElementById(
+    "lastSyncInfo"
+).innerText =
+    "✅ Database geladen uit OneDrive";
+
+document.getElementById(
+    "documentCountInfo"
+).innerText =
+    "📄 Documenten: " +
+    knowledgeData.length;
+
+await loadFolders();
 
         alert("✅ Gegevens geladen");
 
@@ -3841,6 +3912,21 @@ async function loadFolders(){
 
     const data = await response.json();
 
+    const folderCount =
+    data.value
+        .filter(
+            item => item.folder
+        )
+        .length;
+
+document.getElementById(
+    "folderCountInfo"
+).innerText =
+    "📁 " +
+    folderCount +
+    " OneDrive-mappen gevonden";
+
+
 if(!data.value){
 
     console.error(data);
@@ -4286,33 +4372,17 @@ function updateCategoryCounts(){
 
 function renderAllCategories(){
 
-    renderDynamicCategory(
-        "Crohn"
-    );
+    renderDynamicCategory("Crohn");
 
-    renderDynamicCategory(
-        "Colitis Ulcerosa"
-    );
+    renderDynamicCategory("Colitis Ulcerosa");
 
-    renderDynamicCategory(
-        "IBD"
-    );
+    renderDynamicCategory("IBD");
 
-    renderDynamicCategory(
-        "Voeding"
-    );
+    renderDynamicCategory("Voeding");
 
-    renderDynamicCategory(
-        "Pediatrie"
-    );
+    renderDynamicCategory("Pediatrie");
 
-    renderDynamicCategory(
-        "Mindfulness & Welzijn"
-    );
-
-    renderDynamicCategory(
-        "CCV-VZW"
-    );
+    renderDynamicCategory("Mindfulness & Welzijn");
 
 }
 

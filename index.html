@@ -2290,11 +2290,12 @@ function showDocumentsBySubCategory(
             display:flex;
             gap:10px;
             margin-top:15px;
+            flex-wrap:wrap;
         ">
 
-            <a
-                href="${doc.bestand}"
-                   </a>
+            ${doc.bestand}
+                📂 Open document
+            </a>
 
             <button
                 onclick="previewDocument('${doc.bestand}')"
@@ -4428,20 +4429,11 @@ function updateCategoryCounts(){
 
 function previewDocument(url){
 
-    const modal =
-        document.getElementById(
-            "previewModal"
-        );
+    window.open(
+        url,
+        "_blank"
+    );
 
-    const frame =
-        document.getElementById(
-            "previewFrame"
-        );
-
-    frame.src = url;
-
-    modal.style.display =
-        "block";
 }
 
 function closePreview(){

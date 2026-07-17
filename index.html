@@ -4404,19 +4404,35 @@ function selectInputMode(mode){
         ).style.display =
             "block";
 
-    }
+            document.getElementById(
+    "aiSection").style.display =
+            "block";
+
+}
 
     if(
         mode === "tekst"
     ){
 
         document.getElementById(
-            "aiSection"
+            "manualSection"
         ).style.display =
             "block";
 
     }
+const section =
+    document.getElementById(
+        "manualSection"
+    );
 
+if(section){
+
+    section.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
+
+}
 }
 
 function toggleInputMode(){

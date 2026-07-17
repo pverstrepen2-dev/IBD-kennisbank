@@ -2025,17 +2025,46 @@ document.getElementById("documentsContainer").innerHTML = `
 
 function updateDashboardStats(){
 
-    document.getElementById("projectCount").innerText =
-        projects.length;
+    const projectCount =
+        document.getElementById(
+            "projectCount"
+        );
 
-    document.getElementById("meetingCount").innerText =
-        meetings.length;
+    const meetingCount =
+        document.getElementById(
+            "meetingCount"
+        );
 
-    document.getElementById("taskCount").innerText =
-        tasks.length;
+    const taskCount =
+        document.getElementById(
+            "taskCount"
+        );
 
-    document.getElementById("memberCount").innerText =
-        members.length;
+    const memberCount =
+        document.getElementById(
+            "memberCount"
+        );
+
+    if(projectCount){
+        projectCount.innerText =
+            projects.length;
+    }
+
+    if(meetingCount){
+        meetingCount.innerText =
+            meetings.length;
+    }
+
+    if(taskCount){
+        taskCount.innerText =
+            tasks.length;
+    }
+
+    if(memberCount){
+        memberCount.innerText =
+            members.length;
+    }
+
 }
 
 function showCategoryDocuments(

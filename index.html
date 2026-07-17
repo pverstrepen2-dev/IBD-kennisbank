@@ -439,82 +439,8 @@ border-bottom:1px solid #ddd;
 <!-- KENNISBANK NU AFGESLOTEN -->
 
 
-<div id="crohn" class="page hidden">
-
-<div class="card">
-
-<h2>🩺 Crohn</h2>
-
-<div class="dashboard-grid">
-
-<button onclick="openCategory('Crohn','Ziektebeeld')">
-📖 Ziektebeeld
-</button>
-
-<button onclick="openCategory('Crohn','Symptomen')">
-🩺 Symptomen
-</button>
-
-<button onclick="
-openCategory(
-'Crohn',
-'Diagnose'
-)">
-🔬 Diagnose
-</button>
-
-<button onclick="openCategory('Crohn','Behandelingen')">
-💊 Behandelingen
-</button>
-
-<button onclick="openCategory('Crohn','Medicatie')">
-💉 Medicatie
-</button>
-
-<button onclick="openCategory('Crohn','Operaties')">
-🏥 Operaties
-</button>
-
-<button onclick="openCategory('Crohn','Complicaties')">
-⚠️ Complicaties
-</button>
-
-<button onclick="openCategory('Crohn','Opvolging')">
-📋 Opvolging & controles
-</button>
-
-<button onclick="openCategory('Crohn','Voeding')">
-🍎 Voeding
-</button>
-
-<button onclick="openCategory('Crohn','DagelijksLeven')">
-🏡 Dagelijks leven
-</button>
-
-<button onclick="openCategory('Crohn','WerkStudie')">
-🎒 Werk & studie
-</button>
-
-<button onclick="openCategory('Crohn','Zwangerschap')">
-🤰 Zwangerschap
-</button>
-
-<button onclick="openCategory('Crohn','Patiëntenrechten')">
-⚖️ Patiëntenrechten
-</button>
-
-<button onclick="openCategory('Crohn','Ervaringsverhalen')">
-💬 Ervaringsverhalen
-</button>
-
-<button onclick="openCategory('Crohn','Downloads')">
-📂 Downloads
-</button>
-
-</div>
-
-</div>
-
+<div id="crohn"
+     class="page hidden">
 </div>
 
 <div id="colitis" class="page hidden">
@@ -1622,6 +1548,90 @@ function goBack(){
 
 }
 
+function getSubCategories(
+    categorie
+){
+
+    const subcats =
+        [
+            ...new Set(
+
+                knowledgeData
+
+                .filter(
+                    x =>
+                        x.categorie ===
+                        categorie
+                )
+
+                .map(
+                    x => x.subcategorie
+                )
+
+            )
+        ];
+
+    return subcats.sort();
+
+}
+
+function renderDynamicCategory(
+    categorie
+){
+
+    const subcats =
+        getSubCategories(
+            categorie
+        );
+
+    let html = `
+
+        <div class="card">
+
+            <h2>
+                ${categorie}
+            </h2>
+
+            <div class="
+                dashboard-grid
+            ">
+
+    `;
+
+    subcats.forEach(
+        subcat => {
+
+            html += `
+
+                <button
+                    onclick="
+                        openCategory(
+                            '${categorie}',
+                            '${subcat}'
+                        )
+                    "
+                >
+
+                    ${subcat}
+
+                </button>
+
+            `;
+
+        }
+    );
+
+    html += `
+            </div>
+        </div>
+    `;
+
+    document.getElementById(
+        categorie.toLowerCase()
+    ).innerHTML =
+        html;
+}
+
 function openCategory(mainCategory, subCategory){
 
     document.getElementById(
@@ -2384,6 +2394,8 @@ async function loadData(){
 
         updateDashboardStats();
 
+        renderAllCategories();
+
         alert("✅ Gegevens geladen");
 
     }catch(error){
@@ -2426,6 +2438,8 @@ async function syncOneDrive(){
         knowledgeData = [];
 
         await bulkImport();
+
+        renderAllCategories();
 
 lastSync =
     new Date().toISOString();
@@ -4424,6 +4438,38 @@ function updateCategoryCounts(){
             );
 
     }
+
+}
+
+function renderAllCategories(){
+
+    renderDynamicCategory(
+        "Crohn"
+    );
+
+    renderDynamicCategory(
+        "Colitis Ulcerosa"
+    );
+
+    renderDynamicCategory(
+        "IBD"
+    );
+
+    renderDynamicCategory(
+        "Voeding"
+    );
+
+    renderDynamicCategory(
+        "Pediatrie"
+    );
+
+    renderDynamicCategory(
+        "Mindfulness & Welzijn"
+    );
+
+    renderDynamicCategory(
+        "CCV-VZW"
+    );
 
 }
 

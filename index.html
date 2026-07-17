@@ -137,6 +137,36 @@ header{
     font-size:12px;
 }
 
+.actionButton{
+
+    display:inline-block;
+
+    background:#2563eb;
+
+    color:white;
+
+    text-decoration:none;
+
+    padding:10px 15px;
+
+    border-radius:8px;
+
+    border:none;
+
+    cursor:pointer;
+
+    font-weight:600;
+
+    transition:.2s;
+}
+
+.actionButton:hover{
+
+    background:#1d4ed8;
+
+    transform:translateY(-1px);
+}
+
 .tagContainer{
     margin-top:8px;
 }
@@ -2208,15 +2238,24 @@ function showCategoryDocuments(
     docs.forEach(doc => {
 
         html += `
-        <div class="card">
 
-            <h3>${doc.titel}</h3>
+    <div class="card">
 
-            <p>
-                ${doc.samenvatting}
-            </p>
+        <h3>
 
-        </div>`;
+            ${doc.bestand}
+                ${doc.titel}
+            </a>
+
+        </h3>
+
+        <p>
+            ${doc.samenvatting || ""}
+        </p>
+
+    </div>
+
+`;
     });
 
     document.getElementById(
@@ -2239,26 +2278,37 @@ function showDocumentsBySubCategory(
 
     let html = "";
 
-    docs.forEach(doc => {
+   docs.forEach(doc => {
 
     html += `
 
-        <div class="card">
+    <div class="card">
 
-            <h3>${doc.titel}</h3>
+        <h3>${doc.titel}</h3>
 
-            <p>
-                ${doc.samenvatting || ""}
-            </p>
+        <div style="
+            margin-top:15px;
+            display:flex;
+            gap:10px;
+            flex-wrap:wrap;
+        ">
 
-            ${doc.bestand}
-                📄 Open document
-            </a>
+            <a
+                href="${doc.bestand}"
+                   </a>
+
+            <button
+                onclick="previewDocument('${doc.bestand}')"
+                class="actionButton"
+            >
+                👁 Preview
+            </button>
 
         </div>
 
-    `;
+    </div>
 
+    `;
 });
 
     document.getElementById(
@@ -4362,11 +4412,20 @@ function updateCategoryCounts(){
 
 function previewDocument(url){
 
-    window.open(
-        url,
-        "_blank"
-    );
+    const modal =
+        document.getElementById(
+            "previewModal"
+        );
 
+    const frame =
+        document.getElementById(
+            "previewFrame"
+        );
+
+    frame.src = url;
+
+    modal.style.display =
+        "block";
 }
 
 function closePreview(){

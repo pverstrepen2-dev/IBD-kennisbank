@@ -1333,6 +1333,9 @@ function applyPermissions(){
 
 const DATAFILE = "CCV-VZW/Database/database.json";
 
+const USERSFILE =
+    "CCV-VZW/Database/users.json";
+
 const CONFIG = {
     graphEnabled: true,
     documentFolder: "/CCV-VZW/Documenten/"
@@ -2252,9 +2255,18 @@ async function saveManualEntry(){
         ).innerText
 };
 
-    knowledgeData.push(entry);
+   entry.id =
+    generateId();
 
-    await saveData();
+knowledgeData.push(
+    entry
+);
+
+await uploadKnowledgeEntry(
+    entry
+);
+
+await saveData();
 
     alert("✅ Informatie opgeslagen");
 }
@@ -2504,6 +2516,64 @@ async function uploadJson(data){
     );
 }
 
+async function uploadUsers(){
+
+    await fetch(
+
+        `https://graph.microsoft.com/v1.0/me/drive/root:/${USERSFILE}:/content`,
+
+        {
+            method:"PUT",
+
+            headers:{
+                Authorization:
+                    `Bearer ${accessToken}`,
+
+                "Content-Type":
+                    "application/json"
+            },
+
+            body:
+                JSON.stringify(
+                    users,
+                    null,
+                    2
+                )
+        }
+
+    );
+
+}
+
+async function downloadUsers(){
+
+    try{
+
+        const response =
+            await fetch(
+
+                `https://graph.microsoft.com/v1.0/me/drive/root:/${USERSFILE}:/content`,
+
+                {
+                    headers:{
+                        Authorization:
+                            `Bearer ${accessToken}`
+                    }
+                }
+
+            );
+
+        return await response.json();
+
+    }
+
+    catch{
+
+        return [];
+    }
+
+}
+
 async function downloadJson(){
 
     const response = await fetch(
@@ -2532,6 +2602,7 @@ async function saveData(){
 };
 
     await uploadJson(data);
+    await uploadUsers();
 
     alert("✅ Gegevens opgeslagen in OneDrive");
 }
@@ -2549,6 +2620,9 @@ async function loadData(){
         tasks = data.tasks || [];
         members = data.members || [];
         knowledgeData = data.knowledgeData || [];
+
+        users =
+    await downloadUsers();
 
         users =
     data.users || [];
@@ -2704,6 +2778,13 @@ function generateTags(filename){
         .replace(".docx","")
         .replace(".pptx","")
         .split(/[\s_-]+/);
+
+}
+
+function generateId(){
+
+    return Date.now()
+        .toString();
 
 }
 
@@ -4475,6 +4556,47 @@ async function uploadDocument(){
 
     alert(
         "Bestand opgeslagen"
+    );
+
+}
+
+async function uploadKnowledgeEntry(
+    entry
+){
+
+    const fileName =
+
+        "CCV-VZW/Knowledge/" +
+
+        entry.id +
+
+        ".json";
+
+    await fetch(
+
+        `https://graph.microsoft.com/v1.0/me/drive/root:/${fileName}:/content`,
+
+        {
+
+            method:"PUT",
+
+            headers:{
+                Authorization:
+                    `Bearer ${accessToken}`,
+
+                "Content-Type":
+                    "application/json"
+            },
+
+            body:
+                JSON.stringify(
+                    entry,
+                    null,
+                    2
+                )
+
+        }
+
     );
 
 }

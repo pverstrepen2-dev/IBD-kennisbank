@@ -1196,7 +1196,7 @@ const loginRequest = {
         "Files.ReadWrite",
         "Files.ReadWrite.All"
     ],
-    prompt:"login"
+    prompt:"select_account"
 };
 
 console.log("MSAL object =", msal);
@@ -2691,7 +2691,12 @@ async function loginMicrosoft(){
 
 function logoutMicrosoft(){
 
-    msalInstance.logoutPopup();
+    msalInstance.logoutRedirect({
+
+        postLogoutRedirectUri:
+            window.location.origin
+
+    });
 
 }
 

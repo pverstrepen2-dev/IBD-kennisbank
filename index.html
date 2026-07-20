@@ -338,6 +338,13 @@ border-bottom:1px solid #ddd;
     </div>
 
     <div id="categoryDocuments"></div>
+</div>
+
+<div id="workspace"
+     class="page hidden">
+
+    <div id="workspaceContent">
+    </div>
 
 </div>
 
@@ -777,27 +784,27 @@ border-bottom:1px solid #ddd;
 
     <div class="dashboard-grid">
 
-        <button onclick="openCategory('CCV-VZW','Nieuwe Vergadering')">
+        <button onclick="showNewMeetingForm()">
             ➕ Vergadering
         </button>
 
-        <button onclick="openCategory('CCV-VZW','Nieuw Project')">
+        <button onclick="showNewProjectForm()">
             ➕ Project
         </button>
 
-        <button onclick="openCategory('CCV-VZW','Nieuwe Taak')">
+        <button onclick="showNewTaskForm()">
             ➕ Taak
         </button>
 
-        <button onclick="openCategory('CCV-VZW','Nieuw Lid')">
+        <button onclick="showNewMemberForm()">
             ➕ Lid
         </button>
 
-        <button onclick="openCategory('CCV-VZW','Nieuwe Activiteit')">
+        <button onclick="showNewActivityForm()">
             ➕ Activiteit
         </button>
 
-        <button onclick="openCategory('CCV-VZW','Nieuw Document')">
+        <button onclick="openPage('beheer')">
             ➕ Document
         </button>
 
@@ -1376,6 +1383,7 @@ let documents = [];
 let meetings = [];
 let projects = [];
 let tasks = [];
+let activities = [];
 let members = [];
 let users = [
     {
@@ -1697,9 +1705,9 @@ function openCategory(mainCategory, subCategory){
 
 function showBestuur(){
 
-openPage("documents");
+openPage("workspace");
 
-document.getElementById("documentsContainer").innerHTML = `
+document.getElementById("workspaceContent").innerHTML = `
 
 <div class="card">
 
@@ -1723,35 +1731,70 @@ document.getElementById("documentsContainer").innerHTML = `
 
 function showCommunity(){
 
-openPage("documents");
+    openPage("workspace");
 
-document.getElementById("documentsContainer").innerHTML = `
+    let html = `
 
-<div class="card">
+    <div class="card">
 
-<h2>👥 Community</h2>
+        <h2>
+        👥 Community
+        </h2>
 
-<div class="dashboard-grid">
+        <button
+            onclick="showNewMemberForm()">
 
-<button>👥 Leden</button>
-<button>🙋 Vrijwilligers</button>
-<button>🎓 Patiëntenexperten</button>
-<button>🤝 Lotgenoten</button>
-<button>📧 Nieuwsbrieven</button>
+            ➕ Nieuw Lid
 
-</div>
+        </button>
 
-</div>
+        <br><br>
 
-`;
+    `;
+
+    members.forEach(m => {
+
+        html += `
+
+        <div class="card">
+
+            <b>
+                ${m.naam}
+            </b>
+
+            <br>
+
+            ${m.email}
+
+            <br>
+
+            ${m.type}
+
+            <br>
+
+            ${m.telefoon}
+
+        </div>
+
+        `;
+
+    });
+
+    html += "</div>";
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = html;
 
 }
 
 function showProjecten(){
 
-openPage("documents");
+openPage("workspace");
 
-document.getElementById("documentsContainer").innerHTML = `
+document.getElementById(
+    "workspaceContent"
+).innerHTML = `
 
 <div class="card">
 
@@ -1774,133 +1817,481 @@ document.getElementById("documentsContainer").innerHTML = `
 }
 
 function showNewProjectForm(){
+   
+    openPage("workspace");
 
-    openPage("documents");
-
-    document.getElementById("documentsContainer").innerHTML = `
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = `
 
     <div class="card">
 
-        <h2>🚀 Nieuw Project</h2>
+        <h2>
+        🚀 Nieuw Project
+        </h2>
 
-        <input type="text"
-        id="projectName"
-        placeholder="Projectnaam">
+        <input
+            id="projectName"
+            placeholder="Projectnaam">
 
         <br><br>
 
         <textarea
-        id="projectDesc"
-        placeholder="Beschrijving"></textarea>
+            id="projectDesc"
+            placeholder="Beschrijving">
+        </textarea>
 
         <br><br>
 
-        <button onclick="saveProject()">
-            💾 Opslaan
+        <input
+            type="date"
+            id="projectStart">
+
+        <br><br>
+
+        <button
+            onclick="saveProjectNew()">
+
+            Opslaan
+
         </button>
 
     </div>
 
     `;
+
+}
+
+async function saveProjectNew(){
+
+    const project = {
+
+        id: Date.now(),
+
+        naam:
+            document.getElementById(
+                "projectName"
+            ).value,
+
+        omschrijving:
+            document.getElementById(
+                "projectDesc"
+            ).value,
+
+        startdatum:
+            document.getElementById(
+                "projectStart"
+            ).value,
+
+        status:
+            "Actief"
+
+    };
+
+    projects.push(
+        project
+    );
+
+    await saveData();
+
+    showProjects();
+
 }
 
 function showNewMemberForm(){
 
-    openPage("documents");
+        openPage("workspace");
 
-    document.getElementById("documentsContainer").innerHTML = `
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = `
 
     <div class="card">
 
-        <h2>👥 Nieuw Lid</h2>
+        <h2>
+        👥 Nieuw Lid
+        </h2>
 
-        <input type="text"
-        id="memberName"
-        placeholder="Naam">
-
-        <br><br>
-
-        <input type="email"
-        id="memberEmail"
-        placeholder="Email">
+        <input
+            id="memberName"
+            placeholder="Naam">
 
         <br><br>
 
-        <button>
-            💾 Opslaan
+        <input
+            id="memberEmail"
+            placeholder="Email">
+
+        <br><br>
+
+        <input
+            id="memberPhone"
+            placeholder="Telefoon">
+
+        <br><br>
+
+        <select
+            id="memberType">
+
+            <option>Lid</option>
+            <option>Vrijwilliger</option>
+            <option>Bestuur</option>
+            <option>Patiëntenexpert</option>
+
+        </select>
+
+        <br><br>
+
+        <button
+            onclick="saveMemberNew()">
+
+            Opslaan
+
         </button>
 
     </div>
 
     `;
+
+}
+
+async function saveMemberNew(){
+
+    members.push({
+
+        naam:
+            document.getElementById(
+                "memberName"
+            ).value,
+
+        email:
+            document.getElementById(
+                "memberEmail"
+            ).value,
+
+        telefoon:
+            document.getElementById(
+                "memberPhone"
+            ).value,
+
+        type:
+            document.getElementById(
+                "memberType"
+            ).value
+
+    });
+
+    await saveData();
+
+    showCommunity();
+
 }
 
 function showNewTaskForm(){
 
-    openPage("documents");
+    openPage("workspace");
 
-    document.getElementById("documentsContainer").innerHTML = `
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = `
 
     <div class="card">
 
-        <h2>✅ Nieuwe Taak</h2>
+        <h2>
+        ✅ Nieuwe Taak
+        </h2>
 
-        <input type="text"
-        id="taskTitle"
-        placeholder="Taak">
-
-        <br><br>
-
-        <input type="date"
-        id="taskDate">
+        <input
+            id="taskTitle"
+            placeholder="Taak">
 
         <br><br>
 
-        <button>
-            💾 Opslaan
+        <input
+            type="date"
+            id="taskDate">
+
+        <br><br>
+
+        <select
+            id="taskPriority">
+
+            <option>
+            Laag
+            </option>
+
+            <option>
+            Normaal
+            </option>
+
+            <option>
+            Hoog
+            </option>
+
+        </select>
+
+        <br><br>
+
+        <select
+            id="taskStatus">
+
+            <option>
+            Nieuw
+            </option>
+
+            <option>
+            Bezig
+            </option>
+
+            <option>
+            Afgerond
+            </option>
+
+        </select>
+
+        <br><br>
+
+        <button
+            onclick="saveTaskNew()">
+
+            Opslaan
+
         </button>
 
     </div>
 
     `;
+
+}
+
+async function saveTaskNew(){
+
+    tasks.push({
+
+        titel:
+            document.getElementById(
+                "taskTitle"
+            ).value,
+
+        deadline:
+            document.getElementById(
+                "taskDate"
+            ).value,
+
+        prioriteit:
+            document.getElementById(
+                "taskPriority"
+            ).value,
+
+        status:
+            document.getElementById(
+                "taskStatus"
+            ).value
+
+    });
+
+    await saveData();
+
+    showTasks();
+
+}
+
+function showTasks(){
+
+  openPage("workspace");
+
+    let html = `
+
+    <div class="card">
+
+        <h2>
+        ✅ Taken
+        </h2>
+
+        <button
+            onclick="showNewTaskForm()">
+
+            ➕ Nieuwe Taak
+
+        </button>
+
+        <br><br>
+
+    `;
+
+    tasks.forEach(t => {
+
+        html += `
+
+        <div class="card">
+
+            <b>
+                ${t.titel}
+            </b>
+
+            <br>
+
+            Deadline:
+            ${t.deadline}
+
+            <br>
+
+            Prioriteit:
+            ${t.prioriteit}
+
+            <br>
+
+            Status:
+            ${t.status}
+
+        </div>
+
+        `;
+
+    });
+
+    html += "</div>";
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = html;
+
 }
 
 function showNewActivityForm(){
 
-    openPage("documents");
+    openPage("workspace");
 
-    document.getElementById("documentsContainer").innerHTML = `
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = `
 
     <div class="card">
 
-        <h2>🎉 Nieuwe Activiteit</h2>
+        <h2>
+        🎉 Nieuwe Activiteit
+        </h2>
 
-        <input type="text"
-        id="activityName"
-        placeholder="Naam activiteit">
-
-        <br><br>
-
-        <input type="date"
-        id="activityDate">
+        <input
+            id="activityName"
+            placeholder="Naam">
 
         <br><br>
 
-        <button>
-            💾 Opslaan
+        <input
+            type="date"
+            id="activityDate">
+
+        <br><br>
+
+        <input
+            id="activityLocation"
+            placeholder="Locatie">
+
+        <br><br>
+
+        <button
+            onclick="saveActivityNew()">
+
+            Opslaan
+
         </button>
 
     </div>
 
     `;
+
 }
 
+async function saveActivityNew(){
+
+    activities.push({
+
+        naam:
+            document.getElementById(
+                "activityName"
+            ).value,
+
+        datum:
+            document.getElementById(
+                "activityDate"
+            ).value,
+
+        locatie:
+            document.getElementById(
+                "activityLocation"
+            ).value
+
+    });
+
+    await saveData();
+
+    showActivities();
+
+}
+
+function showActivities(){
+
+    openPage("workspace");
+
+    let html = `
+
+    <div class="card">
+
+        <h2>
+        🎉 Activiteiten
+        </h2>
+
+        <button
+            onclick="showNewActivityForm()">
+
+            ➕ Nieuwe Activiteit
+
+        </button>
+
+        <br><br>
+
+    `;
+
+    activities.forEach(a => {
+
+        html += `
+
+        <div class="card">
+
+            <b>
+                ${a.naam}
+            </b>
+
+            <br>
+
+            Datum:
+            ${a.datum}
+
+            <br>
+
+            Locatie:
+            ${a.locatie}
+
+        </div>
+
+        `;
+
+    });
+
+    html += "</div>";
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = html;
+
+}
 
 function showOrganisatie(){
 
-openPage("documents");
+openPage("workspace");
 
-document.getElementById("documentsContainer").innerHTML = `
+document.getElementById("workspaceContent").innerHTML = `
 
 <div class="card">
 
@@ -1925,9 +2316,9 @@ document.getElementById("documentsContainer").innerHTML = `
 
 function showKennisDocumenten(){
 
-openPage("documents");
+openPage("workspace");
 
-document.getElementById("documentsContainer").innerHTML = `
+document.getElementById("workspaceContent").innerHTML = `
 
 <div class="card">
 
@@ -1953,33 +2344,63 @@ document.getElementById("documentsContainer").innerHTML = `
 
 function showMeetings(){
 
-openPage("documents");
+    openPage("workspace");
 
-document.getElementById("documentsContainer").innerHTML = `
+    let html = `
 
-<div class="card">
+    <div class="card">
 
-<h2>📅 Vergaderingen</h2>
+    <h2>
+    📅 Vergaderingen
+    </h2>
 
-<input id="meetingName"
-placeholder="Naam vergadering">
+    <button
+        onclick="showNewMeetingForm()">
 
-<input type="date"
-id="meetingDate">
+        ➕ Vergadering
 
-<br><br>
+    </button>
 
-<button onclick="saveMeeting()">
-➕ Vergadering toevoegen
-</button>
+    <br><br>
 
-<div id="meetingList"></div>
+    `;
 
-</div>
+    meetings.forEach(m => {
 
-`;
+        html += `
 
-renderMeetings();
+        <div class="card">
+
+            <b>
+            ${m.naam}
+            </b>
+
+            <br>
+
+            Datum:
+            ${m.datum}
+
+            <br>
+
+            Uur:
+            ${m.uur || "-"}
+
+            <br>
+
+            Locatie:
+            ${m.locatie || "-"}
+
+        </div>
+
+        `;
+
+    });
+
+    html += "</div>";
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = html;
 
 }
 
@@ -2002,18 +2423,21 @@ updateDashboardStats();
 
 function showNewMeetingForm(){
 
-    openPage("documents");
+    openPage("workspace");
 
-    document.getElementById("documentsContainer").innerHTML = `
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = `
 
     <div class="card">
 
-        <h2>📅 Nieuwe Vergadering</h2>
+        <h2>
+        📅 Nieuwe Vergadering
+        </h2>
 
         <input
-            type="text"
             id="meetingName"
-            placeholder="Naam vergadering">
+            placeholder="Titel">
 
         <br><br>
 
@@ -2025,12 +2449,11 @@ function showNewMeetingForm(){
 
         <input
             type="time"
-            id="meetingStart">
+            id="meetingTime">
 
         <br><br>
 
         <input
-            type="text"
             id="meetingLocation"
             placeholder="Locatie">
 
@@ -2043,8 +2466,11 @@ function showNewMeetingForm(){
 
         <br><br>
 
-        <button onclick="saveMeeting()">
-            💾 Opslaan
+        <button
+            onclick="saveMeetingNew()">
+
+            Opslaan
+
         </button>
 
     </div>
@@ -2080,11 +2506,55 @@ function renderMeetings(){
     meetingList.innerHTML = html;
 }
 
+async function saveMeetingNew(){
+
+    const meeting = {
+
+        id:
+            Date.now(),
+
+        naam:
+            document.getElementById(
+                "meetingName"
+            ).value,
+
+        datum:
+            document.getElementById(
+                "meetingDate"
+            ).value,
+
+        uur:
+            document.getElementById(
+                "meetingTime"
+            ).value,
+
+        locatie:
+            document.getElementById(
+                "meetingLocation"
+            ).value,
+
+        agenda:
+            document.getElementById(
+                "meetingAgenda"
+            ).value
+
+    };
+
+    meetings.push(
+        meeting
+    );
+
+    await saveData();
+
+    showMeetings();
+
+}
+
 function showProjects(){
 
-openPage("documents");
+openPage("workspace");
 
-document.getElementById("documentsContainer").innerHTML = `
+document.getElementById("workspaceContent").innerHTML = `
 
 <div class="card">
 
@@ -2668,12 +3138,15 @@ async function saveData(){
     if(!checkLogin()) return;
 
     const data = {
+
     meetings,
     projects,
     tasks,
     members,
+    activities,
     knowledgeData,
     users
+
 };
 
     await uploadJson(data);
@@ -2694,6 +3167,8 @@ async function loadData(){
         projects = data.projects || [];
         tasks = data.tasks || [];
         members = data.members || [];
+        activities =
+        data.activities || [];
         knowledgeData = data.knowledgeData || [];
 
         users =

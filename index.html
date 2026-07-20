@@ -804,10 +804,10 @@ border-bottom:1px solid #ddd;
             ➕ Activiteit
         </button>
 
-        <button onclick="openPage('beheer')">
-            ➕ Document
-        </button>
-
+        <button onclick="showAttachmentForm()">
+    📎 Bijlage
+</button>>
+   
     </div>
 
 </div>
@@ -830,9 +830,9 @@ border-bottom:1px solid #ddd;
         💰 Organisatie
     </button>
 
-    <button onclick="openCategory('CCV-VZW','Kennis & Documenten')">
-        📂 Kennis & Documenten
-    </button>
+    <button onclick="showAttachments()">
+    📎 Bijlagen
+</button>
 
 </div>
 
@@ -1263,6 +1263,10 @@ console.log("MSAL geïnitialiseerd");
 let accessToken = null;
 let currentUser = null;
 let currentRole = "viewer";
+let currentDocumentContext =
+    "Algemeen";
+let currentContextName =
+    "";
 
 function checkLogin(){
 
@@ -1820,6 +1824,9 @@ function showNewProjectForm(){
    
     openPage("workspace");
 
+    currentDocumentContext =
+    "Project";
+
     document.getElementById(
         "workspaceContent"
     ).innerHTML = `
@@ -1887,7 +1894,8 @@ async function saveProjectNew(){
             "Actief"
 
     };
-
+currentContextName =
+    project.naam;
     projects.push(
         project
     );
@@ -1901,6 +1909,9 @@ async function saveProjectNew(){
 function showNewMemberForm(){
 
         openPage("workspace");
+
+        currentDocumentContext =
+    "Lid";
 
     document.getElementById(
         "workspaceContent"
@@ -1957,6 +1968,10 @@ function showNewMemberForm(){
 
 async function saveMemberNew(){
 
+    currentContextName =
+    document.getElementById(
+        "memberName"
+    ).value;
     members.push({
 
         naam:
@@ -1982,6 +1997,7 @@ async function saveMemberNew(){
     });
 
     await saveData();
+    updateDashboardStats();
 
     showCommunity();
 
@@ -1990,6 +2006,9 @@ async function saveMemberNew(){
 function showNewTaskForm(){
 
     openPage("workspace");
+
+    currentDocumentContext =
+    "Taak";
 
     document.getElementById(
         "workspaceContent"
@@ -2066,6 +2085,10 @@ function showNewTaskForm(){
 
 async function saveTaskNew(){
 
+    currentContextName =
+    document.getElementById(
+        "taskTitle"
+    ).value;
     tasks.push({
 
         titel:
@@ -2162,6 +2185,9 @@ function showNewActivityForm(){
 
     openPage("workspace");
 
+    currentDocumentContext =
+    "Activiteit";
+
     document.getElementById(
         "workspaceContent"
     ).innerHTML = `
@@ -2205,6 +2231,10 @@ function showNewActivityForm(){
 
 async function saveActivityNew(){
 
+    currentContextName =
+    document.getElementById(
+        "activityName"
+    ).value;
     activities.push({
 
         naam:
@@ -2225,8 +2255,221 @@ async function saveActivityNew(){
     });
 
     await saveData();
+    updateDashboardStats();
 
     showActivities();
+
+}
+
+function showAttachmentForm(){
+
+    openPage("workspace");
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = `
+
+    <div class="card">
+
+        <h2>
+        📎 Bijlage toevoegen
+        </h2>
+
+        <p>
+
+        Wordt gekoppeld aan:
+
+        <b>
+        ${currentDocumentContext}
+        </b>
+
+        </p>
+
+        <input
+            type="file"
+            id="workspaceFile">
+
+        <br><br>
+
+        <input
+            id="workspaceTitle"
+            placeholder="Titel">
+
+        <br><br>
+
+        <textarea
+            id="workspaceDescription"
+            placeholder="Omschrijving">
+        </textarea>
+
+        <br><br>
+
+        <button
+            onclick="saveAttachment()">
+
+            Opslaan
+
+        </button>
+
+    </div>
+
+    `;
+
+}
+
+async function saveAttachment(){
+
+    const file =
+        document.getElementById(
+            "workspaceFile"
+        ).files[0];
+
+    if(!file){
+
+        alert(
+            "Selecteer eerst een bestand"
+        );
+
+        return;
+    }
+
+    await fetch(
+
+        `https://graph.microsoft.com/v1.0/me/drive/root:/CCV-VZW/Documenten/${file.name}:/content`,
+
+        {
+
+            method:"PUT",
+
+            headers:{
+                Authorization:
+                `Bearer ${accessToken}`
+            },
+
+            body:file
+
+        }
+
+    );
+
+    knowledgeData.push({
+
+        id:
+            Date.now(),
+
+            categorie:
+            "CCV-VZW",
+
+        titel:
+            document.getElementById(
+                "workspaceTitle"
+            ).value,
+
+        omschrijving:
+            document.getElementById(
+                "workspaceDescription"
+            ).value,
+
+         contextType:
+    currentDocumentContext,
+
+contextNaam:
+    currentContextName,
+
+        subcategorie:
+            currentDocumentContext,
+
+        bestand:
+            file.name,
+
+        datum:
+            new Date()
+            .toISOString()
+
+    });
+
+    await saveData();
+
+    alert(
+        "✅ Bijlage opgeslagen"
+    );
+showAttachments();
+}
+
+async function saveWorkspaceDocument(){
+
+    const file =
+        document.getElementById(
+            "workspaceFile"
+        ).files[0];
+
+    if(!file){
+
+        alert(
+            "Selecteer eerst een document"
+        );
+
+        return;
+    }
+
+    await fetch(
+
+        `https://graph.microsoft.com/v1.0/me/drive/root:/CCV-VZW/Documenten/${file.name}:/content`,
+
+        {
+
+            method:"PUT",
+
+            headers:{
+                Authorization:
+                `Bearer ${accessToken}`
+            },
+
+            body:file
+
+        }
+
+    );
+
+    knowledgeData.push({
+
+        id:
+            Date.now(),
+
+        titel:
+            document.getElementById(
+                "workspaceTitle"
+            ).value,
+
+        omschrijving:
+            document.getElementById(
+                "workspaceDescription"
+            ).value,
+
+        categorie:
+    "CCV-VZW",
+
+subcategorie:
+    document.getElementById(
+        "ccvSection"
+    ).value,
+
+        bestand:
+            file.name,
+
+        datum:
+            new Date()
+            .toISOString()
+
+    });
+
+    await saveData();
+
+    alert(
+        "✅ Document opgeslagen in OneDrive"
+    );
+
+    showKennisDocumenten();
 
 }
 
@@ -2314,30 +2557,163 @@ document.getElementById("workspaceContent").innerHTML = `
 
 }
 
+function showAttachments(){
+
+    openPage("workspace");
+
+    let html = `
+
+    <div class="card">
+
+        <h2>
+        📎 Bijlagen CCV-VZW
+        </h2>
+
+    `;
+
+    const groepen = [
+
+        "Vergadering",
+        "Project",
+        "Taak",
+        "Lid",
+        "Activiteit"
+
+    ];
+
+    groepen.forEach(groep => {
+
+        html += `
+
+        <h3>${groep}</h3>
+
+        `;
+
+        const docs =
+
+            knowledgeData.filter(
+
+                d =>
+
+                    d.contextType === groep
+
+            );
+
+        if(docs.length === 0){
+
+            html += `
+                <p>
+                Geen documenten
+                </p>
+            `;
+
+        }
+
+        docs.forEach(doc => {
+
+            html += `
+
+            <div class="card">
+
+                <b>
+                ${doc.titel}
+                </b>
+
+                <br>
+
+                ${doc.contextNaam || ""}
+
+                <br>
+
+                ${doc.bestand || ""}
+
+            </div>
+
+            `;
+
+        });
+
+    });
+
+    html += `</div>`;
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = html;
+
+}
+
 function showKennisDocumenten(){
 
-openPage("workspace");
+    openPage("workspace");
 
-document.getElementById("workspaceContent").innerHTML = `
+    let html = `
 
-<div class="card">
+    <div class="card">
 
-<h2>📂 Kennis & Documenten</h2>
+        <h2>
+        📂 Kennis & Documenten
+        </h2>
 
-<div class="dashboard-grid">
+        <button
+            onclick="showNewDocumentForm()">
 
-<button>📂 Documentbibliotheek</button>
-<button>🌐 Websites</button>
-<button>🏢 Verenigingen</button>
-<button>🏥 Zorggids</button>
-<button>🎥 Media</button>
-<button>📚 Intern Kenniscentrum</button>
+            ➕ Document
 
-</div>
+        </button>
 
-</div>
+        <br><br>
 
-`;
+    `;
+
+    const docs =
+        knowledgeData.filter(
+
+            d =>
+                d.categorie ===
+                "CCV-VZW"
+
+        );
+
+    docs.forEach(doc => {
+
+    html += `
+
+    <div class="card">
+
+        <b>
+            ${doc.titel}
+        </b>
+
+        <br>
+
+        <strong>Context:</strong>
+
+        ${doc.contextType || "-"}
+
+        -
+
+        ${doc.contextNaam || "-"}
+
+        <br><br>
+
+        ${doc.omschrijving || ""}
+
+        <br><br>
+
+        ${doc.bestand}
+
+    </div>
+
+    `;
+
+});
+
+    html += "</div>";
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = html;
 
 }
 
@@ -2424,6 +2800,9 @@ updateDashboardStats();
 function showNewMeetingForm(){
 
     openPage("workspace");
+
+    currentDocumentContext =
+    "Vergadering";
 
     document.getElementById(
         "workspaceContent"
@@ -2539,12 +2918,14 @@ async function saveMeetingNew(){
             ).value
 
     };
-
+currentContextName =
+    meeting.naam;
     meetings.push(
         meeting
     );
 
     await saveData();
+    updateDashboardStats();
 
     showMeetings();
 
@@ -2552,26 +2933,58 @@ async function saveMeetingNew(){
 
 function showProjects(){
 
-openPage("workspace");
+    openPage("workspace");
 
-document.getElementById("workspaceContent").innerHTML = `
+    let html = `
 
-<div class="card">
+    <div class="card">
 
-<h2>🚀 Projecten</h2>
+        <h2>
+        🚀 Projecten
+        </h2>
 
-<input id="projectName"
-placeholder="Projectnaam">
+        <button
+            onclick="showNewProjectForm()">
 
-<button onclick="saveProject()">
-➕ Project toevoegen
-</button>
+            ➕ Nieuw Project
 
-<div id="projectList"></div>
+        </button>
 
-</div>
+        <br><br>
 
-`;
+    `;
+
+    projects.forEach(p => {
+
+        html += `
+
+        <div class="card">
+
+            <b>
+            ${p.naam}
+            </b>
+
+            <br>
+
+            Start:
+            ${p.startdatum}
+
+            <br>
+
+            Status:
+            ${p.status}
+
+        </div>
+
+        `;
+
+    });
+
+    html += `</div>`;
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = html;
 
 }
 
@@ -2763,6 +3176,7 @@ await uploadKnowledgeEntry(
 );
 
 await saveData();
+updateDashboardStats();
 
     alert("✅ Informatie opgeslagen");
 }
@@ -2887,7 +3301,7 @@ function analyzeWithAI(){
 
 function showCCVDashboard(){
 
-document.getElementById("documentsContainer").innerHTML = `
+document.getElementById("workspaceContent").innerHTML = `
 
 <div class="card">
 
@@ -3187,6 +3601,8 @@ async function loadData(){
         renderMeetings();
 
         updateDashboardStats();
+
+        showCCVDashboard();
 
        renderAllCategories();
 

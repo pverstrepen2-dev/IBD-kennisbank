@@ -1135,15 +1135,48 @@ border-bottom:1px solid #ddd;
 
     <br><br>
 
-    <div id="aiSuggestions"></div>
+   <div id="aiSuggestions"></div>
+</div>
+
+<!-- HIER STAP 7 PLAATSEN -->
+
+<div class="card">
+
+<h3>Gebruikersbeheer</h3>
+
+<input
+    id="newUserEmail"
+    placeholder="Email">
+
+<select id="newUserRole">
+
+<option value="viewer">
+Viewer
+</option>
+
+<option value="editor">
+Editor
+</option>
+
+<option value="admin">
+Admin
+</option>
+
+</select>
+
+<button onclick="addUser()">
+Gebruiker toevoegen
+</button>
+
+<div id="userList"></div>
 
 </div>
 
-    </div>
-
+</div>
 </div>
 
 <script>
+
     /* ==========================
    MICROSOFT LOGIN
 ========================== */
@@ -1182,7 +1215,8 @@ window.addEventListener("load", async () => {
 
 if(response){
 
-    accessToken = response.accessToken;
+    accessToken =
+        response.accessToken;
 
     document.getElementById(
         "loginStatus"
@@ -1195,17 +1229,23 @@ if(response){
         response.account.username
     );
 
+    currentUser =
+        response.account.username;
+
     if(accessToken){
 
-    await loadData();
+        await loadData();
 
-    if(
-        knowledgeData.length === 0
-    ){
-        await syncOneDrive();
+        determineRole();
+
+        if(
+            knowledgeData.length === 0
+        ){
+            await syncOneDrive();
+        }
+
     }
 
-}
 }
 
 console.log("MSAL geïnitialiseerd");
@@ -1213,6 +1253,8 @@ console.log("MSAL geïnitialiseerd");
 });
 
 let accessToken = null;
+let currentUser = null;
+let currentRole = "viewer";
 
 function checkLogin(){
 
@@ -1227,6 +1269,62 @@ function checkLogin(){
 
     return true;
 }
+
+function determineRole(){
+
+   if(
+currentUser &&
+currentUser.toLowerCase() ===
+"ccvvzw@outlook.com"
+){
+currentRole = "admin";
+applyPermissions();
+return;
+}
+
+    const user =
+        users.find(
+            u =>
+                u.email.toLowerCase()
+                ===
+                currentUser.toLowerCase()
+        );
+
+    if(user){
+
+        currentRole =
+            user.role;
+
+    }else{
+
+        currentRole =
+            "viewer";
+
+    }
+
+    applyPermissions();
+
+}
+
+function applyPermissions(){
+
+    if(currentRole === "admin"){
+        return;
+    }
+
+    if(
+        document.getElementById(
+            "beheer"
+        )
+    ){
+        document.getElementById(
+            "beheer"
+        ).style.display =
+            "none";
+    }
+
+}
+
 
 /* ==================================
    CONFIGURATIE
@@ -1249,6 +1347,13 @@ let meetings = [];
 let projects = [];
 let tasks = [];
 let members = [];
+let users = [
+    {
+        email:"ccvvzw@outlook.com",
+        role:"admin",
+        actief:true
+    }
+];
 
 // ==========================
 // WEBSITES PER LAND
@@ -2153,6 +2258,66 @@ async function saveManualEntry(){
     alert("✅ Informatie opgeslagen");
 }
 
+async function addUser(){
+
+    const email =
+        document.getElementById(
+            "newUserEmail"
+        ).value;
+
+    const role =
+        document.getElementById(
+            "newUserRole"
+        ).value;
+
+    users.push({
+
+        email:email,
+        role:role,
+        actief:true
+
+    });
+
+    await saveData();
+
+    renderUsers();
+
+}
+
+function renderUsers(){
+
+    const container =
+        document.getElementById(
+            "userList"
+        );
+
+    if(!container){
+        return;
+    }
+
+    container.innerHTML =
+        users.map(u =>
+
+        `
+        <div class="card">
+
+       <b>${u.email}</b>
+
+${u.email === "ccvvzw@outlook.com"
+ ? " 👑 Eigenaar"
+ : ""}
+
+        <br>
+
+        ${u.role}
+
+        </div>
+        `
+
+        ).join("");
+
+}
+
 function analyzeWithAI(){
 
     alert(
@@ -2357,12 +2522,13 @@ async function saveData(){
     if(!checkLogin()) return;
 
     const data = {
-        meetings,
-        projects,
-        tasks,
-        members,
-        knowledgeData
-    };
+    meetings,
+    projects,
+    tasks,
+    members,
+    knowledgeData,
+    users
+};
 
     await uploadJson(data);
 
@@ -2383,6 +2549,9 @@ async function loadData(){
         members = data.members || [];
         knowledgeData = data.knowledgeData || [];
 
+        users =
+    data.users || [];
+
         document.getElementById(
     "documentCountInfo"
 ).innerText =
@@ -2395,6 +2564,8 @@ async function loadData(){
         updateDashboardStats();
 
        renderAllCategories();
+
+       renderUsers();
 
 document.getElementById(
     "lastSyncInfo"

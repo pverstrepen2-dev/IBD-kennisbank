@@ -343,6 +343,16 @@ border-bottom:1px solid #ddd;
 <div id="workspace"
      class="page hidden">
 
+    <div class="card">
+
+        <div id="tabFlow">
+
+            🤝 CCV-VZW
+
+        </div>
+
+    </div>
+
     <div id="workspaceContent">
     </div>
 
@@ -1267,6 +1277,8 @@ let currentDocumentContext =
     "Algemeen";
 let currentContextName =
     "";
+    let currentPageFlow =
+    "CCV-VZW";
 
 function checkLogin(){
 
@@ -1736,6 +1748,11 @@ document.getElementById("workspaceContent").innerHTML = `
 function showCommunity(){
 
     openPage("workspace");
+    currentPageFlow =
+
+    "🤝 CCV-VZW > 👥 Community";
+
+updateTabFlow();
 
     let html = `
 
@@ -2122,6 +2139,11 @@ async function saveTaskNew(){
 function showTasks(){
 
   openPage("workspace");
+  currentPageFlow =
+
+    "🤝 CCV-VZW > ✅ Taken";
+
+updateTabFlow();
 
     let html = `
 
@@ -2264,6 +2286,11 @@ async function saveActivityNew(){
 function showAttachmentForm(){
 
     openPage("workspace");
+    currentPageFlow =
+
+    "🤝 CCV-VZW > 📎 Bijlage toevoegen";
+
+updateTabFlow();
 
     document.getElementById(
         "workspaceContent"
@@ -2476,6 +2503,11 @@ subcategorie:
 function showActivities(){
 
     openPage("workspace");
+    currentPageFlow =
+
+    "🤝 CCV-VZW > 🎉 Activiteiten";
+
+updateTabFlow();
 
     let html = `
 
@@ -2721,6 +2753,11 @@ function showKennisDocumenten(){
 function showMeetings(){
 
     openPage("workspace");
+    currentPageFlow =
+
+    "🤝 CCV-VZW > 📅 Vergaderingen";
+
+updateTabFlow();
 
     let html = `
 
@@ -2934,6 +2971,11 @@ currentContextName =
 function showProjects(){
 
     openPage("workspace");
+    currentPageFlow =
+
+    "🤝 CCV-VZW > 🚀 Projecten";
+
+updateTabFlow();
 
     let html = `
 
@@ -3317,6 +3359,22 @@ document.getElementById("workspaceContent").innerHTML = `
 </div>
 
 `;
+
+}
+
+function updateTabFlow(){
+
+    const flow =
+        document.getElementById(
+            "tabFlow"
+        );
+
+    if(!flow){
+        return;
+    }
+
+    flow.innerHTML =
+        currentPageFlow;
 
 }
 

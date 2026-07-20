@@ -137,6 +137,36 @@ header{
     font-size:12px;
 }
 
+.actionButton{
+
+    display:inline-block;
+
+    background:#2563eb;
+
+    color:white;
+
+    text-decoration:none;
+
+    padding:10px 15px;
+
+    border-radius:8px;
+
+    border:none;
+
+    cursor:pointer;
+
+    font-weight:600;
+
+    transition:.2s;
+}
+
+.actionButton:hover{
+
+    background:#1d4ed8;
+
+    transform:translateY(-1px);
+}
+
 .tagContainer{
     margin-top:8px;
 }
@@ -366,9 +396,13 @@ border-bottom:1px solid #ddd;
 
     <br><br>
 
-    <button onclick="analyzeDocument()">
-        🤖 Analyseer document
-    </button>
+   <button
+    class="actionButton"
+    onclick="analyzeDocument()">
+
+    ✨ Laat AI dit document analyseren
+
+</button>
 
     <br><br>
 
@@ -409,149 +443,16 @@ border-bottom:1px solid #ddd;
 <!-- KENNISBANK NU AFGESLOTEN -->
 
 
-<div id="crohn" class="page hidden">
-
-<div class="card">
-
-<h2>🩺 Crohn</h2>
-
-<div class="dashboard-grid">
-
-<button onclick="openCategory('Crohn','Ziektebeeld')">
-📖 Ziektebeeld
-</button>
-
-<button onclick="openCategory('Crohn','Symptomen')">
-🩺 Symptomen
-</button>
-
-<button onclick="
-openCategory(
-'Crohn',
-'Diagnose'
-)">
-🔬 Diagnose
-</button>
-
-<button onclick="openCategory('Crohn','Behandelingen')">
-💊 Behandelingen
-</button>
-
-<button onclick="openCategory('Crohn','Medicatie')">
-💉 Medicatie
-</button>
-
-<button onclick="openCategory('Crohn','Operaties')">
-🏥 Operaties
-</button>
-
-<button onclick="openCategory('Crohn','Complicaties')">
-⚠️ Complicaties
-</button>
-
-<button onclick="openCategory('Crohn','Opvolging')">
-📋 Opvolging & controles
-</button>
-
-<button onclick="openCategory('Crohn','Voeding')">
-🍎 Voeding
-</button>
-
-<button onclick="openCategory('Crohn','DagelijksLeven')">
-🏡 Dagelijks leven
-</button>
-
-<button onclick="openCategory('Crohn','WerkStudie')">
-🎒 Werk & studie
-</button>
-
-<button onclick="openCategory('Crohn','Zwangerschap')">
-🤰 Zwangerschap
-</button>
-
-<button onclick="openCategory('Crohn','Patiëntenrechten')">
-⚖️ Patiëntenrechten
-</button>
-
-<button onclick="openCategory('Crohn','Ervaringsverhalen')">
-💬 Ervaringsverhalen
-</button>
-
-<button onclick="openCategory('Crohn','Downloads')">
-📂 Downloads
-</button>
-
+<div id="crohn"
+     class="page hidden">
 </div>
 
+<div id="colitis"
+     class="page hidden">
 </div>
 
-</div>
-
-<div id="colitis" class="page hidden">
-
-<div class="card">
-
-<h2>🔬 Colitis Ulcerosa</h2>
-
-<div class="dashboard-grid">
-
-<button onclick="openCategory('Colitis Ulcerosa','Ziektebeeld')">📖 Ziektebeeld</button>
-<button onclick="openCategory('Colitis Ulcerosa','Symptomen')">🩺 Symptomen</button>
-<button onclick="openCategory('Colitis Ulcerosa','Diagnose')">🔬 Diagnose</button>
-<button onclick="openCategory('Colitis Ulcerosa','Behandelingen')">💊 Behandelingen</button>
-<button onclick="openCategory('Colitis Ulcerosa','Medicatie')">💉 Medicatie</button>
-<button onclick="openCategory('Colitis Ulcerosa','Operaties')">🏥 Operaties</button>
-<button onclick="openCategory('Colitis Ulcerosa','Complicaties')">⚠️ Complicaties</button>
-<button onclick="openCategory('Colitis Ulcerosa','Opvolging & controles')">📋 Opvolging & controles</button>
-<button onclick="openCategory('Colitis Ulcerosa','Voeding')">🍎 Voeding</button>
-<button onclick="openCategory('Colitis Ulcerosa','Dagelijks leven')">🏡 Dagelijks leven</button>
-<button onclick="openCategory('Colitis Ulcerosa','Werk & studie')">🎒 Werk & studie</button>
-<button onclick="openCategory('Colitis Ulcerosa','Zwangerschap')">🤰 Zwangerschap</button>
-<button onclick="openCategory('Colitis Ulcerosa','Patiëntenrechten')">⚖️ Patiëntenrechten</button>
-<button onclick="openCategory('Colitis Ulcerosa','Ervaringsverhalen')">💬 Ervaringsverhalen</button>
-<button onclick="openCategory('Colitis Ulcerosa','Downloads')">📂 Downloads</button>
-
-</div>
-
-</div>
-
-</div>
-
-<div id="ibd" class="page hidden">
-<div class="card">
-<h2>💊 Algemene IBD</h2>
-<div class="dashboard-grid">
-
-<button onclick="openCategory('IBD','Wat is IBD')">
-📖 Wat is IBD
-</button>
-
-<button onclick="openCategory('IBD','Diagnose')">
-🔬 Diagnose
-</button>
-
-<button onclick="openCategory('IBD','Behandelingen')">
-💊 Behandelingen
-</button>
-
-<button onclick="openCategory('IBD','Erfelijkheid')">
-🧬 Erfelijkheid
-</button>
-
-<button onclick="openCategory('IBD','Vaccinaties')">
-💉 Vaccinaties
-</button>
-
-<button onclick="openCategory('IBD','Onderzoeken')">
-🔎 Onderzoeken
-</button>
-
-<button onclick="openCategory('IBD','Richtlijnen')">
-📚 Richtlijnen
-</button>
-
-</div>
-</div>
+<div id="ibd"
+     class="page hidden">
 </div>
 
 <div id="zorggids" class="page hidden">
@@ -680,166 +581,16 @@ openCategory(
 
 </div>
 
-<div id="voeding" class="page hidden">
-
-<div class="card">
-
-<h2>🍎 Voeding</h2>
-
-<div class="dashboard-grid">
-
-<button onclick="openCategory('Voeding','Basisvoeding')">
-🥗 Basisvoeding
-</button>
-
-<button onclick="openCategory('Voeding','Eliminatiediëten')">
-🚫 Eliminatiediëten
-</button>
-
-<button onclick="openCategory('Voeding','Enterale voeding')">
-🧃 Enterale voeding
-</button>
-
-<button onclick="openCategory('Voeding','Sondevoeding')">
-🩺 Sondevoeding
-</button>
-
-<button onclick="openCategory('Voeding','Vitamines & supplementen')">
-💊 Vitamines & supplementen
-</button>
-
-<button onclick="openCategory('Voeding','Voeding tijdens opvlamming')">
-🔥 Voeding tijdens opvlamming
-</button>
-
-<button onclick="openCategory('Voeding','Voeding tijdens remissie')">
-✅ Voeding tijdens remissie
-</button>
-
-<button onclick="openCategory('Voeding','Recepten')">
-🍽️ Recepten
-</button>
-
-<button onclick="openCategory('Voeding','Diëtisten')">
-👨‍⚕️ Diëtisten
-</button>
-
-<button onclick="openCategory('Voeding','Downloads')">
-📂 Downloads
-</button>
-
+<div id="voeding"
+     class="page hidden">
 </div>
 
+<div id="pediatrie"
+     class="page hidden">
 </div>
 
-</div>
-
-<div id="pediatrie" class="page hidden">
-
-<div class="card">
-
-<h2>👶 Pediatrie</h2>
-
-<div class="dashboard-grid">
-
-<button onclick="openCategory('Pediatrie','IBD bij kinderen')">
-👶 IBD bij kinderen
-</button>
-
-<button onclick="openCategory('Pediatrie','Diagnose')">
-🔬 Diagnose
-</button>
-
-<button onclick="openCategory('Pediatrie','Groeiontwikkeling')">
-📏 Groeiontwikkeling
-</button>
-
-<button onclick="openCategory('Pediatrie','Behandeling')">
-💊 Behandeling
-</button>
-
-<button onclick="openCategory('Pediatrie','Medicatie')">
-💉 Medicatie
-</button>
-
-<button onclick="openCategory('Pediatrie','School & onderwijs')">
-🎒 School & onderwijs
-</button>
-
-<button onclick="openCategory('Pediatrie','Psychosociale begeleiding')">
-🧠 Psychosociale begeleiding
-</button>
-
-<button onclick="openCategory('Pediatrie','Ouders & mantelzorgers')">
-👨‍👩‍👧 Ouders & mantelzorgers
-</button>
-
-<button onclick="openCategory('Pediatrie','Overgang naar volwassenenzorg')">
-➡️ Overgang naar volwassenenzorg
-</button>
-
-<button onclick="openCategory('Pediatrie','Downloads')">
-📂 Downloads
-</button>
-
-</div>
-
-</div>
-
-</div>
-
-<div id="mindfulness" class="page hidden">
-
-<div class="card">
-
-<h2>🧘 Mindfulness & Welzijn</h2>
-
-<div class="dashboard-grid">
-
-<button onclick="openCategory('Mindfulness & Welzijn','Stressmanagement')">
-🧠 Stressmanagement
-</button>
-
-<button onclick="openCategory('Mindfulness & Welzijn','Mindfulness')">
-🧘 Mindfulness
-</button>
-
-<button onclick="openCategory('Mindfulness & Welzijn','Ontspanningsoefeningen')">
-🌿 Ontspanningsoefeningen
-</button>
-
-<button onclick="openCategory('Mindfulness & Welzijn','Meditatie')">
-🙏 Meditatie
-</button>
-
-<button onclick="openCategory('Mindfulness & Welzijn','Slaap')">
-😴 Slaap
-</button>
-
-<button onclick="openCategory('Mindfulness & Welzijn','Burn-out')">
-🔥 Burn-out
-</button>
-
-<button onclick="openCategory('Mindfulness & Welzijn','Angst & depressie')">
-💙 Angst & depressie
-</button>
-
-<button onclick="openCategory('Mindfulness & Welzijn','Psychologische begeleiding')">
-👨‍⚕️ Psychologische begeleiding
-</button>
-
-<button onclick="openCategory('Mindfulness & Welzijn','Video''s')">
-🎥 Video's
-</button>
-
-<button onclick="openCategory('Mindfulness & Welzijn','Downloads')">
-📂 Downloads
-</button>
-
-</div>
-
-</div>
-
+<div id="mindfulness"
+     class="page hidden">
 </div>
 
 <div id="expert" class="page hidden">
@@ -985,8 +736,8 @@ openCategory(
     <div class="card">
 
         <h2>🤝 CCV-VZW Beheerplatform</h2>
-</div>
- <!-- NIEUW DASHBOARD OVERZICHT -->
+
+    </div>
 
     <div class="card">
 
@@ -1211,19 +962,25 @@ openCategory(
 
         <br><br>
 
-        <select id="inputMode" onchange="toggleInputMode()">
-            <option value="manual">
-                ✍️ Manueel invoeren
-            </option>
+        <div class="dashboard-grid">
 
-            <option value="ai">
-                🤖 AI-ondersteunde invoer
-            </option>
+    <button onclick="selectInputMode('document')">
+        📄 Document uploaden
+    </button>
 
-            <option value="hybrid">
-                🤝 AI + Manueel
-            </option>
-        </select>
+    <button onclick="selectInputMode('tekst')">
+        📝 Tekst toevoegen
+    </button>
+
+    <button onclick="selectInputMode('website')">
+        🌐 Website toevoegen
+    </button>
+
+    <button onclick="selectInputMode('video')">
+        🎥 Video toevoegen
+    </button>
+
+</div>
 
         <br><br>
 
@@ -1231,21 +988,48 @@ openCategory(
 
     <h3>✍️ Manuele invoer</h3>
 
+<div class="card">
+
+    <h4>
+        📄 Document uploaden
+    </h4>
+
+    <input
+        type="file"
+        id="manualFile"
+    >
+
+</div>
+
     <input type="text"
            id="manualTitle"
            placeholder="Titel">
 
     <br><br>
 
-    <input type="text"
-           id="manualCategory"
-           placeholder="Categorie">
+   <select id="manualCategory" onchange="updateManualSubCategories()">
+    <option>Crohn</option>
+    <option>Colitis Ulcerosa</option>
+    <option>IBD</option>
+    <option>Voeding</option>
+    <option>Pediatrie</option>
+    <option>Mindfulness & Welzijn</option>
+    <option>Sport & Beweging</option>
+    <option>Zorggids</option>
+    <option>Sociale Gids</option>
+    <option>Media</option>
+    <option>Websites</option>
+    <option>IBD Verenigingen</option>
+    <option>Patiënten Expert Opleiding</option>
+    <option>CCV-VZW</option>
+    <option>FAQ</option>
+</select>
 
     <br><br>
 
-    <input type="text"
-           id="manualSubCategory"
-           placeholder="Subcategorie">
+   <select id="manualSubCategory">
+    <option>Algemeen</option>
+</select>
 
     <br><br>
 
@@ -1273,9 +1057,15 @@ openCategory(
 
 <br><br>
 
-<div id="aiSuggestionBox"
-     class="card"
-     style="display:none; margin-top:15px;">
+<div
+    id="aiSuggestionBox"
+    class="card"
+    style="
+        display:none;
+        margin-top:20px;
+        border-left:
+            5px solid #2563eb;
+    ">
 
     <h3>🤖 AI Voorstel</h3>
 
@@ -1309,8 +1099,12 @@ openCategory(
 
 <br><br>
 
-<button onclick="saveManualEntry()">
-    💾 Opslaan
+<button
+    class="actionButton"
+    onclick="saveManualEntry()">
+
+    ✅ Inhoud opslaan
+
 </button>
 
 </div>
@@ -1341,15 +1135,48 @@ openCategory(
 
     <br><br>
 
-    <div id="aiSuggestions"></div>
+   <div id="aiSuggestions"></div>
+</div>
+
+<!-- HIER STAP 7 PLAATSEN -->
+
+<div class="card">
+
+<h3>Gebruikersbeheer</h3>
+
+<input
+    id="newUserEmail"
+    placeholder="Email">
+
+<select id="newUserRole">
+
+<option value="viewer">
+Viewer
+</option>
+
+<option value="editor">
+Editor
+</option>
+
+<option value="admin">
+Admin
+</option>
+
+</select>
+
+<button onclick="addUser()">
+Gebruiker toevoegen
+</button>
+
+<div id="userList"></div>
 
 </div>
 
-    </div>
-
+</div>
 </div>
 
 <script>
+
     /* ==========================
    MICROSOFT LOGIN
 ========================== */
@@ -1364,11 +1191,12 @@ auth: {
 };
 
 const loginRequest = {
-    scopes: [
+    scopes:[
         "User.Read",
         "Files.ReadWrite",
         "Files.ReadWrite.All"
-    ]
+    ],
+    prompt:"select_account"
 };
 
 console.log("MSAL object =", msal);
@@ -1388,7 +1216,8 @@ window.addEventListener("load", async () => {
 
 if(response){
 
-    accessToken = response.accessToken;
+    accessToken =
+        response.accessToken;
 
     document.getElementById(
         "loginStatus"
@@ -1401,17 +1230,23 @@ if(response){
         response.account.username
     );
 
+    currentUser =
+        response.account.username;
+
     if(accessToken){
 
-    await loadData();
+        await loadData();
 
-    if(
-        knowledgeData.length === 0
-    ){
-        await syncOneDrive();
+        determineRole();
+
+        if(
+            knowledgeData.length === 0
+        ){
+            await syncOneDrive();
+        }
+
     }
 
-}
 }
 
 console.log("MSAL geïnitialiseerd");
@@ -1419,6 +1254,8 @@ console.log("MSAL geïnitialiseerd");
 });
 
 let accessToken = null;
+let currentUser = null;
+let currentRole = "viewer";
 
 function checkLogin(){
 
@@ -1434,11 +1271,70 @@ function checkLogin(){
     return true;
 }
 
+function determineRole(){
+
+   if(
+currentUser &&
+currentUser.toLowerCase() ===
+"ccv_vzw@outlook.com"
+){
+currentRole = "admin";
+applyPermissions();
+return;
+}
+
+    const user =
+        users.find(
+            u =>
+                u.email.toLowerCase()
+                ===
+                currentUser.toLowerCase()
+        );
+
+    if(user){
+
+        currentRole =
+            user.role;
+
+    }else{
+
+        currentRole =
+            "viewer";
+
+    }
+
+    applyPermissions();
+
+}
+
+function applyPermissions(){
+
+    if(currentRole === "admin"){
+        return;
+    }
+
+    if(
+        document.getElementById(
+            "beheer"
+        )
+    ){
+        document.getElementById(
+            "beheer"
+        ).style.display =
+            "none";
+    }
+
+}
+
+
 /* ==================================
    CONFIGURATIE
 ================================== */
 
 const DATAFILE = "CCV-VZW/Database/database.json";
+
+const USERSFILE =
+    "CCV-VZW/Database/users.json";
 
 const CONFIG = {
     graphEnabled: true,
@@ -1455,6 +1351,13 @@ let meetings = [];
 let projects = [];
 let tasks = [];
 let members = [];
+let users = [
+    {
+        email:"ccv_vzw@outlook.com",
+        role:"admin",
+        actief:true
+    }
+];
 
 // ==========================
 // WEBSITES PER LAND
@@ -1569,8 +1472,25 @@ if(document.getElementById("breadcrumb")){
     loadFolders();
 }
 
-    if(page === "documents"){
+  if(page === "documents"){
     renderDocuments();
+}
+
+if(document.getElementById("documentCountInfo")){
+
+    document.getElementById(
+        "documentCountInfo"
+    ).innerText =
+        "📄 Documenten: " +
+        knowledgeData.length;
+}
+
+if(document.getElementById("lastSyncInfo")){
+
+    document.getElementById(
+        "lastSyncInfo"
+    ).innerText =
+        "✅ Database geladen uit OneDrive";
 }
 }
 
@@ -1590,6 +1510,137 @@ function goBack(){
         previousPage
     );
 
+}
+
+function getSubCategories(
+    categorie
+){
+
+    const subcats =
+        [
+            ...new Set(
+
+                knowledgeData
+
+                .filter(
+                    x =>
+                        x.categorie ===
+                        categorie
+                )
+
+                .map(
+                    x => x.subcategorie
+                )
+
+            )
+        ];
+
+    return subcats.sort();
+
+}
+
+function renderDynamicCategory(
+    categorie
+){
+
+    const subcats =
+        getSubCategories(
+            categorie
+        );
+
+    let html = `
+
+        <div class="card">
+
+            <h2>
+                ${categorie}
+            </h2>
+
+            <div class="
+                dashboard-grid
+            ">
+
+    `;
+
+    subcats.forEach(
+        subcat => {
+
+            html += `
+
+                <button
+                    onclick="
+                        openCategory(
+                            '${categorie}',
+                            '${subcat}'
+                        )
+                    "
+                >
+
+                    ${subcat}
+
+                </button>
+
+            `;
+
+        }
+    );
+
+    html += `
+            </div>
+        </div>
+    `;
+
+    const pageMap = {
+
+    "Crohn":"crohn",
+
+    "Colitis Ulcerosa":"colitis",
+
+    "IBD":"ibd",
+
+    "Voeding":"voeding",
+
+    "Pediatrie":"pediatrie",
+
+    "Mindfulness & Welzijn":"mindfulness",
+
+    "CCV-VZW":"ccv",
+
+    "FAQ":"faq",
+
+    "Media":"media",
+
+    "Zorggids":"zorggids",
+
+    "Sociale Gids":"sociaal",
+
+    "Websites":"websites",
+
+    "IBD Verenigingen":"verenigingen",
+
+    "Patiënten Expert Opleiding":"expert"
+
+};
+
+const pageId =
+    pageMap[categorie];
+
+if(
+    !pageId
+){
+    return;
+}
+
+const page =
+    document.getElementById(
+        pageId
+    );
+
+if(
+    page
+){
+    page.innerHTML = html;
+}
 }
 
 function openCategory(mainCategory, subCategory){
@@ -2044,71 +2095,127 @@ async function saveProject(){
 
 /* NIEUWE FUNCTIE HIER PLAATSEN */
 
+function updateManualSubCategories(){
+
+    const categorie =
+        document.getElementById(
+            "manualCategory"
+        ).value;
+
+    const subSelect =
+        document.getElementById(
+            "manualSubCategory"
+        );
+
+    subSelect.innerHTML = "";
+
+    if(
+        !KNOWLEDGE_ENGINE[categorie]
+    ){
+        return;
+    }
+
+    const subcats =
+        Object.keys(
+            KNOWLEDGE_ENGINE[categorie]
+            .subcategories
+        );
+
+    subcats.forEach(sub => {
+
+        const option =
+            document.createElement(
+                "option"
+            );
+
+        option.value = sub;
+        option.textContent = sub;
+
+        subSelect.appendChild(
+            option
+        );
+
+    });
+
+}
+
 function analyzeDocument(){
 
-    let categorie = "Algemeen";
-    let subcategorie = "Algemeen";
-    let keywords = "";
-    let summary = "";
+    const text =
+    (
+        document.getElementById(
+            "manualTitle"
+        ).value + " " +
 
-    const title =
-        document
-        .getElementById("manualTitle")
-        .value
-        .toLowerCase();
+        document.getElementById(
+            "manualDescription"
+        ).value + " " +
 
-    if(title.includes("vergadering")){
+        document.getElementById(
+            "manualKeywords"
+        ).value
+    ).toLowerCase();
 
-        categorie = "Bestuur";
-        subcategorie = "Vergaderingen";
-        keywords =
-            "vergadering,notulen,actiepunten";
-        summary =
+    const result =
+        classifyDocument(text);
 
-"Dit document lijkt betrekking te hebben op een vergadering of bestuursbijeenkomst.";
-    }
+    const categorie =
+        result.categorie;
 
-    else if(title.includes("crohn")){
+    const subcategorie =
+        result.subcategorie;
 
-        categorie = "Crohn";
-        subcategorie = "Ziektebeeld";
-        keywords =
-            "crohn,ibd,darmziekte";
-        summary =
-	"Dit document bevat vermoedelijk informatie over de ziekte van Crohn.";
-    }
+    const keywords =
+        determineTags(text)
+        .join(", ");
+
+    const summary =
+    "Document werd automatisch ingedeeld in " +
+    categorie +
+    " > " +
+    subcategorie;
 
     document.getElementById(
         "suggestedCategory"
-    ).innerText = categorie;
+    ).innerText =
+        categorie;
 
     document.getElementById(
         "suggestedSubCategory"
-    ).innerText = subcategorie;
+    ).innerText =
+        subcategorie;
 
     document.getElementById(
         "suggestedKeywords"
-    ).innerText = keywords;
+    ).innerText =
+        keywords;
 
     document.getElementById(
-    "suggestedSummary"
-    ).innerText = summary;
+        "suggestedSummary"
+    ).innerText =
+        summary;
 
     document.getElementById(
         "aiSuggestionBox"
-    ).style.display = "block";
+    ).style.display =
+        "block";
 
     document.getElementById(
         "manualCategory"
-    ).value = categorie;
+    ).value =
+        categorie;
+
+    updateManualSubCategories();
 
     document.getElementById(
         "manualSubCategory"
-    ).value = subcategorie;
+    ).value =
+        subcategorie;
 
     document.getElementById(
         "manualKeywords"
-    ).value = keywords;
+    ).value =
+        keywords;
 }
 
 async function saveManualEntry(){
@@ -2134,7 +2241,13 @@ async function saveManualEntry(){
         document.getElementById("manualKeywords").value,
 
     bestand:
-        currentUploadedFile,
+    document.getElementById(
+        "manualFile"
+    ).files[0]
+    ? document.getElementById(
+        "manualFile"
+      ).files[0].name
+    : "",
 
     samenvatting:
         document.getElementById(
@@ -2142,11 +2255,80 @@ async function saveManualEntry(){
         ).innerText
 };
 
-    knowledgeData.push(entry);
+   entry.id =
+    generateId();
+
+knowledgeData.push(
+    entry
+);
+
+await uploadKnowledgeEntry(
+    entry
+);
+
+await saveData();
+
+    alert("✅ Informatie opgeslagen");
+}
+
+async function addUser(){
+
+    const email =
+        document.getElementById(
+            "newUserEmail"
+        ).value;
+
+    const role =
+        document.getElementById(
+            "newUserRole"
+        ).value;
+
+    users.push({
+
+        email:email,
+        role:role,
+        actief:true
+
+    });
 
     await saveData();
 
-    alert("✅ Informatie opgeslagen");
+    renderUsers();
+
+}
+
+function renderUsers(){
+
+    const container =
+        document.getElementById(
+            "userList"
+        );
+
+    if(!container){
+        return;
+    }
+
+    container.innerHTML =
+        users.map(u =>
+
+        `
+        <div class="card">
+
+       <b>${u.email}</b>
+
+${u.email === "ccvvzw@outlook.com"
+ ? " 👑 Eigenaar"
+ : ""}
+
+        <br>
+
+        ${u.role}
+
+        </div>
+        `
+
+        ).join("");
+
 }
 
 function analyzeWithAI(){
@@ -2181,17 +2363,46 @@ document.getElementById("documentsContainer").innerHTML = `
 
 function updateDashboardStats(){
 
-    document.getElementById("projectCount").innerText =
-        projects.length;
+    const projectCount =
+        document.getElementById(
+            "projectCount"
+        );
 
-    document.getElementById("meetingCount").innerText =
-        meetings.length;
+    const meetingCount =
+        document.getElementById(
+            "meetingCount"
+        );
 
-    document.getElementById("taskCount").innerText =
-        tasks.length;
+    const taskCount =
+        document.getElementById(
+            "taskCount"
+        );
 
-    document.getElementById("memberCount").innerText =
-        members.length;
+    const memberCount =
+        document.getElementById(
+            "memberCount"
+        );
+
+    if(projectCount){
+        projectCount.innerText =
+            projects.length;
+    }
+
+    if(meetingCount){
+        meetingCount.innerText =
+            meetings.length;
+    }
+
+    if(taskCount){
+        taskCount.innerText =
+            tasks.length;
+    }
+
+    if(memberCount){
+        memberCount.innerText =
+            members.length;
+    }
+
 }
 
 function showCategoryDocuments(
@@ -2208,15 +2419,24 @@ function showCategoryDocuments(
     docs.forEach(doc => {
 
         html += `
-        <div class="card">
 
-            <h3>${doc.titel}</h3>
+    <div class="card">
 
-            <p>
-                ${doc.samenvatting}
-            </p>
+        <h3>
 
-        </div>`;
+            ${doc.bestand}
+                ${doc.titel}
+            </a>
+
+        </h3>
+
+        <p>
+            ${doc.samenvatting || ""}
+        </p>
+
+    </div>
+
+`;
     });
 
     document.getElementById(
@@ -2239,19 +2459,39 @@ function showDocumentsBySubCategory(
 
     let html = "";
 
-    docs.forEach(doc => {
+  docs.forEach(doc => {
 
-        html += `
-        <div class="card">
-            <h3>${doc.titel}</h3>
+    html += `
 
-            <p>
-                ${doc.samenvatting || ""}
-            </p>
+    <div class="card">
+
+        <h3>${doc.titel}</h3>
+
+        <div style="
+            display:flex;
+            gap:10px;
+            margin-top:15px;
+            flex-wrap:wrap;
+        ">
+
+            ${doc.bestand}
+                📂 Open document
+            </a>
+
+            <button
+                onclick="previewDocument('${doc.bestand}')"
+                class="actionButton"
+            >
+                👁 Preview
+            </button>
+
         </div>
-        `;
 
-    });
+    </div>
+
+    `;
+
+});
 
     document.getElementById(
         "categoryDocuments"
@@ -2276,6 +2516,64 @@ async function uploadJson(data){
     );
 }
 
+async function uploadUsers(){
+
+    await fetch(
+
+        `https://graph.microsoft.com/v1.0/me/drive/root:/${USERSFILE}:/content`,
+
+        {
+            method:"PUT",
+
+            headers:{
+                Authorization:
+                    `Bearer ${accessToken}`,
+
+                "Content-Type":
+                    "application/json"
+            },
+
+            body:
+                JSON.stringify(
+                    users,
+                    null,
+                    2
+                )
+        }
+
+    );
+
+}
+
+async function downloadUsers(){
+
+    try{
+
+        const response =
+            await fetch(
+
+                `https://graph.microsoft.com/v1.0/me/drive/root:/${USERSFILE}:/content`,
+
+                {
+                    headers:{
+                        Authorization:
+                            `Bearer ${accessToken}`
+                    }
+                }
+
+            );
+
+        return await response.json();
+
+    }
+
+    catch{
+
+        return [];
+    }
+
+}
+
 async function downloadJson(){
 
     const response = await fetch(
@@ -2295,14 +2593,16 @@ async function saveData(){
     if(!checkLogin()) return;
 
     const data = {
-        meetings,
-        projects,
-        tasks,
-        members,
-        knowledgeData
-    };
+    meetings,
+    projects,
+    tasks,
+    members,
+    knowledgeData,
+    users
+};
 
     await uploadJson(data);
+    await uploadUsers();
 
     alert("✅ Gegevens opgeslagen in OneDrive");
 }
@@ -2321,18 +2621,56 @@ async function loadData(){
         members = data.members || [];
         knowledgeData = data.knowledgeData || [];
 
+        users =
+    await downloadUsers();
+
+        users =
+    data.users || [];
+
+        document.getElementById(
+    "documentCountInfo"
+).innerText =
+    "📄 Documenten: " +
+    knowledgeData.length;
+
+
         renderMeetings();
 
         updateDashboardStats();
 
+       renderAllCategories();
+
+       renderUsers();
+
+document.getElementById(
+    "lastSyncInfo"
+).innerText =
+    "✅ Database geladen uit OneDrive";
+
+document.getElementById(
+    "documentCountInfo"
+).innerText =
+    "📄 Documenten: " +
+    knowledgeData.length;
+
+await loadFolders();
+
         alert("✅ Gegevens geladen");
 
-    }catch(error){
-
-        console.error(error);
-
-        alert("Geen database gevonden");
     }
+    
+    catch(error){
+
+    console.error(
+        "LoadData fout:",
+        error
+    );
+
+    alert(
+        error.message
+    );
+
+}
 }
 
 async function loginMicrosoft(){
@@ -2353,7 +2691,12 @@ async function loginMicrosoft(){
 
 function logoutMicrosoft(){
 
-    msalInstance.logoutPopup();
+    msalInstance.logoutRedirect({
+
+        postLogoutRedirectUri:
+            window.location.origin
+
+    });
 
 }
 
@@ -2367,6 +2710,10 @@ async function syncOneDrive(){
         knowledgeData = [];
 
         await bulkImport();
+
+        renderAllCategories();
+
+        updateCategoryCounts();
 
 lastSync =
     new Date().toISOString();
@@ -2439,6 +2786,13 @@ function generateTags(filename){
 
 }
 
+function generateId(){
+
+    return Date.now()
+        .toString();
+
+}
+
 async function scanFolder(
     folderId,
     categorie,
@@ -2486,62 +2840,146 @@ if(!response.ok){
         // SUBMAP
         if(item.folder){
 
-            await scanFolder(
-                item.id,
-                categorie,
-                item.name
-            );
+    const verbodenMappen = [
+        "Financieel",
+        "Kasboeken",
+        "Foto's"
+    ];
 
-            continue;
-        }
+    if(
+        verbodenMappen.includes(
+            item.name
+        )
+    ){
+        continue;
+    }
+
+   await scanFolder(
+    item.id,
+    categorie,
+    huidigeSubcategorie +
+    " " +
+    item.name
+);
+
+    continue;
+}
+
 
         // BESTAND
-        if(item.file){
+    
+      if(item.file){
+
+    const extensie =
+        item.name
+            .toLowerCase()
+            .split(".")
+            .pop();
+
+  let toegelatenExtensies = [
+
+    "pdf",
+    "doc",
+    "docx",
+    "ppt",
+    "pptx"
+
+];
+
+if(categorie === "Media"){
+
+    toegelatenExtensies = [
+
+        "pdf",
+        "doc",
+        "docx",
+        "ppt",
+        "pptx",
+
+        "mp3",
+        "wav",
+        "m4a",
+
+        "mp4",
+        "mov",
+        "avi",
+        "webm"
+
+    ];
+
+}
+
+if(
+    !toegelatenExtensies.includes(
+        extensie
+    )
+){
+    continue;
+}
 
     const tags =
         determineTags(
             item.name
         );
 
-    let categorie =
+   const zoekTekst =
+
+    categorie +
+
+    " " +
+
+    huidigeSubcategorie +
+
+    " " +
+
+    item.name;
+
+const classification =
+
+    classifyDocument(
+        zoekTekst
+    );
+
+    if(
+    classification.categorie ===
+    "Te beoordelen"
+){
+
+    classification.categorie =
+        categorie;
+
+    classification.subcategorie =
+        huidigeSubcategorie ||
         "Algemeen";
 
-    if(tags.includes("crohn"))
-        categorie = "Crohn";
-
-    else if(tags.includes("colitis"))
-        categorie = "Colitis Ulcerosa";
-
-    else if(tags.includes("ibd"))
-        categorie = "IBD";
-
-    else if(tags.includes("voeding"))
-        categorie = "Voeding";
+}
 
     knowledgeData.push({
 
-        titel:item.name,
+    titel:item.name,
 
-        categorie:categorie,
+    categorie:
+        classification.categorie,
 
-        tags:tags,
+    subcategorie:
+        classification.subcategorie,
 
-        subcategorie:
-            determineSubCategory(
-                item.name
-            ),
+    tags:tags,
 
-        bestand:item.webUrl,
+    bestand:item.webUrl,
 
-        gewijzigd:item.lastModifiedDateTime,
+    gewijzigd:
+        item.lastModifiedDateTime,
 
-        type:item.file.mimeType
+    type:
+        item.file.mimeType
 
-    });
+});
+
+}
 
 }
     }
-}
 
 function buildSummary(filename){
 
@@ -2625,29 +3063,1195 @@ async function buildFolderTree(
     return html;
 }
 
-const CATEGORY_RULES = {
+const MEDICAL_DICTIONARY = {
 
-    "Crohn":[
+    Basic:[
+        "ibd",
+        "inflammatoire darmziekte",
+        "crohn",
+        "colitis ulcerosa",
+        "ibd-u",
+        "opflakkering",
+        "opstoot",
+        "flare",
+        "remissie"
+    ],
+
+    Symptomen:[
+        "buikpijn",
+        "diarree",
+        "rectale bloeding",
+        "gewichtsverlies",
+        "vermoeidheid",
+        "urgentie",
+        "tenesmen",
+        "nachtelijke diarree",
+        "slijm",
+        "opgeblazen gevoel",
+        "koorts"
+    ],
+
+    Complicaties:[
+        "fistel",
+        "perianale fistel",
+        "abces",
+        "strictuur",
+        "stenose",
+        "obstructie",
+        "ileus",
+        "perforatie",
+        "toxisch megacolon",
+        "artritis"
+    ],
+
+    Diagnose:[
+        "colonoscopie",
+        "sigmoidoscopie",
+        "gastroscopie",
+        "endoscopie",
+        "capsule-endoscopie",
+        "ct",
+        "ct-enterografie",
+        "mri",
+        "mr-enterografie",
+        "echografie",
+        "biopsie",
+        "histologie"
+    ],
+
+    Labo:[
+        "crp",
+        "fecaal calprotectine",
+        "bse",
+        "hemoglobine",
+        "ferritine",
+        "vitamine b12",
+        "foliumzuur",
+        "albumine",
+        "creatinine",
+        "elektrolyten"
+    ],
+
+    Medicatie:[
+        "mesalazine",
+        "mesalamine",
+        "sulfasalazine",
+        "olsalazine",
+        "balsalazide",
+
+        "prednison",
+        "prednisolon",
+        "budesonide",
+        "hydrocortison",
+        "methylprednisolon",
+
+        "azathioprine",
+        "6-mp",
+        "mercaptopurine",
+        "methotrexaat",
+
+        "infliximab",
+        "adalimumab",
+        "golimumab",
+        "vedolizumab",
+        "ustekinumab",
+
+        "tofacitinib",
+        "upadacitinib",
+        "filgotinib",
+
+        "jak",
+        "jak-remmer",
+        "jak inhibitor",
+
+        "humira",
+        "remicade",
+        "entyvio",
+        "stelara",
+        "rinvoq",
+        "skyrizi"
+    ],
+
+    Voeding:[
+        "een",
+        "enterale voeding",
+        "pen",
+        "partiele enterale voeding",
+        "low-fodmap",
+        "fodmap",
+        "laagrestdieet",
+        "mediterraan dieet"
+    ],
+
+    Psychologisch:[
+        "stress",
+        "angst",
+        "depressie",
+        "mindfulness",
+        "cbt",
+        "cognitieve gedragstherapie",
+        "mbsr"
+    ],
+
+    Chirurgie:[
+        "ileostoma",
+        "j-pouch",
+        "proctocolectomie",
+        "darmresectie",
+        "segmentresectie",
+        "stricturoplastiek",
+        "seton",
+        "abcesdrainage",
+        "proctectomie"
+    ]
+
+};
+
+function getMedicalMatches(filename){
+
+    const naam =
+        filename.toLowerCase();
+
+    let matches = [];
+
+    Object.entries(
+        MEDICAL_DICTIONARY
+    ).forEach(
+
+        ([groep,termen]) => {
+
+            termen.forEach(term => {
+
+                if(
+                    naam.includes(
+                        term.toLowerCase()
+                    )
+                ){
+
+                    matches.push({
+                        groep,
+                        term
+                    });
+
+                }
+
+            });
+
+        }
+
+    );
+
+    return matches;
+
+}
+
+const KNOWLEDGE_ENGINE = {
+
+   "Crohn":{
+
+    keywords:[
         "crohn",
         "ziektevancrohn"
     ],
 
-    "Colitis Ulcerosa":[
-        "colitis",
-        "ulcerosa"
-    ],
+    subcategories:{
 
-    "IBD":[
+        "Ziektebeeld":[
+            "crohn",
+            "ziektebeeld"
+        ],
+
+        "Symptomen":[
+            "symptoom",
+            "symptomen",
+            "klachten"
+        ],
+
+        "Diagnose":[
+            "diagnose",
+            "onderzoek",
+            "colonoscopie",
+            "mri"
+        ],
+
+        "Behandelingen":[
+            "behandeling",
+            "therapie"
+        ],
+
+        "Medicatie":[
+            "medicatie",
+            "humira",
+            "stellara",
+            "remicade",
+            "rinvoq",
+            "jak",
+            "infliximab"
+        ],
+
+        "Operaties":[
+            "operatie",
+            "chirurgie",
+            "resectie"
+        ],
+
+        "Complicaties":[
+            "complicatie",
+            "fistel",
+            "stenose"
+        ],
+
+        "Voeding":[
+            "voeding",
+            "dieet",
+            "fodmap"
+        ],
+
+"Opvolging":[
+    "controle",
+    "follow-up",
+    "calprotectine",
+    "crp"
+],
+
+"DagelijksLeven":[
+    "dagelijks leven",
+    "reizen",
+    "vakantie"
+],
+
+"WerkStudie":[
+    "werk",
+    "studie",
+    "school",
+    "onderwijs"
+],
+
+"Zwangerschap":[
+    "zwangerschap",
+    "fertiliteit",
+    "borstvoeding"
+],
+
+"Patiëntenrechten":[
+    "rechten",
+    "invaliditeit",
+    "attest"
+],
+
+"Ervaringsverhalen":[
+    "ervaring",
+    "getuigenis",
+    "verhaal"
+],
+
+"Downloads":[
+    "brochure",
+    "download",
+    "pdf"
+]        
+    }
+
+},
+
+    "Colitis Ulcerosa":{
+
+        keywords:[
+            "colitis",
+            "ulcerosa"
+        ],
+
+        subcategories:{
+
+            "Symptomen":[
+            "symptoom",
+            "symptomen",
+            "klachten"
+        ],
+
+        "Diagnose":[
+            "diagnose",
+            "onderzoek",
+            "colonoscopie",
+            "mri"
+        ],
+
+        "Behandelingen":[
+            "behandeling",
+            "therapie"
+        ],
+
+        "Medicatie":[
+            "medicatie",
+            "humira",
+            "stellara",
+            "remicade",
+            "rinvoq",
+            "jak",
+            "infliximab"
+        ],
+
+        "Operaties":[
+            "operatie",
+            "chirurgie",
+            "resectie"
+        ],
+
+        "Complicaties":[
+            "complicatie",
+            "fistel",
+            "stenose"
+        ],
+
+        "Voeding":[
+            "voeding",
+            "dieet",
+            "fodmap"
+        ],
+
+"Opvolging":[
+    "controle",
+    "follow-up",
+    "calprotectine",
+    "crp"
+],
+
+"DagelijksLeven":[
+    "dagelijks leven",
+    "reizen",
+    "vakantie"
+],
+
+"WerkStudie":[
+    "werk",
+    "studie",
+    "school",
+    "onderwijs"
+],
+
+"Zwangerschap":[
+    "zwangerschap",
+    "fertiliteit",
+    "borstvoeding"
+],
+
+"Patiëntenrechten":[
+    "rechten",
+    "invaliditeit",
+    "attest"
+],
+
+"Ervaringsverhalen":[
+    "ervaring",
+    "getuigenis",
+    "verhaal"
+],
+
+"Downloads":[
+    "brochure",
+    "download",
+    "pdf"
+]        
+    }
+
+},
+
+    "IBD":{
+
+    keywords:[
         "ibd"
     ],
 
-    "Voeding":[
+    subcategories:{
+
+        "Wat is IBD":[
+            "ibd"
+        ],
+
+        "Diagnose":[
+            "diagnose",
+            "onderzoek",
+            "colonoscopie"
+        ],
+
+        "Behandelingen":[
+            "behandeling",
+            "therapie"
+        ],
+
+        "Medicatie":[
+            "medicatie",
+            "jak",
+            "rinvoq",
+            "humira",
+            "stelara",
+            "remicade",
+            "skyrizi"
+        ],
+
+        "Pediatrie":[
+            "pediatric",
+            "paediatric",
+            "pediatrie",
+            "kinderen",
+            "jongeren"
+        ],
+
+        "Vaccinaties":[
+            "vaccin",
+            "vaccinatie"
+        ],
+
+        "Erfelijkheid":[
+            "erfelijkheid",
+            "genetica"
+        ],
+
+        "Onderzoeken":[
+            "onderzoek",
+            "studie"
+        ],
+
+        "Richtlijnen":[
+            "richtlijn",
+            "ecco"
+        ]
+
+    }
+
+},
+
+"Sport & Beweging":{
+
+    keywords:[
+        "sport",
+        "beweging",
+        "fitness",
+        "training"
+    ],
+
+    subcategories:{
+
+        "Sporten met IBD":[
+            "sport",
+            "fitness"
+        ],
+
+        "Training":[
+            "training"
+        ],
+
+        "Wandelen":[
+            "wandelen"
+        ],
+
+        "Revalidatie":[
+            "revalidatie"
+        ]
+
+    }
+
+},
+
+"CCV-VZW":{
+
+    keywords:[
+        "ccv",
+        "ccv-vzw"
+    ],
+
+    subcategories:{
+
+        "Bestuur":[
+            "bestuur",
+            "raad van bestuur",
+            "rvb"
+        ],
+
+        "Community":[
+            "community",
+            "leden",
+            "vrijwilligers"
+        ],
+
+        "Projecten":[
+            "project",
+            "projecten"
+        ],
+
+        "Organisatie":[
+            "organisatie",
+            "statuten",
+            "financieel"
+        ],
+
+        "Kennis & Documenten":[
+            "document",
+            "kennis"
+        ],
+
+        "Infostand":[
+            "infostand",
+            "beurs",
+            "stand"
+        ]
+
+    }
+
+},
+"Voeding":{
+
+    keywords:[
         "voeding",
+        "dieet",
         "fodmap",
-        "dieet"
+        "nutrition"
+    ],
+
+    subcategories:{
+
+        "Basisvoeding":[
+            "basisvoeding"
+        ],
+
+        "Eliminatiediëten":[
+            "eliminatiedieet",
+            "eliminatie"
+        ],
+
+        "Enterale voeding":[
+            "enterale voeding"
+        ],
+
+        "Sondevoeding":[
+            "sondevoeding"
+        ],
+
+        "Vitamines & supplementen":[
+            "vitamine",
+            "supplement"
+        ],
+
+        "Voeding tijdens opvlamming":[
+            "opvlamming",
+            "flare"
+        ],
+
+        "Voeding tijdens remissie":[
+            "remissie"
+        ],
+
+        "Recepten":[
+            "recept",
+            "recepten"
+        ],
+
+        "Diëtisten":[
+            "diëtist",
+            "dietist"
+        ]
+
+    }
+
+},
+"Pediatrie":{
+
+    keywords:[
+        "pediatric",
+        "paediatric",
+        "pediatrie",
+        "kinderen",
+        "jongeren"
+    ],
+
+    subcategories:{
+
+        "IBD bij kinderen":[
+            "pediatric",
+            "paediatric"
+        ],
+
+        "Diagnose":[
+            "diagnose"
+        ],
+
+        "Behandeling":[
+            "behandeling"
+        ],
+
+        "Medicatie":[
+            "medicatie",
+            "jak",
+            "remicade"
+        ],
+
+        "School & onderwijs":[
+            "school",
+            "onderwijs"
+        ]
+
+    }
+
+},
+"Mindfulness & Welzijn":{
+
+    keywords:[
+        "mindfulness",
+        "welzijn",
+        "stress",
+        "meditatie"
+    ],
+
+    subcategories:{
+
+        "Stressmanagement":[
+            "stress"
+        ],
+
+        "Mindfulness":[
+            "mindfulness"
+        ],
+
+        "Meditatie":[
+            "meditatie"
+        ],
+
+        "Slaap":[
+            "slaap"
+        ],
+
+        "Burn-out":[
+            "burnout",
+            "burn-out"
+        ],
+
+        "Psychologische begeleiding":[
+            "psycholoog",
+            "psychologische"
+        ]
+
+    }
+
+},
+
+"Zorggids":{
+    
+    keywords:[
+        "zorggids",
+        "zorg",
+        "hulpverlening"
+    ],
+
+    subcategories:{
+
+        "Ziekenhuizen":[
+            "ziekenhuis"
+        ],
+
+        "Specialisten":[
+            "specialist"
+        ],
+
+        "Huisartsen":[
+            "huisarts"
+        ],
+
+        "Diëtisten":[
+            "diëtist",
+            "dietist"
+        ],
+
+        "Psychologen":[
+            "psycholoog"
+        ],
+
+        "Fysiotherapeuten":[
+            "fysiotherapeut"
+        ],
+
+    "IBD Centra":[
+        "ibd centrum"
+    ],
+
+    "Ziekenhuizen":[
+        "ziekenhuis"
+    ],
+
+    "Gastro-enterologen":[
+        "gastro-enteroloog"
+    ],
+
+    "IBD Verpleegkundigen":[
+        "ibd verpleegkundige"
+    ],
+
+    "Diëtisten":[
+        "diëtist"
+    ],
+
+    "Psychologen":[
+        "psycholoog"
+    ],
+
+    "Sociale Diensten":[
+        "sociale dienst"
+    ],
+
+    "Apothekers":[
+        "apotheker"
+    ],
+
+    "Patiëntenbegeleiding":[
+        "begeleiding"
+    ],
+
+    "Noodnummers":[
+        "noodnummer"
     ]
 
+}
+
+},
+
+"FAQ":{
+
+    keywords:[
+        "faq",
+        "veelgestelde vragen"
+    ],
+
+    subcategories:{
+
+        "Algemeen":[
+            "faq"
+        ],
+
+        "Diagnose":[
+            "diagnose"
+        ],
+
+        "Medicatie":[
+            "medicatie"
+        ],
+
+        "Voeding":[
+            "voeding"
+        ],
+
+        "Operaties":[
+            "operatie"
+        ],
+
+        "Werk & Studie":[
+            "werk",
+            "studie"
+        ],
+
+        "Reizen":[
+            "reis",
+            "reizen"
+        ],
+
+        "Zwangerschap":[
+            "zwangerschap"
+        ],
+
+        "Kinderen & Jongeren":[
+            "kinderen",
+            "jongeren"
+        ],
+
+        "Patiëntenrechten":[
+            "rechten"
+        ],
+
+        "Psychologisch Welzijn":[
+            "stress",
+            "angst",
+            "depressie"
+        ],
+
+        "Praktische Tips":[
+            "tips"
+        ]
+
+    }
+
+},
+
+"Sociale Gids":{
+
+    keywords:[
+        "sociaal",
+        "sociale gids",
+        "rechten"
+    ],
+
+    subcategories:{
+
+        "Patiëntenrechten":[
+            "rechten",
+            "patiëntenrechten"
+        ],
+
+        "Invaliditeit":[
+            "invaliditeit",
+            "arbeidsongeschiktheid"
+        ],
+
+        "Werk":[
+            "werk",
+            "arbeid"
+        ],
+
+        "Studie":[
+            "studie",
+            "onderwijs"
+        ],
+
+        "Terugbetalingen":[
+            "terugbetaling",
+            "vergoeding"
+        ],
+
+        "Attesten":[
+            "attest",
+            "formulier"
+        ]
+
+    }
+
+},
+
+"Media":{
+
+    keywords:[
+        "video",
+        "webinar",
+        "podcast",
+        "media"
+    ],
+
+    subcategories:{
+
+        "Webinars":[
+            "webinar"
+        ],
+
+        "Video":[
+            "video"
+        ],
+
+        "Podcasts":[
+            "podcast"
+        ],
+
+        "Getuigenissen":[
+            "getuigenis",
+            "ervaring"
+        ],
+
+        "Expertinterviews":[
+            "interview",
+            "expert"
+        ]
+
+    }
+
+},
+
+"Websites":{
+
+    keywords:[
+        "website",
+        "web",
+        "link"
+    ],
+
+    subcategories:{
+
+        "Belgische organisaties":[
+            "belgie",
+            "belgisch"
+        ],
+
+        "Internationale organisaties":[
+            "internationaal"
+        ],
+
+        "Universitaire centra":[
+            "universitair"
+        ],
+
+        "Ziekenhuizen":[
+            "ziekenhuis"
+        ],
+
+        "Wetenschappelijke bronnen":[
+            "pubmed",
+            "ecco",
+            "cochrane"
+        ],
+
+        "Patiëntenplatformen":[
+            "patientenplatform"
+        ],
+
+        "Video & Media":[
+            "video",
+            "media"
+        ],
+
+        "Downloads":[
+            "download"
+        ]
+
+    }
+
+},
+
+"IBD Verenigingen":{
+
+    keywords:[
+        "vereniging",
+        "crohn colitis",
+        "ibd vereniging"
+    ],
+
+    subcategories:{
+
+        "België":[
+            "belgie"
+        ],
+
+        "Nederland":[
+            "nederland"
+        ],
+
+        "Europa":[
+            "europa"
+        ],
+
+        "Wereldwijd":[
+            "wereldwijd",
+            "international"
+        ],
+
+        "Patiëntenverenigingen":[
+            "patientenvereniging"
+        ],
+
+        "Jongerenwerkingen":[
+            "jongeren"
+        ],
+
+        "Lotgenotencontact":[
+            "lotgenoten"
+        ],
+
+        "Evenementen":[
+            "evenement",
+            "event"
+        ],
+
+        "Contactgegevens":[
+            "contact"
+        ],
+
+        "Downloads":[
+            "download"
+        ]
+
+    }
+
+},
+
+"Patiënten Expert Opleiding":{
+
+    keywords:[
+        "patienten expert",
+        "opleiding",
+        "training"
+    ],
+
+    subcategories:{
+
+        "Opleidingsprogramma":[
+            "opleidingsprogramma"
+        ],
+
+        "Modules":[
+            "module"
+        ],
+
+        "Agenda":[
+            "agenda"
+        ],
+
+        "Presentaties":[
+            "presentatie"
+        ],
+
+        "Lesmateriaal":[
+            "lesmateriaal"
+        ],
+
+        "Certificaten":[
+            "certificaat"
+        ],
+
+        "Inschrijvingen":[
+            "inschrijving"
+        ],
+
+        "Downloads":[
+            "download"
+        ]
+
+    }
+
+},
+
 };
+
+function classifyDocument(filename){
+
+    const naam =
+        filename.toLowerCase();
+
+        const medicalMatches =
+    getMedicalMatches(
+        filename
+    );
+
+    let bestCategory =
+        "Algemeen";
+
+    let bestSubCategory =
+        "Algemeen";
+
+    let highestScore = 0;
+
+   for(
+
+    const [categorie,data]
+
+    of Object.entries(
+        KNOWLEDGE_ENGINE
+    )
+
+){
+
+    let categoryScore = 0;
+
+    medicalMatches.forEach(match => {
+
+        if(match.groep === "Medicatie")
+            categoryScore += 2;
+
+        if(match.groep === "Diagnose")
+            categoryScore += 2;
+
+        if(match.groep === "Voeding")
+            categoryScore += 2;
+
+        if(match.groep === "Complicaties")
+            categoryScore += 2;
+
+    });
+
+    data.keywords.forEach(keyword => {
+
+        if(
+            naam.includes(
+                keyword.toLowerCase()
+            )
+        ){
+            categoryScore++;
+        }
+
+    });
+
+        let bestSubScore = 0;
+        let currentSubCategory = "Algemeen";
+
+        Object.entries(
+            data.subcategories
+        ).forEach(
+
+            ([subcategorie,keywords]) => {
+
+                let subScore = 0;
+
+                keywords.forEach(keyword => {
+
+                    if(
+                        naam.includes(
+                            keyword.toLowerCase()
+                        )
+                    ){
+                        subScore++;
+                    }
+
+                });
+
+                if(
+                    subScore > bestSubScore
+                ){
+
+                    bestSubScore =
+                        subScore;
+
+                    currentSubCategory =
+                        subcategorie;
+
+                }
+
+            }
+
+        );
+
+        const totalScore =
+            categoryScore +
+            bestSubScore;
+
+        if(
+            totalScore >
+            highestScore
+        ){
+
+            highestScore =
+                totalScore;
+
+            bestCategory =
+                categorie;
+
+            bestSubCategory =
+                currentSubCategory;
+
+        }
+
+    }
+
+    if(highestScore < 2){
+
+    return {
+        categorie:"Te beoordelen",
+        subcategorie:"Te beoordelen"
+    };
+
+}
+    return {
+
+        categorie:
+            bestCategory,
+
+        subcategorie:
+            bestSubCategory
+
+    };
+
+}
 
 async function loadFolders(){
 
@@ -2674,6 +4278,21 @@ async function loadFolders(){
     );
 
     const data = await response.json();
+
+    const folderCount =
+    data.value
+        .filter(
+            item => item.folder
+        )
+        .length;
+
+document.getElementById(
+    "folderCountInfo"
+).innerText =
+    "📁 " +
+    folderCount +
+    " OneDrive-mappen gevonden";
+
 
 if(!data.value){
 
@@ -2752,8 +4371,41 @@ for(const folder of data.value){
         continue;
     }
 
-    const categorie =
-        determineCategory(folder.name);
+    const categorieMap = {
+
+    "Crohn":"Crohn",
+
+    "Colitis":"Colitis Ulcerosa",
+
+    "IBD":"IBD",
+
+    "Voeding":"Voeding",
+
+    "Pediatrie":"Pediatrie",
+
+    "Mindfulness":"Mindfulness & Welzijn",
+
+    "FAQ":"FAQ",
+
+    "Zorggids":"Zorggids",
+
+    "Sociale Gids":"Sociale Gids",
+
+    "Media":"Media",
+
+    "Websites":"Websites",
+
+    "IBD Verenigingen":"IBD Verenigingen",
+
+    "CCV-VZW":"CCV-VZW",
+
+    "Patiënten Expert Opleiding":"Patiënten Expert Opleiding"
+
+};
+
+const categorie =
+    categorieMap[folder.name]
+    || folder.name;
 
        await scanFolder(
         folder.id,
@@ -2770,91 +4422,47 @@ for(const folder of data.value){
 
 }
 
-function determineCategory(filename){
-
-    const naam =
-        filename.toLowerCase();
-
-    for(
-        const [categorie, keywords]
-        of Object.entries(CATEGORY_RULES)
-    ){
-
-        if(
-            keywords.some(
-                keyword =>
-                    naam.includes(
-                        keyword.toLowerCase()
-                    )
-            )
-        ){
-            return categorie;
-        }
-    }
-
-    return "Ziektebeeld";
-}
-
-function determineSubCategory(filename){
-
-    const naam =
-        filename.toLowerCase();
-
-    if(naam.includes("medicatie"))
-        return "Medicatie";
-
-    if(naam.includes("diagnose"))
-        return "Diagnose";
-
-    if(naam.includes("voeding"))
-        return "Voeding";
-
-    if(naam.includes("symptoom"))
-        return "Symptomen";
-
-    if(naam.includes("operatie"))
-        return "Operaties";
-
-    return "Ziektebeeld";
-}
-
 function determineTags(filename){
 
     const tags = [];
-    const naam = filename.toLowerCase();
+    const naam = String(filename).toLowerCase();
 
     const KEYWORDS = [
 
-    "crohn",
-    "ziektevancrohn",
-    "crohns",
+   "jak",
+"jak inhibitor",
+"infliximab",
+"adalimumab",
+"humira",
+"remicade",
+"rinvoq",
+"stelara",
+"entyvio",
+"vedolizumab",
+"skyrizi",
+"ustekinumab",
 
-    "colitis",
-    "ulcerosa",
+"colonoscopie",
+"endoscopie",
+"mri",
+"echo",
 
-    "ibd",
+"pediatric",
+"paediatric",
+"kinderen",
 
-    "voeding",
-    "dieet",
-    "fodmap",
+"stress",
+"mindfulness",
+"meditatie",
 
-    "medicatie",
-    "biological",
-    "humira",
-    "stelara",
-    "remicade",
+"sport",
+"beweging",
+"fitness",
 
-    "diagnose",
-    "symptomen",
-    "operatie",
-    "complicaties",
-
-    "zwangerschap",
-    "pediatrie",
-
-    "mindfulness",
-    "stress",
-    "welzijn"
+"dieet",
+"fodmap",
+"nutrition",
+"voeding"
 
 ];
 
@@ -2885,9 +4493,9 @@ async function bulkImportSelectedFolder(){
     );
 
     const categorie =
-        determineCategory(
-            folderName
-        );
+    classifyDocument(
+        folder.name
+    ).categorie;
 
     knowledgeData.push({
 
@@ -2953,6 +4561,47 @@ async function uploadDocument(){
 
     alert(
         "Bestand opgeslagen"
+    );
+
+}
+
+async function uploadKnowledgeEntry(
+    entry
+){
+
+    const fileName =
+
+        "CCV-VZW/Knowledge/" +
+
+        entry.id +
+
+        ".json";
+
+    await fetch(
+
+        `https://graph.microsoft.com/v1.0/me/drive/root:/${fileName}:/content`,
+
+        {
+
+            method:"PUT",
+
+            headers:{
+                Authorization:
+                    `Bearer ${accessToken}`,
+
+                "Content-Type":
+                    "application/json"
+            },
+
+            body:
+                JSON.stringify(
+                    entry,
+                    null,
+                    2
+                )
+
+        }
+
     );
 
 }
@@ -3095,6 +4744,56 @@ function searchItems(){
    START
 ================================== */
 
+function selectInputMode(mode){
+
+    document.getElementById(
+        "manualSection"
+    ).style.display = "none";
+
+    document.getElementById(
+        "aiSection"
+    ).style.display = "none";
+
+    if(
+        mode === "document"
+    ){
+
+        document.getElementById(
+            "manualSection"
+        ).style.display =
+            "block";
+
+            document.getElementById(
+    "aiSection").style.display =
+            "block";
+
+}
+
+    if(
+        mode === "tekst"
+    ){
+
+        document.getElementById(
+            "manualSection"
+        ).style.display =
+            "block";
+
+    }
+const section =
+    document.getElementById(
+        "manualSection"
+    );
+
+if(section){
+
+    section.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
+
+}
+}
+
 function toggleInputMode(){
 
     const mode =
@@ -3126,6 +4825,22 @@ function updateCategoryCounts(){
             );
 
     }
+
+}
+
+function renderAllCategories(){
+
+    renderDynamicCategory("Crohn");
+
+    renderDynamicCategory("Colitis Ulcerosa");
+
+    renderDynamicCategory("IBD");
+
+    renderDynamicCategory("Voeding");
+
+    renderDynamicCategory("Pediatrie");
+
+    renderDynamicCategory("Mindfulness & Welzijn");
 
 }
 
@@ -3299,7 +5014,9 @@ async function importSingleFolder(
     }
 
     const categorie =
-        determineCategory(folderName);
+    classifyDocument(
+        folderName
+    ).categorie;
 
     knowledgeData.push({
 
@@ -3327,6 +5044,15 @@ async function importSingleFolder(
     );
 
 }
+
+if(
+    typeof renderFaqs ===
+    "function"
+){
+    renderFaqs();
+}
+
+updateManualSubCategories();
 
 console.log(
     "IBD Kennisbank V7 gestart"

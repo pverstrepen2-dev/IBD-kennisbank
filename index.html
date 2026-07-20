@@ -1191,11 +1191,12 @@ auth: {
 };
 
 const loginRequest = {
-    scopes: [
+    scopes:[
         "User.Read",
         "Files.ReadWrite",
         "Files.ReadWrite.All"
-    ]
+    ],
+    prompt:"login"
 };
 
 console.log("MSAL object =", msal);

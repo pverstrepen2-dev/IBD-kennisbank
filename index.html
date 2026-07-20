@@ -1007,31 +1007,29 @@ border-bottom:1px solid #ddd;
 
     <br><br>
 
-    <select id="manualCategory">
-
+   <select id="manualCategory" onchange="updateManualSubCategories()">
     <option>Crohn</option>
-
-    <option>
-        Colitis Ulcerosa
-    </option>
-
+    <option>Colitis Ulcerosa</option>
     <option>IBD</option>
-
     <option>Voeding</option>
-
     <option>Pediatrie</option>
-
-    <option>
-        Mindfulness & Welzijn
-    </option>
-
+    <option>Mindfulness & Welzijn</option>
+    <option>Sport & Beweging</option>
+    <option>Zorggids</option>
+    <option>Sociale Gids</option>
+    <option>Media</option>
+    <option>Websites</option>
+    <option>IBD Verenigingen</option>
+    <option>Patiënten Expert Opleiding</option>
+    <option>CCV-VZW</option>
+    <option>FAQ</option>
 </select>
 
     <br><br>
 
-    <input type="text"
-           id="manualSubCategory"
-           placeholder="Subcategorie">
+   <select id="manualSubCategory">
+    <option>Algemeen</option>
+</select>
 
     <br><br>
 
@@ -1988,71 +1986,127 @@ async function saveProject(){
 
 /* NIEUWE FUNCTIE HIER PLAATSEN */
 
+function updateManualSubCategories(){
+
+    const categorie =
+        document.getElementById(
+            "manualCategory"
+        ).value;
+
+    const subSelect =
+        document.getElementById(
+            "manualSubCategory"
+        );
+
+    subSelect.innerHTML = "";
+
+    if(
+        !KNOWLEDGE_ENGINE[categorie]
+    ){
+        return;
+    }
+
+    const subcats =
+        Object.keys(
+            KNOWLEDGE_ENGINE[categorie]
+            .subcategories
+        );
+
+    subcats.forEach(sub => {
+
+        const option =
+            document.createElement(
+                "option"
+            );
+
+        option.value = sub;
+        option.textContent = sub;
+
+        subSelect.appendChild(
+            option
+        );
+
+    });
+
+}
+
 function analyzeDocument(){
 
-    let categorie = "Algemeen";
-    let subcategorie = "Algemeen";
-    let keywords = "";
-    let summary = "";
+    const text =
+    (
+        document.getElementById(
+            "manualTitle"
+        ).value + " " +
 
-    const title =
-        document
-        .getElementById("manualTitle")
-        .value
-        .toLowerCase();
+        document.getElementById(
+            "manualDescription"
+        ).value + " " +
 
-    if(title.includes("vergadering")){
+        document.getElementById(
+            "manualKeywords"
+        ).value
+    ).toLowerCase();
 
-        categorie = "Bestuur";
-        subcategorie = "Vergaderingen";
-        keywords =
-            "vergadering,notulen,actiepunten";
-        summary =
+    const result =
+        classifyDocument(text);
 
-"Dit document lijkt betrekking te hebben op een vergadering of bestuursbijeenkomst.";
-    }
+    const categorie =
+        result.categorie;
 
-    else if(title.includes("crohn")){
+    const subcategorie =
+        result.subcategorie;
 
-        categorie = "Crohn";
-        subcategorie = "Ziektebeeld";
-        keywords =
-            "crohn,ibd,darmziekte";
-        summary =
-	"Dit document bevat vermoedelijk informatie over de ziekte van Crohn.";
-    }
+    const keywords =
+        determineTags(text)
+        .join(", ");
+
+    const summary =
+    "Document werd automatisch ingedeeld in " +
+    categorie +
+    " > " +
+    subcategorie;
 
     document.getElementById(
         "suggestedCategory"
-    ).innerText = categorie;
+    ).innerText =
+        categorie;
 
     document.getElementById(
         "suggestedSubCategory"
-    ).innerText = subcategorie;
+    ).innerText =
+        subcategorie;
 
     document.getElementById(
         "suggestedKeywords"
-    ).innerText = keywords;
+    ).innerText =
+        keywords;
 
     document.getElementById(
-    "suggestedSummary"
-    ).innerText = summary;
+        "suggestedSummary"
+    ).innerText =
+        summary;
 
     document.getElementById(
         "aiSuggestionBox"
-    ).style.display = "block";
+    ).style.display =
+        "block";
 
     document.getElementById(
         "manualCategory"
-    ).value = categorie;
+    ).value =
+        categorie;
+
+    updateManualSubCategories();
 
     document.getElementById(
         "manualSubCategory"
-    ).value = subcategorie;
+    ).value =
+        subcategorie;
 
     document.getElementById(
         "manualKeywords"
-    ).value = keywords;
+    ).value =
+        keywords;
 }
 
 async function saveManualEntry(){
@@ -2078,7 +2132,13 @@ async function saveManualEntry(){
         document.getElementById("manualKeywords").value,
 
     bestand:
-        currentUploadedFile,
+    document.getElementById(
+        "manualFile"
+    ).files[0]
+    ? document.getElementById(
+        "manualFile"
+      ).files[0].name
+    : "",
 
     samenvatting:
         document.getElementById(
@@ -4107,7 +4167,7 @@ const categorie =
 function determineTags(filename){
 
     const tags = [];
-    const naam = filename.toLowerCase();
+    const naam = String(filename).toLowerCase();
 
     const KEYWORDS = [
 
@@ -4685,6 +4745,10 @@ async function importSingleFolder(
     );
 
 }
+
+renderFaqs();
+
+updateManualSubCategories();
 
 console.log(
     "IBD Kennisbank V7 gestart"

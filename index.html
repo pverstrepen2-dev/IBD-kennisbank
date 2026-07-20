@@ -5045,7 +5045,12 @@ async function importSingleFolder(
 
 }
 
-renderFaqs();
+if(
+    typeof renderFaqs ===
+    "function"
+){
+    renderFaqs();
+}
 
 updateManualSubCategories();
 

@@ -1273,15 +1273,35 @@ function checkLogin(){
 
 function determineRole(){
 
-   if(
-currentUser &&
-currentUser.toLowerCase() ===
-"ccv_vzw@outlook.com"
-){
-currentRole = "admin";
-applyPermissions();
-return;
-}
+    if(
+        currentUser &&
+        currentUser.toLowerCase() ===
+        "ccv_vzw@outlook.com"
+    ){
+
+        currentRole = "admin";
+
+        let admin =
+            users.find(
+                u =>
+                    u.email.toLowerCase() ===
+                    currentUser.toLowerCase()
+            );
+
+        if(admin){
+
+            admin.lastLogin =
+                new Date()
+                .toISOString();
+
+            saveData();
+
+        }
+
+        applyPermissions();
+
+        return;
+    }
 
     const user =
         users.find(
@@ -1295,6 +1315,12 @@ return;
 
         currentRole =
             user.role;
+
+        user.lastLogin =
+            new Date()
+            .toISOString();
+
+        saveData();
 
     }else{
 
@@ -2285,11 +2311,17 @@ async function addUser(){
 
     users.push({
 
-        email:email,
-        role:role,
-        actief:true
+    email:email,
+    role:role,
+    actief:true,
 
-    });
+    created:
+        new Date()
+        .toISOString(),
+
+    lastLogin:null
+
+});
 
     await saveData();
 
@@ -2308,26 +2340,71 @@ function renderUsers(){
         return;
     }
 
-    container.innerHTML =
-        users.map(u =>
+    let html = "";
 
-        `
+    users.forEach(u => {
+
+        html += `
+
         <div class="card">
 
-       <b>${u.email}</b>
+            <b>
+                ${u.email}
+            </b>
 
-${u.email === "ccvvzw@outlook.com"
- ? " 👑 Eigenaar"
- : ""}
+            ${
+                u.email ===
+                "ccv_vzw@outlook.com"
 
-        <br>
+                ? " 👑 Eigenaar"
+                : ""
+            }
 
-        ${u.role}
+            <br>
+
+            Rol:
+            ${u.role}
+
+            <br>
+
+            Aangemaakt:
+
+            ${
+                u.created
+                ?
+                new Date(
+                    u.created
+                ).toLocaleString(
+                    "nl-BE"
+                )
+                :
+                "-"
+            }
+
+            <br>
+
+            Laatste login:
+
+            ${
+                u.lastLogin
+                ?
+                new Date(
+                    u.lastLogin
+                ).toLocaleString(
+                    "nl-BE"
+                )
+                :
+                "Nog nooit"
+            }
 
         </div>
-        `
 
-        ).join("");
+        `;
+
+    });
+
+    container.innerHTML =
+        html;
 
 }
 
@@ -2337,8 +2414,6 @@ function analyzeWithAI(){
         "AI-module wordt later gekoppeld aan Azure OpenAI of ChatGPT."
     );
 }
-
-
 
 function showCCVDashboard(){
 

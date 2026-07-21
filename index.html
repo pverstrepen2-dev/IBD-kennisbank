@@ -1795,6 +1795,23 @@ updateTabFlow();
 
             ${m.telefoon}
 
+            <br><br>
+
+👤 Aangemaakt door:
+${m.createdBy || "-"}
+
+<br>
+
+📅 Aangemaakt op:
+${
+    m.created
+    ?
+    new Date(m.created)
+    .toLocaleString("nl-BE")
+    :
+    "-"
+}
+
         </div>
 
         `;
@@ -1890,27 +1907,39 @@ async function saveProjectNew(){
 
     const project = {
 
-        id: Date.now(),
+    id:
+        generateId(),
 
-        naam:
-            document.getElementById(
-                "projectName"
-            ).value,
+    type:
+        "project",
 
-        omschrijving:
-            document.getElementById(
-                "projectDesc"
-            ).value,
+    naam:
+        document.getElementById(
+            "projectName"
+        ).value,
 
-        startdatum:
-            document.getElementById(
-                "projectStart"
-            ).value,
+    omschrijving:
+        document.getElementById(
+            "projectDesc"
+        ).value,
 
-        status:
-            "Actief"
+    startdatum:
+        document.getElementById(
+            "projectStart"
+        ).value,
 
-    };
+    status:
+        "Actief",
+
+    created:
+        new Date()
+        .toISOString(),
+
+    createdBy:
+        currentUser
+
+};
+
 currentContextName =
     project.naam;
     projects.push(
@@ -1991,27 +2020,43 @@ async function saveMemberNew(){
     ).value;
     members.push({
 
-        naam:
-            document.getElementById(
-                "memberName"
-            ).value,
+    id:
+        generateId(),
 
-        email:
-            document.getElementById(
-                "memberEmail"
-            ).value,
+    type:
+        "member",
 
-        telefoon:
-            document.getElementById(
-                "memberPhone"
-            ).value,
+    naam:
+        document.getElementById(
+            "memberName"
+        ).value,
 
-        type:
-            document.getElementById(
-                "memberType"
-            ).value
+    email:
+        document.getElementById(
+            "memberEmail"
+        ).value,
 
-    });
+    telefoon:
+        document.getElementById(
+            "memberPhone"
+        ).value,
+
+    typeLid:
+        document.getElementById(
+            "memberType"
+        ).value,
+
+    status:
+        "Actief",
+
+    created:
+        new Date()
+        .toISOString(),
+
+    createdBy:
+        currentUser
+
+});
 
     await saveData();
     updateDashboardStats();
@@ -2102,33 +2147,46 @@ function showNewTaskForm(){
 
 async function saveTaskNew(){
 
-    currentContextName =
+        currentContextName =
     document.getElementById(
         "taskTitle"
     ).value;
     tasks.push({
 
-        titel:
-            document.getElementById(
-                "taskTitle"
-            ).value,
+    id:
+        generateId(),
 
-        deadline:
-            document.getElementById(
-                "taskDate"
-            ).value,
+    type:
+        "task",
 
-        prioriteit:
-            document.getElementById(
-                "taskPriority"
-            ).value,
+    titel:
+        document.getElementById(
+            "taskTitle"
+        ).value,
 
-        status:
-            document.getElementById(
-                "taskStatus"
-            ).value
+    deadline:
+        document.getElementById(
+            "taskDate"
+        ).value,
 
-    });
+    prioriteit:
+        document.getElementById(
+            "taskPriority"
+        ).value,
+
+    status:
+        document.getElementById(
+            "taskStatus"
+        ).value,
+
+    created:
+        new Date()
+        .toISOString(),
+
+    createdBy:
+        currentUser
+
+});
 
     await saveData();
 
@@ -2188,6 +2246,23 @@ updateTabFlow();
 
             Status:
             ${t.status}
+
+            <br><br>
+
+👤 Aangemaakt door:
+${t.createdBy || "-"}
+
+<br>
+
+📅 Aangemaakt op:
+${
+    t.created
+    ?
+    new Date(t.created)
+    .toLocaleString("nl-BE")
+    :
+    "-"
+}
 
         </div>
 
@@ -2257,24 +2332,40 @@ async function saveActivityNew(){
     document.getElementById(
         "activityName"
     ).value;
-    activities.push({
+   activities.push({
 
-        naam:
-            document.getElementById(
-                "activityName"
-            ).value,
+    id:
+        generateId(),
 
-        datum:
-            document.getElementById(
-                "activityDate"
-            ).value,
+    type:
+        "activity",
 
-        locatie:
-            document.getElementById(
-                "activityLocation"
-            ).value
+    naam:
+        document.getElementById(
+            "activityName"
+        ).value,
 
-    });
+    datum:
+        document.getElementById(
+            "activityDate"
+        ).value,
+
+    locatie:
+        document.getElementById(
+            "activityLocation"
+        ).value,
+
+    status:
+        "Actief",
+
+    created:
+        new Date()
+        .toISOString(),
+
+    createdBy:
+        currentUser
+
+});
 
     await saveData();
     updateDashboardStats();
@@ -2548,6 +2639,23 @@ updateTabFlow();
             Locatie:
             ${a.locatie}
 
+            <br><br>
+
+👤 Aangemaakt door:
+${a.createdBy || "-"}
+
+<br>
+
+📅 Aangemaakt op:
+${
+    a.created
+    ?
+    new Date(a.created)
+    .toLocaleString("nl-BE")
+    :
+    "-"
+}
+
         </div>
 
         `;
@@ -2782,30 +2890,52 @@ updateTabFlow();
 
         html += `
 
-        <div class="card">
+<div class="card">
 
-            <b>
-            ${m.naam}
-            </b>
+    <b>
+    ${m.naam}
+    </b>
 
-            <br>
+    <br>
 
-            Datum:
-            ${m.datum}
+    Datum:
+    ${m.datum}
 
-            <br>
+    <br>
 
-            Uur:
-            ${m.uur || "-"}
+    Uur:
+    ${m.uur || "-"}
 
-            <br>
+    <br>
 
-            Locatie:
-            ${m.locatie || "-"}
+    Locatie:
+    ${m.locatie || "-"}
 
-        </div>
+    <hr>
 
-        `;
+    👤 Aangemaakt door:
+    ${m.createdBy || "-"}
+
+    <br>
+
+    📅 Aangemaakt op:
+    ${
+        m.created
+        ?
+        new Date(m.created)
+        .toLocaleString("nl-BE")
+        :
+        "-"
+    }
+
+    <br>
+
+    📌 Status:
+    ${m.status || "-"}
+
+</div>
+
+`;
 
     });
 
@@ -2926,35 +3056,49 @@ async function saveMeetingNew(){
 
     const meeting = {
 
-        id:
-            Date.now(),
+    id:
+        generateId(),
 
-        naam:
-            document.getElementById(
-                "meetingName"
-            ).value,
+    type:
+        "meeting",
 
-        datum:
-            document.getElementById(
-                "meetingDate"
-            ).value,
+    naam:
+        document.getElementById(
+            "meetingName"
+        ).value,
 
-        uur:
-            document.getElementById(
-                "meetingTime"
-            ).value,
+    datum:
+        document.getElementById(
+            "meetingDate"
+        ).value,
 
-        locatie:
-            document.getElementById(
-                "meetingLocation"
-            ).value,
+    uur:
+        document.getElementById(
+            "meetingTime"
+        ).value,
 
-        agenda:
-            document.getElementById(
-                "meetingAgenda"
-            ).value
+    locatie:
+        document.getElementById(
+            "meetingLocation"
+        ).value,
 
-    };
+    agenda:
+        document.getElementById(
+            "meetingAgenda"
+        ).value,
+
+    status:
+        "Actief",
+
+    created:
+        new Date()
+        .toISOString(),
+
+    createdBy:
+        currentUser
+
+};
+
 currentContextName =
     meeting.naam;
     meetings.push(
@@ -3000,23 +3144,40 @@ updateTabFlow();
 
         html += `
 
-        <div class="card">
+       <div class="card">
 
-            <b>
-            ${p.naam}
-            </b>
+    <b>
+    ${p.naam}
+    </b>
 
-            <br>
+    <br>
 
-            Start:
-            ${p.startdatum}
+    Start:
+    ${p.startdatum}
 
-            <br>
+    <br>
 
-            Status:
-            ${p.status}
+    Status:
+    ${p.status}
 
-        </div>
+    <hr>
+
+    👤 Aangemaakt door:
+    ${p.createdBy || "-"}
+
+    <br>
+
+    📅 Aangemaakt op:
+    ${
+        p.created
+        ?
+        new Date(p.created)
+        .toLocaleString("nl-BE")
+        :
+        "-"
+    }
+
+</div>
 
         `;
 

@@ -536,6 +536,22 @@ border-bottom:1px solid #ddd;
                 🚨 Noodnummers
             </button>
 
+            <button onclick="showStudieList()">
+                🎓 Studie
+            </button>
+
+            <button onclick="showAttestenList()">
+                📄 Attesten
+            </button>
+
+            <button onclick="showPremiesList()">
+                💰 Premies
+            </button>
+
+            <button onclick="showMantelzorgList()">
+                 👨‍👩‍👧 Mantelzorg
+            </button>
+
         </div>
 
     </div>
@@ -550,16 +566,16 @@ border-bottom:1px solid #ddd;
 
         <div class="dashboard-grid">
 
-            <button onclick="openCategory('Sociale Gids','Patiëntenrechten')">
+            <button onclick="showRechtenList()">
                 ⚖️ Patiëntenrechten
             </button>
 
-            <button onclick="openCategory('Sociale Gids','Invaliditeit')">
+            <button onclick="showInvaliditeitList()">
                 🏥 Invaliditeit
             </button>
 
-            <button onclick="openCategory('Sociale Gids','Werk')">
-                💼 Werk
+            <button onclick="showWerkList()">
+                 💼 Werk
             </button>
 
             <button onclick="openCategory('Sociale Gids','Studie')">
@@ -4648,6 +4664,180 @@ function analyzeDocument(){
         keywords;
 }
 
+function routeManualEntry(
+    entry
+){
+
+    const categorie =
+        entry.categorie;
+
+    const subcategorie =
+        entry.subcategorie;
+
+    /*
+     SOCIALE GIDS
+    */
+
+    if(
+        categorie ===
+        "Sociale Gids"
+    ){
+
+        if(
+            subcategorie ===
+            "Terugbetalingen"
+        ){
+
+            sociaalTerugbetalingen.push(
+                entry
+            );
+
+            return;
+        }
+
+        if(
+            subcategorie ===
+            "Invaliditeit"
+        ){
+
+            sociaalInvaliditeit.push(
+                entry
+            );
+
+            return;
+        }
+
+        if(
+            subcategorie ===
+            "Werk"
+        ){
+
+            sociaalWerk.push(
+                entry
+            );
+
+            return;
+        }
+
+        if(
+            subcategorie ===
+            "Studie"
+        ){
+
+            sociaalStudie.push(
+                entry
+            );
+
+            return;
+        }
+
+        if(
+            subcategorie ===
+            "Attesten"
+        ){
+
+            sociaalAttesten.push(
+                entry
+            );
+
+            return;
+        }
+
+    }
+
+    /*
+     ZORGGIDS
+    */
+
+    if(
+        categorie ===
+        "Zorggids"
+    ){
+
+        if(
+            subcategorie ===
+            "IBD Centra"
+        ){
+
+            zorggidsIbdCentra.push(
+                entry
+            );
+
+            return;
+        }
+
+        if(
+            subcategorie ===
+            "Ziekenhuizen"
+        ){
+
+            zorggidsZiekenhuizen.push(
+                entry
+            );
+
+            return;
+        }
+
+        if(
+            subcategorie ===
+            "Gastro-enterologen"
+        ){
+
+            zorggidsGastro.push(
+                entry
+            );
+
+            return;
+        }
+
+        if(
+            subcategorie ===
+            "Diëtisten"
+        ){
+
+            zorggidsDietisten.push(
+                entry
+            );
+
+            return;
+        }
+
+        if(
+            subcategorie ===
+            "Psychologen"
+        ){
+
+            zorggidsPsychologen.push(
+                entry
+            );
+
+            return;
+        }
+
+        if(
+            subcategorie ===
+            "Apothekers"
+        ){
+
+            zorggidsApothekers.push(
+                entry
+            );
+
+            return;
+        }
+
+    }
+
+    /*
+     STANDAARD
+    */
+
+    knowledgeData.push(
+        entry
+    );
+
+}
+
 async function saveManualEntry(){
 
     const entry = {
@@ -4688,8 +4878,16 @@ async function saveManualEntry(){
    entry.id =
     generateId();
 
-knowledgeData.push(
+routeManualEntry(
     entry
+);
+
+writeLog(
+
+    "Manuele invoer",
+
+    entry.titel
+
 );
 
 await uploadKnowledgeEntry(
@@ -5588,6 +5786,379 @@ function showTerugbetalingenList(){
         "workspaceContent"
     ).innerHTML =
         html;
+
+}
+
+function showRechtenList(){
+
+    openPage("workspace");
+
+    let html = `
+
+    <div class="card">
+
+        <h2>
+            ⚖️ Patiëntenrechten
+        </h2>
+
+        <button
+            onclick="showNewSociaalEntry(
+                'Patiëntenrechten'
+            )">
+
+            ➕ Nieuw recht
+
+        </button>
+
+    </div>
+
+    `;
+
+    sociaalRechten.forEach(item => {
+
+        html += `
+
+        <div class="card">
+
+            <h3>
+                ${item.titel}
+            </h3>
+
+            🏢 ${item.instantie}
+
+            <br><br>
+
+            🌐 ${item.website}
+
+            <br><br>
+
+            📝 ${item.beschrijving}
+
+            <hr>
+
+            👤 ${item.createdBy}
+
+        </div>
+
+        `;
+
+    });
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = html;
+
+}
+
+function showInvaliditeitList(){
+
+    openPage("workspace");
+
+    let html = `
+
+    <div class="card">
+
+        <h2>
+            🏥 Invaliditeit
+        </h2>
+
+        <button
+            onclick="showNewSociaalEntry(
+                'Invaliditeit'
+            )">
+
+            ➕ Nieuwe regeling
+
+        </button>
+
+    </div>
+
+    `;
+
+    sociaalInvaliditeit.forEach(item => {
+
+        html += `
+
+        <div class="card">
+
+            <h3>
+                ${item.titel}
+            </h3>
+
+            🏢 ${item.instantie}
+
+            <br><br>
+
+            📞 ${item.telefoon}
+
+            <br><br>
+
+            📝 ${item.beschrijving}
+
+        </div>
+
+        `;
+
+    });
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = html;
+
+}
+
+function showWerkList(){
+
+    openPage("workspace");
+
+    let html = `
+
+    <div class="card">
+
+        <h2>
+            💼 Werk
+        </h2>
+
+        <button
+            onclick="showNewSociaalEntry(
+                'Werk'
+            )">
+
+            ➕ Nieuw item
+
+        </button>
+
+    </div>
+
+    `;
+
+    sociaalWerk.forEach(item => {
+
+        html += `
+
+        <div class="card">
+
+            <h3>${item.titel}</h3>
+
+            🏢 ${item.instantie}
+
+            <br><br>
+
+            📝 ${item.beschrijving}
+
+        </div>
+
+        `;
+
+    });
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = html;
+
+}
+
+function showStudieList(){
+
+    openPage("workspace");
+
+    let html = `
+
+    <div class="card">
+
+        <h2>
+            🎓 Studie
+        </h2>
+
+        <button
+            onclick="showNewSociaalEntry(
+                'Studie'
+            )">
+
+            ➕ Nieuw item
+
+        </button>
+
+    </div>
+
+    `;
+
+    sociaalStudie.forEach(item => {
+
+        html += `
+
+        <div class="card">
+
+            <h3>${item.titel}</h3>
+
+            📝 ${item.beschrijving}
+
+        </div>
+
+        `;
+
+    });
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = html;
+
+}
+
+function showAttestenList(){
+
+    openPage("workspace");
+
+    let html = `
+
+    <div class="card">
+
+        <h2>
+            📄 Attesten
+        </h2>
+
+        <button
+            onclick="showNewSociaalEntry(
+                'Attesten'
+            )">
+
+            ➕ Nieuw attest
+
+        </button>
+
+    </div>
+
+    `;
+
+    sociaalAttesten.forEach(item => {
+
+        html += `
+
+        <div class="card">
+
+            <h3>${item.titel}</h3>
+
+            🏢 ${item.instantie}
+
+            <br><br>
+
+            📝 ${item.beschrijving}
+
+        </div>
+
+        `;
+
+    });
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = html;
+
+}
+
+function showPremiesList(){
+
+    openPage("workspace");
+
+    let html = `
+
+    <div class="card">
+
+        <h2>
+            💰 Premies
+        </h2>
+
+        <button
+            onclick="showNewSociaalEntry(
+                'Premies'
+            )">
+
+            ➕ Nieuwe premie
+
+        </button>
+
+    </div>
+
+    `;
+
+    sociaalPremies.forEach(item => {
+
+        html += `
+
+        <div class="card">
+
+            <h3>${item.titel}</h3>
+
+            🏢 ${item.instantie}
+
+            <br><br>
+
+            🌐 ${item.website}
+
+            <br><br>
+
+            📝 ${item.beschrijving}
+
+        </div>
+
+        `;
+
+    });
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = html;
+
+}
+
+function showMantelzorgList(){
+
+    openPage("workspace");
+
+    let html = `
+
+    <div class="card">
+
+        <h2>
+            👨‍👩‍👧 Mantelzorg
+        </h2>
+
+        <button
+            onclick="showNewSociaalEntry(
+                'Mantelzorg'
+            )">
+
+            ➕ Nieuwe info
+
+        </button>
+
+    </div>
+
+    `;
+
+    sociaalMantelzorg.forEach(item => {
+
+        html += `
+
+        <div class="card">
+
+            <h3>${item.titel}</h3>
+
+            📝 ${item.beschrijving}
+
+            <br><br>
+
+            🏢 ${item.instantie}
+
+        </div>
+
+        `;
+
+    });
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = html;
 
 }
 

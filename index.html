@@ -1084,6 +1084,79 @@ border-bottom:1px solid #ddd;
     <option>Algemeen</option>
 </select>
 
+<br><br>
+
+<label>
+
+    📄 Documenttype
+
+</label>
+
+<br><br>
+
+<select id="manualDocumentType">
+
+    <option>Artikel</option>
+
+    <option>Brochure</option>
+
+    <option>PDF</option>
+
+    <option>Onderzoek</option>
+
+    <option>Presentatie</option>
+
+    <option>Video</option>
+
+    <option>Website</option>
+
+    <option>FAQ</option>
+
+</select>
+
+<br><br>
+
+<label>
+
+    👥 Doelgroep
+
+</label>
+<br><br>
+
+<label>
+
+    🏷️ Tags
+
+</label>
+
+<br><br>
+
+<input
+    id="manualTags"
+    placeholder="medicatie, biologicals, voeding">
+``
+<br><br>
+
+<select id="manualAudience">
+
+    <option>Patiënt</option>
+
+    <option>Mantelzorger</option>
+
+    <option>Ouder</option>
+
+    <option>Kind</option>
+
+    <option>Adolescent</option>
+
+    <option>Zorgverlener</option>
+
+    <option>Vrijwilliger</option>
+
+    <option>Bestuur</option>
+
+</select>
+
     <br><br>
 
     <input type="date"
@@ -4154,6 +4227,32 @@ function showKennisDocumenten(){
 
         <br>
 
+        <div class="card">
+
+    <b>
+        ${doc.titel}
+    </b>
+
+    <br><br>
+
+    📄 Type:
+    ${doc.documentType || "-"}
+
+    <br>
+
+    👥 Doelgroep:
+    ${doc.doelgroep || "-"}
+
+    <br>
+
+    🏷️ Tags:
+    ${doc.tags || "-"}
+
+    <br><br>
+
+    ${doc.omschrijving || ""}
+
+</div>
         <strong>Context:</strong>
 
         ${doc.contextType || "-"}
@@ -4600,6 +4699,7 @@ function analyzeDocument(){
         document.getElementById(
             "manualKeywords"
         ).value
+
     ).toLowerCase();
 
     const result =
@@ -4615,11 +4715,91 @@ function analyzeDocument(){
         determineTags(text)
         .join(", ");
 
+    let doelgroep =
+        "Patiënt";
+
+    let documentType =
+        "Artikel";
+
+    /* STAP 6 START */
+
+    if(
+        text.includes(
+            "ouders"
+        )
+    ){
+        doelgroep =
+            "Ouder";
+    }
+
+    if(
+        text.includes(
+            "kind"
+        )
+    ){
+        doelgroep =
+            "Kind";
+    }
+
+    if(
+        text.includes(
+            "vrijwilliger"
+        )
+    ){
+        doelgroep =
+            "Vrijwilliger";
+    }
+
+    if(
+        text.includes(
+            "studie"
+        )
+    ){
+        doelgroep =
+            "Adolescent";
+    }
+
+    if(
+        text.includes(
+            "video"
+        )
+    ){
+        documentType =
+            "Video";
+    }
+
+    if(
+        text.includes(
+            "onderzoek"
+        )
+    ){
+        documentType =
+            "Onderzoek";
+    }
+
+    if(
+        text.includes(
+            "presentatie"
+        )
+    ){
+        documentType =
+            "Presentatie";
+    }
+
+    if(
+        text.includes(
+            "faq"
+        )
+    ){
+        documentType =
+            "FAQ";
+    }
+
     const summary =
-    "Document werd automatisch ingedeeld in " +
-    categorie +
-    " > " +
-    subcategorie;
+        "Document werd automatisch ingedeeld in " +
+        categorie +
+        " > " +
+        subcategorie;
 
     document.getElementById(
         "suggestedCategory"
@@ -4662,6 +4842,17 @@ function analyzeDocument(){
         "manualKeywords"
     ).value =
         keywords;
+
+    document.getElementById(
+    "manualAudience"
+).value =
+    doelgroep;
+
+document.getElementById(
+    "manualDocumentType"
+).value =
+    documentType;
+
 }
 
 function routeManualEntry(
@@ -4859,6 +5050,21 @@ async function saveManualEntry(){
 
     keywords:
         document.getElementById("manualKeywords").value,
+    
+    documentType:
+    document.getElementById(
+        "manualDocumentType"
+    ).value,
+
+doelgroep:
+    document.getElementById(
+        "manualAudience"
+    ).value,
+
+tags:
+    document.getElementById(
+        "manualTags"
+    ).value,
 
     bestand:
     document.getElementById(

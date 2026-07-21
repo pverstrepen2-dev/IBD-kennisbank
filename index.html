@@ -566,7 +566,7 @@ border-bottom:1px solid #ddd;
                 🎓 Studie
             </button>
 
-            <button onclick="openCategory('Sociale Gids','Terugbetalingen')">
+            <button onclick="showTerugbetalingenList()">
                 💰 Terugbetalingen
             </button>
 
@@ -5508,6 +5508,10 @@ await loadFolders();
 }
 
 function showTerugbetalingenList(){
+
+    console.log(
+    "showTerugbetalingenList gestart"
+);
 
     openPage("workspace");
 

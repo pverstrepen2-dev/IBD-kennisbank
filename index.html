@@ -1385,6 +1385,24 @@ const DATAFILE = "CCV-VZW/Database/database.json";
 const USERSFILE =
     "CCV-VZW/Database/users.json";
 
+    const MEETINGSFILE =
+    "CCV-VZW/Database/meetings.json";
+
+const PROJECTSFILE =
+    "CCV-VZW/Database/projects.json";
+
+const TASKSFILE =
+    "CCV-VZW/Database/tasks.json";
+
+const MEMBERSFILE =
+    "CCV-VZW/Database/members.json";
+
+const ACTIVITIESFILE =
+    "CCV-VZW/Database/activities.json";
+
+const ATTACHMENTSFILE =
+    "CCV-VZW/Database/attachments.json";
+
 const CONFIG = {
     graphEnabled: true,
     documentFolder: "/CCV-VZW/Documenten/"
@@ -3723,6 +3741,40 @@ async function uploadUsers(){
 
 }
 
+async function uploadEntity(
+    file,
+    data
+){
+
+    await fetch(
+
+        `https://graph.microsoft.com/v1.0/me/drive/root:/${file}:/content`,
+
+        {
+
+            method:"PUT",
+
+            headers:{
+                Authorization:
+                    `Bearer ${accessToken}`,
+
+                "Content-Type":
+                    "application/json"
+            },
+
+            body:
+                JSON.stringify(
+                    data,
+                    null,
+                    2
+                )
+
+        }
+
+    );
+
+}
+
 async function downloadUsers(){
 
     try{
@@ -3752,6 +3804,41 @@ async function downloadUsers(){
 
 }
 
+async function downloadEntity(
+    file
+){
+
+    try{
+
+        const response =
+            await fetch(
+
+                `https://graph.microsoft.com/v1.0/me/drive/root:/${file}:/content`,
+
+                {
+
+                    headers:{
+                        Authorization:
+                            `Bearer ${accessToken}`
+                    }
+
+                }
+
+            );
+
+        return await response.json();
+
+    }
+
+    catch{
+
+        return [];
+
+    }
+
+}
+
+
 async function downloadJson(){
 
     const response = await fetch(
@@ -3768,19 +3855,37 @@ async function downloadJson(){
 
 async function saveData(){
 
-    if(!checkLogin()) return;
+    await uploadUsers();
 
-    const data = {
+await uploadEntity(
+    MEETINGSFILE,
+    meetings
+);
 
-    meetings,
-    projects,
-    tasks,
-    members,
-    activities,
-    knowledgeData,
-    users
+await uploadEntity(
+    PROJECTSFILE,
+    projects
+);
 
-};
+await uploadEntity(
+    TASKSFILE,
+    tasks
+);
+
+await uploadEntity(
+    MEMBERSFILE,
+    members
+);
+
+await uploadEntity(
+    ACTIVITIESFILE,
+    activities
+);
+
+await uploadEntity(
+    ATTACHMENTSFILE,
+    knowledgeData
+);
 
     await uploadJson(data);
     await uploadUsers();
@@ -3796,18 +3901,40 @@ async function loadData(){
 
         const data = await downloadJson();
 
-        meetings = data.meetings || [];
-        projects = data.projects || [];
-        tasks = data.tasks || [];
-        members = data.members || [];
-        activities =
-        data.activities || [];
-        knowledgeData = data.knowledgeData || [];
+       meetings =
+    await downloadEntity(
+        MEETINGSFILE
+    );
 
-        users =
+projects =
+    await downloadEntity(
+        PROJECTSFILE
+    );
+
+tasks =
+    await downloadEntity(
+        TASKSFILE
+    );
+
+members =
+    await downloadEntity(
+        MEMBERSFILE
+    );
+
+activities =
+    await downloadEntity(
+        ACTIVITIESFILE
+    );
+
+knowledgeData =
+    await downloadEntity(
+        ATTACHMENTSFILE
+    );
+
+users =
     await downloadUsers();
 
-        users =
+users =
     data.users || [];
 
         document.getElementById(

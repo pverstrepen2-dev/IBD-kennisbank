@@ -496,15 +496,15 @@ border-bottom:1px solid #ddd;
 
         <div class="dashboard-grid">
 
-            <button onclick="openCategory('Zorggids','IBD Centra')">
+            <button onclick="showIbdCentraList()">
                 🏥 IBD Centra
             </button>
 
-            <button onclick="openCategory('Zorggids','Ziekenhuizen')">
+            <button onclick="showZiekenhuizenList()">
                 🏨 Ziekenhuizen
             </button>
 
-            <button onclick="openCategory('Zorggids','Gastro-enterologen')">
+            <button onclick="showGastroList()">
                 👨‍⚕️ Gastro-enterologen
             </button>
 
@@ -512,11 +512,11 @@ border-bottom:1px solid #ddd;
                 👩‍⚕️ IBD Verpleegkundigen
             </button>
 
-            <button onclick="openCategory('Zorggids','Diëtisten')">
+           <button onclick="showDietistenList()">
                 🥗 Diëtisten
             </button>
 
-            <button onclick="openCategory('Zorggids','Psychologen')">
+            <button onclick="showPsychologenList()">
                 🧠 Psychologen
             </button>
 
@@ -524,7 +524,7 @@ border-bottom:1px solid #ddd;
                 🤝 Sociale Diensten
             </button>
 
-            <button onclick="openCategory('Zorggids','Apothekers')">
+            <button onclick="showApothekersList()">
                 💊 Apothekers
             </button>
 
@@ -1423,6 +1423,24 @@ const ACTIVITIESFILE =
 const LOGFILE =
     "CCV-VZW/Database/systemlog.json";
 
+const ZORGGIDS_IBDCENTRA =
+    "CCV-VZW/Database/zorggids_ibdcentra.json";
+
+const ZORGGIDS_ZIEKENHUIZEN =
+    "CCV-VZW/Database/zorggids_ziekenhuizen.json";
+
+const ZORGGIDS_GASTRO =
+    "CCV-VZW/Database/zorggids_gastro.json";
+
+const ZORGGIDS_DIETISTEN =
+    "CCV-VZW/Database/zorggids_dietisten.json";
+
+const ZORGGIDS_PSYCHOLOGEN =
+    "CCV-VZW/Database/zorggids_psychologen.json";
+
+const ZORGGIDS_APOTHEKERS =
+    "CCV-VZW/Database/zorggids_apothekers.json";
+
 const ATTACHMENTSFILE =
     "CCV-VZW/Database/attachments.json";
 
@@ -1442,6 +1460,12 @@ let meetings = [];
 let projects = [];
 let tasks = [];
 let activities = [];
+let zorggidsIbdCentra = [];
+let zorggidsZiekenhuizen = [];
+let zorggidsGastro = [];
+let zorggidsDietisten = [];
+let zorggidsPsychologen = [];
+let zorggidsApothekers = [];
 let members = [];
 let users = [
     {
@@ -1761,6 +1785,744 @@ function openCategory(mainCategory, subCategory){
         subCategory
     );
 }
+
+function showNewZorggidsEntry(
+    type
+){
+
+    openPage(
+        "workspace"
+    );
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = `
+
+    <div class="card">
+
+        <h2>
+
+            ➕ Nieuwe Zorggids Entry
+
+        </h2>
+
+        <p>
+
+            Type:
+
+            <b>
+
+                ${type}
+
+            </b>
+
+        </p>
+
+        <input
+            id="zorgNaam"
+            placeholder="Naam">
+
+        <br><br>
+
+        <input
+            id="zorgInstelling"
+            placeholder="Instelling">
+
+        <br><br>
+
+        <input
+            id="zorgAdres"
+            placeholder="Adres">
+
+        <br><br>
+
+        <input
+            id="zorgTelefoon"
+            placeholder="Telefoon">
+
+        <br><br>
+
+        <input
+            id="zorgEmail"
+            placeholder="Email">
+
+        <br><br>
+
+        <input
+            id="zorgWebsite"
+            placeholder="Website">
+
+        <br><br>
+
+        <input
+            id="zorgProvincie"
+            placeholder="Provincie">
+
+        <br><br>
+
+       <h3>
+    🔎 Automatisch opzoeken
+</h3>
+
+<input
+    id="zorgZoekterm"
+    placeholder="Bijvoorbeeld: UZ Leuven">
+
+<button
+    onclick="zoekZorgInfo(
+        '${type}'
+    )">
+
+    🔎 Zoek gegevens
+
+</button>
+
+<br><br>
+
+<div
+    id="zoekResultaat"
+    class="card"
+    style="display:none;">
+
+</div>
+
+        <br><br>
+
+        <textarea
+            id="zorgOpmerking"
+            placeholder="Opmerkingen">
+        </textarea>
+
+        <br><br>
+
+        <button
+            onclick="saveZorggidsEntry('${type}')">
+
+            💾 Opslaan
+
+        </button>
+
+    </div>
+
+    `;
+
+}
+
+async function saveZorggidsEntry(
+    type
+){
+
+    const item = {
+
+        id:
+            generateId(),
+
+        type:
+            type,
+
+        naam:
+            document.getElementById(
+                "zorgNaam"
+            ).value,
+
+        instelling:
+            document.getElementById(
+                "zorgInstelling"
+            ).value,
+
+        adres:
+            document.getElementById(
+                "zorgAdres"
+            ).value,
+
+        telefoon:
+            document.getElementById(
+                "zorgTelefoon"
+            ).value,
+
+        email:
+            document.getElementById(
+                "zorgEmail"
+            ).value,
+
+        website:
+            document.getElementById(
+                "zorgWebsite"
+            ).value,
+
+        provincie:
+            document.getElementById(
+                "zorgProvincie"
+            ).value,
+
+        opmerkingen:
+            document.getElementById(
+                "zorgOpmerking"
+            ).value,
+
+        created:
+            new Date()
+            .toISOString(),
+
+        createdBy:
+            currentUser
+
+    };
+
+    if(type === "Gastro"){
+
+        zorggidsGastro.push(
+            item
+        );
+
+    }
+
+    await saveData();
+
+    writeLog(
+
+        "Zorggids item toegevoegd",
+
+        item.naam
+
+    );
+
+    alert(
+        "✅ Opgeslagen"
+    );
+
+}
+
+function fillZorgForm(
+    data
+){
+
+    document.getElementById(
+        "zorgNaam"
+    ).value =
+        data.naam || "";
+
+    document.getElementById(
+        "zorgInstelling"
+    ).value =
+        data.instelling || "";
+
+    document.getElementById(
+        "zorgAdres"
+    ).value =
+        data.adres || "";
+
+    document.getElementById(
+        "zorgTelefoon"
+    ).value =
+        data.telefoon || "";
+
+    document.getElementById(
+        "zorgEmail"
+    ).value =
+        data.email || "";
+
+    document.getElementById(
+        "zorgWebsite"
+    ).value =
+        data.website || "";
+
+    document.getElementById(
+        "zorgProvincie"
+    ).value =
+        data.provincie || "";
+
+}
+
+async function zoekZorgInfo(
+    type
+){
+
+    const zoekterm =
+
+        document.getElementById(
+            "zorgZoekterm"
+        ).value;
+
+    if(!zoekterm){
+
+        alert(
+            "Geef eerst een zoekterm in"
+        );
+
+        return;
+    }
+
+    document.getElementById(
+        "zoekResultaat"
+    ).style.display =
+        "block";
+
+    document.getElementById(
+        "zoekResultaat"
+    ).innerHTML =
+
+        `
+
+        🔎 Zoeken naar:
+
+        <b>
+            ${zoekterm}
+        </b>
+
+        <br><br>
+
+        Hier komt later de automatische opzoeking.
+
+        `;
+
+}
+
+function showGastroList(){
+
+    openPage("workspace");
+
+    currentPageFlow =
+        "🏥 Zorggids > 👨‍⚕️ Gastro-enterologen";
+
+    updateTabFlow();
+
+    let html = `
+
+    <div class="card">
+
+        <h2>
+            👨‍⚕️ Gastro-enterologen
+        </h2>
+
+        <button
+            onclick="showNewZorggidsEntry('Gastro')">
+
+            ➕ Nieuwe Gastro-enteroloog
+
+        </button>
+
+    </div>
+
+    `;
+
+    zorggidsGastro.forEach(item => {
+
+        html += `
+
+        <div class="card">
+
+            <h3>
+
+                ${item.naam}
+
+            </h3>
+
+            🏥
+
+            ${item.instelling || "-"}
+
+            <br><br>
+
+            📍
+
+            ${item.adres || "-"}
+
+            <br><br>
+
+            📞
+
+            ${item.telefoon || "-"}
+
+            <br><br>
+
+            ✉️
+
+            ${item.email || "-"}
+
+            <br><br>
+
+            🌐
+
+            ${
+                item.website
+                ?
+                `${item.website}
+
+                    Website openen
+
+                </a>`
+                :
+                "-"
+            }
+
+            <br><br>
+
+            📌 Provincie:
+
+            ${item.provincie || "-"}
+
+            <hr>
+
+            👤 Ingegeven door:
+
+            ${item.createdBy || "-"}
+
+            <br>
+
+            📅
+
+            ${
+                item.created
+                ?
+                new Date(
+                    item.created
+                ).toLocaleString(
+                    "nl-BE"
+                )
+                :
+                "-"
+            }
+
+        </div>
+
+        `;
+
+    });
+
+    if(
+        zorggidsGastro.length === 0
+    ){
+
+        html += `
+
+        <div class="card">
+
+            Nog geen gastro-enterologen toegevoegd.
+
+        </div>
+
+        `;
+
+    }
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = html;
+
+}
+
+function showIbdCentraList(){
+
+    openPage("workspace");
+
+    currentPageFlow =
+        "🏥 Zorggids > 🏥 IBD Centra";
+
+    updateTabFlow();
+
+    let html = `
+
+    <div class="card">
+
+        <h2>
+            🏥 IBD Centra
+        </h2>
+
+        <button
+            onclick="showNewZorggidsEntry('IBD Centrum')">
+
+            ➕ Nieuw IBD Centrum
+
+        </button>
+
+    </div>
+
+    `;
+
+    zorggidsIbdCentra.forEach(item => {
+
+        html += `
+
+        <div class="card">
+
+            <h3>${item.naam}</h3>
+
+            🏥 ${item.instelling || "-"}
+
+            <br><br>
+
+            📍 ${item.adres || "-"}
+
+            <br><br>
+
+            📞 ${item.telefoon || "-"}
+
+            <br><br>
+
+            ✉️ ${item.email || "-"}
+
+            <br><br>
+
+            🌐 ${item.website || "-"}
+
+            <hr>
+
+            👤 ${item.createdBy || "-"}
+
+            <br>
+
+            📅 ${
+                item.created
+                ?
+                new Date(item.created)
+                .toLocaleString("nl-BE")
+                :
+                "-"
+            }
+
+        </div>
+
+        `;
+
+    });
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = html;
+
+}
+
+function showZiekenhuizenList(){
+
+    openPage("workspace");
+
+    currentPageFlow =
+        "🏥 Zorggids > 🏨 Ziekenhuizen";
+
+    updateTabFlow();
+
+    let html = `
+
+    <div class="card">
+
+        <h2>🏨 Ziekenhuizen</h2>
+
+        <button
+            onclick="showNewZorggidsEntry('Ziekenhuis')">
+
+            ➕ Nieuw Ziekenhuis
+
+        </button>
+
+    </div>
+
+    `;
+
+    zorggidsZiekenhuizen.forEach(item => {
+
+        html += `
+
+        <div class="card">
+
+            <h3>${item.naam}</h3>
+
+            🏥 ${item.instelling || "-"}
+
+            <br><br>
+
+            📍 ${item.adres || "-"}
+
+            <br><br>
+
+            📞 ${item.telefoon || "-"}
+
+            <br><br>
+
+            📌 Provincie:
+            ${item.provincie || "-"}
+
+        </div>
+
+        `;
+
+    });
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = html;
+
+}
+
+function showDietistenList(){
+
+    openPage("workspace");
+
+    currentPageFlow =
+        "🏥 Zorggids > 🥗 Diëtisten";
+
+    updateTabFlow();
+
+    let html = `
+
+    <div class="card">
+
+        <h2>🥗 Diëtisten</h2>
+
+        <button
+            onclick="showNewZorggidsEntry('Diëtist')">
+
+            ➕ Nieuwe Diëtist
+
+        </button>
+
+    </div>
+
+    `;
+
+    zorggidsDietisten.forEach(item => {
+
+        html += `
+
+        <div class="card">
+
+            <h3>${item.naam}</h3>
+
+            🏥 ${item.instelling || "-"}
+
+            <br><br>
+
+            📞 ${item.telefoon || "-"}
+
+            <br><br>
+
+            🌐 ${item.website || "-"}
+
+        </div>
+
+        `;
+
+    });
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = html;
+
+}
+
+function showPsychologenList(){
+
+    openPage("workspace");
+
+    currentPageFlow =
+        "🏥 Zorggids > 🧠 Psychologen";
+
+    updateTabFlow();
+
+    let html = `
+
+    <div class="card">
+
+        <h2>🧠 Psychologen</h2>
+
+        <button
+            onclick="showNewZorggidsEntry('Psycholoog')">
+
+            ➕ Nieuwe Psycholoog
+
+        </button>
+
+    </div>
+
+    `;
+
+    zorggidsPsychologen.forEach(item => {
+
+        html += `
+
+        <div class="card">
+
+            <h3>${item.naam}</h3>
+
+            🏥 ${item.instelling || "-"}
+
+            <br><br>
+
+            📞 ${item.telefoon || "-"}
+
+            <br><br>
+
+            ✉️ ${item.email || "-"}
+
+        </div>
+
+        `;
+
+    });
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = html;
+
+}
+
+function showApothekersList(){
+
+    openPage("workspace");
+
+    currentPageFlow =
+        "🏥 Zorggids > 💊 Apothekers";
+
+    updateTabFlow();
+
+    let html = `
+
+    <div class="card">
+
+        <h2>💊 Apothekers</h2>
+
+        <button
+            onclick="showNewZorggidsEntry('Apotheker')">
+
+            ➕ Nieuwe Apotheker
+
+        </button>
+
+    </div>
+
+    `;
+
+    zorggidsApothekers.forEach(item => {
+
+        html += `
+
+        <div class="card">
+
+            <h3>${item.naam}</h3>
+
+            🏥 ${item.instelling || "-"}
+
+            <br><br>
+
+            📞 ${item.telefoon || "-"}
+
+            <br><br>
+
+            🌐 ${item.website || "-"}
+
+        </div>
+
+        `;
+
+    });
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = html;
+
+}
+
+
 
 function showBestuur(){
 
@@ -2763,6 +3525,61 @@ document.getElementById("workspaceContent").innerHTML = `
 
 }
 
+function searchLog(){
+
+    const query =
+
+        document.getElementById(
+            "logSearch"
+        )
+        .value
+        .trim()
+        .toLowerCase();
+
+    if(query === ""){
+
+        renderLogbook(
+            [...systemLog]
+            .sort(
+                (a,b) =>
+                    new Date(b.datum) -
+                    new Date(a.datum)
+            )
+        );
+
+        return;
+    }
+
+    const filtered =
+
+        systemLog.filter(
+
+            log =>
+
+                (log.actie || "")
+                .toLowerCase()
+                .includes(query)
+
+                ||
+
+                (log.details || "")
+                .toLowerCase()
+                .includes(query)
+
+                ||
+
+                (log.gebruiker || "")
+                .toLowerCase()
+                .includes(query)
+
+        );
+
+    renderLogbook(
+        filtered
+    );
+
+}
+
 function filterLog(type){
 
     if(type === "all"){
@@ -2838,8 +3655,22 @@ function renderLogbook(
 
     });
 
-    container.innerHTML =
-        html;
+    if(html === ""){
+
+    html = `
+
+    <div class="card">
+
+        Geen resultaten gevonden.
+
+    </div>
+
+    `;
+
+}
+
+container.innerHTML =
+    html;
 
 }
 
@@ -2857,6 +3688,15 @@ function showLogbook(){
     let html = `
 
 <div class="card">
+
+   <input
+    type="text"
+    id="logSearch"
+    placeholder="🔍 Zoek in logboek..."
+    onkeyup="searchLog()"
+>
+
+    <br><br>
 
     <button
         onclick="filterLog('all')">
@@ -4140,6 +4980,36 @@ await uploadEntity(
 );
 
 await uploadEntity(
+    ZORGGIDS_GASTRO,
+    zorggidsGastro
+);
+
+await uploadEntity(
+    ZORGGIDS_IBDCENTRA,
+    zorggidsIbdCentra
+);
+
+await uploadEntity(
+    ZORGGIDS_ZIEKENHUIZEN,
+    zorggidsZiekenhuizen
+);
+
+await uploadEntity(
+    ZORGGIDS_DIETISTEN,
+    zorggidsDietisten
+);
+
+await uploadEntity(
+    ZORGGIDS_PSYCHOLOGEN,
+    zorggidsPsychologen
+);
+
+await uploadEntity(
+    ZORGGIDS_APOTHEKERS,
+    zorggidsApothekers
+);
+
+await uploadEntity(
     LOGFILE,
     systemLog
 );
@@ -4217,6 +5087,36 @@ members = [];
 activities =
     await downloadEntity(
         ACTIVITIESFILE
+    );
+
+zorggidsGastro =
+    await downloadEntity(
+        ZORGGIDS_GASTRO
+    );
+
+zorggidsIbdCentra =
+    await downloadEntity(
+        ZORGGIDS_IBDCENTRA
+    );
+
+zorggidsZiekenhuizen =
+    await downloadEntity(
+        ZORGGIDS_ZIEKENHUIZEN
+    );
+
+zorggidsDietisten =
+    await downloadEntity(
+        ZORGGIDS_DIETISTEN
+    );
+
+zorggidsPsychologen =
+    await downloadEntity(
+        ZORGGIDS_PSYCHOLOGEN
+    );
+
+zorggidsApothekers =
+    await downloadEntity(
+        ZORGGIDS_APOTHEKERS
     );
 
 systemLog =

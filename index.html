@@ -3951,21 +3951,51 @@ async function loadData(){
         MEETINGSFILE
     );
 
+    if(
+    !Array.isArray(
+        meetings
+    )
+){
+    meetings = [];
+}
+
 projects =
     await downloadEntity(
         PROJECTSFILE
     );
 
+    if(
+!Array.isArray(
+projects
+)
+){
+projects = [];
+}
+    
 tasks =
     await downloadEntity(
         TASKSFILE
     );
 
+    if(
+!Array.isArray(
+tasks
+)
+){
+tasks = [];
+}
 members =
     await downloadEntity(
         MEMBERSFILE
     );
 
+    if(
+!Array.isArray(
+members
+)
+){
+members = [];
+}
 activities =
     await downloadEntity(
         ACTIVITIESFILE

@@ -358,6 +358,22 @@ border-bottom:1px solid #ddd;
 
 </div>
 
+<div id="logbook"
+     class="page hidden">
+
+    <div class="card">
+
+        <h2>
+            📜 Activiteitenlog
+        </h2>
+
+        <div id="logContainer">
+        </div>
+
+    </div>
+
+</div>
+
 <!-- BESTAANDE DOCUMENTBIBLIOTHEEK -->
 
 <div id="documents"
@@ -842,6 +858,10 @@ border-bottom:1px solid #ddd;
 
     <button onclick="showAttachments()">
     📎 Bijlagen
+</button>
+
+<button onclick="showLogbook()">
+    📜 Logboek
 </button>
 
 </div>
@@ -1400,6 +1420,9 @@ const MEMBERSFILE =
 const ACTIVITIESFILE =
     "CCV-VZW/Database/activities.json";
 
+const LOGFILE =
+    "CCV-VZW/Database/systemlog.json";
+
 const ATTACHMENTSFILE =
     "CCV-VZW/Database/attachments.json";
 
@@ -1413,6 +1436,7 @@ const CONFIG = {
 ================================== */
 
 let knowledgeData = [];
+let systemLog = [];
 let documents = [];
 let meetings = [];
 let projects = [];
@@ -1487,6 +1511,7 @@ function openPage(page){
     const pageNames = {
 
     dashboard:"🏠 Dashboard",
+    logbook:"📜 Activiteitenlog",
     knowledge:"📚 Kennisbank",
     documents:"📂 Documentbibliotheek",
     faq:"❓ FAQ",
@@ -2036,47 +2061,59 @@ async function saveMemberNew(){
     document.getElementById(
         "memberName"
     ).value;
+
     members.push({
 
-    id:
-        generateId(),
+        id:
+            generateId(),
 
-    type:
-        "member",
+        type:
+            "member",
 
-    naam:
+        naam:
+            document.getElementById(
+                "memberName"
+            ).value,
+
+        email:
+            document.getElementById(
+                "memberEmail"
+            ).value,
+
+        telefoon:
+            document.getElementById(
+                "memberPhone"
+            ).value,
+
+        typeLid:
+            document.getElementById(
+                "memberType"
+            ).value,
+
+        status:
+            "Actief",
+
+        created:
+            new Date()
+            .toISOString(),
+
+        createdBy:
+            currentUser
+
+    });
+
+      writeLog(
+
+        "Lid toegevoegd",
+
         document.getElementById(
             "memberName"
-        ).value,
+        ).value
 
-    email:
-        document.getElementById(
-            "memberEmail"
-        ).value,
-
-    telefoon:
-        document.getElementById(
-            "memberPhone"
-        ).value,
-
-    typeLid:
-        document.getElementById(
-            "memberType"
-        ).value,
-
-    status:
-        "Actief",
-
-    created:
-        new Date()
-        .toISOString(),
-
-    createdBy:
-        currentUser
-
-});
+    );
 
     await saveData();
+
     updateDashboardStats();
 
     showCommunity();
@@ -2350,48 +2387,59 @@ async function saveActivityNew(){
     document.getElementById(
         "activityName"
     ).value;
-   activities.push({
 
-    id:
-        generateId(),
+    activities.push({
 
-    type:
-        "activity",
+        id:
+            generateId(),
 
-    naam:
+        type:
+            "activity",
+
+        naam:
+            document.getElementById(
+                "activityName"
+            ).value,
+
+        datum:
+            document.getElementById(
+                "activityDate"
+            ).value,
+
+        locatie:
+            document.getElementById(
+                "activityLocation"
+            ).value,
+
+        status:
+            "Actief",
+
+        created:
+            new Date()
+            .toISOString(),
+
+        createdBy:
+            currentUser
+
+    });
+
+    writeLog(
+
+        "Activiteit aangemaakt",
+
         document.getElementById(
             "activityName"
-        ).value,
+        ).value
 
-    datum:
-        document.getElementById(
-            "activityDate"
-        ).value,
-
-    locatie:
-        document.getElementById(
-            "activityLocation"
-        ).value,
-
-    status:
-        "Actief",
-
-    created:
-        new Date()
-        .toISOString(),
-
-    createdBy:
-        currentUser
-
-});
+    );
 
     await saveData();
+
     updateDashboardStats();
 
     showActivities();
 
 }
-
 function showAttachmentForm(){
 
     openPage("workspace");
@@ -2715,6 +2763,167 @@ document.getElementById("workspaceContent").innerHTML = `
 
 }
 
+function filterLog(type){
+
+    if(type === "all"){
+
+        renderLogbook(
+            systemLog
+        );
+
+        return;
+
+    }
+
+    const filtered =
+
+        systemLog.filter(
+
+            log =>
+
+                log.actie === type
+
+        );
+
+    renderLogbook(
+        filtered
+    );
+
+}
+
+function renderLogbook(
+    logs
+){
+
+    const container =
+
+        document.getElementById(
+            "logContainer"
+        );
+
+    let html = "";
+
+    logs.forEach(log => {
+
+        html += `
+
+        <div class="card">
+
+            <h3>
+
+                ${log.actie}
+
+            </h3>
+
+            👤
+            ${log.gebruiker}
+
+            <br>
+
+            📅
+            ${new Date(
+                log.datum
+            ).toLocaleString(
+                "nl-BE"
+            )}
+
+            <br>
+
+            📄
+            ${log.details}
+
+        </div>
+
+        `;
+
+    });
+
+    container.innerHTML =
+        html;
+
+}
+
+
+function showLogbook(){
+
+    openPage("logbook");
+
+    const container =
+
+        document.getElementById(
+            "logContainer"
+        );
+
+    let html = `
+
+<div class="card">
+
+    <button
+        onclick="filterLog('all')">
+
+        Alles
+
+    </button>
+
+    <button
+        onclick="filterLog('Vergadering aangemaakt')">
+
+        Vergaderingen
+
+    </button>
+
+    <button
+        onclick="filterLog('Project aangemaakt')">
+
+        Projecten
+
+    </button>
+
+    <button
+        onclick="filterLog('Taak aangemaakt')">
+
+        Taken
+
+    </button>
+
+    <button
+        onclick="filterLog('Lid toegevoegd')">
+
+        Leden
+
+    </button>
+
+    <button
+        onclick="filterLog('Activiteit aangemaakt')">
+
+        Activiteiten
+
+    </button>
+
+</div>
+
+`;
+
+    const sortedLog =
+
+    [...systemLog]
+
+    .sort(
+
+        (a,b) =>
+
+        new Date(b.datum)
+        -
+        new Date(a.datum)
+
+    );
+
+renderLogbook(
+    sortedLog
+);
+
+}
+
 function showAttachments(){
 
     openPage("workspace");
@@ -2969,7 +3178,7 @@ function saveMeeting(){
 
 meetings.push({
 
-    naam:
+        naam:
     document.getElementById("meetingName").value,
 
     datum:
@@ -3123,6 +3332,13 @@ currentContextName =
         meeting
     );
 
+    writeLog(
+
+    "Vergadering aangemaakt",
+
+    meeting.naam
+
+);
     await saveData();
     updateDashboardStats();
 
@@ -3924,12 +4140,14 @@ await uploadEntity(
 );
 
 await uploadEntity(
+    LOGFILE,
+    systemLog
+);
+
+await uploadEntity(
     ATTACHMENTSFILE,
     knowledgeData
 );
-
-    await uploadJson(data);
-    await uploadUsers();
 
     alert("✅ Gegevens opgeslagen in OneDrive");
 }
@@ -4001,6 +4219,11 @@ activities =
         ACTIVITIESFILE
     );
 
+systemLog =
+    await downloadEntity(
+        LOGFILE
+    );
+
 knowledgeData =
     await downloadEntity(
         ATTACHMENTSFILE
@@ -4058,6 +4281,30 @@ await loadFolders();
 );
 
 }
+}
+
+function writeLog(
+    action,
+    details
+){
+
+    systemLog.push({
+
+        datum:
+            new Date()
+            .toISOString(),
+
+        gebruiker:
+            currentUser,
+
+        actie:
+            action,
+
+        details:
+            details
+
+    });
+
 }
 
 async function loginMicrosoft(){

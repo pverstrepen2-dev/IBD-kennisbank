@@ -4865,6 +4865,89 @@ function routeManualEntry(
     const subcategorie =
         entry.subcategorie;
 
+        /*
+     CCV-VZW
+    */
+
+    if(
+        categorie ===
+        "CCV-VZW"
+    ){
+
+        if(
+            subcategorie ===
+            "Vergaderingen"
+        ){
+
+            meetings.push(
+                entry
+            );
+
+            return;
+        }
+
+        if(
+            subcategorie ===
+            "Projecten"
+        ){
+
+            projects.push(
+                entry
+            );
+
+            return;
+        }
+
+        if(
+            subcategorie ===
+            "Taken"
+        ){
+
+            tasks.push(
+                entry
+            );
+
+            return;
+        }
+
+        if(
+            subcategorie ===
+            "Leden"
+        ){
+
+            members.push(
+                entry
+            );
+
+            return;
+        }
+
+        if(
+            subcategorie ===
+            "Activiteiten"
+        ){
+
+            activities.push(
+                entry
+            );
+
+            return;
+        }
+
+        if(
+            subcategorie ===
+            "Documenten"
+        ){
+
+            knowledgeData.push(
+                entry
+            );
+
+            return;
+        }
+
+    }
+
     /*
      SOCIALE GIDS
     */
@@ -7598,6 +7681,26 @@ const KNOWLEDGE_ENGINE = {
 
 },
 
+"CCV-VZW":{
+
+    subcategories:{
+
+        "Vergaderingen":{},
+
+        "Projecten":{},
+
+        "Taken":{},
+
+        "Leden":{},
+
+        "Activiteiten":{},
+
+        "Documenten":{}
+
+    }
+
+},
+
 "Sociale Gids":{
 
     keywords:[
@@ -7637,6 +7740,26 @@ const KNOWLEDGE_ENGINE = {
             "attest",
             "formulier"
         ]
+
+    }
+
+},
+
+"CCV-VZW":{
+
+    subcategories:{
+
+        "Vergaderingen":{},
+
+        "Projecten":{},
+
+        "Taken":{},
+
+        "Leden":{},
+
+        "Activiteiten":{},
+
+        "Documenten":{}
 
     }
 

@@ -1441,6 +1441,30 @@ const ZORGGIDS_PSYCHOLOGEN =
 const ZORGGIDS_APOTHEKERS =
     "CCV-VZW/Database/zorggids_apothekers.json";
 
+const SOCIAAL_RECHTEN =
+    "CCV-VZW/Database/sociaal_rechten.json";
+
+const SOCIAAL_INVALIDITEIT =
+    "CCV-VZW/Database/sociaal_invaliditeit.json";
+
+const SOCIAAL_WERK =
+    "CCV-VZW/Database/sociaal_werk.json";
+
+const SOCIAAL_STUDIE =
+    "CCV-VZW/Database/sociaal_studie.json";
+
+const SOCIAAL_TERUGBETALINGEN =
+    "CCV-VZW/Database/sociaal_terugbetalingen.json";
+
+const SOCIAAL_ATTESTEN =
+    "CCV-VZW/Database/sociaal_attesten.json";
+
+const SOCIAAL_PREMIES =
+    "CCV-VZW/Database/sociaal_premies.json";
+
+const SOCIAAL_MANTELZORG =
+    "CCV-VZW/Database/sociaal_mantelzorg.json";
+
 const ATTACHMENTSFILE =
     "CCV-VZW/Database/attachments.json";
 
@@ -1466,6 +1490,14 @@ let zorggidsGastro = [];
 let zorggidsDietisten = [];
 let zorggidsPsychologen = [];
 let zorggidsApothekers = [];
+let sociaalRechten = [];
+let sociaalInvaliditeit = [];
+let sociaalWerk = [];
+let sociaalStudie = [];
+let sociaalTerugbetalingen = [];
+let sociaalAttesten = [];
+let sociaalPremies = [];
+let sociaalMantelzorg = [];
 let members = [];
 let users = [
     {
@@ -1896,7 +1928,116 @@ function showNewZorggidsEntry(
         <br><br>
 
         <button
-            onclick="saveZorggidsEntry('${type}')">
+    onclick="fillDemoData()">
+
+    ⚡ Test invullen
+
+</button>
+
+<br><br>
+
+<button
+    onclick="saveZorggidsEntry('${type}')">
+
+    💾 Opslaan
+
+</button>
+
+    </div>
+
+    `;
+
+}
+
+function showNewSociaalEntry(
+    type
+){
+
+    openPage("workspace");
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = `
+
+    <div class="card">
+
+        <h2>
+
+            ➕ Nieuwe Sociale Gids Entry
+
+        </h2>
+
+        <p>
+
+            Type:
+
+            <b>${type}</b>
+
+        </p>
+
+        <input
+            id="sociaalNaam"
+            placeholder="Titel">
+
+        <br><br>
+
+        <input
+            id="sociaalInstantie"
+            placeholder="Instantie">
+
+        <br><br>
+
+        <input
+            id="sociaalWebsite"
+            placeholder="Website">
+
+        <br><br>
+
+        <input
+            id="sociaalTelefoon"
+            placeholder="Telefoon">
+
+        <br><br>
+
+        <input
+            id="sociaalEmail"
+            placeholder="Email">
+
+        <br><br>
+
+        <textarea
+            id="sociaalBeschrijving"
+            placeholder="Beschrijving">
+        </textarea>
+
+        <br><br>
+
+        <input
+            id="sociaalZoekterm"
+            placeholder="Zoekterm">
+
+        <button
+            onclick="zoekSociaalInfo(
+                '${type}'
+            )">
+
+            🔎 Zoeken
+
+        </button>
+
+        <br><br>
+
+        <div
+            id="sociaalZoekResultaat"
+            class="card"
+            style="display:none;">
+
+        </div>
+
+        <button
+            onclick="saveSociaalEntry(
+                '${type}'
+            )">
 
             💾 Opslaan
 
@@ -1905,6 +2046,90 @@ function showNewZorggidsEntry(
     </div>
 
     `;
+
+}
+
+async function saveSociaalEntry(
+    type
+){
+
+    const item = {
+
+        id:
+            generateId(),
+
+        type:
+            type,
+
+        titel:
+            document.getElementById(
+                "sociaalNaam"
+            ).value,
+
+        instantie:
+            document.getElementById(
+                "sociaalInstantie"
+            ).value,
+
+        website:
+            document.getElementById(
+                "sociaalWebsite"
+            ).value,
+
+        telefoon:
+            document.getElementById(
+                "sociaalTelefoon"
+            ).value,
+
+        email:
+            document.getElementById(
+                "sociaalEmail"
+            ).value,
+
+        beschrijving:
+            document.getElementById(
+                "sociaalBeschrijving"
+            ).value,
+
+        created:
+            new Date()
+            .toISOString(),
+
+        createdBy:
+            currentUser
+
+    };
+
+    if(type === "Patiëntenrechten")
+        sociaalRechten.push(item);
+
+    if(type === "Invaliditeit")
+        sociaalInvaliditeit.push(item);
+
+    if(type === "Werk")
+        sociaalWerk.push(item);
+
+    if(type === "Studie")
+        sociaalStudie.push(item);
+
+    if(type === "Terugbetalingen")
+        sociaalTerugbetalingen.push(item);
+
+    if(type === "Attesten")
+        sociaalAttesten.push(item);
+
+    if(type === "Premies")
+        sociaalPremies.push(item);
+
+    if(type === "Mantelzorg")
+        sociaalMantelzorg.push(item);
+
+    writeLog(
+        "Sociale gids item toegevoegd",
+        item.titel
+    );
+
+    await saveData();
 
 }
 
@@ -2051,7 +2276,28 @@ async function zoekZorgInfo(
         );
 
         return;
+
     }
+
+    const zoekUrl =
+
+        "https://www.google.com/search?q=" +
+
+        encodeURIComponent(
+
+            zoekterm +
+
+            " gastro-enterologie"
+
+        );
+
+    window.open(
+
+        zoekUrl,
+
+        "_blank"
+
+    );
 
     document.getElementById(
         "zoekResultaat"
@@ -2064,15 +2310,15 @@ async function zoekZorgInfo(
 
         `
 
-        🔎 Zoeken naar:
-
-        <b>
-            ${zoekterm}
-        </b>
+        ✅ Zoeken gestart.
 
         <br><br>
 
-        Hier komt later de automatische opzoeking.
+        Zoekresultaten geopend in een nieuw tabblad.
+
+        <br><br>
+
+        Vul de gevonden gegevens hieronder in.
 
         `;
 
@@ -2521,8 +2767,6 @@ function showApothekersList(){
     ).innerHTML = html;
 
 }
-
-
 
 function showBestuur(){
 
@@ -5010,6 +5254,46 @@ await uploadEntity(
 );
 
 await uploadEntity(
+    SOCIAAL_RECHTEN,
+    sociaalRechten
+);
+
+await uploadEntity(
+    SOCIAAL_INVALIDITEIT,
+    sociaalInvaliditeit
+);
+
+await uploadEntity(
+    SOCIAAL_WERK,
+    sociaalWerk
+);
+
+await uploadEntity(
+    SOCIAAL_STUDIE,
+    sociaalStudie
+);
+
+await uploadEntity(
+    SOCIAAL_TERUGBETALINGEN,
+    sociaalTerugbetalingen
+);
+
+await uploadEntity(
+    SOCIAAL_ATTESTEN,
+    sociaalAttesten
+);
+
+await uploadEntity(
+    SOCIAAL_PREMIES,
+    sociaalPremies
+);
+
+await uploadEntity(
+    SOCIAAL_MANTELZORG,
+    sociaalMantelzorg
+);
+
+await uploadEntity(
     LOGFILE,
     systemLog
 );
@@ -5119,6 +5403,46 @@ zorggidsApothekers =
         ZORGGIDS_APOTHEKERS
     );
 
+sociaalRechten =
+    await downloadEntity(
+        SOCIAAL_RECHTEN
+    );
+
+sociaalInvaliditeit =
+    await downloadEntity(
+        SOCIAAL_INVALIDITEIT
+    );
+
+sociaalWerk =
+    await downloadEntity(
+        SOCIAAL_WERK
+    );
+
+sociaalStudie =
+    await downloadEntity(
+        SOCIAAL_STUDIE
+    );
+
+sociaalTerugbetalingen =
+    await downloadEntity(
+        SOCIAAL_TERUGBETALINGEN
+    );
+
+sociaalAttesten =
+    await downloadEntity(
+        SOCIAAL_ATTESTEN
+    );
+
+sociaalPremies =
+    await downloadEntity(
+        SOCIAAL_PREMIES
+    );
+
+sociaalMantelzorg =
+    await downloadEntity(
+        SOCIAAL_MANTELZORG
+    );
+
 systemLog =
     await downloadEntity(
         LOGFILE
@@ -5181,6 +5505,86 @@ await loadFolders();
 );
 
 }
+}
+
+function showTerugbetalingenList(){
+
+    openPage("workspace");
+
+    let html = `
+
+    <div class="card">
+
+        <h2>
+
+            💰 Terugbetalingen
+
+        </h2>
+
+        <button
+            onclick="showNewSociaalEntry(
+                'Terugbetalingen'
+            )">
+
+            ➕ Nieuwe regeling
+
+        </button>
+
+    </div>
+
+    `;
+
+    sociaalTerugbetalingen.forEach(item => {
+
+        html += `
+
+        <div class="card">
+
+            <h3>
+
+                ${item.titel}
+
+            </h3>
+
+            🏢 ${item.instantie}
+
+            <br><br>
+
+            📞 ${item.telefoon}
+
+            <br><br>
+
+            🌐 ${item.website}
+
+            <br><br>
+
+            📝 ${item.beschrijving}
+
+            <hr>
+
+            👤 ${item.createdBy}
+
+            <br>
+
+            📅 ${
+                new Date(
+                    item.created
+                ).toLocaleString(
+                    "nl-BE"
+                )
+            }
+
+        </div>
+
+        `;
+
+    });
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML =
+        html;
+
 }
 
 function writeLog(

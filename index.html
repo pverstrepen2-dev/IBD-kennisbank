@@ -245,8 +245,8 @@ border-bottom:1px solid #ddd;
 ⚖️ Sociale Gids
 </button>
 
-<button onclick="openPage('media')">
-🎥 Media Bibliotheek
+<button onclick="openPage('websites')">
+    🌐 Websites
 </button>
 
 </div>
@@ -309,10 +309,6 @@ border-bottom:1px solid #ddd;
 
 <button onclick="openPage('websites')">
 🌐 Websites
-</button>
-
-<button onclick="openPage('verenigingen')">
-🏢 IBD Verenigingen
 </button>
 
 </div>
@@ -596,39 +592,6 @@ border-bottom:1px solid #ddd;
 
 </div>
 
-<div id="media" class="page hidden">
-
-    <div class="card">
-
-        <h2>🎥 Media Bibliotheek</h2>
-
-        <div class="dashboard-grid">
-
-            <button onclick="openCategory('Media','Webinars')">
-                🎥 Webinars
-            </button>
-
-            <button onclick="openCategory('Media','Video')">
-                📺 Video
-            </button>
-
-            <button onclick="openCategory('Media','Podcasts')">
-                🎙️ Podcasts
-            </button>
-
-            <button onclick="openCategory('Media','Getuigenissen')">
-                👥 Getuigenissen
-            </button>
-
-            <button onclick="openCategory('Media','Expertinterviews')">
-                🎤 Expertinterviews
-            </button>
-
-        </div>
-
-    </div>
-
-</div>
 
 <div id="voeding"
      class="page hidden">
@@ -694,91 +657,38 @@ border-bottom:1px solid #ddd;
 
         <div class="dashboard-grid">
 
-            <button onclick="openCategory('Websites','Belgische organisaties')">
-                🇧🇪 Belgische organisaties
-            </button>
+            <button onclick="openCategory('Websites','Zorginstellingen')">
+    🏥 Zorginstellingen
+</button>
 
-            <button onclick="openCategory('Websites','Internationale organisaties')">
-                🌍 Internationale organisaties
-            </button>
+<button onclick="openCategory('Websites','Organisaties')">
+    🤝 Organisaties
+</button>
 
-            <button onclick="openCategory('Websites','Universitaire centra')">
-                🎓 Universitaire centra
-            </button>
+<button onclick="openCategory('Websites','Wetenschappelijke Bronnen')">
+    🔬 Wetenschappelijke Bronnen
+</button>
 
-            <button onclick="openCategory('Websites','Ziekenhuizen')">
-                🏥 Ziekenhuizen
-            </button>
+<button onclick="openCategory('Websites','Opleiding & Media')">
+    🎥 Opleiding & Media
+</button>
 
-            <button onclick="openCategory('Websites','Wetenschappelijke bronnen')">
-                🔬 Wetenschappelijke bronnen
-            </button>
+<button onclick="openCategory('Websites','Downloads')">
+    📂 Downloads
+</button>
 
-            <button onclick="openCategory('Websites','Patiëntenplatformen')">
-                👥 Patiëntenplatformen
-            </button>
+<button onclick="showNewWebsiteForm()">
+    ➕ Website toevoegen
+</button>
 
-            <button onclick="openCategory('Websites','Video & Media')">
-                🎥 Video & Media
-            </button>
-
-            <button onclick="openCategory('Websites','Downloads')">
-                📂 Downloads
-            </button>
+<button onclick="showWebsiteImport()">
+    📥 Import Websites Excel
+</button>
 
         </div>
     </div>
 </div>
 
-<div id="verenigingen" class="page hidden">
-    <div class="card">
-        <h2>🏢 IBD Verenigingen</h2>
-
-        <div class="dashboard-grid">
-
-            <button onclick="openCategory('IBD Verenigingen','België')">
-                🇧🇪 België
-            </button>
-
-            <button onclick="openCategory('IBD Verenigingen','Nederland')">
-                🇳🇱 Nederland
-            </button>
-
-            <button onclick="openCategory('IBD Verenigingen','Europa')">
-                🇪🇺 Europa
-            </button>
-
-            <button onclick="openCategory('IBD Verenigingen','Wereldwijd')">
-                🌍 Wereldwijd
-            </button>
-
-            <button onclick="openCategory('IBD Verenigingen','Patiëntenverenigingen')">
-                👥 Patiëntenverenigingen
-            </button>
-
-            <button onclick="openCategory('IBD Verenigingen','Jongerenwerkingen')">
-                🧑‍🎓 Jongerenwerkingen
-            </button>
-
-            <button onclick="openCategory('IBD Verenigingen','Lotgenotencontact')">
-                🤝 Lotgenotencontact
-            </button>
-
-            <button onclick="openCategory('IBD Verenigingen','Evenementen')">
-                📅 Evenementen
-            </button>
-
-            <button onclick="openCategory('IBD Verenigingen','Contactgegevens')">
-                📞 Contactgegevens
-            </button>
-
-            <button onclick="openCategory('IBD Verenigingen','Downloads')">
-                📂 Downloads
-            </button>
-
-        </div>
-    </div>
-</div>
 
 <div id="ccv" class="page hidden">
 
@@ -848,7 +758,7 @@ border-bottom:1px solid #ddd;
 
         <button onclick="showAttachmentForm()">
     📎 Bijlage
-</button>>
+</button>
    
     </div>
 
@@ -1557,6 +1467,9 @@ const SOCIAAL_MANTELZORG =
 const ATTACHMENTSFILE =
     "CCV-VZW/Database/attachments.json";
 
+const WEBSITESFILE =
+    "CCV-VZW/Database/websites.json";
+
 const CONFIG = {
     graphEnabled: true,
     documentFolder: "/CCV-VZW/Documenten/"
@@ -1588,6 +1501,7 @@ let sociaalAttesten = [];
 let sociaalPremies = [];
 let sociaalMantelzorg = [];
 let members = [];
+let websitesDatabase = [];
 let users = [
     {
         email:"ccv_vzw@outlook.com",
@@ -1664,8 +1578,7 @@ function openPage(page){
     ccv:"🤝 CCV-VZW",
     zorggids:"🏥 Zorggids",
     sociaal:"⚖️ Sociale Gids",
-    media:"🎥 Media Bibliotheek"
-};
+  };
 
 if(document.getElementById("breadcrumb")){
 
@@ -1846,15 +1759,11 @@ function renderDynamicCategory(
 
     "FAQ":"faq",
 
-    "Media":"media",
-
     "Zorggids":"zorggids",
 
     "Sociale Gids":"sociaal",
 
     "Websites":"websites",
-
-    "IBD Verenigingen":"verenigingen",
 
     "Patiënten Expert Opleiding":"expert"
 
@@ -4183,6 +4092,87 @@ function showAttachments(){
 
 }
 
+function showWebsiteImport(){
+
+    openPage("workspace");
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = `
+
+    <div class="card">
+
+        <h2>
+            📥 Websites importeren
+        </h2>
+
+        <p>
+            Selecteer websites.xlsx
+        </p>
+
+        <input
+            type="file"
+            id="websiteImportFile"
+            accept=".xlsx,.xls">
+
+        <br><br>
+
+        <button
+            onclick="importWebsiteExcel()">
+
+            🚀 Importeren
+
+        </button>
+
+    </div>
+    `;
+}
+
+function showNewWebsiteForm(){
+
+    openPage("workspace");
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = `
+
+    <div class="card">
+
+        <h2>
+            🌐 Website toevoegen
+        </h2>
+
+        <input
+            id="websiteUrl"
+            placeholder="https://">
+
+        <br><br>
+
+        <input
+            id="websiteTitle"
+            placeholder="Titel">
+
+        <br><br>
+
+        <textarea
+            id="websiteDescription"
+            placeholder="Beschrijving">
+        </textarea>
+
+        <br><br>
+
+        <button
+            onclick="analyseWebsite()">
+
+            🤖 Analyseer Website
+
+        </button>
+
+    </div>
+
+    `;
+}
+
 function showKennisDocumenten(){
 
     openPage("workspace");
@@ -4682,6 +4672,231 @@ function updateManualSubCategories(){
 
     });
 
+}
+
+async function importWebsiteExcel(){
+
+    const file =
+        document.getElementById(
+            "websiteImportFile"
+        ).files[0];
+
+    if(!file){
+
+        alert(
+            "Selecteer eerst een bestand"
+        );
+
+        return;
+    }
+
+    const data =
+        await file.arrayBuffer();
+
+    const workbook =
+        XLSX.read(
+            data,
+            {type:"array"}
+        );
+
+    const sheet =
+        workbook.Sheets[
+            workbook.SheetNames[0]
+        ];
+
+    const rows =
+        XLSX.utils.sheet_to_json(
+            sheet
+        );
+
+        rows.forEach(row => {
+
+    const currentUrl =
+        (row.URL || "")
+            .toLowerCase()
+            .trim()
+            .replace(/\/$/, "");
+
+    const exists =
+        websitesDatabase.some(
+            x =>
+                (x.url || "")
+                    .toLowerCase()
+                    .trim()
+                    .replace(/\/$/, "")
+                === currentUrl
+        );
+
+    if(exists){
+        return;
+    }
+
+    const subcategorie =
+        WEBSITE_IMPORT_MAPPING[
+            row.Categorie
+        ] ||
+        "Organisaties";
+
+    websitesDatabase.push({
+
+            id:
+                generateId(),
+
+            land:
+                row.Land || "",
+
+            titel:
+                row.Website ||
+                row.Naam ||
+                "",
+
+            url:
+                row.URL || "",
+
+            beschrijving:
+                row.Beschrijving || "",
+
+            categorie:
+                "Websites",
+
+            subcategorie:
+                subcategorie,
+
+            documentType:
+                "Website",
+
+            doelgroep:
+                determineWebsiteAudience(
+                    subcategorie
+                ),
+
+            betrouwbaarheid:
+                determineWebsiteTrust(
+                    row.URL || ""
+                ),
+
+            tags:
+                determineWebsiteTags(
+                    row.URL || "",
+                    subcategorie
+                ),
+
+            created:
+                new Date()
+                    .toISOString(),
+
+            createdBy:
+                currentUser
+        });
+    });
+
+    saveData();
+
+    alert(
+        rows.length +
+        " websites geïmporteerd"
+    );
+}
+
+function analyseWebsite(){
+
+    const url =
+        document.getElementById(
+            "websiteUrl"
+        ).value;
+
+    const classification =
+        classifyWebsite(url);
+
+    let doelgroep =
+        "Patiënt";
+
+    let betrouwbaarheid =
+        "Normaal";
+
+    if(
+        classification ===
+        "Wetenschappelijke Bronnen"
+    ){
+        doelgroep =
+            "Zorgverlener";
+
+        betrouwbaarheid =
+            "Hoog";
+    }
+
+    if(
+        classification ===
+        "Zorginstellingen"
+    ){
+        doelgroep =
+            "Patiënt";
+    }
+
+let tags = [];
+
+if(url.includes("pubmed"))
+    tags.push("Onderzoek");
+
+if(url.includes("ecco"))
+    tags.push("ECCO");
+
+if(url.includes("youtube"))
+    tags.push("Video");
+
+if(url.includes("uz"))
+    tags.push("Universitair Centrum");
+
+if(url.includes("crohn"))
+    tags.push("IBD Vereniging");
+
+    websitesDatabase.push({
+
+        id:
+            generateId(),
+
+        titel:
+            document.getElementById(
+                "websiteTitle"
+            ).value,
+
+        url:url,
+
+        beschrijving:
+            document.getElementById(
+                "websiteDescription"
+            ).value,
+
+        categorie:
+            "Websites",
+
+        subcategorie:
+            classification,
+
+        tags:tags,
+
+        documentType:
+            "Website",
+
+        doelgroep:
+            doelgroep,
+
+        betrouwbaarheid:
+            betrouwbaarheid,
+
+        created:
+            new Date()
+            .toISOString(),
+
+        createdBy:
+            currentUser
+    });
+
+    saveData();
+
+    alert(
+        "✅ Website opgeslagen"
+    );
 }
 
 function analyzeDocument(){
@@ -5790,6 +6005,11 @@ await uploadEntity(
     knowledgeData
 );
 
+await uploadEntity(
+    WEBSITESFILE,
+    websitesDatabase
+);
+
     alert("✅ Gegevens opgeslagen in OneDrive");
 }
 
@@ -5939,6 +6159,19 @@ knowledgeData =
     await downloadEntity(
         ATTACHMENTSFILE
     );
+
+websitesDatabase =
+    await downloadEntity(
+        WEBSITESFILE
+    );
+
+if(
+    !Array.isArray(
+        websitesDatabase
+    )
+){
+    websitesDatabase = [];
+}
 
 users =
     await downloadUsers();
@@ -7810,45 +8043,49 @@ const KNOWLEDGE_ENGINE = {
         "link"
     ],
 
-    subcategories:{
+   subcategories:{
 
-        "Belgische organisaties":[
-            "belgie",
-            "belgisch"
-        ],
+    "Zorginstellingen":[
+        "ibd centrum",
+        "ziekenhuis",
+        "gastro-enteroloog",
+        "diëtist",
+        "psycholoog",
+        "universitair ziekenhuis"
+    ],
 
-        "Internationale organisaties":[
-            "internationaal"
-        ],
+    "Organisaties":[
+        "vereniging",
+        "organisatie",
+        "patientenplatform",
+        "crohn colitis",
+        "ccv"
+    ],
 
-        "Universitaire centra":[
-            "universitair"
-        ],
+    "Wetenschappelijke Bronnen":[
+        "pubmed",
+        "ecco",
+        "cochrane",
+        "richtlijn",
+        "onderzoek"
+    ],
 
-        "Ziekenhuizen":[
-            "ziekenhuis"
-        ],
+    "Opleiding & Media":[
+        "webinar",
+        "video",
+        "podcast",
+        "interview",
+        "opleiding"
+    ],
 
-        "Wetenschappelijke bronnen":[
-            "pubmed",
-            "ecco",
-            "cochrane"
-        ],
+    "Downloads":[
+        "download",
+        "pdf",
+        "brochure",
+        "presentatie"
+    ]
 
-        "Patiëntenplatformen":[
-            "patientenplatform"
-        ],
-
-        "Video & Media":[
-            "video",
-            "media"
-        ],
-
-        "Downloads":[
-            "download"
-        ]
-
-    }
+}
 
 },
 
@@ -7956,6 +8193,223 @@ const KNOWLEDGE_ENGINE = {
 
 };
 
+const WEBSITE_IMPORT_MAPPING = {
+
+    "IBD Patiënten":
+        "Organisaties",
+
+    "Patiënten":
+        "Organisaties",
+
+    "Organisaties":
+        "Organisaties",
+
+    "IBD Research":
+        "Wetenschappelijke Bronnen",
+
+    "Richtlijnen":
+        "Wetenschappelijke Bronnen",
+
+    "Data/Onderzoek":
+        "Wetenschappelijke Bronnen",
+
+    "Gezondheidszorg":
+        "Zorginstellingen",
+
+    "GGZ":
+        "Zorginstellingen",
+
+    "Psychologie":
+        "Zorginstellingen",
+
+    "Educatie":
+        "Opleiding & Media",
+
+    "IBD Apps":
+        "Opleiding & Media",
+
+    "Podcast":
+        "Opleiding & Media",
+
+    "Video":
+        "Opleiding & Media"
+};
+
+function determineWebsiteAudience(
+    subcategorie
+){
+
+    if(
+        subcategorie ===
+        "Wetenschappelijke Bronnen"
+    ){
+        return "Zorgverlener";
+    }
+
+    if(
+        subcategorie ===
+        "Zorginstellingen"
+    ){
+        return "Patiënt";
+    }
+
+    if(
+        subcategorie ===
+        "Opleiding & Media"
+    ){
+        return "Algemeen";
+    }
+
+    return "Patiënt";
+}
+
+function determineWebsiteTrust(
+    url
+){
+
+    const site =
+        url.toLowerCase();
+
+    if(
+        site.includes("pubmed")
+        ||
+        site.includes("ecco")
+        ||
+        site.includes("cochrane")
+    ){
+        return "Hoog";
+    }
+
+    if(
+        site.includes(".gov")
+        ||
+        site.includes(".edu")
+    ){
+        return "Hoog";
+    }
+
+    return "Normaal";
+}
+
+function classifyWebsite(url){
+
+    const site =
+        url.toLowerCase();
+
+    const rules = {
+
+        // wetenschap
+
+        "pubmed":
+            "Wetenschappelijke Bronnen",
+
+        "ecco":
+            "Wetenschappelijke Bronnen",
+
+        "cochrane":
+            "Wetenschappelijke Bronnen",
+
+        "clinicaltrials":
+            "Wetenschappelijke Bronnen",
+
+        // zorg
+
+        "uz":
+            "Zorginstellingen",
+
+        "ziekenhuis":
+            "Zorginstellingen",
+
+        "gastro":
+            "Zorginstellingen",
+
+        // media
+
+        "youtube":
+            "Opleiding & Media",
+
+        "vimeo":
+            "Opleiding & Media",
+
+        "podcast":
+            "Opleiding & Media",
+
+        "webinar":
+            "Opleiding & Media",
+
+        // organisaties
+
+        "crohn":
+            "Organisaties",
+
+        "colitis":
+            "Organisaties",
+
+        "patientenplatform":
+            "Organisaties",
+
+        "vzw":
+            "Organisaties",
+
+        // downloads
+
+        ".pdf":
+            "Downloads",
+
+        "download":
+            "Downloads"
+
+    };
+
+    for(const keyword in rules){
+
+        if(
+            site.includes(keyword)
+        ){
+
+            return rules[keyword];
+        }
+    }
+
+    return "Organisaties";
+}
+
+function determineWebsiteTags(
+    url,
+    subcategorie
+){
+
+    let tags = [];
+
+    tags.push(subcategorie);
+
+    const site =
+        url.toLowerCase();
+
+    if(site.includes("pubmed"))
+        tags.push("Onderzoek");
+
+    if(site.includes("ecco"))
+        tags.push("ECCO");
+
+    if(site.includes("cochrane"))
+        tags.push("Evidence Based Medicine");
+
+    if(site.includes("youtube"))
+        tags.push("Video");
+
+    if(site.includes("podcast"))
+        tags.push("Podcast");
+
+    if(site.includes("crohn"))
+        tags.push("IBD");
+
+    if(site.includes("colitis"))
+        tags.push("IBD");
+
+    return [...new Set(tags)];
+}
+
 function classifyDocument(filename){
 
     const naam =
@@ -7965,6 +8419,37 @@ function classifyDocument(filename){
     getMedicalMatches(
         filename
     );
+
+if(
+    naam.includes("http://")
+    ||
+    naam.includes("https://")
+    ||
+    naam.includes("www.")
+){
+
+    return {
+
+        categorie:
+            "Websites",
+
+        subcategorie:
+            classifyWebsite(
+                naam
+            )
+
+    };
+}
+
+if(
+    filename.includes("http") ||
+    filename.includes("www.")
+){
+    return {
+        categorie:"Websites",
+        subcategorie:"Organisaties"
+    };
+}
 
     let bestCategory =
         "Algemeen";
@@ -8317,6 +8802,26 @@ function determineTags(filename){
         }
 
     });
+
+if(naam.includes("pubmed")){
+    tags.push("Wetenschappelijke Bron");
+}
+
+if(naam.includes("ecco")){
+    tags.push("ECCO");
+}
+
+if(naam.includes("youtube")){
+    tags.push("Video");
+}
+
+if(naam.includes("uz")){
+    tags.push("Universitair Centrum");
+}
+
+if(naam.includes("crohn-colitis")){
+    tags.push("Patiëntenvereniging");
+}
 
     return [...new Set(tags)];
 

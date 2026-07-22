@@ -4675,138 +4675,76 @@ function updateManualSubCategories(){
 
 }
 
-async function importWebsiteExcel(){
+async function importWebsiteExcel() {
 
-    if(typeof XLSX === "undefined"){
-
-    alert(
-        "XLSX bibliotheek niet geladen"
-    );
-
-    return;
-}
-
-    const file =
-        document.getElementById(
-            "websiteImportFile"
-        ).files[0];
-
-    if(!file){
-
-        alert(
-            "Selecteer eerst een bestand"
-        );
-
+    if (typeof XLSX === "undefined") {
+        alert("XLSX bibliotheek niet geladen");
         return;
     }
 
-    const data =
-        await file.arrayBuffer();
+    const file = document.getElementById("websiteImportFile").files[0];
 
-    const workbook =
-        XLSX.read(
-            data,
-            {type:"array"}
-        );
+    if (!file) {
+        alert("Selecteer eerst een bestand");
+        return;
+    }
 
-    const sheet =
-        workbook.Sheets[
-            workbook.SheetNames[0]
-        ];
+    const data = await file.arrayBuffer();
 
-    const rows =
-        XLSX.utils.sheet_to_json(
-            sheet
-        );
+    const workbook = XLSX.read(data, { type: "array" });
 
-        rows.forEach(row => {
-            console.log(row);
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
 
-    const currentUrl =
-        (row.URL || "")
+    const rows = XLSX.utils.sheet_to_json(sheet);
+
+    rows.forEach(row => {
+
+        console.log(row);
+
+        const currentUrl = (row.URL || "")
             .toLowerCase()
             .trim()
             .replace(/\/$/, "");
 
-    const exists =
-        websitesDatabase.some(
+        const exists = websitesDatabase.some(
             x =>
                 (x.url || "")
                     .toLowerCase()
                     .trim()
-                    .replace(/\/$/, "")
-                === currentUrl
+                    .replace(/\/$/, "") === currentUrl
         );
 
-    if(exists){
-        return;
-    }
+        if (exists) {
+            return;
+        }
 
-    const subcategorie =
-        WEBSITE_IMPORT_MAPPING[
-            row.Categorie
-        ] ||
-        "Organisaties";
+        const subcategorie =
+            WEBSITE_IMPORT_MAPPING[row.Categorie] ||
+            "Organisaties";
 
-    websitesDatabase.push({
-
-            id:
-                generateId(),
-
-            land:
-                row.Land || "",
-
-            titel:
-                row.Website ||
-                row.Naam ||
-                "",
-
-            url:
+        websitesDatabase.push({
+            id: generateId(),
+            land: row.Land || "",
+            titel: row.Website || row.Naam || "",
+            url: row.URL || "",
+            beschrijving: row.Beschrijving || "",
+            categorie: "Websites",
+            subcategorie: subcategorie,
+            documentType: "Website",
+            doelgroep: determineWebsiteAudience(subcategorie),
+            betrouwbaarheid: determineWebsiteTrust(row.URL || ""),
+            tags: determineWebsiteTags(
                 row.URL || "",
-
-            beschrijving:
-                row.Beschrijving || "",
-
-            categorie:
-                "Websites",
-
-            subcategorie:
-                subcategorie,
-
-            documentType:
-                "Website",
-
-            doelgroep:
-                determineWebsiteAudience(
-                    subcategorie
-                ),
-
-            betrouwbaarheid:
-                determineWebsiteTrust(
-                    row.URL || ""
-                ),
-
-            tags:
-                determineWebsiteTags(
-                    row.URL || "",
-                    subcategorie
-                ),
-
-            created:
-                new Date()
-                    .toISOString(),
-
-            createdBy:
-                currentUser
+                subcategorie
+            ),
+            created: new Date().toISOString(),
+            createdBy: currentUser
         });
     });
 
     saveData();
 
-    alert(
-        rows.length +
-        " websites geïmporteerd"
-    );
+    alert(rows.length + " websites geïmporteerd");
 }
 
 function analyseWebsite(){

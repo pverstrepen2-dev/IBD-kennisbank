@@ -7986,24 +7986,21 @@ const KNOWLEDGE_ENGINE = {
 
 },
 
-"CCV-VZW":{
-
-    subcategories:{
-
-        "Vergaderingen":{},
-
-        "Projecten":{},
-
-        "Taken":{},
-
-        "Leden":{},
-
-        "Activiteiten":{},
-
-        "Documenten":{}
-
+"CCV-VZW": {
+    keywords: [
+        "ccv",
+        "ccv-vzw",
+        "bestuur",
+        "vereniging"
+    ],
+    subcategories: {
+        Vergaderingen: ["vergadering"],
+        Projecten: ["project"],
+        Taken: ["taak"],
+        Leden: ["lid"],
+        Activiteiten: ["activiteit"],
+        Documenten: ["document"]
     }
-
 },
 
 "Sociale Gids":{
@@ -8050,24 +8047,21 @@ const KNOWLEDGE_ENGINE = {
 
 },
 
-"CCV-VZW":{
-
-    subcategories:{
-
-        "Vergaderingen":{},
-
-        "Projecten":{},
-
-        "Taken":{},
-
-        "Leden":{},
-
-        "Activiteiten":{},
-
-        "Documenten":{}
-
+"CCV-VZW": {
+    keywords: [
+        "ccv",
+        "ccv-vzw",
+        "bestuur",
+        "vereniging"
+    ],
+    subcategories: {
+        Vergaderingen: [],
+        Projecten: [],
+        Taken: [],
+        Leden: [],
+        Activiteiten: [],
+        Documenten: []
     }
-
 },
 
 "Media":{
@@ -8589,7 +8583,12 @@ console.log(
     data?.subcategories
 );
 
-       Object.entries(
+console.log(
+    "RAW SUBCATEGORIES",
+    JSON.stringify(data?.subcategories)
+);
+
+      Object.entries(
     data?.subcategories || {}
 ).forEach(
 
@@ -8597,17 +8596,11 @@ console.log(
 
         let subScore = 0;
 
+        // indien geen array, overslaan
         if (!Array.isArray(keywords)) {
-
-            console.error(
-                "FOUTE subcategorie:",
-                categorie,
-                subcategorie,
-                keywords
-            );
-
             return;
         }
+
 
         keywords.forEach(keyword => {
 

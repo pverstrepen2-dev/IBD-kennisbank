@@ -8589,25 +8589,37 @@ console.log(
     data?.subcategories
 );
 
-        Object.entries(
+       Object.entries(
     data?.subcategories || {}
 ).forEach(
 
-            ([subcategorie,keywords]) => {
+    ([subcategorie,keywords]) => {
 
-                let subScore = 0;
-console.log("3 keywords", keywords);
-                (keywords || []).forEach(keyword => {
+        let subScore = 0;
 
-                    if(
-                        naam.includes(
-                            keyword.toLowerCase()
-                        )
-                    ){
-                        subScore++;
-                    }
+        if (!Array.isArray(keywords)) {
 
-                });
+            console.error(
+                "FOUTE subcategorie:",
+                categorie,
+                subcategorie,
+                keywords
+            );
+
+            return;
+        }
+
+        keywords.forEach(keyword => {
+
+            if(
+                naam.includes(
+                    keyword.toLowerCase()
+                )
+            ){
+                subScore++;
+            }
+
+        });
 
                 if(
                     subScore > bestSubScore

@@ -7,6 +7,7 @@
 <title>IBD Kennisbank</title>
 
 <script src="https://unpkg.com/@azure/msal-browser@latest/lib/msal-browser.min.js"></script>
+<script src="https://cdnjsom/ajax/libs/xlsx/0.18.5/xlsx.full.min.js¨></script>
 
 <style>
 
@@ -4676,6 +4677,15 @@ function updateManualSubCategories(){
 
 async function importWebsiteExcel(){
 
+    if(typeof XLSX === "undefined"){
+
+    alert(
+        "XLSX bibliotheek niet geladen"
+    );
+
+    return;
+}
+
     const file =
         document.getElementById(
             "websiteImportFile"
@@ -4710,6 +4720,7 @@ async function importWebsiteExcel(){
         );
 
         rows.forEach(row => {
+            console.log(row);
 
     const currentUrl =
         (row.URL || "")
@@ -6160,10 +6171,29 @@ knowledgeData =
         ATTACHMENTSFILE
     );
 
-websitesDatabase =
-    await downloadEntity(
-        WEBSITESFILE
+try{
+
+    websitesDatabase =
+        await downloadEntity(
+            WEBSITESFILE
+        );
+
+    if(
+        !Array.isArray(
+            websitesDatabase
+        )
+    ){
+        websitesDatabase = [];
+    }
+
+}catch(error){
+
+    console.warn(
+        "websites.json niet gevonden"
     );
+
+    websitesDatabase = [];
+}
 
 if(
     !Array.isArray(

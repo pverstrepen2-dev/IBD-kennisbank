@@ -8524,11 +8524,19 @@ if(
 
     let highestScore = 0;
 
+    console.log("KNOWLEDGE_ENGINE", KNOWLEDGE_ENGINE);
    for (const [categorie, data]
     of Object.entries(KNOWLEDGE_ENGINE || {})
 ) {
-
+if (!data) {
+    console.error(
+        "KNOWLEDGE_ENGINE categorie zonder data:",
+        categorie
+    );
+    continue;
+}
     let categoryScore = 0;
+    console.log("1 medicalMatches", medicalMatches);
 
     (medicalMatches || []).forEach(match => {
 
@@ -8548,10 +8556,13 @@ if (relevanteGroepen.includes(match.groep)) {
     console.log(
     "data.keywords",
     categorie,
-    data.keywords
+    data?.keywords
 );
 
-    (data.keywords || []).forEach(keyword => {
+console.log("2 data", data);
+console.log("2 keywords", data?.keywords);
+
+    ((data?.keywords) || []).forEach(keyword => {
 
         if(
            naam.includes(
@@ -8575,17 +8586,17 @@ console.log(
 console.log(
     "subcategories",
     categorie,
-    data.subcategories
+    data?.subcategories
 );
 
         Object.entries(
-    data.subcategories || {}
+    data?.subcategories || {}
 ).forEach(
 
             ([subcategorie,keywords]) => {
 
                 let subScore = 0;
-
+console.log("3 keywords", keywords);
                 (keywords || []).forEach(keyword => {
 
                     if(

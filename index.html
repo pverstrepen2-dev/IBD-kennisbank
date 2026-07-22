@@ -5813,6 +5813,23 @@ async function uploadEntity(
 
 }
 
+function normalizeUrl(url) {
+  if (!url) return '';
+
+  // HTML-link extracteren
+  const match = url.match(/href="([^"]+)"/i);
+  if (match) url = match[1];
+
+  url = url.trim();
+
+  // protocol toevoegen
+  if (!/^https?:\/\//i.test(url)) {
+    url = `https://${url}`;
+  }
+
+  return url;
+}
+
 async function downloadUsers(){
 
     try{

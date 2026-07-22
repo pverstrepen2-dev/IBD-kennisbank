@@ -4716,12 +4716,42 @@ async function importWebsiteExcel() {
 
         let finalTitle = titel;
 
-if (!finalTitle && row.URL) {
+if (!finalTitle && cleanUrl) {
+
     try {
-        finalTitle = new URL(row.URL).hostname;
+
+        const hostname =
+            new URL(cleanUrl)
+            .hostname;
+
+        finalTitle =
+            hostname
+            .replace("www.", "");
+
     } catch {
-        finalTitle = row.URL;
+
+        finalTitle =
+            cleanUrl;
+
     }
+}
+
+let cleanUrl = (row.URL || "").trim();
+
+// HTML-link uit Excel of Copilot export halen
+const hrefMatch = cleanUrl.match(/href="([^"]+)"/i);
+
+if (hrefMatch) {
+    cleanUrl = hrefMatch[1];
+}
+
+// URL zonder protocol aanvullen
+if (
+    cleanUrl &&
+    !cleanUrl.startsWith("http://") &&
+    !cleanUrl.startsWith("https://")
+) {
+    cleanUrl = "https://" + cleanUrl;
 }
 
         const currentUrl = (row.URL || "")
@@ -4730,12 +4760,17 @@ if (!finalTitle && row.URL) {
             .replace(/\/$/, "");
 
         const exists = websitesDatabase.some(
-            x =>
-                (x.url || "")
-                    .toLowerCase()
-                    .trim()
-                    .replace(/\/$/, "") === currentUrl
-        );
+    x =>
+        (x.url || "")
+            .toLowerCase()
+            .trim()
+            .replace(/\/$/, "") ===
+        currentUrl
+            .toLowerCase()
+            .trim()
+            .replace(/\/$/, "")
+);
+
 
         if (exists) {
             return;
@@ -4753,15 +4788,16 @@ if (!finalTitle && row.URL) {
 }
 
         const subcategorie =
-         WEBSITE_IMPORT_MAPPING[row.Categorie] ||
-                 row.Categorie ||
-         "Overige";
+    (row.Categorie || "")
+        .toString()
+        .trim() ||
+    "Overige";
 
        websitesDatabase.push({
             id: generateId(),
     land: land,
     titel: finalTitle,
-    url: row.URL || "",
+    url: cleanUrl,
             beschrijving: row.Beschrijving || "",
             categorie: "Websites",
             subcategorie: subcategorie,
@@ -4776,7 +4812,7 @@ if (!finalTitle && row.URL) {
             createdBy: currentUser
         });
     });
-    
+
 console.log(
     "Website geïmporteerd:",
     websitesDatabase[
@@ -4839,6 +4875,16 @@ if(url.includes("uz"))
 
 if(url.includes("crohn"))
     tags.push("IBD Vereniging");
+
+ if (!cleanUrl) {
+
+    console.warn(
+        "Website zonder URL overgeslagen:",
+        row
+    );
+
+    return;
+}   
 
     websitesDatabase.push({
 

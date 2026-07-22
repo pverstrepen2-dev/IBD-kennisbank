@@ -4701,6 +4701,29 @@ async function importWebsiteExcel() {
 
         console.log(row);
 
+        const titel =
+        row["Website/Bron"] ||
+        row.Website ||
+         row.Naam ||
+         row.Titel ||
+         row.Name ||
+          "";
+
+        const land =
+       row.Land ||
+        row.Country ||
+        "🌍 Internationaal";
+
+        let finalTitle = titel;
+
+if (!finalTitle && row.URL) {
+    try {
+        finalTitle = new URL(row.URL).hostname;
+    } catch {
+        finalTitle = row.URL;
+    }
+}
+
         const currentUrl = (row.URL || "")
             .toLowerCase()
             .trim()
@@ -4718,15 +4741,27 @@ async function importWebsiteExcel() {
             return;
         }
 
-        const subcategorie =
-            WEBSITE_IMPORT_MAPPING[row.Categorie] ||
-            "Organisaties";
+        if (
+    !finalTitle &&
+    !(row.URL || "").trim()
+) {
+    console.warn(
+        "Lege rij overgeslagen:",
+        row
+    );
+    return;
+}
 
-        websitesDatabase.push({
+        const subcategorie =
+         WEBSITE_IMPORT_MAPPING[row.Categorie] ||
+                 row.Categorie ||
+         "Overige";
+
+       websitesDatabase.push({
             id: generateId(),
-            land: row.Land || "",
-            titel: row.Website || row.Naam || "",
-            url: row.URL || "",
+    land: land,
+    titel: finalTitle,
+    url: row.URL || "",
             beschrijving: row.Beschrijving || "",
             categorie: "Websites",
             subcategorie: subcategorie,
@@ -4741,7 +4776,13 @@ async function importWebsiteExcel() {
             createdBy: currentUser
         });
     });
-
+    
+console.log(
+    "Website geïmporteerd:",
+    websitesDatabase[
+        websitesDatabase.length - 1
+    ]
+);
     saveData();
 
     alert(rows.length + " websites geïmporteerd");

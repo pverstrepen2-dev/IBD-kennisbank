@@ -8521,19 +8521,13 @@ if(
 
     let highestScore = 0;
 
-   for(
-
-    const [categorie,data]
-
-    of Object.entries(
-        KNOWLEDGE_ENGINE
-    )
-
-){
+   for (const [categorie, data]
+    of Object.entries(KNOWLEDGE_ENGINE || {})
+) {
 
     let categoryScore = 0;
 
-    medicalMatches.forEach(match => {
+    (medicalMatches || []).forEach(match => {
 
         const relevanteGroepen = [
     "Medicatie",
@@ -8548,7 +8542,7 @@ if (relevanteGroepen.includes(match.groep)) {
 
     });
 
-    data.keywords.forEach(keyword => {
+    (data.keywords || []).forEach(keyword => {
 
         if(
            naam.includes(
@@ -8563,15 +8557,20 @@ if (relevanteGroepen.includes(match.groep)) {
         let bestSubScore = 0;
         let currentSubCategory = "Algemeen";
 
+console.log(
+    "Categorie controleren:",
+    categorie,
+    data
+);
         Object.entries(
-            data.subcategories
-        ).forEach(
+    data.subcategories || {}
+).forEach(
 
             ([subcategorie,keywords]) => {
 
                 let subScore = 0;
 
-                keywords.forEach(keyword => {
+                (keywords || []).forEach(keyword => {
 
                     if(
                         naam.includes(

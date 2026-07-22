@@ -7,7 +7,8 @@
 <title>IBD Kennisbank</title>
 
 <script src="https://unpkg.com/@azure/msal-browser@latest/lib/msal-browser.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/x/0.18.5/xlsx.full.min.jsscript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
 <style>
 
 body{
@@ -8470,16 +8471,6 @@ if(
     };
 }
 
-if(
-    filename.includes("http") ||
-    filename.includes("www.")
-){
-    return {
-        categorie:"Websites",
-        subcategorie:"Organisaties"
-    };
-}
-
     let bestCategory =
         "Algemeen";
 
@@ -8502,24 +8493,23 @@ if(
 
     medicalMatches.forEach(match => {
 
-        if(match.groep === "Medicatie")
-            categoryScore += 2;
+        const relevanteGroepen = [
+    "Medicatie",
+    "Diagnose",
+    "Voeding",
+    "Complicaties"
+];
 
-        if(match.groep === "Diagnose")
-            categoryScore += 2;
-
-        if(match.groep === "Voeding")
-            categoryScore += 2;
-
-        if(match.groep === "Complicaties")
-            categoryScore += 2;
+if (relevanteGroepen.includes(match.groep)) {
+    categoryScore += 2;
+}
 
     });
 
     data.keywords.forEach(keyword => {
 
         if(
-            naam.includes(
+           naam.includes(
                 keyword.toLowerCase()
             )
         ){

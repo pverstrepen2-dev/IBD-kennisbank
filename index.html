@@ -66,6 +66,19 @@ header{
     box-shadow:0 2px 10px rgba(0,0,0,.08);
 }
 
+.card a{
+    color:black;
+    text-decoration:none;
+}
+
+.card a:visited{
+    color:black;
+}
+
+.card a:hover{
+    color:black;
+}
+
 #faq{
     width:100%;
 }
@@ -139,26 +152,10 @@ header{
 }
 
 .actionButton{
-
     display:inline-block;
-
-    background:#2563eb;
-
-    color:white;
-
-    text-decoration:none;
-
-    padding:10px 15px;
-
-    border-radius:8px;
-
-    border:none;
-
-    cursor:pointer;
-
-    font-weight:600;
-
-    transition:.2s;
+    background:#f5f7fa;
+    color:black;
+    border:1px solid #d1d5db;
 }
 
 .actionButton:hover{
@@ -9179,11 +9176,9 @@ function countDocumentsByCategory(
 
           <br><br>
 
-<a
-    href="${doc.bestand}"
-    target="_blank"
-    class="actionButton"
->
+${doc.bestand}
+    📄 Open document
+</a>
  
 
 &nbsp;
@@ -9405,10 +9400,7 @@ async function loadOneDriveLibrary() {
        html += `
 <div class="card">
 
-    <h3 style="
-        margin:0 0 10px 0;
-        color:#1e293b;
-    ">
+    <h3>
         📁 ${folder.name}
     </h3>
 
@@ -9416,30 +9408,26 @@ async function loadOneDriveLibrary() {
         <summary>Documenten</summary>
 `;
 
-        (docsData.value || [])
-.forEach(doc => {
+(docsData.value || []).forEach(doc => {
+
     if (!doc.file) {
         return;
     }
 
     html += `
-<div style="
-    margin-left:20px;
-    padding:6px;
-">
-    <a href="${doc.webUrl}"
-       target="_blank"
-       class="actionButton">
+    <div style="
+        margin-left:20px;
+        padding:6px;
+    ">
+        ${doc.webUrl}
+            📄 ${doc.name}
+        </a>
+    </div>
+    `;
+});
 
-       📄 ${doc.name}
-
-    </a>
-</div>
-`;
-      
-        });
-
-        html += `
+html += `
+    </details>
 </div>
 `;
     }

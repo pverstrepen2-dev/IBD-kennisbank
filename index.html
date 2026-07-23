@@ -893,15 +893,12 @@ border-bottom:1px solid #ddd;
         </p>
 
         <p>
-          <p>
-    <strong>📧 E-mail:</strong><br><br>
+            <strong>📧 E-mail:</strong><br><br>
 
-    <a
-        href="mailto:ccv_vzw@outlook.com?subject=Vraag over de IBD Kennisbank"
-        style="
-            color:#2563eb;
-            font
-</p>
+            ccv_vzw@outlook.com?subject=Vraag over de IBD Kennisbank
+                ccv_vzw@outlook.com
+            </a>
+        </p>
 
         <p>
             Voor vragen, opmerkingen, foutmeldingen of suggesties
@@ -911,7 +908,6 @@ border-bottom:1px solid #ddd;
     </div>
 
 </div>
-
 
 <div id="beheer" class="page hidden">
 
@@ -1673,9 +1669,18 @@ if(document.getElementById("breadcrumb")){
             p => p.classList.add("hidden")
         );
 
-    document
-        .getElementById(page)
-        .classList.remove("hidden");
+    const targetPage =
+    document.getElementById(page);
+
+if (!targetPage) {
+    console.error(
+        "Pagina niet gevonden:",
+        page
+    );
+    return;
+}
+
+targetPage.classList.remove("hidden");
 
     // Beheerpagina openen
     if(

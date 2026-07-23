@@ -5683,11 +5683,10 @@ function showCategoryDocuments(
     <div class="card">
 
         <h3>
-
-            ${doc.bestand}
-                ${doc.titel}
-            </a>
-
+    <a
+        href="${doc.bestand}"
+        target="_blank"
+        
         </h3>
 
         <p>
@@ -5734,9 +5733,10 @@ function showDocumentsBySubCategory(
             flex-wrap:wrap;
         ">
 
-            ${doc.bestand}
-                📂 Open document
-            </a>
+            <a
+    href="${doc.bestand}"
+    target="_blank"
+    class
 
             <button
                 onclick="previewDocument('${doc.bestand}')"
@@ -9137,9 +9137,11 @@ function countDocumentsByCategory(
           <br><br>
 
 <a
-    ${doc.bestand}
-    📄 Open document
-</a>
+    href="${doc.bestand}"
+    target="_blank"
+    class="actionButton"
+>
+ 
 
 &nbsp;
 
@@ -9366,21 +9368,21 @@ async function loadOneDriveLibrary() {
         `;
 
         (docsData.value || [])
-        .forEach(doc => {
+.forEach(doc => {
+    if (!doc.file) {
+        return;
+    }
 
-            if(!doc.file){
-                return;
-            }
-
-            html += `
-            <div style="
-                margin-left:20px;
-                padding:6px;
-            ">
-                ${doc.webUrl}
-                    📄 ${doc.name}
-                </a>
-            </div>
+    html += `
+    <div style="
+        margin-left:20px;
+        padding:6px;
+    ">
+        <a href="${doc.webUrl}"
+           target="_blank"
+           class="actionButton">
+           📄 ${doc.name}
+      
             `;
 
         });

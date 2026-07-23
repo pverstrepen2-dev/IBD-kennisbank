@@ -9310,21 +9310,21 @@ function renderOneDriveLibrary(){
         return;
     }
 
-    const folders =
-        [...new Set(
-            knowledgeData
-            .map(x => x.folder)
-            .filter(Boolean)
-        )];
+   const folders =
+    [...new Set(
+        knowledgeData
+        .map(x => x.subcategorie)
+        .filter(Boolean)
+    )];
 
     let html = "";
 
     folders.forEach(folder => {
 
-        const docs =
-            knowledgeData.filter(
-                x => x.folder === folder
-            );
+       const docs =
+    knowledgeData.filter(
+        x => x.subcategorie === folder
+    );
 
         html += `
         <details class="card">

@@ -9359,13 +9359,12 @@ async function loadOneDriveLibrary() {
         const docsData =
             await docsResponse.json();
 
-        html += `
-        <details class="card">
-
-            <summary>
-                📁 ${folder.name}
-            </summary>
-        `;
+       html += `
+<div class="card">
+    <h3 style="margin:0 0 10px 0;">
+        📁 ${folder.name}
+    </h3>
+`;
 
         (docsData.value || [])
 .forEach(doc => {
@@ -9388,8 +9387,8 @@ async function loadOneDriveLibrary() {
         });
 
         html += `
-        </details>
-        `;
+</div>
+`;
     }
 
     container.innerHTML =

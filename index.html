@@ -9392,7 +9392,7 @@ async function loadOneDriveLibrary() {
             await fetch(
                 `https://graph.microsoft.com/v1.0/me/drive/items/${folder.id}/children`,
                 {
-                    headers:{
+                    headers: {
                         Authorization:
                             `Bearer ${accessToken}`
                     }
@@ -9402,56 +9402,54 @@ async function loadOneDriveLibrary() {
         const docsData =
             await docsResponse.json();
 
-       html += `
+        html += `
 <div class="card">
 
     <h3>
         📁 ${folder.name}
     </h3>
 
-   <details open>
+    <details>
         <summary>Documenten</summary>
 `;
 
-(docsData.value || []).forEach(doc => {
+        (docsData.value || []).forEach(doc => {
 
-    if (doc.folder) {
+            // SUBMAP
+            if (doc.folder) {
 
-    html += `
-    <div style="
-        margin-left:20px;
-        padding:6px;
-        cursor:pointer;
-        color:#2563eb;
-        font-weight:bold;
-    "
-    onclick="openOneDriveFolder('${doc.id}')">
+                html += `
+<div style="
+    margin-left:20px;
+    padding:6px;
+    font-weight:bold;
+">
+    📁 ${doc.name}
+</div>
+`;
+                return;
+            }
 
-        📁 ${doc.name}
+            // BESTAND
+            if (doc.file) {
 
-    </div>
-    `;
+                html += `
+<div style="
+    margin-left:40px;
+    padding:6px;
+">
 
-    return;
-}
+    ${doc.webUrl}
+        📄 ${doc.name}
+    </a>
 
-    if (doc.file) {
+</div>
+`;
+            }
+
+        });
 
         html += `
-        <div style="
-            margin-left:40px;
-            padding:6px;
-        ">
-            <a
-                href="${doc.webUrl}"
-                target="_blank"
-div>
-        `;
-    }
-
-});
-
-html += `
     </details>
 </div>
 `;
@@ -9683,16 +9681,40 @@ async function openOneDriveFolder(folderId){
         }
     );
 
-    const data = await response.json();
+    const data =
+        await response.json();
 
-    let html = "";
+    let html = `
+    <div class="card">
+        <h2>📁 Mapinhoud</h2>
+    `;
 
     (data.value || []).forEach(item => {
 
+        // Submap
+        if(item.folder){
+
+            html += `
+            <div style="
+                padding:8px;
+                margin-left:20px;
+                font-weight:bold;
+            ">
+                📁 ${item.name}
+            </div>
+            `;
+
+            return;
+        }
+
+        // Bestand
         if(item.file){
 
             html += `
-            <div style="padding:6px">
+            <div style="
+                padding:8px;
+                margin-left:20px;
+            ">
 
                 ${item.webUrl}
                     📄 ${item.name}
@@ -9704,10 +9726,9 @@ async function openOneDriveFolder(folderId){
 
     });
 
-    if(html === ""){
-        html =
-            "Geen documenten gevonden";
-    }
+    html += `
+    </div>
+    `;
 
     document.getElementById(
         "onedriveFolders"

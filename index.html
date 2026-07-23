@@ -316,6 +316,10 @@ border-bottom:1px solid #ddd;
 🌐 Websites
 </button>
 
+<button onclick="openPage('contact')">
+📞 Over / Contact
+</button>
+
 </div>
 
 </div>
@@ -873,6 +877,44 @@ border-bottom:1px solid #ddd;
     </div>
 
 </div>
+
+<div id="contact" class="page hidden">
+
+    <div class="card">
+
+        <h2>📞 Over / Contact</h2>
+
+        <p>
+            Welkom op de IBD Kennisbank.
+        </p>
+
+        <hr>
+
+        <p>
+            <strong>Beheerder:</strong><br>
+            Patrick Verstrepen
+        </p>
+
+        <p>
+          <p>
+    <strong>📧 E-mail:</strong><br><br>
+
+    <a
+        href="mailto:ccv_vzw@outlook.com?subject=Vraag over de IBD Kennisbank"
+        style="
+            color:#2563eb;
+            font
+</p>
+
+        <p>
+            Voor vragen, opmerkingen, foutmeldingen of suggesties
+            kan u contact opnemen via bovenstaand e-mailadres.
+        </p>
+
+    </div>
+
+</div>
+
 
 <div id="beheer" class="page hidden">
 
@@ -1600,6 +1642,7 @@ function openPage(page){
     ccv:"🤝 CCV-VZW",
     zorggids:"🏥 Zorggids",
     sociaal:"⚖️ Sociale Gids",
+    contact:"📞 Over / Contact",
   };
 
 if(document.getElementById("breadcrumb")){
@@ -9669,6 +9712,30 @@ console.log(
     </div>
 
 </div>
+
+<footer style="
+    margin-top:40px;
+    padding:20px;
+    background:#1e293b;
+    color:white;
+    text-align:center;
+    font-size:14px;
+">
+
+    <strong>IBD Kennisbank</strong>
+    <br><br>
+
+    Beheerder van deze website:
+    <strong>Patrick Verstrepen</strong>
+
+    <br><br>
+
+    📧 Contact:
+    ccv_vzw@outlook.com
+        patrick.verstrepen22@outlook.com
+    </a>
+
+</footer>
 
 </body>
 </html>

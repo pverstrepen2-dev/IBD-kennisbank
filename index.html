@@ -9338,16 +9338,15 @@ function renderOneDriveLibrary(){
         docs.forEach(doc => {
 
             html += `
-            <div style="
-                padding:8px;
-                margin-left:20px;
-            ">
-                <a href="${doc.bestand}"
-                   target}
-
-                </a>
-            </div>
-            `;
+<div style="
+    padding:8px;
+    margin-left:20px;
+">
+    ${doc.bestand}
+        📄 ${doc.titel}
+    </a>
+</div>
+`;
 
         });
 

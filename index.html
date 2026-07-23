@@ -1523,6 +1523,7 @@ let sociaalMantelzorg = [];
 let members = [];
 let websitesDatabase = [];
 let documentBibliotheek = [];
+let oneDriveLibraryData = [];
 let users = [
     {
         email:"ccv_vzw@outlook.com",
@@ -1649,7 +1650,7 @@ if(document.getElementById("breadcrumb")){
 }
 
 if(page === "onedriveLibrary"){
-    renderOneDriveLibrary();
+    loadOneDriveLibrary();
 }
 
 
@@ -9299,66 +9300,98 @@ function renderAllCategories(){
 
 }
 
-function renderOneDriveLibrary(){
+async function loadOneDriveLibrary() {
 
     const container =
         document.getElementById(
             "onedriveFolders"
         );
 
-    if(!container){
+    if (!container) {
         return;
     }
 
-   const folders =
-    [...new Set(
-        knowledgeData
-        .map(x => x.subcategorie)
-        .filter(Boolean)
-    )];
+    container.innerHTML =
+        "📥 OneDrive laden...";
+
+    const response = await fetch(
+        "https://graph.microsoft.com/v1.0/me/drive/root:/CCV-VZW/Documenten:/children",
+        {
+            headers: {
+                Authorization:
+                    `Bearer ${accessToken}`
+            }
+        }
+    );
+
+    const data =
+        await response.json();
+
+    if (!data.value) {
+
+        container.innerHTML =
+            "Geen mappen gevonden";
+
+        return;
+    }
 
     let html = "";
 
-    folders.forEach(folder => {
+    for (const folder of data.value) {
 
-       const docs =
-    knowledgeData.filter(
-        x => x.subcategorie === folder
-    );
+        if (!folder.folder) {
+            continue;
+        }
+
+        const docsResponse =
+            await fetch(
+                `https://graph.microsoft.com/v1.0/me/drive/items/${folder.id}/children`,
+                {
+                    headers:{
+                        Authorization:
+                            `Bearer ${accessToken}`
+                    }
+                }
+            );
+
+        const docsData =
+            await docsResponse.json();
 
         html += `
         <details class="card">
 
             <summary>
-                📁 ${folder}
-                (${docs.length})
+                📁 ${folder.name}
             </summary>
         `;
 
-        docs.forEach(doc => {
+        (docsData.value || [])
+        .forEach(doc => {
+
+            if(!doc.file){
+                return;
+            }
 
             html += `
-<div style="
-    padding:8px;
-    margin-left:20px;
-">
-    ${doc.bestand}
-        📄 ${doc.titel}
-    </a>
-</div>
-`;
+            <div style="
+                margin-left:20px;
+                padding:6px;
+            ">
+                ${doc.webUrl}
+                    📄 ${doc.name}
+                </a>
+            </div>
+            `;
 
         });
 
         html += `
         </details>
         `;
-
-    });
+    }
 
     container.innerHTML =
         html;
-
 }
 
 function previewDocument(url){

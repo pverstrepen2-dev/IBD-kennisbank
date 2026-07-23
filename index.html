@@ -9417,18 +9417,23 @@ async function loadOneDriveLibrary() {
 
     if (doc.folder) {
 
-        html += `
-        <div style="
-            margin-left:20px;
-            padding:6px;
-            font-weight:bold;
-        ">
-            📁 ${doc.name}
-        </div>
-        `;
+    html += `
+    <div style="
+        margin-left:20px;
+        padding:6px;
+        cursor:pointer;
+        color:#2563eb;
+        font-weight:bold;
+    "
+    onclick="openOneDriveFolder('${doc.id}')">
 
-        return;
-    }
+        📁 ${doc.name}
+
+    </div>
+    `;
+
+    return;
+}
 
     if (doc.file) {
 
@@ -9665,6 +9670,49 @@ if(
 }
 
 updateManualSubCategories();
+
+async function openOneDriveFolder(folderId){
+
+    const response = await fetch(
+        `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`,
+        {
+            headers:{
+                Authorization:
+                    `Bearer ${accessToken}`
+            }
+        }
+    );
+
+    const data = await response.json();
+
+    let html = "";
+
+    (data.value || []).forEach(item => {
+
+        if(item.file){
+
+            html += `
+            <div style="padding:6px">
+
+                ${item.webUrl}
+                    📄 ${item.name}
+                </a>
+
+            </div>
+            `;
+        }
+
+    });
+
+    if(html === ""){
+        html =
+            "Geen documenten gevonden";
+    }
+
+    document.getElementById(
+        "onedriveFolders"
+    ).innerHTML = html;
+}
 
 console.log(
     "IBD Kennisbank V7 gestart"

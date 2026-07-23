@@ -250,6 +250,10 @@ border-bottom:1px solid #ddd;
     🌐 Websites
 </button>
 
+<button onclick="openPage('onedriveLibrary')">
+📁 OneDrive Mappen
+</button>
+
 </div>
 
 <div class="content">
@@ -902,6 +906,21 @@ border-bottom:1px solid #ddd;
     📁 Mappen: 0
 </div>
 
+<div id="onedriveLibrary"
+     class="page hidden">
+
+    <div class="card">
+
+        <h2>
+            📁 OneDrive Bibliotheek
+        </h2>
+
+        <div id="onedriveFolders"></div>
+
+    </div>
+
+</div>
+
 <div id="folderList"></div>
 
 <br>
@@ -1503,6 +1522,7 @@ let sociaalPremies = [];
 let sociaalMantelzorg = [];
 let members = [];
 let websitesDatabase = [];
+let documentBibliotheek = [];
 let users = [
     {
         email:"ccv_vzw@outlook.com",
@@ -1627,6 +1647,11 @@ if(document.getElementById("breadcrumb")){
   if(page === "documents"){
     renderDocuments();
 }
+
+if(page === "onedriveLibrary"){
+    renderOneDriveLibrary();
+}
+
 
 if(document.getElementById("documentCountInfo")){
 
@@ -7061,26 +7086,17 @@ const classification =
 
 }
 
-    knowledgeData.push({
-
+   knowledgeData.push({
     titel:item.name,
+    categorie:classification.categorie,
+    subcategorie:classification.subcategorie,
 
-    categorie:
-        classification.categorie,
-
-    subcategorie:
-        classification.subcategorie,
-
-    tags:tags,
+    folder:huidigeSubcategorie,
 
     bestand:item.webUrl,
 
-    gewijzigd:
-        item.lastModifiedDateTime,
-
-    type:
-        item.file.mimeType
-
+    gewijzigd:item.lastModifiedDateTime,
+    type:item.file.mimeType
 });
 
 }
@@ -9280,6 +9296,69 @@ function renderAllCategories(){
     renderDynamicCategory("Pediatrie");
 
     renderDynamicCategory("Mindfulness & Welzijn");
+
+}
+
+function renderOneDriveLibrary(){
+
+    const container =
+        document.getElementById(
+            "onedriveFolders"
+        );
+
+    if(!container){
+        return;
+    }
+
+    const folders =
+        [...new Set(
+            knowledgeData
+            .map(x => x.folder)
+            .filter(Boolean)
+        )];
+
+    let html = "";
+
+    folders.forEach(folder => {
+
+        const docs =
+            knowledgeData.filter(
+                x => x.folder === folder
+            );
+
+        html += `
+        <details class="card">
+
+            <summary>
+                📁 ${folder}
+                (${docs.length})
+            </summary>
+        `;
+
+        docs.forEach(doc => {
+
+            html += `
+            <div style="
+                padding:8px;
+                margin-left:20px;
+            ">
+                <a href="${doc.bestand}"
+                   target}
+
+                </a>
+            </div>
+            `;
+
+        });
+
+        html += `
+        </details>
+        `;
+
+    });
+
+    container.innerHTML =
+        html;
 
 }
 

@@ -9409,30 +9409,41 @@ async function loadOneDriveLibrary() {
         📁 ${folder.name}
     </h3>
 
-    <details>
+   <details open>
         <summary>Documenten</summary>
 `;
 
 (docsData.value || []).forEach(doc => {
 
-    if (!doc.file) {
+    if (doc.folder) {
+
+        html += `
+        <div style="
+            margin-left:20px;
+            padding:6px;
+            font-weight:bold;
+        ">
+            📁 ${doc.name}
+        </div>
+        `;
+
         return;
     }
 
-    html += `
-<div style="
-    margin-left:20px;
-    padding:6px;
-">
-    <a
-        href="${doc.webUrl}"
-        target="_blank"
-        style="
-            color:black;
-            text-
-        </a>
-    </div>
-    `;
+    if (doc.file) {
+
+        html += `
+        <div style="
+            margin-left:40px;
+            padding:6px;
+        ">
+            <a
+                href="${doc.webUrl}"
+                target="_blank"
+div>
+        `;
+    }
+
 });
 
 html += `

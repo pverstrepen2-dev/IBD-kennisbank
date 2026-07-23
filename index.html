@@ -9420,12 +9420,16 @@ async function loadOneDriveLibrary() {
     }
 
     html += `
-    <div style="
-        margin-left:20px;
-        padding:6px;
-    ">
-        ${doc.webUrl}
-            📄 ${doc.name}
+<div style="
+    margin-left:20px;
+    padding:6px;
+">
+    <a
+        href="${doc.webUrl}"
+        target="_blank"
+        style="
+            color:black;
+            text-
         </a>
     </div>
     `;

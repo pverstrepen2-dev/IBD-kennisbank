@@ -9361,9 +9361,16 @@ async function loadOneDriveLibrary() {
 
        html += `
 <div class="card">
-    <h3 style="margin:0 0 10px 0;">
+
+    <h3 style="
+        margin:0 0 10px 0;
+        color:#1e293b;
+    ">
         📁 ${folder.name}
     </h3>
+
+    <details>
+        <summary>Documenten</summary>
 `;
 
         (docsData.value || [])
@@ -9373,17 +9380,20 @@ async function loadOneDriveLibrary() {
     }
 
     html += `
-    <div style="
-        margin-left:20px;
-        padding:6px;
-    ">
-        <a href="${doc.webUrl}"
-           target="_blank"
-           class="actionButton">
-           📄 ${doc.name}
-      
-            `;
+<div style="
+    margin-left:20px;
+    padding:6px;
+">
+    <a href="${doc.webUrl}"
+       target="_blank"
+       class="actionButton">
 
+       📄 ${doc.name}
+
+    </a>
+</div>
+`;
+      
         });
 
         html += `

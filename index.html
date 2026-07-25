@@ -9360,7 +9360,7 @@ async function loadOneDriveLibrary() {
         "📥 OneDrive laden...";
 
     const response = await fetch(
-        "https://graph.microsoft.com/v1.0/me/drive/root:/CCV-VZW/Documenten:/children",
+    `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`,
         {
             headers: {
                 Authorization:
@@ -9433,7 +9433,7 @@ async function loadOneDriveLibrary() {
             // BESTAND
             if (doc.file) {
 
-                html += `
+    html += `
 <div style="
     margin-left:40px;
     padding:6px;
@@ -9445,7 +9445,7 @@ async function loadOneDriveLibrary() {
 
 </div>
 `;
-            }
+}
 
         });
 
@@ -9672,7 +9672,7 @@ updateManualSubCategories();
 async function openOneDriveFolder(folderId){
 
     const response = await fetch(
-        `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`,
+    `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`,
         {
             headers:{
                 Authorization:
@@ -9710,19 +9710,19 @@ async function openOneDriveFolder(folderId){
         // Bestand
         if(item.file){
 
-            html += `
-            <div style="
-                padding:8px;
-                margin-left:20px;
-            ">
+    html += `
+    <div style="
+        padding:8px;
+        margin-left:20px;
+    ">
 
-                ${item.webUrl}
-                    📄 ${item.name}
-                </a>
+        ${item.webUrl}
+            📄 ${item.name}
+        </a>
 
-            </div>
-            `;
-        }
+    </div>
+    `;
+}
 
     });
 

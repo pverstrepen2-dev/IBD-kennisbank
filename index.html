@@ -9692,15 +9692,14 @@ updateManualSubCategories();
 
 async function openOneDriveFolder(folderId){
 
-    const response = await fetch(
-    `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`,
-        {
-            headers:{
-                Authorization:
-                    `Bearer ${accessToken}`
-            }
-        }
-    );
+   const response = await fetch(
+`https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`,
+{
+headers:{
+Authorization:`Bearer ${accessToken}`
+}
+}
+);
 
     const data =
         await response.json();
@@ -9731,12 +9730,17 @@ async function openOneDriveFolder(folderId){
         // Bestand
         if(item.file){
 
+            console.log(
+    "Bestand:",
+    item.name,
+    item.webUrl
+);
     html += `
     <div style="
         padding:8px;
         margin-left:20px;
     ">
-a>
+
         ${item.webUrl}
             📄 ${item.name}
         </a>

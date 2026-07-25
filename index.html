@@ -5784,9 +5784,9 @@ function showDocumentsBySubCategory(
         ">
 
             <a
-    href="${doc.bestand}"
-    target="_blank"
-    class
+    ${doc.bestand}
+        📄 Open document
+</a>
 
             <button
                 onclick="previewDocument('${doc.bestand}')"
@@ -9186,6 +9186,7 @@ function countDocumentsByCategory(
 
           <br><br>
 
+          <a
 ${doc.bestand}
     📄 Open document
 </a>
@@ -9594,17 +9595,18 @@ async function renderFolderContents(
         if (item.file) {
 
             html += `
-            <div style="
-                margin-left:25px;
-                padding:6px;
-            ">
+<div style="
+    margin-left:25px;
+    padding:6px;
+">
+    <a
+    ${item.webUrl}
+        📄 ${item.name}
+    </a>
+        </div>
 
-                ${item.webUrl}
-                    📄 ${item.name}
-                </a>
+`;
 
-            </div>
-            `;
         }
     }
 
@@ -9721,7 +9723,7 @@ async function openOneDriveFolder(folderId){
         padding:8px;
         margin-left:20px;
     ">
-
+a>
         ${item.webUrl}
             📄 ${item.name}
         </a>

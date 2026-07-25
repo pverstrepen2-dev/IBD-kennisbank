@@ -8564,35 +8564,29 @@ if(
 
         let subScore = 0;
 
-        if(!Array.isArray(keywords)){if(Array.isArray(keywords)){
+       if(!Array.isArray(keywords)){
 
-    keywords.forEach(keyword => {
+    console.log(
+        "Geen array:",
+        subcategorie,
+        keywords
+    );
 
-        // bestaande code
-
-    });
-
+    return;
 }
-            console.log(
-                "Geen array:",
-                subcategorie,
-                keywords
-            );
-            return;
-        }
 
-        keywords.forEach(keyword => {
+keywords.forEach(keyword => {
 
-            if(
-                naam.includes(
-                    String(keyword)
-                    .toLowerCase()
-                )
-            ){
-                subScore++;
-            }
+    if(
+        naam.includes(
+            String(keyword)
+                .toLowerCase()
+        )
+    ){
+        subScore++;
+    }
 
-        });
+});
 
                 if(
                     subScore > bestSubScore
@@ -8608,7 +8602,7 @@ if(
 
             }
 
-        );
+);
 
         const totalScore =
             categoryScore +
@@ -8640,20 +8634,16 @@ if(
     };
 
 }
-console.log(
-    "Geen array:",
-    subcategorie,
-    keywords
-);
-    return {
 
-        categorie:
-            bestCategory,
+return {
 
-        subcategorie:
-            bestSubCategory
+    categorie:
+        bestCategory,
 
-    };
+    subcategorie:
+        bestSubCategory
+
+};
 
 }
 

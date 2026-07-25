@@ -9703,6 +9703,10 @@ Authorization:`Bearer ${accessToken}`
 
     const data =
         await response.json();
+        console.log(
+    "Mapinhoud:",
+    data
+);
 
     let html = `
     <div class="card">
@@ -9710,6 +9714,11 @@ Authorization:`Bearer ${accessToken}`
     `;
 
     (data.value || []).forEach(item => {
+        console.log(
+    "Item gevonden:",
+    item.name,
+    item
+);
 
         // Submap
         if(item.folder){
@@ -9741,7 +9750,7 @@ Authorization:`Bearer ${accessToken}`
         margin-left:20px;
     ">
 
-        ${item.webUrl}
+        href=${item.webUrl}
             📄 ${item.name}
         </a>
 

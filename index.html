@@ -9309,21 +9309,27 @@ function openFolderContents(folder){
 
    docs.forEach(doc => {
 
-    console.log(doc.bestand);
+    const parser =
+        document.createElement("div");
+
+    parser.innerHTML =
+        doc.bestand;
+
+    const url =
+        parser.querySelector("a")?.href;
 
     html += `
     <div
         style="
             padding:10px;
             border-bottom:1px solid #ddd;
-        <a
+        "
     >
-        ${doc.bestand}
+        ${url}
             📄 ${doc.titel}
         </a>
     </div>
     `;
-
 });
 
     html += `

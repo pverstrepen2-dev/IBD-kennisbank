@@ -9310,23 +9310,31 @@ function openFolderContents(folder){
         </h2>
     `;
 
-    docs.forEach(doc => {
+   docs.forEach(doc => {
 
-        html += `
-        <div
-            style="
-                padding:10px;
-                border-bottom:1px solid #ddd;
-            "
-        >
+    const parser =
+        document.createElement("div");
 
-            ${doc.bestand}
-                📄 ${doc.titel}
-            </a>
+    parser.innerHTML =
+        doc.bestand;
 
-        </div>
-        `;
-    });
+    const url =
+        parser.querySelector("a")?.href
+        || doc.bestand;
+
+    html += `
+    <div
+        style="
+            padding:10px;
+            border-bottom:1px solid #ddd;
+        "
+    >
+        ${url}
+            📄 ${doc.titel}
+        </a>
+    </div>
+    `;
+});
 
     html += `
     </div>

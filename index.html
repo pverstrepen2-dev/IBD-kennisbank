@@ -229,6 +229,10 @@ border-bottom:1px solid #ddd;
 📚 Documentbibliotheek
 </button>
 
+<button onclick="showOneDriveFolders()">
+📁 OneDrive Mappen
+</button>
+
 <button onclick="openPage('faq')">
 ❓ FAQ
 </button>
@@ -334,6 +338,23 @@ border-bottom:1px solid #ddd;
     </div>
 
     <div id="categoryDocuments"></div>
+</div>
+
+<div id="onedriveFolders"
+     class="page hidden">
+
+    <div class="card">
+
+        <h2>
+            📁 OneDrive Mappen
+        </h2>
+
+        <div id="onedriveFoldersList">
+
+        </div>
+
+    </div>
+
 </div>
 
 <div id="workspace"
@@ -9056,8 +9077,7 @@ function countDocumentsByCategory(
 
           <br><br>
 
-<a
-    ${doc.bestand}
+${doc.bestand}
     📄 Open document
 </a>
 
@@ -9218,6 +9238,89 @@ function renderAllCategories(){
 
     renderDynamicCategory("Mindfulness & Welzijn");
 
+}
+
+function showOneDriveFolders(){
+
+    openPage("onedriveFolders");
+
+    const folders =
+        [...new Set(
+            knowledgeData
+            .map(doc => doc.subcategorie)
+            .filter(Boolean)
+        )];
+
+    let html = "";
+
+    folders.forEach(folder => {
+
+        html += `
+        <div class="card">
+
+            <h3>
+                📁 ${folder}
+            </h3>
+
+            <button
+                class="actionButton"
+                onclick="openFolderContents('${folder}')"
+            >
+                Open map
+            </button>
+
+        </div>
+        `;
+    });
+
+    document.getElementById(
+        "onedriveFoldersList"
+    ).innerHTML = html;
+}
+
+function openFolderContents(folder){
+
+    openPage("workspace");
+
+    const docs =
+        knowledgeData.filter(
+            doc =>
+                doc.subcategorie === folder
+        );
+
+    let html = `
+    <div class="card">
+
+        <h2>
+            📁 ${folder}
+        </h2>
+    `;
+
+    docs.forEach(doc => {
+
+        html += `
+        <div
+            style="
+                padding:10px;
+                border-bottom:1px solid #ddd;
+            "
+        >
+
+            ${doc.bestand}
+                📄 ${doc.titel}
+            </a>
+
+        </div>
+        `;
+    });
+
+    html += `
+    </div>
+    `;
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = html;
 }
 
 function previewDocument(url){

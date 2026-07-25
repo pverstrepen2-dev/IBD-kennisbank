@@ -9310,7 +9310,7 @@ function openFolderContents(folder){
         </h2>
     `;
 
-   docs.forEach(doc => {
+  docs.forEach(doc => {
 
     const parser =
         document.createElement("div");
@@ -9319,8 +9319,7 @@ function openFolderContents(folder){
         doc.bestand;
 
     const url =
-        parser.querySelector("a")?.href
-        || doc.bestand;
+        parser.querySelector("a")?.href || "#";
 
     html += `
     <div

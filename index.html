@@ -7,7 +7,8 @@
 <title>IBD Kennisbank</title>
 
 <script src="https://unpkg.com/@azure/msal-browser@latest/lib/msal-browser.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/x/0.18.5/xlsx.full.min.jsscript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
 <style>
 
 body{
@@ -8537,6 +8538,8 @@ if(
 
     });
 
+    if(data.keywords){
+
     data.keywords.forEach(keyword => {
 
         if(
@@ -8548,6 +8551,8 @@ if(
         }
 
     });
+
+}
 
         let bestSubScore = 0;
         let currentSubCategory = "Algemeen";
@@ -9492,10 +9497,8 @@ async function importSingleFolder(
         return;
     }
 
-    const categorie =
-    classifyDocument(
-        folderName
-    ).categorie;
+   const categorie =
+    folderName;
 
     knowledgeData.push({
 

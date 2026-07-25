@@ -230,10 +230,6 @@ border-bottom:1px solid #ddd;
 📚 Documentbibliotheek
 </button>
 
-<button onclick="showOneDriveFolders()">
-📁 OneDrive Mappen
-</button>
-
 <button onclick="openPage('faq')">
 ❓ FAQ
 </button>
@@ -252,6 +248,10 @@ border-bottom:1px solid #ddd;
 
 <button onclick="openPage('websites')">
     🌐 Websites
+</button>
+
+<button onclick="showOneDriveExplorer()">
+    📁 OneDrive Explorer
 </button>
 
 </div>
@@ -9335,6 +9335,120 @@ function previewDocument(url){
         "_blank"
     );
 
+}
+
+async function showOneDriveExplorer(){
+
+    const response = await fetch(
+        "https://graph.microsoft.com/v1.0/me/drive/root/children",
+        {
+            headers:{
+                Authorization:
+                    `Bearer ${accessToken}`
+            }
+        }
+    );
+
+    const data =
+        await response.json();
+
+    let html = `
+    <div class="card">
+
+        <h2>
+            📁 OneDrive Explorer
+        </h2>
+    `;
+
+    data.value.forEach(item => {
+
+        if(item.folder){
+
+            html += `
+            <div
+                style="
+                    padding:10px;
+                    border-bottom:1px solid #ddd;
+                "
+            >
+
+                📁 ${item.name}
+
+                <button
+                    onclick="openOneDriveFolder('${item.id}')"
+                >
+                    Open
+                </button>
+
+            </div>
+            `;
+        }
+
+    });
+
+    html += `
+    </div>
+    `;
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = html;
+
+    openPage("workspace");
+}
+
+async function openOneDriveFolder(folderId){
+
+    const response = await fetch(
+        `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`,
+        {
+            headers:{
+                Authorization:
+                    `Bearer ${accessToken}`
+            }
+        }
+    );
+
+    const data =
+        await response.json();
+
+    let html = `
+    <div class="card">
+
+        <h2>
+            📁 Mapinhoud
+        </h2>
+    `;
+
+    data.value.forEach(item => {
+
+        if(item.file){
+
+            html += `
+            <div
+                style="
+                    padding:10px;
+                    border-bottom:1px solid #ddd;
+                "
+            >
+                ${item.webUrl}
+                    📄 ${item.name}
+                </a>
+            </div>
+            `;
+        }
+
+    });
+
+    html += `
+    </div>
+    `;
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = html;
+
+    openPage("workspace");
 }
 
 function closePreview(){

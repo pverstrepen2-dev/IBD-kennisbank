@@ -9319,14 +9319,14 @@ function openFolderContents(folder){
         doc.bestand;
 
     const url =
-        parser.querySelector("a")?.href || "#";
+        parser.querySelector("a")?.href;
 
     html += `
     <div
         style="
             padding:10px;
             border-bottom:1px solid #ddd;
-        "
+        <a
     >
         ${url}
             📄 ${doc.titel}

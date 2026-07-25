@@ -9303,15 +9303,28 @@ function openFolderContents(folder){
 
     docs.forEach(doc => {
 
-        console.log(doc.bestand);
+        console.log(
+            "BESTAND:",
+            doc.bestand
+        );
 
-        let link =
-    doc.bestand.replace(
-        />https:\/\/.*?</,
-        `>${doc.titel}<`
-    *;
+        let link = doc.bestand;
 
-console.log(link);
+        try{
+
+            link = doc.bestand.replace(
+                />(.*?)</,
+                `>${doc.titel}<`
+            );
+
+        }catch(error){
+
+            console.log(
+                "Link kon niet aangepast worden",
+                error
+            );
+
+        }
 
         html += `
         <div
@@ -9334,14 +9347,6 @@ console.log(link);
     document.getElementById(
         "workspaceContent"
     ).innerHTML = html;
-}
-function previewDocument(url){
-
-    window.open(
-        url,
-        "_blank"
-    );
-
 }
 
 function closePreview(){

@@ -7038,12 +7038,14 @@ if(!response.ok){
         continue;
     }
 
-   await scanFolder(
+  await scanFolder(
     item.id,
     categorie,
-    huidigeSubcategorie +
-    " " +
-    item.name
+    (
+        huidigeSubcategorie +
+        " " +
+        item.name
+    ).trim()
 );
 
     continue;
@@ -9198,7 +9200,6 @@ function countDocumentsByCategory(
 
           <br><br>
 
-          <a
 href=${doc.bestand}
     📄 Open document
 </a>
@@ -9612,7 +9613,6 @@ async function renderFolderContents(
     margin-left:25px;
     padding:6px;
 ">
-    <a
    href= ${item.webUrl}
         📄 ${item.name}
     </a>

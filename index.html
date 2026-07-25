@@ -9330,17 +9330,27 @@ function openFolderContents(folder){
             doc.bestand
         );
 
-        const parser = document.createElement("div");
-parser.innerHTML = doc.bestand;
+       const parser =
+    document.createElement("div");
+
+parser.innerHTML =
+    doc.bestand;
 
 const url =
-    parser.querySelector("a")?.href || "#";
-
-let link = `
-<a
-    href="${url}"
-    }
-</a>
+    parser.querySelector("a")?.href
+    || "#";
+console.log("URL=", url);
+html += `
+<div
+    style="
+        padding:10px;
+        border-bottom:1px solid #ddd;
+    "
+>
+    ${url}
+        📄 ${doc.titel}
+    </a>
+</div>
 `;
 
         html += `

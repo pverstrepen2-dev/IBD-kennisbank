@@ -8564,9 +8564,20 @@ if(
 
         let subScore = 0;
 
-        if(
-            !Array.isArray(keywords)
-        ){
+        if(!Array.isArray(keywords)){if(Array.isArray(keywords)){
+
+    keywords.forEach(keyword => {
+
+        // bestaande code
+
+    });
+
+}
+            console.log(
+                "Geen array:",
+                subcategorie,
+                keywords
+            );
             return;
         }
 
@@ -9319,23 +9330,18 @@ function openFolderContents(folder){
             doc.bestand
         );
 
-        let link = doc.bestand;
+        const parser = document.createElement("div");
+parser.innerHTML = doc.bestand;
 
-        try{
+const url =
+    parser.querySelector("a")?.href || "#";
 
-            link = doc.bestand.replace(
-                />(.*?)</,
-                `>${doc.titel}<`
-            );
-
-        }catch(error){
-
-            console.log(
-                "Link kon niet aangepast worden",
-                error
-            );
-
-        }
+let link = `
+<a
+    href="${url}"
+    }
+</a>
+`;
 
         html += `
         <div

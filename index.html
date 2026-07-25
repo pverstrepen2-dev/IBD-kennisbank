@@ -7015,6 +7015,11 @@ if(!response.ok){
     }
 
     for(const item of data.value){
+        console.log(
+    "OneDrive item:",
+    item.name,
+    item.folder ? "MAP" : "BESTAND"
+);
 
         // SUBMAP
         if(item.folder){
@@ -7048,6 +7053,11 @@ if(!response.ok){
         // BESTAND
     
       if(item.file){
+        console.log(
+    "Bestand gevonden:",
+    item.name,
+    item.webUrl
+);
 
     const extensie =
         item.name
@@ -7145,6 +7155,12 @@ const classification =
     gewijzigd:item.lastModifiedDateTime,
     type:item.file.mimeType
 });
+
+console.log(
+"Toegevoegd aan knowledgeData:",
+item.name,
+item.webUrl
+);
 
 }
 

@@ -8557,36 +8557,25 @@ if(
         let bestSubScore = 0;
         let currentSubCategory = "Algemeen";
 
-       Object.entries(
-    data.subcategories
-).forEach(
-    ([subcategorie,keywords]) => {
+        Object.entries(
+            data.subcategories
+        ).forEach(
 
-        let subScore = 0;
+            ([subcategorie,keywords]) => {
 
-       if(!Array.isArray(keywords)){
+                let subScore = 0;
 
-    console.log(
-        "Geen array:",
-        subcategorie,
-        keywords
-    );
+                keywords.forEach(keyword => {
 
-    return;
-}
+                    if(
+                        naam.includes(
+                            keyword.toLowerCase()
+                        )
+                    ){
+                        subScore++;
+                    }
 
-keywords.forEach(keyword => {
-
-    if(
-        naam.includes(
-            String(keyword)
-                .toLowerCase()
-        )
-    ){
-        subScore++;
-    }
-
-});
+                });
 
                 if(
                     subScore > bestSubScore
@@ -8602,7 +8591,7 @@ keywords.forEach(keyword => {
 
             }
 
-);
+        );
 
         const totalScore =
             categoryScore +
@@ -8634,16 +8623,15 @@ keywords.forEach(keyword => {
     };
 
 }
+    return {
 
-return {
+        categorie:
+            bestCategory,
 
-    categorie:
-        bestCategory,
+        subcategorie:
+            bestSubCategory
 
-    subcategorie:
-        bestSubCategory
-
-};
+    };
 
 }
 
@@ -9296,10 +9284,6 @@ function showOneDriveFolders(){
 }
 
 function openFolderContents(folder){
-    console.log(
-    "OPEN FOLDER:",
-    folder
-);
 
     openPage("workspace");
 
@@ -9319,34 +9303,6 @@ function openFolderContents(folder){
 
     docs.forEach(doc => {
 
-        console.log(
-            "BESTAND:",
-            doc.bestand
-        );
-
-       const parser =
-    document.createElement("div");
-
-parser.innerHTML =
-    doc.bestand;
-
-const url =
-    parser.querySelector("a")?.href
-    || "#";
-console.log("URL=", url);
-html += `
-<div
-    style="
-        padding:10px;
-        border-bottom:1px solid #ddd;
-    "
->
-    ${url}
-        📄 ${doc.titel}
-    </a>
-</div>
-`;
-
         html += `
         <div
             style="
@@ -9355,7 +9311,9 @@ html += `
             "
         >
 
-            📄 ${link}
+            ${doc.bestand}
+                📄 ${doc.titel}
+            </a>
 
         </div>
         `;
@@ -9368,6 +9326,15 @@ html += `
     document.getElementById(
         "workspaceContent"
     ).innerHTML = html;
+}
+
+function previewDocument(url){
+
+    window.open(
+        url,
+        "_blank"
+    );
+
 }
 
 function closePreview(){

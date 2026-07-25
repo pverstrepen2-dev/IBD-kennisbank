@@ -9312,23 +9312,14 @@ function openFolderContents(folder){
 
   docs.forEach(doc => {
 
-    const parser =
-        document.createElement("div");
-
-    parser.innerHTML =
-        doc.bestand;
-
-    const url =
-        parser.querySelector("a")?.href;
-
     html += `
     <div
         style="
             padding:10px;
             border-bottom:1px solid #ddd;
-        <a
+        "
     >
-        ${url}
+        ${doc.bestand}
             📄 ${doc.titel}
         </a>
     </div>

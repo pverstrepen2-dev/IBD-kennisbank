@@ -7,8 +7,7 @@
 <title>IBD Kennisbank</title>
 
 <script src="https://unpkg.com/@azure/msal-browser@latest/lib/msal-browser.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-
+<script src="https://cdnjs.cloudflare.com/x/0.18.5/xlsx.full.min.jsscript"></script>
 <style>
 
 body{
@@ -64,24 +63,6 @@ header{
     border-radius:12px;
     margin-bottom:20px;
     box-shadow:0 2px 10px rgba(0,0,0,.08);
-}
-
-.card a{
-    color:#2563eb;
-    text-decoration:underline;
-    font-weight:600;
-}
-
-.card a:hover{
-    color:#1d4ed8;
-}
-
-.card a:visited{
-    color:black;
-}
-
-.card a:hover{
-    color:black;
 }
 
 #faq{
@@ -157,10 +138,26 @@ header{
 }
 
 .actionButton{
+
     display:inline-block;
-    background:#f5f7fa;
-    color:black;
-    border:1px solid #d1d5db;
+
+    background:#2563eb;
+
+    color:white;
+
+    text-decoration:none;
+
+    padding:10px 15px;
+
+    border-radius:8px;
+
+    border:none;
+
+    cursor:pointer;
+
+    font-weight:600;
+
+    transition:.2s;
 }
 
 .actionButton:hover{
@@ -252,10 +249,6 @@ border-bottom:1px solid #ddd;
     🌐 Websites
 </button>
 
-<button onclick="openPage('onedriveLibrary')">
-📁 OneDrive Mappen
-</button>
-
 </div>
 
 <div class="content">
@@ -316,10 +309,6 @@ border-bottom:1px solid #ddd;
 
 <button onclick="openPage('websites')">
 🌐 Websites
-</button>
-
-<button onclick="openPage('contact')">
-📞 Over / Contact
 </button>
 
 </div>
@@ -863,55 +852,6 @@ border-bottom:1px solid #ddd;
 
         </div>
     </div>
-</div>
-
-<div id="onedriveLibrary"
-     class="page hidden">
-
-    <div class="card">
-
-        <h2>
-            📁 OneDrive Bibliotheek
-        </h2>
-
-        <div id="onedriveFolders"></div>
-
-    </div>
-
-</div>
-
-<div id="contact" class="page hidden">
-
-    <div class="card">
-
-        <h2>📞 Over / Contact</h2>
-
-        <p>
-            Welkom op de IBD Kennisbank.
-        </p>
-
-        <hr>
-
-        <p>
-            <strong>Beheerder:</strong><br>
-            Patrick Verstrepen
-        </p>
-
-        <p>
-            <strong>📧 E-mail:</strong><br><br>
-
-            ccv_vzw@outlook.com?subject=Vraag over de IBD Kennisbank
-                ccv_vzw@outlook.com
-            </a>
-        </p>
-
-        <p>
-            Voor vragen, opmerkingen, foutmeldingen of suggesties
-            kan u contact opnemen via bovenstaand e-mailadres.
-        </p>
-
-    </div>
-
 </div>
 
 <div id="beheer" class="page hidden">
@@ -1562,8 +1502,6 @@ let sociaalPremies = [];
 let sociaalMantelzorg = [];
 let members = [];
 let websitesDatabase = [];
-let documentBibliotheek = [];
-let oneDriveLibraryData = [];
 let users = [
     {
         email:"ccv_vzw@outlook.com",
@@ -1640,7 +1578,6 @@ function openPage(page){
     ccv:"🤝 CCV-VZW",
     zorggids:"🏥 Zorggids",
     sociaal:"⚖️ Sociale Gids",
-    contact:"📞 Over / Contact",
   };
 
 if(document.getElementById("breadcrumb")){
@@ -1674,18 +1611,9 @@ if(document.getElementById("breadcrumb")){
             p => p.classList.add("hidden")
         );
 
-    const targetPage =
-    document.getElementById(page);
-
-if (!targetPage) {
-    console.error(
-        "Pagina niet gevonden:",
-        page
-    );
-    return;
-}
-
-targetPage.classList.remove("hidden");
+    document
+        .getElementById(page)
+        .classList.remove("hidden");
 
     // Beheerpagina openen
     if(
@@ -1698,11 +1626,6 @@ targetPage.classList.remove("hidden");
   if(page === "documents"){
     renderDocuments();
 }
-
-if(page === "onedriveLibrary"){
-    loadOneDriveLibrary();
-}
-
 
 if(document.getElementById("documentCountInfo")){
 
@@ -4751,153 +4674,138 @@ function updateManualSubCategories(){
 
 }
 
-async function importWebsiteExcel() {
+async function importWebsiteExcel(){
 
-    if (typeof XLSX === "undefined") {
-        alert("XLSX bibliotheek niet geladen");
+    if(typeof XLSX === "undefined"){
+
+    alert(
+        "XLSX bibliotheek niet geladen"
+    );
+
+    return;
+}
+
+    const file =
+        document.getElementById(
+            "websiteImportFile"
+        ).files[0];
+
+    if(!file){
+
+        alert(
+            "Selecteer eerst een bestand"
+        );
+
         return;
     }
 
-    const file = document.getElementById("websiteImportFile").files[0];
+    const data =
+        await file.arrayBuffer();
 
-    if (!file) {
-        alert("Selecteer eerst een bestand");
-        return;
-    }
+    const workbook =
+        XLSX.read(
+            data,
+            {type:"array"}
+        );
 
-    const data = await file.arrayBuffer();
+    const sheet =
+        workbook.Sheets[
+            workbook.SheetNames[0]
+        ];
 
-    const workbook = XLSX.read(data, { type: "array" });
+    const rows =
+        XLSX.utils.sheet_to_json(
+            sheet
+        );
 
-    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        rows.forEach(row => {
+            console.log(row);
 
-    const rows = XLSX.utils.sheet_to_json(sheet);
-
-    rows.forEach(row => {
-
-        console.log(row);
-
-        const titel =
-        row["Website/Bron"] ||
-        row.Website ||
-         row.Naam ||
-         row.Titel ||
-         row.Name ||
-          "";
-
-        const land =
-       row.Land ||
-        row.Country ||
-        "🌍 Internationaal";
-
-        let finalTitle = titel;
-
-if (!finalTitle && cleanUrl) {
-
-    try {
-
-        const hostname =
-            new URL(cleanUrl)
-            .hostname;
-
-        finalTitle =
-            hostname
-            .replace("www.", "");
-
-    } catch {
-
-        finalTitle =
-            cleanUrl;
-
-    }
-}
-
-let cleanUrl = (row.URL || "").trim();
-
-// HTML-link uit Excel of Copilot export halen
-const hrefMatch = cleanUrl.match(/href="([^"]+)"/i);
-
-if (hrefMatch) {
-    cleanUrl = hrefMatch[1];
-}
-
-// URL zonder protocol aanvullen
-if (
-    cleanUrl &&
-    !cleanUrl.startsWith("http://") &&
-    !cleanUrl.startsWith("https://")
-) {
-    cleanUrl = "https://" + cleanUrl;
-}
-
-        const currentUrl = (row.URL || "")
+    const currentUrl =
+        (row.URL || "")
             .toLowerCase()
             .trim()
             .replace(/\/$/, "");
 
-        const exists = websitesDatabase.some(
-    x =>
-        (x.url || "")
-            .toLowerCase()
-            .trim()
-            .replace(/\/$/, "") ===
-        currentUrl
-            .toLowerCase()
-            .trim()
-            .replace(/\/$/, "")
-);
+    const exists =
+        websitesDatabase.some(
+            x =>
+                (x.url || "")
+                    .toLowerCase()
+                    .trim()
+                    .replace(/\/$/, "")
+                === currentUrl
+        );
 
+    if(exists){
+        return;
+    }
 
-        if (exists) {
-            return;
-        }
+    const subcategorie =
+        WEBSITE_IMPORT_MAPPING[
+            row.Categorie
+        ] ||
+        "Organisaties";
 
-        if (
-    !finalTitle &&
-    !(row.URL || "").trim()
-) {
-    console.warn(
-        "Lege rij overgeslagen:",
-        row
-    );
-    return;
-}
+    websitesDatabase.push({
 
-        const subcategorie =
-    (row.Categorie || "")
-        .toString()
-        .trim() ||
-    "Overige";
+            id:
+                generateId(),
 
-       websitesDatabase.push({
-            id: generateId(),
-    land: land,
-    titel: finalTitle,
-    url: cleanUrl,
-            beschrijving: row.Beschrijving || "",
-            categorie: "Websites",
-            subcategorie: subcategorie,
-            documentType: "Website",
-            doelgroep: determineWebsiteAudience(subcategorie),
-            betrouwbaarheid: determineWebsiteTrust(row.URL || ""),
-            tags: determineWebsiteTags(
+            land:
+                row.Land || "",
+
+            titel:
+                row.Website ||
+                row.Naam ||
+                "",
+
+            url:
                 row.URL || "",
-                subcategorie
-            ),
-            created: new Date().toISOString(),
-            createdBy: currentUser
+
+            beschrijving:
+                row.Beschrijving || "",
+
+            categorie:
+                "Websites",
+
+            subcategorie:
+                subcategorie,
+
+            documentType:
+                "Website",
+
+            doelgroep:
+                determineWebsiteAudience(
+                    subcategorie
+                ),
+
+            betrouwbaarheid:
+                determineWebsiteTrust(
+                    row.URL || ""
+                ),
+
+            tags:
+                determineWebsiteTags(
+                    row.URL || "",
+                    subcategorie
+                ),
+
+            created:
+                new Date()
+                    .toISOString(),
+
+            createdBy:
+                currentUser
         });
     });
 
-console.log(
-    "Website geïmporteerd:",
-    websitesDatabase[
-        websitesDatabase.length - 1
-    ]
-);
     saveData();
 
-    alert(rows.length + " websites geïmporteerd");
+    alert(
+        rows.length +
+        " websites geïmporteerd"
+    );
 }
 
 function analyseWebsite(){
@@ -4951,16 +4859,6 @@ if(url.includes("uz"))
 
 if(url.includes("crohn"))
     tags.push("IBD Vereniging");
-
- if (!cleanUrl) {
-
-    console.warn(
-        "Website zonder URL overgeslagen:",
-        row
-    );
-
-    return;
-}   
 
     websitesDatabase.push({
 
@@ -5715,7 +5613,9 @@ function updateDashboardStats(){
 
 }
 
-function showCategoryDocuments(categorie){
+function showCategoryDocuments(
+    categorie
+){
 
     const docs =
         knowledgeData.filter(
@@ -5727,20 +5627,24 @@ function showCategoryDocuments(categorie){
     docs.forEach(doc => {
 
         html += `
-        <div class="card">
 
-            <h3>
-                ${doc.bestand}
-                    ${doc.titel}
-                </a>
-            </h3>
+    <div class="card">
 
-            <p>
-                ${doc.samenvatting || ""}
-            </p>
+        <h3>
 
-        </div>
-        `;
+            ${doc.bestand}
+                ${doc.titel}
+            </a>
+
+        </h3>
+
+        <p>
+            ${doc.samenvatting || ""}
+        </p>
+
+    </div>
+
+`;
     });
 
     document.getElementById(
@@ -5765,8 +5669,6 @@ function showDocumentsBySubCategory(
 
   docs.forEach(doc => {
 
-    const url = normalizeUrl(doc.bestand);
-
     html += `
 
     <div class="card">
@@ -5779,13 +5681,13 @@ function showDocumentsBySubCategory(
             margin-top:15px;
             flex-wrap:wrap;
         ">
-        <a
-            href=${doc.bestand$}
-                📄 Open document
+
+            ${doc.bestand}
+                📂 Open document
             </a>
 
             <button
-                onclick="previewDocument('${encodeURIComponent(url)}')"
+                onclick="previewDocument('${doc.bestand}')"
                 class="actionButton"
             >
                 👁 Preview
@@ -5908,23 +5810,6 @@ async function uploadEntity(
 
     }
 
-}
-
-function normalizeUrl(url) {
-  if (!url) return '';
-
-  // HTML-link extracteren
-  const match = url.match(/href="([^"]+)"/i);
-  if (match) url = match[1];
-
-  url = url.trim();
-
-  // protocol toevoegen
-  if (!/^https?:\/\//i.test(url)) {
-    url = `https://${url}`;
-  }
-
-  return url;
 }
 
 async function downloadUsers(){
@@ -7015,11 +6900,6 @@ if(!response.ok){
     }
 
     for(const item of data.value){
-        console.log(
-    "OneDrive item:",
-    item.name,
-    item.folder ? "MAP" : "BESTAND"
-);
 
         // SUBMAP
         if(item.folder){
@@ -7038,14 +6918,12 @@ if(!response.ok){
         continue;
     }
 
-  await scanFolder(
+   await scanFolder(
     item.id,
     categorie,
-    (
-        huidigeSubcategorie +
-        " " +
-        item.name
-    ).trim()
+    huidigeSubcategorie +
+    " " +
+    item.name
 );
 
     continue;
@@ -7055,11 +6933,6 @@ if(!response.ok){
         // BESTAND
     
       if(item.file){
-        console.log(
-    "Bestand gevonden:",
-    item.name,
-    item.webUrl
-);
 
     const extensie =
         item.name
@@ -7145,24 +7018,27 @@ const classification =
 
 }
 
-   knowledgeData.push({
-    titel:item.name,
-    categorie:classification.categorie,
-    subcategorie:classification.subcategorie,
+    knowledgeData.push({
 
-    folder:huidigeSubcategorie,
+    titel:item.name,
+
+    categorie:
+        classification.categorie,
+
+    subcategorie:
+        classification.subcategorie,
+
+    tags:tags,
 
     bestand:item.webUrl,
 
-    gewijzigd:item.lastModifiedDateTime,
-    type:item.file.mimeType
-});
+    gewijzigd:
+        item.lastModifiedDateTime,
 
-console.log(
-"Toegevoegd aan knowledgeData:",
-item.name,
-item.webUrl
-);
+    type:
+        item.file.mimeType
+
+});
 
 }
 
@@ -8067,21 +7943,24 @@ const KNOWLEDGE_ENGINE = {
 
 },
 
-"CCV-VZW": {
-    keywords: [
-        "ccv",
-        "ccv-vzw",
-        "bestuur",
-        "vereniging"
-    ],
-    subcategories: {
-        Vergaderingen: ["vergadering"],
-        Projecten: ["project"],
-        Taken: ["taak"],
-        Leden: ["lid"],
-        Activiteiten: ["activiteit"],
-        Documenten: ["document"]
+"CCV-VZW":{
+
+    subcategories:{
+
+        "Vergaderingen":{},
+
+        "Projecten":{},
+
+        "Taken":{},
+
+        "Leden":{},
+
+        "Activiteiten":{},
+
+        "Documenten":{}
+
     }
+
 },
 
 "Sociale Gids":{
@@ -8128,21 +8007,24 @@ const KNOWLEDGE_ENGINE = {
 
 },
 
-"CCV-VZW": {
-    keywords: [
-        "ccv",
-        "ccv-vzw",
-        "bestuur",
-        "vereniging"
-    ],
-    subcategories: {
-        Vergaderingen: [],
-        Projecten: [],
-        Taken: [],
-        Leden: [],
-        Activiteiten: [],
-        Documenten: []
+"CCV-VZW":{
+
+    subcategories:{
+
+        "Vergaderingen":{},
+
+        "Projecten":{},
+
+        "Taken":{},
+
+        "Leden":{},
+
+        "Activiteiten":{},
+
+        "Documenten":{}
+
     }
+
 },
 
 "Media":{
@@ -8567,9 +8449,6 @@ function classifyDocument(filename){
         filename
     );
 
-console.log("medicalMatches", medicalMatches);
-console.log("KNOWLEDGE_ENGINE", KNOWLEDGE_ENGINE);
-
 if(
     naam.includes("http://")
     ||
@@ -8591,6 +8470,16 @@ if(
     };
 }
 
+if(
+    filename.includes("http") ||
+    filename.includes("www.")
+){
+    return {
+        categorie:"Websites",
+        subcategorie:"Organisaties"
+    };
+}
+
     let bestCategory =
         "Algemeen";
 
@@ -8599,48 +8488,38 @@ if(
 
     let highestScore = 0;
 
-    console.log("KNOWLEDGE_ENGINE", KNOWLEDGE_ENGINE);
-   for (const [categorie, data]
-    of Object.entries(KNOWLEDGE_ENGINE || {})
-) {
-if (!data) {
-    console.error(
-        "KNOWLEDGE_ENGINE categorie zonder data:",
-        categorie
-    );
-    continue;
-}
+   for(
+
+    const [categorie,data]
+
+    of Object.entries(
+        KNOWLEDGE_ENGINE
+    )
+
+){
+
     let categoryScore = 0;
-    console.log("1 medicalMatches", medicalMatches);
 
-    (medicalMatches || []).forEach(match => {
+    medicalMatches.forEach(match => {
 
-        const relevanteGroepen = [
-    "Medicatie",
-    "Diagnose",
-    "Voeding",
-    "Complicaties"
-];
+        if(match.groep === "Medicatie")
+            categoryScore += 2;
 
-if (relevanteGroepen.includes(match.groep)) {
-    categoryScore += 2;
-}
+        if(match.groep === "Diagnose")
+            categoryScore += 2;
+
+        if(match.groep === "Voeding")
+            categoryScore += 2;
+
+        if(match.groep === "Complicaties")
+            categoryScore += 2;
 
     });
 
-    console.log(
-    "data.keywords",
-    categorie,
-    data?.keywords
-);
-
-console.log("2 data", data);
-console.log("2 keywords", data?.keywords);
-
-    ((data?.keywords) || []).forEach(keyword => {
+    data.keywords.forEach(keyword => {
 
         if(
-           naam.includes(
+            naam.includes(
                 keyword.toLowerCase()
             )
         ){
@@ -8652,48 +8531,25 @@ console.log("2 keywords", data?.keywords);
         let bestSubScore = 0;
         let currentSubCategory = "Algemeen";
 
-console.log(
-    "Categorie controleren:",
-    categorie,
-    data
-);
+        Object.entries(
+            data.subcategories
+        ).forEach(
 
-console.log(
-    "subcategories",
-    categorie,
-    data?.subcategories
-);
+            ([subcategorie,keywords]) => {
 
-console.log(
-    "RAW SUBCATEGORIES",
-    JSON.stringify(data?.subcategories)
-);
+                let subScore = 0;
 
-      Object.entries(
-    data?.subcategories || {}
-).forEach(
+                keywords.forEach(keyword => {
 
-    ([subcategorie,keywords]) => {
+                    if(
+                        naam.includes(
+                            keyword.toLowerCase()
+                        )
+                    ){
+                        subScore++;
+                    }
 
-        let subScore = 0;
-
-        // indien geen array, overslaan
-        if (!Array.isArray(keywords)) {
-            return;
-        }
-
-
-        keywords.forEach(keyword => {
-
-            if(
-                naam.includes(
-                    keyword.toLowerCase()
-                )
-            ){
-                subScore++;
-            }
-
-        });
+                });
 
                 if(
                     subScore > bestSubScore
@@ -9200,10 +9056,10 @@ function countDocumentsByCategory(
 
           <br><br>
 
-href=${doc.bestand}
+<a
+    ${doc.bestand}
     📄 Open document
 </a>
- 
 
 &nbsp;
 
@@ -9364,54 +9220,7 @@ function renderAllCategories(){
 
 }
 
-async function loadOneDriveLibrary() {
-
-    const container =
-        document.getElementById("onedriveFolders");
-
-    if (!container) return;
-
-    container.innerHTML =
-        "📥 OneDrive laden...";
-
-    const response = await fetch(
-        "https://graph.microsoft.com/v1.0/me/drive/root:/CCV-VZW/Documenten:/children",
-        {
-            headers: {
-                Authorization: `Bearer ${accessToken}`
-            }
-        }
-    );
-
-    const data = await response.json();
-
-    if (!data.value) {
-
-        container.innerHTML =
-            "❌ Geen mappen gevonden";
-
-        console.error(data);
-        return;
-    }
-
-    let html =
-        "<h2>📂 OneDrive Bibliotheek</h2>";
-
-    for (const folder of data.value) {
-
-        if (!folder.folder) continue;
-
-        html += await renderFolderContents(
-            folder.id,
-            folder.name
-        );
-    }
-
-    container.innerHTML = html;
-}
-
 function previewDocument(url){
-url = decodeURIComponent(url);
 
     window.open(
         url,
@@ -9563,75 +9372,6 @@ function renderFilteredDocuments(
 
 }
 
-async function renderFolderContents(
-    folderId,
-    folderName
-) {
-
-    const response = await fetch(
-        'https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children',
-        {
-            headers: {
-                Authorization: `Bearer ${accessToken}`
-            }
-        }
-    );
-
-    const data =
-        await response.json();
-
-    let html = `
-    <div class="card">
-
-        <h3>
-            📁 ${folderName}
-        </h3>
-
-        <details>
-
-            <summary>
-                Documenten
-            </summary>
-    `;
-
-    for (const item of (data.value || [])) {
-
-        if (item.folder) {
-
-            html += await renderFolderContents(
-                item.id,
-                item.name
-            );
-
-            continue;
-        }
-
-        if (item.file) {
-
-            html += `
-<div style="
-    margin-left:25px;
-    padding:6px;
-">
-   href= ${item.webUrl}
-        📄 ${item.name}
-    </a>
-        </div>
-
-`;
-
-        }
-    }
-
-    html += `
-        </details>
-
-    </div>
-    `;
-
-    return html;
-}
-
 async function importSingleFolder(
     folderId,
     folderName
@@ -9690,85 +9430,6 @@ if(
 
 updateManualSubCategories();
 
-async function openOneDriveFolder(folderId){
-
-   const response = await fetch(
-`https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`,
-{
-headers:{
-Authorization:`Bearer ${accessToken}`
-}
-}
-);
-
-    const data =
-        await response.json();
-        console.log(
-    "Mapinhoud:",
-    data
-);
-
-    let html = `
-    <div class="card">
-        <h2>📁 Mapinhoud</h2>
-    `;
-
-    (data.value || []).forEach(item => {
-        console.log(
-    "Item gevonden:",
-    item.name,
-    item
-);
-
-        // Submap
-        if(item.folder){
-
-            html += `
-            <div style="
-                padding:8px;
-                margin-left:20px;
-                font-weight:bold;
-            ">
-                📁 ${item.name}
-            </div>
-            `;
-
-            return;
-        }
-
-        // Bestand
-        if(item.file){
-
-            console.log(
-    "Bestand:",
-    item.name,
-    item.webUrl
-);
-    html += `
-    <div style="
-        padding:8px;
-        margin-left:20px;
-    ">
-
-        href=${item.webUrl}
-            📄 ${item.name}
-        </a>
-
-    </div>
-    `;
-}
-
-    });
-
-    html += `
-    </div>
-    `;
-
-    document.getElementById(
-        "onedriveFolders"
-    ).innerHTML = html;
-}
-
 console.log(
     "IBD Kennisbank V7 gestart"
 );
@@ -9823,30 +9484,6 @@ console.log(
     </div>
 
 </div>
-
-<footer style="
-    margin-top:40px;
-    padding:20px;
-    background:#1e293b;
-    color:white;
-    text-align:center;
-    font-size:14px;
-">
-
-    <strong>IBD Kennisbank</strong>
-    <br><br>
-
-    Beheerder van deze website:
-    <strong>Patrick Verstrepen</strong>
-
-    <br><br>
-
-    📧 Contact:
-    ccv_vzw@outlook.com
-        patrick.verstrepen22@outlook.com
-    </a>
-
-</footer>
 
 </body>
 </html>

@@ -9304,26 +9304,26 @@ function openFolderContents(folder){
 
     let html = `
     <div class="card">
-
-        <h2>
-            📁 ${folder}
-        </h2>
+        <h2>📁 ${folder}</h2>
     `;
 
-  docs.forEach(doc => {
+   docs.forEach(doc => {
+
+    console.log(doc.bestand);
 
     html += `
     <div
         style="
             padding:10px;
             border-bottom:1px solid #ddd;
-        "
+        <a
     >
         ${doc.bestand}
             📄 ${doc.titel}
         </a>
     </div>
     `;
+
 });
 
     html += `
@@ -9333,27 +9333,6 @@ function openFolderContents(folder){
     document.getElementById(
         "workspaceContent"
     ).innerHTML = html;
-}
-
-function previewDocument(url){
-
-    window.open(
-        url,
-        "_blank"
-    );
-
-}
-
-function closePreview(){
-
-    document.getElementById(
-        "previewModal"
-    ).style.display = "none";
-
-    document.getElementById(
-        "previewFrame"
-    ).src = "";
-
 }
 
 function previewSelected(){

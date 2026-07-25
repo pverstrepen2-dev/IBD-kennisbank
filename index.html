@@ -9555,7 +9555,7 @@ async function renderFolderContents(
 ) {
 
     const response = await fetch(
-        `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`,
+        'https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children',
         {
             headers: {
                 Authorization: `Bearer ${accessToken}`
@@ -9599,7 +9599,7 @@ async function renderFolderContents(
     margin-left:25px;
     padding:6px;
 ">
-    <a
+    </a>
     ${item.webUrl}
         📄 ${item.name}
     </a>

@@ -5715,9 +5715,7 @@ function updateDashboardStats(){
 
 }
 
-function showCategoryDocuments(
-    categorie
-){
+function showCategoryDocuments(categorie){
 
     const docs =
         knowledgeData.filter(
@@ -5729,23 +5727,20 @@ function showCategoryDocuments(
     docs.forEach(doc => {
 
         html += `
+        <div class="card">
 
-    <div class="card">
+            <h3>
+                ${doc.bestand}
+                    ${doc.titel}
+                </a>
+            </h3>
 
-        <h3>
-    <a
-        href="${doc.bestand}"
-        target="_blank"
-        
-        </h3>
+            <p>
+                ${doc.samenvatting || ""}
+            </p>
 
-        <p>
-            ${doc.samenvatting || ""}
-        </p>
-
-    </div>
-
-`;
+        </div>
+        `;
     });
 
     document.getElementById(
@@ -5770,6 +5765,8 @@ function showDocumentsBySubCategory(
 
   docs.forEach(doc => {
 
+    const url = normalizeUrl(doc.bestand);
+
     html += `
 
     <div class="card">
@@ -5782,14 +5779,13 @@ function showDocumentsBySubCategory(
             margin-top:15px;
             flex-wrap:wrap;
         ">
-
-            <a
-    ${doc.bestand}
-        📄 Open document
-</a>
+        <a
+            href=${doc.bestand$}
+                📄 Open document
+            </a>
 
             <button
-                onclick="previewDocument('${doc.bestand}')"
+                onclick="previewDocument('${encodeURIComponent(url)}')"
                 class="actionButton"
             >
                 👁 Preview
@@ -9187,7 +9183,7 @@ function countDocumentsByCategory(
           <br><br>
 
           <a
-${doc.bestand}
+href=${doc.bestand}
     📄 Open document
 </a>
  
@@ -9398,6 +9394,7 @@ async function loadOneDriveLibrary() {
 }
 
 function previewDocument(url){
+url = decodeURIComponent(url);
 
     window.open(
         url,
@@ -9555,8 +9552,7 @@ async function renderFolderContents(
 ) {
 
     const response = await fetch(
-       const response = await fetch(
-    `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`,
+        'https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children',
         {
             headers: {
                 Authorization: `Bearer ${accessToken}`
@@ -9600,8 +9596,8 @@ async function renderFolderContents(
     margin-left:25px;
     padding:6px;
 ">
-    a>
-    ${item.webUrl}
+    <a
+   href= ${item.webUrl}
         📄 ${item.name}
     </a>
         </div>

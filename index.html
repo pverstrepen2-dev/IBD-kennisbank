@@ -8557,25 +8557,31 @@ if(
         let bestSubScore = 0;
         let currentSubCategory = "Algemeen";
 
-        Object.entries(
-            data.subcategories
-        ).forEach(
+       Object.entries(
+    data.subcategories
+).forEach(
+    ([subcategorie,keywords]) => {
 
-            ([subcategorie,keywords]) => {
+        let subScore = 0;
 
-                let subScore = 0;
+        if(
+            !Array.isArray(keywords)
+        ){
+            return;
+        }
 
-                keywords.forEach(keyword => {
+        keywords.forEach(keyword => {
 
-                    if(
-                        naam.includes(
-                            keyword.toLowerCase()
-                        )
-                    ){
-                        subScore++;
-                    }
+            if(
+                naam.includes(
+                    String(keyword)
+                    .toLowerCase()
+                )
+            ){
+                subScore++;
+            }
 
-                });
+        });
 
                 if(
                     subScore > bestSubScore
@@ -8623,6 +8629,11 @@ if(
     };
 
 }
+console.log(
+    "Geen array:",
+    subcategorie,
+    keywords
+);
     return {
 
         categorie:

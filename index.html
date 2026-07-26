@@ -9057,22 +9057,23 @@ function countDocumentsByCategory(
         .filter(
             d => d.subcategorie === folder
         )
-        .forEach(doc => {
+       .forEach(doc => {
 
-console.log(doc.bestand);
-           html += `
-<div
-    style="
-        margin-left:20px;
-        padding:5px;
-    "
->
-    ${doc.bestand}
-        📄 ${doc.titel}
-    </a>
-</div>
-`;
-        });
+    console.log(doc.bestand);
+
+    html += `
+    <div
+        style="
+            margin-left:20px;
+            padding:5px;
+        "
+    >
+        ${doc.bestand}
+            📄 ${doc.titel}
+        </a>
+    </div>
+    `;
+});
 
         html += `
 </details>

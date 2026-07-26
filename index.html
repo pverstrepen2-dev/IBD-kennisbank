@@ -9025,87 +9025,52 @@ function countDocumentsByCategory(
             "documentsContainer"
         );
 
-    if(!container){
-        return;
-    }
+    let html = "";
 
-    container.innerHTML =
+    const folders =
+    [
+        ...new Set(
+            knowledgeData
+                .map(d => d.subcategorie)
+                .filter(Boolean)
+        )
+    ];
 
-    knowledgeData
+    folders.forEach(folder => {
 
-    .filter(
-        doc => doc.type !== "Map"
-    )
-
-    .map(doc => `
-
+        html += `
         <div class="card">
 
-            <input
-                type="checkbox"
-                class="pdfSelect"
-                value="${doc.bestand}"
-            >
-
             <h3>
-
-                📄 ${doc.titel}
-
+                📁 ${folder}
             </h3>
+        `;
 
-            <span class="tag">
-                ${doc.categorie}
-            </span>
-
-            <span class="tag">
-                ${doc.subcategorie || ""}
-            </span>
-
-            <br><br>
-
-           <div class="tagContainer">
-    ${
-        doc.tags
-        ? doc.tags.map(tag =>
-            `<span
-                class="tag"
-                onclick="filterByTag('${tag}')"
-            >
-                ${tag}
-            </span>`
-        ).join("")
-        : ""
-    }
-</div>
-
-            <br><br>
-
-          <br><br>
-
-${doc.bestand}
-    📄 Open document
-</a>
-
-&nbsp;
-
-<button
-    onclick="
-        previewDocument(
-            '${doc.bestand}'
+        knowledgeData
+        .filter(
+            d => d.subcategorie === folder
         )
-    "
->
-    👁 Preview
-</button>
+        .forEach(doc => {
 
+            html += `
+            <div
+                style="
+                    margin-left:20px;
+                    padding:5px;
+                "
+            >
+                📄 ${doc.titel}
+            </div>
+            `;
+        });
+
+        html += `
         </div>
+        `;
+    });
 
-    `)
-
-    .join("");
-
+    container.innerHTML = html;
 }
-
 /* ==================================
    ZOEKEN
 ================================== */

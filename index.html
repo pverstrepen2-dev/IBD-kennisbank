@@ -9061,17 +9061,19 @@ function countDocumentsByCategory(
 
 console.log(doc.bestand);
             html += `
-            <div
-                style="
-                    margin-left:20px;
-                    padding:5px;
-                "
-            >
-                ${doc.bestand}
+<div
+    style="
+        margin-left:20px;
+        padding:5px;
+    "
+>
+    ${doc.bestand}
+        ${doc.bestand}
+    </a>
+    <br>
     📄 ${doc.titel}
-</a>
-            </div>
-            `;
+</div>
+`;
         });
 
         html += `

@@ -364,6 +364,7 @@ border-bottom:1px solid #ddd;
         Jouw feedback helpt ons deze kennisbank verder te verbeteren.
     </p>
 </div>
+
 </div>
 
 <div id="onedriveFolders"
@@ -5750,36 +5751,36 @@ if(categorie === "Websites"){
 
     let html = "";
 
-  docs.forEach(doc => {
+ docs.forEach(doc => {
 
     if(categorie === "Websites"){
 
-    let url = doc.url || "";
+        let url = doc.url || "";
 
-    if(
-        !url.startsWith("http://") &&
-        !url.startsWith("https://")
-    ){
-        url = "https://" + url;
-    }
+        if(
+            !url.startsWith("http://") &&
+            !url.startsWith("https://")
+        ){
+            url = "https://" + url;
+        }
 
-    html += `
-    <div class="card">
+        html += `
+        <div class="card">
 
-        <h3>
-            ${doc.titel || doc.url}
-        </h3>
+            <h3>
+                ${doc.titel || doc.url}
+            </h3>
 
-        <p>
-            ${doc.beschrijving || ""}
-        </p>
+            <p>
+                ${doc.beschrijving || ""}
+            </p>
 
-        ${url}
-            🌐 Open website
-        </a>
+            ${url}
+                🌐 Open website
+            </a>
 
-    </div>
-    `;
+        </div>
+        `;
 
     }else{
 

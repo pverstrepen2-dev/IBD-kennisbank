@@ -8465,6 +8465,19 @@ function classifyDocument(filename){
     );
 
 if(
+    naam.endsWith(".pdf") ||
+    naam.endsWith(".doc") ||
+    naam.endsWith(".docx") ||
+    naam.endsWith(".ppt") ||
+    naam.endsWith(".pptx")
+){
+    return {
+        categorie:"Te beoordelen",
+        subcategorie:"Te beoordelen"
+    };
+}
+
+if(
     naam.includes("http://")
     ||
     naam.includes("https://")

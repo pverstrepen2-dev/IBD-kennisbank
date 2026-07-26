@@ -5729,35 +5729,53 @@ if(categorie === "Websites"){
 
   docs.forEach(doc => {
 
-    html += `
+    if(categorie === "Websites"){
 
-    <div class="card">
+        html += `
+        <div class="card">
 
-        <h3>${doc.titel}</h3>
+            <h3>
+                ${doc.titel || doc.url}
+            </h3>
 
-        <div style="
-            display:flex;
-            gap:10px;
-            margin-top:15px;
-            flex-wrap:wrap;
-        ">
+            <p>
+                ${doc.beschrijving || ""}
+            </p>
 
-            ${doc.bestand}
-                📂 Open document
+            ${doc.url}
+                🌐 Open website
             </a>
 
-            <button
-                onclick="previewDocument('${doc.bestand}')"
-                class="actionButton"
+        </div>
+        `;
+
+    }else{
+
+        html += `
+        <div class="card">
+
+            <h3>
+                ${doc.titel}
+            </h3>
+
+            <div
+                style="
+                    display:flex;
+                    gap:10px;
+                    margin-top:15px;
+                "
             >
-                👁 Preview
-            </button>
+
+                ${doc.bestand}
+                    📂 Open document
+                </a>
+
+            </div>
 
         </div>
+        `;
 
-    </div>
-
-    `;
+    }
 
 });
 

@@ -9059,7 +9059,14 @@ function countDocumentsByCategory(
         )
        .forEach(doc => {
 
-    console.log(doc.bestand);
+    const div =
+        document.createElement("div");
+
+    div.innerHTML =
+        doc.bestand;
+
+    const url =
+        div.querySelector("a")?.href;
 
     html += `
     <div
@@ -9068,7 +9075,7 @@ function countDocumentsByCategory(
             padding:5px;
         "
     >
-        ${doc.bestand}
+        ${url}
             📄 ${doc.titel}
         </a>
     </div>

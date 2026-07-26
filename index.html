@@ -9059,27 +9059,16 @@ function countDocumentsByCategory(
         )
        .forEach(doc => {
 
-    const temp =
-    document.createElement("div");
+    console.log(doc.bestand);
 
-temp.innerHTML = doc.bestand;
-
-const link =
-    temp.querySelector("a");
-
-const url =
-    link ? link.href : doc.bestand;
-
-html += `
+    html += `
 <div
     style="
         margin-left:20px;
         padding:5px;
     "
 >
-    ${url}
-        📄 ${doc.titel}
-    </a>
+    ${doc.bestand}
 </div>
 `;
 });

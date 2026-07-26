@@ -5724,93 +5724,80 @@ function showDocumentsBySubCategory(
 
     let docs = [];
 
-if(categorie === "Websites"){
+    if(categorie === "Websites"){
 
-    docs =
-        websitesDatabase.filter(
+        docs = websitesDatabase.filter(
             doc =>
-                doc.subcategorie ===
-                subcategorie
+                doc.subcategorie === subcategorie
         );
 
         console.log(
-    "Websites gevonden:",
-    docs.length
-);
+            "Websites gevonden:",
+            docs.length
+        );
 
-}else{
+    }else{
 
-    docs =
-        knowledgeData.filter(
+        docs = knowledgeData.filter(
             doc =>
                 doc.categorie === categorie &&
                 doc.subcategorie === subcategorie
         );
 
-}
+    }
 
     let html = "";
 
- docs.forEach(doc => {
+    docs.forEach(doc => {
 
-    if(categorie === "Websites"){
+        if(categorie === "Websites"){
 
-        let url = doc.url || "";
+            let url = doc.url || "";
 
-        if(
-            !url.startsWith("http://") &&
-            !url.startsWith("https://")
-        ){
-            url = "https://" + url;
-        }
+            if(
+                !url.startsWith("http://") &&
+                !url.startsWith("https://")
+            ){
+                url = "https://" + url;
+            }
 
-        html += `
-        <div class="card">
+            html += `
+            <div class="card">
 
-            <h3>
-                ${doc.titel || doc.url}
-            </h3>
+                <h3>
+                    ${doc.titel || doc.url}
+                </h3>
 
-            <p>
-                ${doc.beschrijving || ""}
-            </p>
+                <p>
+                    ${doc.beschrijving || ""}
+                </p>
 
-            ${url}
-                🌐 Open website
-            </a>
+                ${url}
+                    🌐 Open website
+                </a>
 
-        </div>
-        `;
+            </div>
+            `;
 
-    }else{
+        }else{
 
-        html += `
-        <div class="card">
+            html += `
+            <div class="card">
 
-            <h3>
-                ${doc.titel}
-            </h3>
-
-            <div
-                style="
-                    display:flex;
-                    gap:10px;
-                    margin-top:15px;
-                "
-            >
+                <h3>
+                    ${doc.titel || ""}
+                </h3>
 
                 ${doc.bestand}
                     📂 Open document
                 </a>
 
             </div>
+            `;
 
-        </div>
-        `;
+        }
 
-    }
-
-});
+    });
 
     document.getElementById(
         "categoryDocuments"

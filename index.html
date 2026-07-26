@@ -9060,7 +9060,7 @@ function countDocumentsByCategory(
         .forEach(doc => {
 
 console.log(doc.bestand);
-            html += `
+           html += `
 <div
     style="
         margin-left:20px;
@@ -9068,10 +9068,8 @@ console.log(doc.bestand);
     "
 >
     ${doc.bestand}
-        ${doc.bestand}
+        📄 ${doc.titel}
     </a>
-    <br>
-    📄 ${doc.titel}
 </div>
 `;
         });

@@ -5731,23 +5731,32 @@ if(categorie === "Websites"){
 
     if(categorie === "Websites"){
 
-        html += `
-        <div class="card">
+    let url = doc.url || "";
 
-            <h3>
-                ${doc.titel || doc.url}
-            </h3>
+    if(
+        !url.startsWith("http://") &&
+        !url.startsWith("https://")
+    ){
+        url = "https://" + url;
+    }
 
-            <p>
-                ${doc.beschrijving || ""}
-            </p>
+    html += `
+    <div class="card">
 
-            ${doc.url}
-                🌐 Open website
-            </a>
+        <h3>
+            ${doc.titel || doc.url}
+        </h3>
 
-        </div>
-        `;
+        <p>
+            ${doc.beschrijving || ""}
+        </p>
+
+        ${url}
+            🌐 Open website
+        </a>
+
+    </div>
+    `;
 
     }else{
 

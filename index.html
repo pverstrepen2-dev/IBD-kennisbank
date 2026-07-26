@@ -8129,14 +8129,7 @@ const KNOWLEDGE_ENGINE = {
         "opleiding"
     ],
 
-    "Downloads":[
-        "download",
-        "pdf",
-        "brochure",
-        "presentatie"
-    ]
-
-}
+    }
 
 },
 
@@ -9035,6 +9028,18 @@ function countDocumentsByCategory(
                 .filter(Boolean)
         )
     ];
+
+knowledgeData =
+[
+    ...new Map(
+        knowledgeData.map(
+            item => [
+                item.titel,
+                item
+            ]
+        )
+    ).values()
+];
 
     folders.forEach(folder => {
 

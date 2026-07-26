@@ -4694,6 +4694,22 @@ function updateManualSubCategories(){
 
 }
 
+function cleanUrl(url){
+
+    if(!url) return "";
+
+    const match =
+        String(url).match(
+            /https?:\/\/[^"'<>\s]+/
+        );
+
+    if(match){
+        return match[0];
+    }
+
+    return String(url).trim();
+}
+
 async function importWebsiteExcel(){
 
     if(typeof XLSX === "undefined"){
@@ -4770,18 +4786,21 @@ async function importWebsiteExcel(){
     websitesDatabase.push({
 
             id:
-                generateId(),
+    crypto.randomUUID(),
 
             land:
                 row.Land || "",
 
             titel:
-                row.Website ||
-                row.Naam ||
-                "",
+    row.Website ||
+    row.Naam ||
+    row.URL ||
+    "Onbekende website",
 
             url:
-                row.URL || "",
+    cleanUrl(
+        row.URL
+    ),
 
             beschrijving:
                 row.Beschrijving || "",

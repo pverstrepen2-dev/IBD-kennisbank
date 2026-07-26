@@ -5698,11 +5698,32 @@ function showDocumentsBySubCategory(
     subcategorie
 ){
 
-    const docs = knowledgeData.filter(
-        doc =>
-            doc.categorie === categorie &&
-            doc.subcategorie === subcategorie
-    );
+    let docs = [];
+
+if(categorie === "Websites"){
+
+    docs =
+        websitesDatabase.filter(
+            doc =>
+                doc.subcategorie ===
+                subcategorie
+        );
+
+        console.log(
+    "Websites gevonden:",
+    docs.length
+);
+
+}else{
+
+    docs =
+        knowledgeData.filter(
+            doc =>
+                doc.categorie === categorie &&
+                doc.subcategorie === subcategorie
+        );
+
+}
 
     let html = "";
 

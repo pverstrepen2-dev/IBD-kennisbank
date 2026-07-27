@@ -7375,31 +7375,39 @@ if(
     " " +
 
     item.name;
+    console.log(
+    "Categorie:",
+    categorie,
+    "Bestand:",
+    item.name
+);
 
 const classification =
-
     classifyDocument(
         zoekTekst
     );
 
-    console.log(
-    item.name,
-    classification.categorie,
-    classification.subcategorie
-);
+const categorieMap = {
+    "Crohn":"Crohn",
+    "Colitis":"Colitis Ulcerosa",
+    "IBD":"IBD",
+    "Voeding":"Voeding",
+    "Pediatrie":"Pediatrie",
+    "Mindfulness":"Mindfulness & Welzijn"
+};
 
-    if(
+if(
     classification.categorie ===
     "Te beoordelen"
 ){
 
     classification.categorie =
+        categorieMap[categorie] ||
         categorie;
 
     classification.subcategorie =
         huidigeSubcategorie ||
         "Algemeen";
-
 }
 
     knowledgeData.push({

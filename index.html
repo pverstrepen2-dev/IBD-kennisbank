@@ -2912,6 +2912,8 @@ ${
 
     });
 
+    html += getFeedbackFooter();
+
     html += "</div>";
 
     document.getElementById(
@@ -3377,6 +3379,8 @@ ${
         `;
 
     });
+
+    html += getFeedbackFooter();
 
     html += "</div>";
 
@@ -4405,11 +4409,11 @@ updateTabFlow();
 `;
 
 });
-    html += "</div>";
-
-    document.getElementById(
-        "workspaceContent"
-    ).innerHTML = html;
+    html += getFeedbackFooter();
+html += "</div>";
+document.getElementById(
+"workspaceContent"
+).innerHTML = html;
 
 }
 
@@ -4662,11 +4666,13 @@ updateTabFlow();
 
     });
 
-    html += `</div>`;
+    html += getFeedbackFooter();
 
-    document.getElementById(
-        "workspaceContent"
-    ).innerHTML = html;
+html += `</div>`;
+
+document.getElementById(
+"workspaceContent"
+).innerHTML = html;
 
 }
 
@@ -6003,12 +6009,16 @@ async function uploadEntity(
 
         if(!response.ok){
 
-            throw new Error(
-                file +
-                " kon niet opgeslagen worden"
-            );
+    console.error(
+        file,
+        await response.text()
+    );
 
-        }
+    throw new Error(
+        file +
+        " kon niet opgeslagen worden"
+    );
+}
 
     }
 
@@ -6223,10 +6233,14 @@ await uploadEntity(
     systemLog
 );
 
+console.log("attachments", knowledgeData);
+
 await uploadEntity(
     ATTACHMENTSFILE,
     knowledgeData
 );
+
+console.log("websites", websitesDatabase);
 
 await uploadEntity(
     WEBSITESFILE,
@@ -9724,6 +9738,8 @@ ${meeting.actiepunten || ""}
     🗑️ Vergadering verwijderen
 </button>
 
+${getFeedbackFooter()}
+
     </div>
     `;
 }
@@ -9826,6 +9842,7 @@ function openProject(id){
     style="margin-top:15px;"
 ></div>
 
+${getFeedbackFooter()}
     </div>
     `;
 }
@@ -9901,6 +9918,8 @@ function openTask(id){
     style="margin-top:15px;"
 ></div>
 
+${getFeedbackFooter()}
+
     </div>
     `;
 }
@@ -9955,6 +9974,8 @@ function openMember(id){
     id="memberAnalysis"
     style="margin-top:15px;"
 ></div>
+
+${getFeedbackFooter()}
 
     </div>
     `;
@@ -10220,7 +10241,44 @@ ${meeting.actiepunten || "-"}
 
 }
 
+function getFeedbackFooter(){
 
+    return `
+
+    <div class="card"
+         style="
+            margin-top:20px;
+            border-left:4px solid #2563eb;
+         ">
+
+        <h3>
+            ❓ Vragen of feedback?
+        </h3>
+
+        <p>
+            Heb je een vraag over de inhoud van deze pagina,
+            wil je een fout melden of heb je aanvullende informatie?
+        </p>
+
+        <p>
+            Neem contact op via:
+        </p>
+
+        <p>
+            📧
+            <a href="mailto:ccv_vzw@outlook.com">
+                ccv_vzw@outlook.com
+            </a>
+        </p>
+
+        <p>
+            Jouw feedback helpt ons deze kennisbank verder te verbeteren.
+        </p>
+
+    </div>
+
+    `;
+}
 
 updateManualSubCategories();
 

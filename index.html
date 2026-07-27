@@ -2494,7 +2494,18 @@ function showGastroList(){
         `;
 
     }
+html += getSmartRelatedDocuments(
+[
+    "gastro",
+    "ibd",
+    "colonoscopie",
+    "diagnose",
+    "crohn",
+    "colitis"
+]
+);
 
+html += getFeedbackFooter();
     document.getElementById(
         "workspaceContent"
     ).innerHTML = html;
@@ -2576,6 +2587,17 @@ function showIbdCentraList(){
 
     });
 
+html += getSmartRelatedDocuments(
+[
+    "ibd",
+    "centrum",
+    "crohn",
+    "colitis",
+    "expertisecentrum"
+]
+);
+
+html += getFeedbackFooter();
     document.getElementById(
         "workspaceContent"
     ).innerHTML = html;
@@ -2693,6 +2715,17 @@ function showDietistenList(){
 
     });
 
+    html += getSmartRelatedDocuments(
+[
+    "voeding",
+    "dieet",
+    "fodmap",
+    "nutrition",
+    "diëtist"
+]
+);
+
+html += getFeedbackFooter();
     document.getElementById(
         "workspaceContent"
     ).innerHTML = html;
@@ -2748,6 +2781,19 @@ function showPsychologenList(){
         `;
 
     });
+
+    html += getSmartRelatedDocuments(
+[
+    "psycholoog",
+    "stress",
+    "welzijn",
+    "mindfulness",
+    "depressie",
+    "angst"
+]
+);
+
+html += getFeedbackFooter();
 
     document.getElementById(
         "workspaceContent"
@@ -6625,6 +6671,16 @@ function showRechtenList(){
 
     });
 
+    html += getSmartRelatedDocuments(
+[
+    "rechten",
+    "attest",
+    "invaliditeit",
+    "arbeidsongeschiktheid"
+]
+);
+
+html += getFeedbackFooter();
     document.getElementById(
         "workspaceContent"
     ).innerHTML = html;
@@ -6682,6 +6738,13 @@ function showInvaliditeitList(){
 
     });
 
+    html += getRelatedDocuments(
+    "Sociale Gids",
+    "Invaliditeit"
+);
+
+html += getFeedbackFooter();
+
     document.getElementById(
         "workspaceContent"
     ).innerHTML = html;
@@ -6733,6 +6796,12 @@ function showWerkList(){
 
     });
 
+    html += getRelatedDocuments(
+    "Sociale Gids",
+    "Werk"
+);
+
+html += getFeedbackFooter();
     document.getElementById(
         "workspaceContent"
     ).innerHTML = html;
@@ -10239,6 +10308,103 @@ ${meeting.actiepunten || "-"}
         bestandNaam
     );
 
+}
+
+function getRelatedDocuments(
+    categorie,
+    subcategorie
+){
+
+    const docs =
+        knowledgeData.filter(
+            d =>
+                d.categorie === categorie &&
+                d.subcategorie === subcategorie
+        );
+
+    if(docs.length === 0){
+        return "";
+    }
+
+    let html = `
+
+    <div class="card">
+
+        <h3>
+            🤖 Aanbevolen documenten
+        </h3>
+    `;
+
+    docs.forEach(doc => {
+
+        html += `
+            <p>
+                📄 ${doc.titel}
+            </p>
+        `;
+
+    });
+
+    html += `
+    </div>
+    `;
+
+    return html;
+}
+
+function getSmartRelatedDocuments(
+    zoekwoorden
+){
+
+    let docs =
+        knowledgeData.filter(doc => {
+
+            const tekst =
+                (
+                    (doc.titel || "") +
+                    " " +
+                    (doc.omschrijving || "") +
+                    " " +
+                    (doc.tags || "")
+                ).toLowerCase();
+
+            return zoekwoorden.some(
+                woord =>
+                    tekst.includes(
+                        woord.toLowerCase()
+                    )
+            );
+
+        });
+
+    if(docs.length === 0){
+        return "";
+    }
+
+    let html = `
+
+    <div class="card">
+
+        <h3>
+            🤖 AI Aanbevolen documenten
+        </h3>
+    `;
+
+    docs.forEach(doc => {
+
+        html += `
+            <p>
+                📄 ${doc.titel}
+            </p>
+        `;
+
+    });
+
+    html += `
+        </div>
+    `;
+
+    return html;
 }
 
 function getFeedbackFooter(){

@@ -6557,6 +6557,20 @@ console.log(
 );
 
 console.log(
+    "Aantal knowledgeData:",
+    knowledgeData.length
+);
+
+console.log(
+    knowledgeData.slice(0,5)
+);
+
+console.log(
+    "Eerste document:",
+    knowledgeData[0]
+);
+
+console.log(
     "Unieke categorieën:",
     [...new Set(
         knowledgeData.map(
@@ -7367,6 +7381,12 @@ const classification =
     classifyDocument(
         zoekTekst
     );
+
+    console.log(
+    item.name,
+    classification.categorie,
+    classification.subcategorie
+);
 
     if(
     classification.categorie ===
@@ -8963,7 +8983,7 @@ if(
 
     }
 
-    if(highestScore < 2){
+    if(highestScore < 1){
 
     return {
         categorie:"Te beoordelen",

@@ -748,22 +748,22 @@ border-bottom:1px solid #ddd;
 
         <div class="dashboard-grid">
 
-            <button>
+            <button onclick="showProjects()">
                 🚀 Projecten<br>
                 <span id="projectCount">0</span>
             </button>
 
-            <button>
-                📅 Vergaderingen<br>
-                <span id="meetingCount">0</span>
-            </button>
+            <button onclick="showMeetings()">
+    📅 Vergaderingen<br>
+    <span id="meetingCount">0</span>
+</button>
 
-            <button>
+            <button onclick="showTasks()">
                 ✅ Taken<br>
                 <span id="taskCount">0</span>
             </button>
 
-            <button>
+            <button onclick="showCommunity()">
                 👥 Leden<br>
                 <span id="memberCount">0</span>
             </button>
@@ -4348,57 +4348,58 @@ updateTabFlow();
 
     meetings.forEach(m => {
 
-        html += `
+    html += `
+<div class="card"
+     style="cursor:pointer"
+     onclick="openMeeting('${m.id}')">
 
-<div class="card">
+    <h3>
+        📅 ${m.naam}
+    </h3>
 
-    <b>
-    ${m.naam}
-    </b>
+    <p>
+        <strong>Datum:</strong>
+        ${m.datum || "-"}
+    </p>
 
-    <br>
+    <p>
+        <strong>Uur:</strong>
+        ${m.uur || "-"}
+    </p>
 
-    Datum:
-    ${m.datum}
+    <p>
+        <strong>Locatie:</strong>
+        ${m.locatie || "-"}
+    </p>
 
-    <br>
-
-    Uur:
-    ${m.uur || "-"}
-
-    <br>
-
-    Locatie:
-    ${m.locatie || "-"}
+    <p>
+        <strong>Status:</strong>
+        ${m.status || "-"}
+    </p>
 
     <hr>
 
-    👤 Aangemaakt door:
-    ${m.createdBy || "-"}
+    <small>
+        👤 ${m.createdBy || "-"}
+        <br>
+        📅 ${
+            m.created
+            ? new Date(m.created)
+                .toLocaleString("nl-BE")
+            : "-"
+        }
+    </small>
 
-    <br>
+    <br><br>
 
-    📅 Aangemaakt op:
-    ${
-        m.created
-        ?
-        new Date(m.created)
-        .toLocaleString("nl-BE")
-        :
-        "-"
-    }
-
-    <br>
-
-    📌 Status:
-    ${m.status || "-"}
+    <strong>
+        Klik om vergadering te openen
+    </strong>
 
 </div>
-
 `;
 
-    });
-
+});
     html += "</div>";
 
     document.getElementById(
@@ -9496,6 +9497,46 @@ if(
     "function"
 ){
     renderFaqs();
+}
+
+function openMeeting(id){
+
+    const meeting =
+        meetings.find(
+            m => m.id === id
+        );
+
+    if(!meeting){
+        return;
+    }
+
+    openPage("workspace");
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = `
+
+    <div class="card">
+
+        <h2>
+            📅 ${meeting.naam}
+        </h2>
+
+        <p><strong>Datum:</strong> ${meeting.datum || "-"}</p>
+        <p><strong>Uur:</strong> ${meeting.uur || "-"}</p>
+        <p><strong>Locatie:</strong> ${meeting.locatie || "-"}</p>
+        <p><strong>Status:</strong> ${meeting.status || "-"}</p>
+
+        <hr>
+
+        <h3>Agenda</h3>
+
+        <p>
+            ${meeting.agenda || "Geen agenda beschikbaar"}
+        </p>
+
+    </div>
+    `;
 }
 
 updateManualSubCategories();

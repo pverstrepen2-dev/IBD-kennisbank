@@ -5914,11 +5914,19 @@ function showDocumentsBySubCategory(
 
     let html = "";
 
-    docs.forEach(doc => {
+docs.forEach(doc => {
 
-        if(categorie === "Websites"){
+    let bestand = doc.bestand || "";
+    let icoon = "📄";
 
-            let url = doc.url || "";
+    if (bestand.match(/\.pdf$/i)) icoon = "📕";
+    else if (bestand.match(/\.(doc|docx)$/i)) icoon = "📝";
+    else if (bestand.match(/\.(xls|xlsx)$/i)) icoon = "📊";
+    else if (bestand.match(/\.(ppt|pptx)$/i)) icoon = "📽️";
+
+    if(categorie === "Websites"){
+
+        let url = doc.url || "";
 
             if(
                 !url.startsWith("http://") &&
@@ -5927,12 +5935,17 @@ function showDocumentsBySubCategory(
                 url = "https://" + url;
             }
 
-            html += `
+           html += `
 <div class="card">
-    <h3>${doc.titel || ""}</h3>
+    <h3>${doc.titel || doc.url}</h3>
 
-    ${doc.bestand}
-       📂 Open document
+    <p>${doc.beschrijving || ""}</p>
+
+    <a href="${url}"
+       target="_blank"
+       rel="noopener noreferrer">
+
+       🌐 Open website
     </a>
 
 </div>
@@ -5941,18 +5954,16 @@ function showDocumentsBySubCategory(
         }else{
 
             html += `
-            <div class="card">
+<div class="card">
+    <h3>${doc.titel || ""}</h3>
 
-                <h3>
-                    ${doc.titel || ""}
-                </h3>
+    <a href="${bestand}"
+       target="_ument
 
-                ${doc.bestand}
-                    📂 Open document
-                </a>
+    </a>
 
-            </div>
-            `;
+</div>
+`;
 
         }
 

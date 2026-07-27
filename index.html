@@ -5608,11 +5608,102 @@ function analyzeWithAI(){
 
 function showCCVDashboard(){
 
+const openTasks =
+    tasks.filter(
+        t => t.status !== "Voltooid"
+    ).length;
+
+const overdueTasks =
+    tasks.filter(
+        t =>
+            t.deadline &&
+            new Date(t.deadline) < new Date() &&
+            t.status !== "Voltooid"
+    ).length;
+
+const upcomingMeetings =
+    meetings.filter(
+        m =>
+            m.datum &&
+            new Date(m.datum) >= new Date()
+    ).length;
+
+const activeProjects =
+    projects.filter(
+        p => p.status !== "Afgerond"
+    ).length;
+
+const recentMembers =
+    members.filter(
+        m =>
+            m.created &&
+            (
+                new Date() - new Date(m.created)
+            ) <
+            (30 * 24 * 60 * 60 * 1000)
+    ).length;
+
 document.getElementById("workspaceContent").innerHTML = `
 
 <div class="card">
 
 <h2>📊 Dashboard</h2>
+
+<hr>
+
+<h3>
+    🤖 AI Assistent
+</h3>
+
+<ul>
+    <li>
+        🤖 Open taken:
+        ${openTasks}
+    </li>
+
+    <li>
+        ⚠️ Verlopen taken:
+        ${overdueTasks}
+    </li>
+
+    <li>
+        📅 Komende vergaderingen:
+        ${upcomingMeetings}
+    </li>
+
+    <li>
+        🚀 Lopende projecten:
+        ${activeProjects}
+    </li>
+
+    <li>
+        👥 Nieuwe leden:
+        ${recentMembers}
+    </li>
+</ul>
+
+${
+    overdueTasks > 0
+    ?
+    `
+    <div
+        style="
+            background:#fff3cd;
+            padding:10px;
+            border-radius:8px;
+            margin-bottom:10px;
+        "
+    >
+        ⚠️ Er zijn
+        ${overdueTasks}
+        verlopen taken.
+    </div>
+    `
+    :
+    ""
+}
+
+<hr>
 
 <ul>
 <li>📅 Vergaderingen: ${meetings.length}</li>

@@ -2868,7 +2868,9 @@ updateTabFlow();
 
         html += `
 
-        <div class="card">
+        <div class="card"
+     onclick="openMember('${m.id}')"
+     style="cursor:pointer">
 
             <b>
                 ${m.naam}
@@ -3329,7 +3331,9 @@ updateTabFlow();
 
         html += `
 
-        <div class="card">
+        <div class="card"
+     onclick="openTask('${t.id}')"
+     style="cursor:pointer">
 
             <b>
                 ${t.titel}
@@ -4614,7 +4618,9 @@ updateTabFlow();
 
         html += `
 
-       <div class="card">
+       <div class="card"
+     onclick="openProject('${p.id}')"
+     style="cursor:pointer">
 
     <b>
     ${p.naam}
@@ -9627,6 +9633,186 @@ async function deleteMeeting(id){
 
     showMeetings();
 }
+
+function openProject(id){
+
+    const project =
+        projects.find(
+            p => p.id === id
+        );
+
+    if(!project){
+        return;
+    }
+
+    openPage("workspace");
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = `
+
+    <div class="card">
+
+        <h2>
+            🚀 ${project.naam}
+        </h2>
+
+        <p>
+            <strong>Status:</strong>
+            ${project.status || "-"}
+        </p>
+
+        <p>
+            <strong>Beschrijving:</strong>
+            ${project.beschrijving || "-"}
+        </p>
+
+        <button
+            onclick="deleteProject('${project.id}')">
+            🗑️ Project verwijderen
+        </button>
+
+    </div>
+    `;
+}
+
+async function deleteProject(id){
+
+    if(!confirm("Project verwijderen?")){
+        return;
+    }
+
+    projects =
+        projects.filter(
+            p => p.id !== id
+        );
+
+    await saveData();
+
+    showProjects();
+}
+
+function openTask(id){
+
+    const task =
+        tasks.find(
+            t => t.id === id
+        );
+
+    if(!task){
+        return;
+    }
+
+    openPage("workspace");
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = `
+
+    <div class="card">
+
+        <h2>
+            ✅ ${task.titel}
+        </h2>
+
+        <p>
+            ${task.omschrijving || "-"}
+        </p>
+
+        <p>
+            <strong>Deadline:</strong>
+            ${task.deadline || "-"}
+        </p>
+
+        <p>
+            <strong>Status:</strong>
+            ${task.status || "-"}
+        </p>
+
+        <button
+            onclick="deleteTask('${task.id}')">
+            🗑️ Taak verwijderen
+        </button>
+
+    </div>
+    `;
+}
+
+function openMember(id){
+
+    const member =
+        members.find(
+            m => m.id === id
+        );
+
+    if(!member){
+        return;
+    }
+
+    openPage("workspace");
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = `
+
+    <div class="card">
+
+        <h2>
+            👤 ${member.naam}
+        </h2>
+
+        <p>
+            <strong>E-mail:</strong>
+            ${member.email || "-"}
+        </p>
+
+        <p>
+            <strong>Rol:</strong>
+            ${member.rol || "-"}
+        </p>
+
+        <button
+            onclick="deleteMember('${member.id}')">
+            🗑️ Lid verwijderen
+        </button>
+
+    </div>
+    `;
+}
+
+async function deleteMember(id){
+
+    if(!confirm("Lid verwijderen?")){
+        return;
+    }
+
+    members =
+        members.filter(
+            m => m.id !== id
+        );
+
+    await saveData();
+
+    showCommunity();
+}
+
+async function deleteTask(id){
+
+    if(!confirm("Taak verwijderen?")){
+        return;
+    }
+
+    tasks =
+        tasks.filter(
+            t => t.id !== id
+        );
+
+    await saveData();
+
+    showTasks();
+}
+
+
 
 updateManualSubCategories();
 

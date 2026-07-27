@@ -9567,6 +9567,38 @@ ${meeting.notulen || ""}
     💾 Notulen opslaan
 </button>
 
+<hr>
+
+<h3>
+    ✅ Actiepunten
+</h3>
+
+<textarea
+    id="meetingActions"
+    style="
+        width:100%;
+        min-height:120px;
+    "
+>
+${meeting.actiepunten || ""}
+</textarea>
+
+<br><br>
+
+<button
+    onclick="saveMeetingActions('${meeting.id}')"
+>
+    💾 Actiepunten opslaan
+</button>
+
+<br><br>
+
+<button
+    onclick="generateMeetingSummary('${meeting.id}')"
+>
+    🤖 AI Samenvatting
+</button>
+
 <br><br>
 
 <button
@@ -9812,7 +9844,57 @@ async function deleteTask(id){
     showTasks();
 }
 
+function generateMeetingSummary(id){
 
+    const meeting =
+        meetings.find(
+            m => m.id === id
+        );
+
+    if(!meeting){
+        return;
+    }
+
+    let summary = "";
+
+    summary += `
+    Vergadering: ${meeting.naam}
+
+    Datum: ${meeting.datum}
+
+    Agenda:
+    ${meeting.agenda || "-"}
+    
+    Notulen:
+    ${meeting.notulen || "-"}
+    `;
+
+    alert(summary);
+
+}
+
+async function saveMeetingActions(id){
+
+    const meeting =
+        meetings.find(
+            m => m.id === id
+        );
+
+    if(!meeting){
+        return;
+    }
+
+    meeting.actiepunten =
+        document.getElementById(
+            "meetingActions"
+        ).value;
+
+    await saveData();
+
+    alert(
+        "✅ Actiepunten opgeslagen"
+    );
+}
 
 updateManualSubCategories();
 

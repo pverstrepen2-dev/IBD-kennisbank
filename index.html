@@ -9130,57 +9130,33 @@ for(const folder of data.value){
         continue;
     }
 
-    const categorieMap = {
-
+   const categorieMap = {
     "Crohn":"Crohn",
-
     "Colitis":"Colitis Ulcerosa",
-
     "IBD":"IBD",
-
     "Voeding":"Voeding",
-
     "Pediatrie":"Pediatrie",
-
     "Mindfulness":"Mindfulness & Welzijn",
-
     "FAQ":"FAQ",
-
     "Zorggids":"Zorggids",
-
     "Sociale Gids":"Sociale Gids",
-
     "Media":"Media",
-
     "Websites":"Websites",
-
     "IBD Verenigingen":"IBD Verenigingen",
-
     "CCV-VZW":"CCV-VZW",
-
-    "Patiënten Expert Opleiding":"Patiënten Expert Opleiding"
+    "Patiënten Expert Opleiding":"Patiënten Expert Opleiding",
 
     "Crohn_Colitis_NL":"IBD",
-
     "IBD_DATA_NEW":"IBD",
-
     "Dieet_en_FODMAP":"Voeding",
-
     "Psyche":"Mindfulness & Welzijn",
-
     "Patient Education and Health Literacy":"Pediatrie",
-
     "ziektebeeld":"IBD"
-
 };
 
 const categorie =
-    categorieMap[folder.name]
-    || folder.name;
-
-const categorie =
-    categorieMap[folder.name]
-    || folder.name;
+    categorieMap[folder.name] ||
+    folder.name;
 
        await scanFolder(
         folder.id,

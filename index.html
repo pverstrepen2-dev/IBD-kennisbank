@@ -6442,6 +6442,27 @@ knowledgeData =
         ATTACHMENTSFILE
     );
 
+    knowledgeData =
+[
+    ...new Map(
+        knowledgeData.map(
+            item => [
+                (
+                    (item.titel || "") +
+                    "|" +
+                    (item.bestand || "")
+                ),
+                item
+            ]
+        )
+    ).values()
+];
+
+console.log(
+    "Unieke documenten:",
+    knowledgeData.length
+);
+
 try{
 
     websitesDatabase =

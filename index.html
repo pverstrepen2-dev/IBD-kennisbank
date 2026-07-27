@@ -10153,6 +10153,57 @@ function analyseMember(id){
 
 }
 
+async function saveMeetingToOneDrive(meeting){
+
+    const inhoud = `
+
+VERGADERING
+====================
+
+Naam:
+${meeting.naam}
+
+Datum:
+${meeting.datum}
+
+Uur:
+${meeting.uur}
+
+Locatie:
+${meeting.locatie}
+
+STATUS
+====================
+
+${meeting.status || "-"}
+
+AGENDA
+====================
+
+${meeting.agenda || "-"}
+
+NOTULEN
+====================
+
+${meeting.notulen || "-"}
+
+ACTIEPUNTEN
+====================
+
+${meeting.actiepunten || "-"}
+
+`;
+
+    const bestandNaam =
+        `${meeting.datum}_${meeting.naam}.txt`;
+
+    console.log(
+        "OneDrive export:",
+        bestandNaam
+    );
+
+}
+
 updateManualSubCategories();
 
 console.log(

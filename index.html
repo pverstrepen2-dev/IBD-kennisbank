@@ -5953,19 +5953,20 @@ docs.forEach(doc => {
 
         }else{
 
-            html += `
-<div class="card">
-    <h3>${doc.titel || ""}</h3>
+    let bestand = doc.bestand || "";
 
-    <a href="${bestand}"
-       target="_ument
+    html += `
+    <div class="card">
+        <h3>${doc.titel || ""}</h3>
 
-    </a>
+        <a href="${bestand}"
+           targetnt
 
-</div>
-`;
+        </a>
 
-        }
+    </div>
+    `;
+}
 
     });
 

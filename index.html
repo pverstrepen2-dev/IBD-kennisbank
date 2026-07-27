@@ -296,6 +296,10 @@ border-bottom:1px solid #ddd;
 </button>
 -->
 
+<button onclick="openPage('microscopischecolitis')">
+🧪 Microscopische Colitis
+</button>
+
 <button onclick="openPage('ibd')">
 💊 Alle IBD informatie
 </button>
@@ -527,6 +531,10 @@ border-bottom:1px solid #ddd;
 </div>
 
 <div id="colitis"
+     class="page hidden">
+</div>
+
+<div id="microscopischecolitis"
      class="page hidden">
 </div>
 
@@ -1790,27 +1798,17 @@ function renderDynamicCategory(
     const pageMap = {
 
     "Crohn":"crohn",
-
     "Colitis Ulcerosa":"colitis",
-
+    "Microscopische Colitis":"microscopischecolitis",
     "IBD":"ibd",
-
     "Voeding":"voeding",
-
     "Pediatrie":"pediatrie",
-
     "Mindfulness & Welzijn":"mindfulness",
-
     "CCV-VZW":"ccv",
-
     "FAQ":"faq",
-
     "Zorggids":"zorggids",
-
     "Sociale Gids":"sociaal",
-
     "Websites":"websites",
-
     "Patiënten Expert Opleiding":"expert"
 
 };
@@ -8710,85 +8708,65 @@ function determineWebsiteTrust(
 
 function classifyWebsite(url){
 
-    const site =
+    const naam =
         url.toLowerCase();
 
-    const rules = {
-
-        // wetenschap
-
-        "pubmed":
-            "Wetenschappelijke Bronnen",
-
-        "ecco":
-            "Wetenschappelijke Bronnen",
-
-        "cochrane":
-            "Wetenschappelijke Bronnen",
-
-        "clinicaltrials":
-            "Wetenschappelijke Bronnen",
-
-        // zorg
-
-        "uz":
-            "Zorginstellingen",
-
-        "ziekenhuis":
-            "Zorginstellingen",
-
-        "gastro":
-            "Zorginstellingen",
-
-        // media
-
-        "youtube":
-            "Opleiding & Media",
-
-        "vimeo":
-            "Opleiding & Media",
-
-        "podcast":
-            "Opleiding & Media",
-
-        "webinar":
-            "Opleiding & Media",
-
-        // organisaties
-
-        "crohn":
-            "Organisaties",
-
-        "colitis":
-            "Organisaties",
-
-        "patientenplatform":
-            "Organisaties",
-
-        "vzw":
-            "Organisaties",
-
-        // downloads
-
-        ".pdf":
-            "Downloads",
-
-        "download":
-            "Downloads"
-
-    };
-
-    for(const keyword in rules){
-
-        if(
-            site.includes(keyword)
-        ){
-
-            return rules[keyword];
-        }
+    if(
+        naam.includes("ccv-vzw") ||
+        naam.includes("crohn-colitis")
+    ){
+        return "Patiëntenverenigingen";
     }
 
-    return "Organisaties";
+    if(
+        naam.includes("ecco") ||
+        naam.includes("ueg") ||
+        naam.includes("pubmed")
+    ){
+        return "Wetenschappelijke Bronnen";
+    }
+
+    if(
+        naam.includes("uzleuven") ||
+        naam.includes("uzgent") ||
+        naam.includes("uza") ||
+        naam.includes("ucl") ||
+        naam.includes("hospital")
+    ){
+        return "Ziekenhuizen";
+    }
+
+    if(
+        naam.includes("riziv") ||
+        naam.includes("fgov") ||
+        naam.includes("belgium.be")
+    ){
+        return "Overheidsdiensten";
+    }
+
+    if(
+        naam.includes("youtube")
+    ){
+        return "Video & Webinars";
+    }
+
+    if(
+        naam.includes("facebook") ||
+        naam.includes("instagram") ||
+        naam.includes("linkedin")
+    ){
+        return "Sociale Media";
+    }
+
+    if(
+        naam.includes("fodmap") ||
+        naam.includes("voeding") ||
+        naam.includes("nutrition")
+    ){
+        return "Voeding";
+    }
+
+    return "Algemene Informatie";
 }
 
 function determineWebsiteTags(
@@ -8830,56 +8808,68 @@ function determineWebsiteTags(
 function classifyDocument(filename){
 
     const naam =
-        filename.toLowerCase();
+        String(filename)
+        .toLowerCase();
 
-        const medicalMatches =
-    getMedicalMatches(
-        filename
-    );
+    const medicalMatches =
+        getMedicalMatches(
+            filename
+        );
 
-if(
-    naam.endsWith(".pdf") ||
-    naam.endsWith(".doc") ||
-    naam.endsWith(".docx") ||
-    naam.endsWith(".ppt") ||
-    naam.endsWith(".pptx")
-){
-    return {
-        categorie:"Te beoordelen",
-        subcategorie:"Te beoordelen"
-    };
-}
+    // Microscopische Colitis
+    if(
+        naam.includes("microscopische colitis") ||
+        naam.includes("microscopic colitis")
+    ){
+        return {
+            categorie:
+                "Microscopische Colitis",
+            subcategorie:
+                "Algemeen"
+        };
+    }
 
-if(
-    naam.includes("http://")
-    ||
-    naam.includes("https://")
-    ||
-    naam.includes("www.")
-){
+    // Crohn
+    if(
+        naam.includes("crohn")
+    ){
+        return {
+            categorie:
+                "Crohn",
+            subcategorie:
+                "Algemeen"
+        };
+    }
 
-    return {
+    // Colitis Ulcerosa
+    if(
+        naam.includes("colitis") ||
+        naam.includes("ulcerosa")
+    ){
+        return {
+            categorie:
+                "Colitis Ulcerosa",
+            subcategorie:
+                "Algemeen"
+        };
+    }
 
-        categorie:
-            "Websites",
+    // Websites
+    if(
+        naam.includes("http://") ||
+        naam.includes("https://") ||
+        naam.includes("www.")
+    ){
+        return {
+            categorie:
+                "Websites",
 
-        subcategorie:
-            classifyWebsite(
-                naam
-            )
-
-    };
-}
-
-if(
-    filename.includes("http") ||
-    filename.includes("www.")
-){
-    return {
-        categorie:"Websites",
-        subcategorie:"Organisaties"
-    };
-}
+            subcategorie:
+                classifyWebsite(
+                    naam
+                )
+        };
+    }
 
     let bestCategory =
         "Algemeen";
@@ -8889,75 +8879,102 @@ if(
 
     let highestScore = 0;
 
-   for(
+    for(
 
-    const [categorie,data]
+        const [categorie,data]
 
-    of Object.entries(
-        KNOWLEDGE_ENGINE
-    )
+        of Object.entries(
+            KNOWLEDGE_ENGINE
+        )
 
-){
+    ){
 
-    let categoryScore = 0;
+        let categoryScore = 0;
 
-    medicalMatches.forEach(match => {
+        medicalMatches.forEach(
+            match => {
 
-        if(match.groep === "Medicatie")
-            categoryScore += 2;
+                if(
+                    match.groep ===
+                    "Medicatie"
+                ){
+                    categoryScore += 2;
+                }
 
-        if(match.groep === "Diagnose")
-            categoryScore += 2;
+                if(
+                    match.groep ===
+                    "Diagnose"
+                ){
+                    categoryScore += 2;
+                }
 
-        if(match.groep === "Voeding")
-            categoryScore += 2;
+                if(
+                    match.groep ===
+                    "Voeding"
+                ){
+                    categoryScore += 2;
+                }
 
-        if(match.groep === "Complicaties")
-            categoryScore += 2;
+                if(
+                    match.groep ===
+                    "Complicaties"
+                ){
+                    categoryScore += 2;
+                }
 
-    });
-
-    if(data.keywords){
-
-    data.keywords.forEach(keyword => {
+            }
+        );
 
         if(
-            naam.includes(
-                keyword.toLowerCase()
-            )
+            data.keywords
         ){
-            categoryScore++;
-        }
 
-    });
-
-}
-
-        let bestSubScore = 0;
-        let currentSubCategory = "Algemeen";
-
-        Object.entries(
-            data.subcategories
-        ).forEach(
-
-            ([subcategorie,keywords]) => {
-
-                let subScore = 0;
-
-                keywords.forEach(keyword => {
+            data.keywords.forEach(
+                keyword => {
 
                     if(
                         naam.includes(
                             keyword.toLowerCase()
                         )
                     ){
-                        subScore++;
+                        categoryScore++;
                     }
 
-                });
+                }
+            );
+
+        }
+
+        let bestSubScore = 0;
+
+        let currentSubCategory =
+            "Algemeen";
+
+        Object.entries(
+            data.subcategories || {}
+        ).forEach(
+
+            ([subcategorie,keywords]) => {
+
+                let subScore = 0;
+
+                keywords.forEach(
+                    keyword => {
+
+                        if(
+                            naam.includes(
+                                keyword.toLowerCase()
+                            )
+                        ){
+                            subScore++;
+                        }
+
+                    }
+                );
 
                 if(
-                    subScore > bestSubScore
+                    subScore >
+                    bestSubScore
                 ){
 
                     bestSubScore =
@@ -8994,21 +9011,41 @@ if(
 
     }
 
-    if(highestScore < 1){
+    // medische termen gevonden maar geen categorie
+    if(
+        medicalMatches.length > 0 &&
+        highestScore === 0
+    ){
+        return {
+            categorie:
+                "IBD",
 
-    return {
-        categorie:"Te beoordelen",
-        subcategorie:"Te beoordelen"
-    };
+            subcategorie:
+                "Algemeen"
+        };
+    }
 
-}
+    if(
+        highestScore > 0
+    ){
+        return {
+
+            categorie:
+                bestCategory,
+
+            subcategorie:
+                bestSubCategory
+
+        };
+    }
+
     return {
 
         categorie:
-            bestCategory,
+            "Te beoordelen",
 
         subcategorie:
-            bestSubCategory
+            "Algemeen"
 
     };
 
@@ -9592,7 +9629,7 @@ function renderAllCategories(){
     renderDynamicCategory("Voeding");
     renderDynamicCategory("Pediatrie");
     renderDynamicCategory("Mindfulness & Welzijn");
-
+    renderDynamicCategory("Microscopische Colitis");
 }
 
 function previewSelected(){

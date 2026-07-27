@@ -9160,7 +9160,25 @@ for(const folder of data.value){
 
     "Patiënten Expert Opleiding":"Patiënten Expert Opleiding"
 
+    const categorieMap = {
+
+    "Crohn_Colitis_NL":"IBD",
+
+    "IBD_DATA_NEW":"IBD",
+
+    "Dieet_en_FODMAP":"Voeding",
+
+    "Psyche":"Mindfulness & Welzijn",
+
+    "Patient Education and Health Literacy":"Pediatrie",
+
+    "ziektebeeld":"IBD"
+
 };
+
+const categorie =
+    categorieMap[folder.name]
+    || folder.name;
 
 const categorie =
     categorieMap[folder.name]

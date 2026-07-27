@@ -6498,7 +6498,34 @@ if(
         showCCVDashboard();
 
        renderAllCategories();
+console.log(
+    "Crohn:",
+    knowledgeData.filter(
+        x => x.categorie === "Crohn"
+    ).length
+);
 
+console.log(
+    "Colitis:",
+    knowledgeData.filter(
+        x => x.categorie === "Colitis Ulcerosa"
+    ).length
+);
+
+console.log(
+    "IBD:",
+    knowledgeData.filter(
+        x => x.categorie === "IBD"
+    ).length
+);
+
+console.log(
+    "Te beoordelen:",
+    knowledgeData.filter(
+        x => x.categorie === "Te beoordelen"
+    ).length
+);
+`
        renderUsers();
 
 document.getElementById(
@@ -10360,13 +10387,20 @@ function getSmartRelatedDocuments(
         knowledgeData.filter(doc => {
 
             const tekst =
-                (
-                    (doc.titel || "") +
-                    " " +
-                    (doc.omschrijving || "") +
-                    " " +
-                    (doc.tags || "")
-                ).toLowerCase();
+(
+    (doc.titel || "") +
+    " " +
+    (doc.categorie || "") +
+    " " +
+    (doc.subcategorie || "") +
+    " " +
+    (doc.omschrijving || "") +
+    " " +
+    (Array.isArray(doc.tags)
+        ? doc.tags.join(" ")
+        : (doc.tags || "")
+    )
+).toLowerCase();
 
             return zoekwoorden.some(
                 woord =>

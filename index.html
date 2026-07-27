@@ -5928,22 +5928,15 @@ function showDocumentsBySubCategory(
             }
 
             html += `
-            <div class="card">
+<div class="card">
+    <h3>${doc.titel || ""}</h3>
 
-                <h3>
-                    ${doc.titel || doc.url}
-                </h3>
+    ${doc.bestand}
+       📂 Open document
+    </a>
 
-                <p>
-                    ${doc.beschrijving || ""}
-                </p>
-
-                ${url}
-                    🌐 Open website
-                </a>
-
-            </div>
-            `;
+</div>
+`;
 
         }else{
 

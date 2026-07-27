@@ -5516,7 +5516,19 @@ async function addUser(){
 
     await saveData();
 
-    renderUsers();
+renderUsers();
+
+document.getElementById(
+    "newUserEmail"
+).value = "";
+
+document.getElementById(
+    "newUserRole"
+).value = "viewer";
+
+alert(
+    "✅ Gebruiker toegevoegd"
+);
 
 }
 
@@ -6405,8 +6417,11 @@ if(
 users =
     await downloadUsers();
 
-users =
-    data.users || [];
+if(
+    !Array.isArray(users)
+){
+    users = [];
+}
 
         document.getElementById(
     "documentCountInfo"

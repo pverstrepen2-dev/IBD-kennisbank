@@ -9706,6 +9706,19 @@ function openProject(id){
             🗑️ Project verwijderen
         </button>
 
+<hr>
+
+<button
+    onclick="generateProjectAnalysis('${project.id}')"
+>
+    🤖 Projectanalyse
+</button>
+
+<div
+    id="projectAnalysis"
+    style="margin-top:15px;"
+></div>
+
     </div>
     `;
 }
@@ -9768,6 +9781,19 @@ function openTask(id){
             🗑️ Taak verwijderen
         </button>
 
+<hr>
+
+<button
+    onclick="analyseTask('${task.id}')"
+>
+    🤖 Taakanalyse
+</button>
+
+<div
+    id="taskAnalysis"
+    style="margin-top:15px;"
+></div>
+
     </div>
     `;
 }
@@ -9809,6 +9835,19 @@ function openMember(id){
             onclick="deleteMember('${member.id}')">
             🗑️ Lid verwijderen
         </button>
+
+<hr>
+
+<button
+    onclick="analyseMember('${member.id}')"
+>
+    🤖 Ledenanalyse
+</button>
+
+<div
+    id="memberAnalysis"
+    style="margin-top:15px;"
+></div>
 
     </div>
     `;
@@ -9896,6 +9935,131 @@ async function saveMeetingActions(id){
     alert(
         "✅ Actiepunten opgeslagen"
     );
+}
+
+function generateProjectAnalysis(id){
+
+    const project =
+        projects.find(
+            p => p.id === id
+        );
+
+    if(!project){
+        return;
+    }
+
+    let analyse = `
+        <div class="card">
+
+            <h3>
+                🤖 AI Analyse
+            </h3>
+
+            <p>
+                Project: ${project.naam}
+            </p>
+
+            <p>
+                Status:
+                ${project.status || "-"}
+            </p>
+
+            <p>
+                Beschrijving:
+                ${project.beschrijving || "-"}
+            </p>
+
+        </div>
+    `;
+
+    document.getElementById(
+        "projectAnalysis"
+    ).innerHTML = analyse;
+
+}
+
+function analyseTask(id){
+
+    const task =
+        tasks.find(
+            t => t.id === id
+        );
+
+    if(!task){
+        return;
+    }
+
+    let analyse = `
+        <div class="card">
+
+            <h3>
+                🤖 AI Analyse
+            </h3>
+
+            <p>
+                Prioriteit:
+                ${task.prioriteit || "-"}
+            </p>
+
+            <p>
+                Deadline:
+                ${task.deadline || "-"}
+            </p>
+
+            <p>
+                Status:
+                ${task.status || "-"}
+            </p>
+
+        </div>
+    `;
+
+    document.getElementById(
+        "taskAnalysis"
+    ).innerHTML = analyse;
+
+}
+
+function analyseMember(id){
+
+    const member =
+        members.find(
+            m => m.id === id
+        );
+
+    if(!member){
+        return;
+    }
+
+    let analyse = `
+        <div class="card">
+
+            <h3>
+                🤖 AI Lidprofiel
+            </h3>
+
+            <p>
+                Naam:
+                ${member.naam}
+            </p>
+
+            <p>
+                E-mail:
+                ${member.email || "-"}
+            </p>
+
+            <p>
+                Rol:
+                ${member.rol || "-"}
+            </p>
+
+        </div>
+    `;
+
+    document.getElementById(
+        "memberAnalysis"
+    ).innerHTML = analyse;
+
 }
 
 updateManualSubCategories();

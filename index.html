@@ -9729,7 +9729,7 @@ async function saveMeetingMinutes(id){
         ).value;
 
     await saveData();
-
+await saveMeetingToOneDrive(meeting);
     alert(
         "✅ Notulen opgeslagen"
     );

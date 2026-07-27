@@ -6524,6 +6524,25 @@ console.log(
         x => x.categorie === "Te beoordelen"
     ).length
 );
+
+console.log(
+    "Eerste document:",
+    knowledgeData[0]
+);
+
+console.log(
+    "Aantal knowledgeData:",
+    knowledgeData.length
+);
+
+console.log(
+    "Unieke categorieën:",
+    [...new Set(
+        knowledgeData.map(
+            x => x.categorie
+        )
+    )]
+);
        renderUsers();
 
 document.getElementById(

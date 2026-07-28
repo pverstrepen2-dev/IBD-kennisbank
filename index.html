@@ -5953,15 +5953,6 @@ docs.forEach(doc => {
 
    }else{
 
-    console.log(
-    "BESTAND WAARDE:",
-    doc.bestand
-);
-
-console.log(
-    "BESTAND:",
-    doc.bestand
-);
     let bestand = doc.bestand || "";
 
    html += `
@@ -6459,53 +6450,21 @@ knowledgeData =
         ATTACHMENTSFILE
     );
 
-   knowledgeData =
-    await downloadEntity(
-        ATTACHMENTSFILE
-    );
-
-console.log(
-    "Voor deduplicatie:",
-    knowledgeData.length
-);
-
-knowledgeData =
+    knowledgeData =
 [
     ...new Map(
         knowledgeData.map(
             item => [
-                item.bestand,
+                (
+                    (item.titel || "") +
+                    "|" +
+                    (item.bestand || "")
+                ),
                 item
             ]
         )
     ).values()
 ];
-knowledgeData =
-    await downloadEntity(
-        ATTACHMENTSFILE
-    );
-
-console.log(
-    "Voor deduplicatie:",
-    knowledgeData.length
-);
-
-knowledgeData =
-[
-    ...new Map(
-        knowledgeData.map(
-            item => [
-                item.titel,
-                item
-            ]
-        )
-    ).values()
-];
-
-console.log(
-    "Na deduplicatie:",
-    knowledgeData.length
-);
 
 console.log(
     "Unieke documenten:",
@@ -6566,23 +6525,18 @@ if(
 
         showCCVDashboard();
 
-console.log("=== EERSTE 10 DOCUMENTEN ===");
-
-console.table(
-    knowledgeData.slice(0,10).map(x => ({
-        titel: x.titel,
-        categorie: x.categorie,
-        subcategorie: x.subcategorie,
-        tags: x.tags
-    }))
+       renderAllCategories();
+console.log(
+    "Crohn:",
+    knowledgeData.filter(
+        x => x.categorie === "Crohn"
+    ).length
 );
 
-renderAllCategories();
-
 console.log(
-    "IBD documenten:",
+    "Colitis:",
     knowledgeData.filter(
-        x => x.categorie === "IBD"
+        x => x.categorie === "Colitis Ulcerosa"
     ).length
 );
 
@@ -6631,29 +6585,6 @@ console.log(
             x => x.categorie
         )
     )]
-);
-
-console.log(
-    "Unieke subcategorieën:",
-    [...new Set(
-        knowledgeData.map(x => x.subcategorie)
-    )]
-);
-
-console.log(
-    "Voorbeelden uit IBD:"
-);
-
-console.table(
-    knowledgeData
-        .filter(x => x.categorie === "IBD")
-        .slice(0,20)
-        .map(x => ({
-            titel: x.titel,
-            categorie: x.categorie,
-            subcategorie: x.subcategorie,
-            tags: x.tags
-        }))
 );
        renderUsers();
 
@@ -7377,6 +7308,8 @@ if(!response.ok){
    await scanFolder(
     item.id,
     categorie,
+    huidigeSubcategorie +
+    " " +
     item.name
 );
 
@@ -7486,13 +7419,6 @@ if(
         "Algemeen";
 }
 
-console.log(
-    "BESTAND",
-    item.name,
-    "SUB",
-    classification.subcategorie
-);
-
     knowledgeData.push({
 
     titel:item.name,
@@ -7501,7 +7427,7 @@ console.log(
         classification.categorie,
 
     subcategorie:
-    huidigeSubcategorie,
+        classification.subcategorie,
 
     tags:tags,
 
@@ -9518,14 +9444,13 @@ function countDocumentsByCategory(
     let html = "";
 
     const folders =
-[
-    ...new Set(
-        knowledgeData
-            .map(d => d.categorie)
-    )
-    
-];
-
+    [
+        ...new Set(
+            knowledgeData
+                .map(d => d.subcategorie)
+                .filter(Boolean)
+        )
+    ];
 
 knowledgeData =
 [
@@ -9541,70 +9466,45 @@ knowledgeData =
 
     folders.forEach(folder => {
 
-    const docsInFolder =
-        knowledgeData.filter(
-            d => d.categorie === folder
-        );
-
-    console.log(
-        folder,
-        docsInFolder.length
-    );
-
-});
-
-        console.log(
-            folder,
-            docsInFolder.length
-        );
-
-        folders.forEach(folder => {
-
-    html += `
-    <div class="card">
-
-        <details>
-            <summary
-                style="
-                    cursor:pointer;
-                    font-weight:bold;
-                    font-size:18px;
-                "
-            >
-                📁 ${folder}
-            </summary>
-    `;
-
-    const docsInFolder =
-        knowledgeData.filter(
-            d => d.categorie === folder
-        );
-
-    console.log(
-        folder,
-        docsInFolder.length
-    );
-
-    docsInFolder.forEach(doc => {
-
         html += `
-        <div style="
-            margin-left:40px;
-            color:red;
-            padding:4px;
-        ">
-            DOCUMENT:
-            ${doc.titel}
-        </div>
+        <div class="card">
+
+            <details>
+    <summary
+        style="
+            cursor:pointer;
+            font-weight:bold;
+            font-size:18px;
+        "
+    >
+        📁 ${folder}
+    </summary>
         `;
 
-    });
+        knowledgeData
+        .filter(
+            d => d.subcategorie === folder
+        )
+       .forEach(doc => {
+
+    console.log(doc.bestand);
 
     html += `
-        </details>
-    `;
-
+<div
+    style="
+        margin-left:20px;
+        padding:5px;
+    "
+>
+    ${doc.bestand}
+</div>
+`;
 });
+
+        html += `
+</details>
+`;
+    });
 
     container.innerHTML = html;
 }

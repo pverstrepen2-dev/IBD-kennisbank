@@ -9480,26 +9480,25 @@ knowledgeData =
         d => d.subcategorie === folder
     )
     .forEach(doc => {
+console.log(doc.bestand);
+       
+    html += `
+<div style="
+    margin-left:20px;
+    padding:5px;
+">
+    <a href="${nd}
+       📄 ${doc.titel}
+    </a>
+</div>
+`;
 
-    const match =
-        String(doc.bestand)
-        .match(/href="([^"]+)"/);
-
-    const url =
-        match ? match[1] : "";
+    });
 
     html += `
-    <div style="
-        margin-left:25px;
-        padding:5px;
-    ">
-        ${url}
-           📄 ${doc.titel}
-        </a>
     </div>
     `;
 
-});
 });
 
 container.innerHTML = html;

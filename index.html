@@ -9478,44 +9478,38 @@ knowledgeData =
         "
     >
         📁 ${folder}
-    </summary>
+            </summary>
         `;
 
-        knowledgeData
-        .filter(
-            d => d.subcategorie === folder
-        )
-       .forEach(doc => {
+        const docsInFolder =
+            knowledgeData.filter(
+                d => d.subcategorie === folder
+            );
 
-    console.log(doc.bestand);
+        console.log(
+            folder,
+            docsInFolder.length
+        );
 
-    let url = doc.bestand;
+        docsInFolder.forEach(doc => {
 
-    const match =
-        String(doc.bestand)
-            .match(/href="([^"]+)"/);
+            html += `
+            <div style="
+                margin-left:40px;
+                color:red;
+                padding:4px;
+            ">
+                DOCUMENT:
+                ${doc.titel}
+            </div>
+            `;
 
-    if(match){
-        url = match[1];
-    }
-
-    html += `
-    <div
-        style="
-            margin-left:20px;
-            padding:5px;
-        "
-    >
-        <a
-                ${url}
-        </a>
-    </div>
-    `;
-});
+        });
 
         html += `
-</details>
-`;
+        </details>
+        `;
+
     });
 
     container.innerHTML = html;

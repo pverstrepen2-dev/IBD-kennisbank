@@ -9428,8 +9428,8 @@ function countDocumentsByCategory(
 
 }
 
-    function renderDocuments(){
-      
+   function renderDocuments(){
+
     const container =
         document.getElementById(
             "documentsContainer"
@@ -9437,67 +9437,59 @@ function countDocumentsByCategory(
 
     let html = "";
 
-    const folders =
-    [
+    // Groepeer op categorie i.p.v. subcategorie
+    const folders = [
         ...new Set(
             knowledgeData
-                .map(d => d.subcategorie)
+                .map(d => d.categorie)
                 .filter(Boolean)
         )
-    ];
-
-knowledgeData =
-[
-    ...new Map(
-        knowledgeData.map(
-            item => [
-                item.titel,
-                item
-            ]
-        )
-    ).values()
-];
+    ].sort();
 
     folders.forEach(folder => {
 
         html += `
         <div class="card">
-
             <details>
-    <summary
-        style="
-            cursor:pointer;
-            font-weight:bold;
-            font-size:18px;
-        "
-    >
-        📁 ${folder}
-    </summary>
+                <summary style="
+                    cursor:pointer;
+                    font-weight:bold;
+                    font-size:18px;
+                ">
+                    📁 ${folder}
+                </summary>
         `;
 
-        knowledgeData
-        .filter(
-            d => d.subcategorie === folder
-        )
-       .forEach(doc => {
+        const docsInFolder =
+            knowledgeData.filter(
+                d => d.categorie === folder
+            );
 
-    console.log(doc.bestand);
+        console.log(
+            folder,
+            docsInFolder.length
+        );
 
-    html += `
-<div
-    style="
-        margin-left:20px;
-        padding:5px;
-    "
->
-    ${doc.bestand}
-</div>
-`;
-});
+        docsInFolder.forEach(doc => {
+
+            let url = doc.bestand || "";
+
+            html += `
+                <div style="
+                    margin-left:20px;
+                    padding:5px;
+                ">
+                    ${url}
+                        📄 ${doc.titel}
+                    </a>
+                </div>
+            `;
+        });
 
         html += `
-</details>
-`;
+            </details>
+        </div>
+        `;
     });
 
     container.innerHTML = html;

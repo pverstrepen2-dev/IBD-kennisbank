@@ -6571,16 +6571,9 @@ console.table(
 renderAllCategories();
 
 console.log(
-    "Crohn:",
+    "IBD documenten:",
     knowledgeData.filter(
-        x => x.categorie === "Crohn"
-    ).length
-);
-
-console.log(
-    "Colitis:",
-    knowledgeData.filter(
-        x => x.categorie === "Colitis Ulcerosa"
+        x => x.categorie === "IBD"
     ).length
 );
 
@@ -6629,6 +6622,29 @@ console.log(
             x => x.categorie
         )
     )]
+);
+
+console.log(
+    "Unieke subcategorieën:",
+    [...new Set(
+        knowledgeData.map(x => x.subcategorie)
+    )]
+);
+
+console.log(
+    "Voorbeelden uit IBD:"
+);
+
+console.table(
+    knowledgeData
+        .filter(x => x.categorie === "IBD")
+        .slice(0,20)
+        .map(x => ({
+            titel: x.titel,
+            categorie: x.categorie,
+            subcategorie: x.subcategorie,
+            tags: x.tags
+        }))
 );
        renderUsers();
 

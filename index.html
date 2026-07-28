@@ -9541,51 +9541,70 @@ knowledgeData =
 
     folders.forEach(folder => {
 
-        html += `
-        <div class="card">
+    const docsInFolder =
+        knowledgeData.filter(
+            d => d.categorie === folder
+        );
 
-            <details>
-    <summary
-        style="
-            cursor:pointer;
-            font-weight:bold;
-            font-size:18px;
-        "
-    >
-        📁 ${folder}
-            </summary>
-        `;
+    console.log(
+        folder,
+        docsInFolder.length
+    );
 
-        const docsInFolder =
-            knowledgeData.filter(
-                d => d.subcategorie === folder
-            );
+});
 
         console.log(
             folder,
             docsInFolder.length
         );
 
-        docsInFolder.forEach(doc => {
+        folders.forEach(folder => {
 
-            html += `
-            <div style="
-                margin-left:40px;
-                color:red;
-                padding:4px;
-            ">
-                DOCUMENT:
-                ${doc.titel}
-            </div>
-            `;
+    html += `
+    <div class="card">
 
-        });
+        <details>
+            <summary
+                style="
+                    cursor:pointer;
+                    font-weight:bold;
+                    font-size:18px;
+                "
+            >
+                📁 ${folder}
+            </summary>
+    `;
+
+    const docsInFolder =
+        knowledgeData.filter(
+            d => d.categorie === folder
+        );
+
+    console.log(
+        folder,
+        docsInFolder.length
+    );
+
+    docsInFolder.forEach(doc => {
 
         html += `
-        </details>
+        <div style="
+            margin-left:40px;
+            color:red;
+            padding:4px;
+        ">
+            DOCUMENT:
+            ${doc.titel}
+        </div>
         `;
 
     });
+
+    html += `
+        </details>
+    `;
+
+});
 
     container.innerHTML = html;
 }

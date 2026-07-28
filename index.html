@@ -6450,21 +6450,53 @@ knowledgeData =
         ATTACHMENTSFILE
     );
 
-    knowledgeData =
+   knowledgeData =
+    await downloadEntity(
+        ATTACHMENTSFILE
+    );
+
+console.log(
+    "Voor deduplicatie:",
+    knowledgeData.length
+);
+
+knowledgeData =
 [
     ...new Map(
         knowledgeData.map(
             item => [
-                (
-                    (item.titel || "") +
-                    "|" +
-                    (item.bestand || "")
-                ),
+                item.titel,
                 item
             ]
         )
     ).values()
 ];
+knowledgeData =
+    await downloadEntity(
+        ATTACHMENTSFILE
+    );
+
+console.log(
+    "Voor deduplicatie:",
+    knowledgeData.length
+);
+
+knowledgeData =
+[
+    ...new Map(
+        knowledgeData.map(
+            item => [
+                item.titel,
+                item
+            ]
+        )
+    ).values()
+];
+
+console.log(
+    "Na deduplicatie:",
+    knowledgeData.length
+);
 
 console.log(
     "Unieke documenten:",
@@ -9454,6 +9486,7 @@ function countDocumentsByCategory(
         knowledgeData
             .map(d => d.categorie)
     )
+    
 ];
 
 

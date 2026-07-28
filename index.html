@@ -6557,7 +6557,19 @@ if(
 
         showCCVDashboard();
 
-       renderAllCategories();
+console.log("=== EERSTE 10 DOCUMENTEN ===");
+
+console.table(
+    knowledgeData.slice(0,10).map(x => ({
+        titel: x.titel,
+        categorie: x.categorie,
+        subcategorie: x.subcategorie,
+        tags: x.tags
+    }))
+);
+
+renderAllCategories();
+
 console.log(
     "Crohn:",
     knowledgeData.filter(

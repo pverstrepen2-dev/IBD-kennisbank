@@ -9481,17 +9481,16 @@ knowledgeData =
     )
     .forEach(doc => {
 console.log(doc.bestand);
-       
-    html += `
-<div style="
-    margin-left:20px;
-    padding:5px;
-">
-    <a href="${nd}
-       📄 ${doc.titel}
-    </a>
-</div>
-`;
+        html += `
+        <div style="
+            margin-left:20px;
+            padding:5px;
+        ">
+            <a href="${doc.bestand}"
+         ${doc.titel}
+            </a>
+        </div>
+        `;
 
     });
 

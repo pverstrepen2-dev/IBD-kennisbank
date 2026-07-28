@@ -9481,22 +9481,25 @@ knowledgeData =
     )
     .forEach(doc => {
 
+    const match =
+        String(doc.bestand)
+        .match(/href="([^"]+)"/);
+
     const url =
-        doc.bestand.match(/href="([^"]+)"/)?.[1] || "";
+        match ? match[1] : "";
 
     html += `
     <div style="
-        margin-left:20px;
+        margin-left:25px;
         padding:5px;
     ">
-        <aurl}
-            📄 ${doc.titel}
+        ${url}
+           📄 ${doc.titel}
         </a>
     </div>
     `;
 
 });
-
 });
 
 container.innerHTML = html;

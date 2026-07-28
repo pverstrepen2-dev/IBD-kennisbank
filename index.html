@@ -9480,17 +9480,17 @@ knowledgeData =
         d => d.subcategorie === folder
     )
     .forEach(doc => {
-
+console.log(doc.bestand);
         html += `
-        <div style="
-            margin-left:20px;
-            padding:5px;
-        ">
-            <a href="${doc.bestand}"
-         ${doc.titel}
-            </a>
-        </div>
-        `;
+<div style="
+    margin-left:20px;
+    padding:5px;
+">
+    ${doc.bestand}
+       📄 ${doc.titel}
+    </a>
+</div>
+`;
 
     });
 

@@ -9476,21 +9476,23 @@ knowledgeData =
     `;
 
     knowledgeData
-        .filter(
-            d => d.subcategorie === folder
-        )
-        .forEach(doc => {
+    .filter(
+        d => d.subcategorie === folder
+    )
+    .forEach(doc => {
 
-            html += `
-            <div style="
-                margin-left:20px;
-                padding:5px;
-            ">
-                📄 ${doc.titel}
-            </div>
-            `;
+        html += `
+        <div style="
+            margin-left:20px;
+            padding:5px;
+        ">
+            <a href="${doc.bestand}"
+         ${doc.titel}
+            </a>
+        </div>
+        `;
 
-        });
+    });
 
     html += `
     </div>

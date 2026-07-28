@@ -9489,16 +9489,28 @@ knowledgeData =
 
     console.log(doc.bestand);
 
+    let url = doc.bestand;
+
+    const match =
+        String(doc.bestand)
+            .match(/href="([^"]+)"/);
+
+    if(match){
+        url = match[1];
+    }
+
     html += `
-<div
-    style="
-        margin-left:20px;
-        padding:5px;
-    "
->
-    ${doc.bestand}
-</div>
-`;
+    <div
+        style="
+            margin-left:20px;
+            padding:5px;
+        "
+    >
+        <a
+                ${url}
+        </a>
+    </div>
+    `;
 });
 
         html += `

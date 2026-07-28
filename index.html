@@ -7419,10 +7419,6 @@ if(
         "Algemeen";
 }
 
-console.log(
-    item.name,
-    classification
-);
     knowledgeData.push({
 
     titel:item.name,
@@ -9468,40 +9464,49 @@ knowledgeData =
     ).values()
 ];
 
-   folders.forEach(folder => {
+    folders.forEach(folder => {
 
-    html += `
-    <div class="card">
-        <h3>📁 ${folder}</h3>
-    `;
-
-    knowledgeData
-    .filter(
-        d => d.subcategorie === folder
-    )
-    .forEach(doc => {
-console.log(doc.bestand);
         html += `
-        <div style="
-            margin-left:20px;
-            padding:5px;
-        ">
-            <a href="${doc.bestand}"
-         ${doc.titel}
-            </a>
-        </div>
+        <div class="card">
+
+            <details>
+    <summary
+        style="
+            cursor:pointer;
+            font-weight:bold;
+            font-size:18px;
+        "
+    >
+        📁 ${folder}
+    </summary>
         `;
 
-    });
+        knowledgeData
+        .filter(
+            d => d.subcategorie === folder
+        )
+       .forEach(doc => {
+
+    console.log(doc.bestand);
 
     html += `
-    </div>
-    `;
-
+<div
+    style="
+        margin-left:20px;
+        padding:5px;
+    "
+>
+    ${doc.bestand}
+</div>
+`;
 });
 
-container.innerHTML = html;
+        html += `
+</details>
+`;
+    });
 
+    container.innerHTML = html;
 }
 /* ==================================
    ZOEKEN

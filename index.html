@@ -469,8 +469,13 @@
 </button>
 
 <button
-    onclick="loadCCVFolder()">
+    onclick="openDriveFolder('2B4CCFD79FF4714A!s3451c122bf304e639899a9f1060c96ff')">
     🤝 CCV-VZW
+</button>
+
+<button
+    onclick="loadCCVSubFolders()">
+    📂 CCV Structuur
 </button>
 
 </div>
@@ -851,6 +856,8 @@
    let currentHoofdgroep = 'crohn';
     let websitesOnly = false;
     let favoritesOnly = false;
+    let currentDriveFolder =
+    null;
 
     const categoryInfo = {
       'Symptomen': { icon: '🩺', desc: 'Herkenbare klachten en symptomen', sections: ['Crohn', 'Colitis Ulcerosa', 'Algemeen IBD'] },
@@ -2739,29 +2746,43 @@ async function loadCCVFolder(){
             );
 
         const data =
-            await response.json();
+    await response.json();
 
-        console.log(
-            "CCV MAP:",
-            data
-        );
+console.log(
+    "CCV MAP:",
+    data
+);
+data.value.forEach(item => {
 
-        document.getElementById(
-            "resultsContainer"
-        ).innerHTML =
+    console.log(
+        "CCV ITEM:",
+        item.name,
+        item.id
+    );
 
-            data.value.map(item => `
+});
 
-                <div class="card">
+document.getElementById(
+    "resultsContainer"
+).innerHTML =
 
-                    <b>${item.name}</b>
-                    <br>
+    data.value.map(item => `
 
-                    ${item.folder ? "📁 Map" : "📄 Bestand"}
+        <div class="card">
 
-                </div>
+            <h3>${item.name}</h3>
 
-            `).join("");
+            <p>
+                ${item.folder ? "📁 Map" : "📄 Bestand"}
+            </p>
+
+            <small>
+                ${item.id}
+            </small>
+
+        </div>
+
+    `).join("");
 
     }
     catch(error){
@@ -2774,6 +2795,152 @@ async function loadCCVFolder(){
     }
 
 }
+
+async function loadCCVSubFolders(){
+
+    try{
+
+        const token =
+            await getAccessToken();
+
+        const folderId =
+            "2B4CCFD79FF4714A!s3451c122bf304e639899a9f1060c96ff";
+
+        const response =
+            await fetch(
+
+                `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`,
+
+                {
+                    headers:{
+                        Authorization:
+                            "Bearer " + token
+                    }
+                }
+            );
+
+        const data =
+            await response.json();
+
+        console.log(
+            "CCV SUBFOLDERS:",
+            data
+        );
+
+        document.getElementById(
+            "resultsContainer"
+        ).innerHTML =
+
+            data.value.map(item => `
+
+                <div class="card">
+
+                    <h3>${item.name}</h3>
+
+                    <p>
+                        ${item.folder
+                            ? "📁 Map"
+                            : "📄 Bestand"}
+                    </p>
+
+                    <small>
+                        ${item.id}
+                    </small>
+
+                </div>
+
+            `).join("");
+
+    }
+    catch(error){
+
+        console.error(
+            "CCV SUBFOLDERS fout:",
+            error
+        );
+
+    }
+
+}
+
+async function openDriveFolder(folderId){
+
+    try{
+
+        const token =
+            await getAccessToken();
+
+        const response =
+            await fetch(
+
+                `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`,
+
+                {
+                    headers:{
+                        Authorization:
+                            "Bearer " + token
+                    }
+                }
+            );
+
+        const data =
+            await response.json();
+
+        currentDriveFolder =
+            folderId;
+
+        renderDriveItems(
+            data.value
+        );
+
+    }
+    catch(error){
+
+        console.error(
+            "Drive fout:",
+            error
+        );
+
+    }
+
+}
+
+function renderDriveItems(items){
+
+    document.getElementById(
+        "resultsContainer"
+    ).innerHTML =
+
+        items.map(item => `
+
+            <div
+                class="card"
+                style="cursor:pointer;"
+                onclick="${
+                    item.folder
+                    ? `openDriveFolder('${item.id}')`
+                    : ''
+                }"
+            >
+
+                <h3>
+
+                    ${
+                        item.folder
+                        ? '📁'
+                        : '📄'
+                    }
+
+                    ${item.name}
+
+                </h3>
+
+            </div>
+
+        `).join("");
+
+}
+
 
 // INIT
 renderVoeding('dieet');

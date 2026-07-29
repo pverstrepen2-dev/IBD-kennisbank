@@ -1,5 +1,8 @@
 <!DOCTYPE html>
 <html lang="nl">
+
+<script src="https://alcdn.msauth.net/browser/2.38.3/js.min.jsscript>
+  
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -429,9 +432,32 @@
   <div class="container">
     <div class="header">
       <h1>🏥 IBD Kennisbank</h1>
-      <p class="subtitle">Finale werkende versie met tabs, websites-favorieten en opgeschoonde zoekfunctie.</p>
+      <p class="subtitle">IBD-Kennisbank.</p>
 
       <h2 id="activeGroup" style="margin-top:10px; font-size:18px;"></h2>
+
+      <div id="userInfo"></div>
+     Niet aangemeld
+</div>
+<div style="margin-top:10px;">
+
+    <button
+        onclick="loginMicrosoft()"
+        id="loginBtn"
+    >
+        🔑 Aanmelden Microsoft
+    </button>
+
+    <button
+        onclick="logoutMicrosoft()"
+        id="logoutBtn"
+        style="display:none;"
+    >
+        🚪 Afmelden
+    </button>
+
+</div>
+
 
       <h3 style="margin-bottom:10px;">📂 Hoofdgroep</h3>
 
@@ -1676,6 +1702,38 @@ if(toggleBtn){
     });
 
     // Init
+    let currentUser = null;
+
+function updateUserInfo(){
+
+    const el =
+        document.getElementById(
+            "userInfo"
+        );
+
+    if(!currentUser){
+
+        el.innerHTML =
+            "❌ Niet aangemeld";
+
+        return;
+    }
+
+    el.innerHTML =
+        `
+        👤 ${currentUser.name}
+        <br>
+        📧 ${currentUser.email}
+        `;
+}
+
+currentUser = {
+    name: "Patrick Verstrepen",
+    email: "ccv_vzw@outlook.com"
+};
+
+updateUserInfo();
+
     populateFilters();
     setLanguage(currentLang);
     updateDashboard();

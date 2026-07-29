@@ -1872,7 +1872,7 @@ async function getAccessToken(){
         msalInstance.getAllAccounts()[0];
 
     const response =
-        await msalInstance.acquireTokenPopup({
+        await msalInstance.acquireTokenSilent({
 
             account: account,
 
@@ -1888,6 +1888,10 @@ async function getAccessToken(){
 }
 
 async function loadOneDriveFiles(){
+  console.log(
+    "ACTIVE ACCOUNT:",
+    msalInstance.getActiveAccount()
+);
 
     try{
 

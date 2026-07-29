@@ -1754,43 +1754,47 @@ const msalInstance =
     new msal.PublicClientApplication(
         msalConfig
     );
-msalInstance.handleRedirectPromise()
-.then(response => {
 
-    if(response){
-
-        currentUser = {
-
-            name: response.account.name,
-            email: response.account.username
-
-        };
-
-        updateUserInfo();
-
-        console.log(
-            "Aangemeld:",
-            response.account.username
-        );
-
-    }
-
-})
-.catch(console.error);
-
-async function initializeMSAL(){
+(async () => {
 
     await msalInstance.initialize();
 
-}
+    msalInstance.handleRedirectPromise()
+
+    .then(response => {
+
+        if(response){
+
+            currentUser = {
+
+                name:
+                    response.account.name,
+
+                email:
+                    response.account.username
+
+            };
+
+            updateUserInfo();
+
+            console.log(
+                "Aangemeld:",
+                response.account.username
+            );
+
+        }
+
+    })
+
+    .catch(console.error);
+
+})();
 
 async function loginMicrosoft(){
 
     try{
 
-        await initializeMSAL();
-
-        await msalInstance.loginRedirect({
+            await msalInstance.loginRedirect({
 
             scopes:[
                 "User.Read"

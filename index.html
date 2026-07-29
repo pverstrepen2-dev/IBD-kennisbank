@@ -1772,7 +1772,7 @@ async function loginMicrosoft(){
         );
 
         const result =
-            await msalInstance.loginPopup({
+            await msalInstance.loginRedirect({
 
                 scopes:[
                     "User.Read"
@@ -1829,11 +1829,6 @@ function logoutMicrosoft(){
     msalInstance.logoutPopup();
 
 }
-
-currentUser = {
-    name: "Patrick Verstrepen",
-    email: "ccv_vzw@outlook.com"
-};
 
 updateUserInfo();
 

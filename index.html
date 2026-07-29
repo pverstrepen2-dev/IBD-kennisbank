@@ -1868,32 +1868,13 @@ async function logoutMicrosoft(){
 
 async function getAccessToken(){
 
-    const accounts =
-        msalInstance.getAllAccounts();
-
-    console.log(
-        "ALLE ACCOUNTS:",
-        accounts
-    );
-
-    console.log(
-        "ACTIEF ACCOUNT:",
-        msalInstance.getActiveAccount()
-    );
-
-    if(accounts.length === 0){
-
-        throw new Error(
-            "Geen account gevonden in MSAL"
-        );
-
-    }
+    const account =
+        msalInstance.getAllAccounts()[0];
 
     const response =
-        await msalInstance.acquireTokenSilent({
+        await msalInstance.acquireTokenPopup({
 
-            account:
-                accounts[0],
+            account: account,
 
             scopes: [
                 "User.Read",

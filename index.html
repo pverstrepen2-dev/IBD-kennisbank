@@ -1741,7 +1741,7 @@ const msalConfig = {
             "d4d940de-49a5-4328-bb87-c0b65aeea942",
 
         authority:
-            "https://login.microsoftonline.com/consumers",
+            "https://login.microsoftonline.com/common",
 
         redirectUri:
             "https://pverstrepen2-dev.github.io/IBD-kennisbank/"
@@ -1767,6 +1767,9 @@ async function loginMicrosoft(){
 
     try{
 
+console.log(
+  "MSAL login gestart"
+);
         const result =
             await msalInstance.loginPopup({
 

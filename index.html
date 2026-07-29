@@ -2638,22 +2638,36 @@ async function loadOneDriveFiles(){
             await getAccessToken();
 
         const response =
-            await fetch(
+        console.log(
+    "TOKEN:",
+    token
+);
+    await fetch(
 
-                "https://graph.microsoft.com/v1.0/me/drive/root/children",
+        "https://graph.microsoft.com/v1.0/me/drive/root/children",
 
-                {
-                    headers: {
-                        Authorization:
-                            "Bearer " + token
-                    }
-                }
-            );
+        {
+            headers: {
+                Authorization:
+                    "Bearer " + token
+            }
+        }
+    );
 
-        const data =
-            await response.json();
+console.log(
+    "HTTP STATUS:",
+    response.status
+);
 
-            console.log(
+console.log(
+    "HTTP OK:",
+    response.ok
+);
+
+const data =
+    await response.json();
+
+console.log(
     "GRAPH RESPONSE:",
     data
 );

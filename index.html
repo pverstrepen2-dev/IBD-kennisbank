@@ -1734,15 +1734,22 @@ function updateUserInfo(){
 }
 
 const msalConfig = {
+
     auth: {
-       clientId: "d4d940de-49a5-4328-bb87-c0b65aeea942",
-	    authority: "https://login.microsoftonline.com/consumers",
-	    redirectUri: "https://pverstrepen2-dev.github.io/IBD-kennisbank/"
+
+        clientId:
+            "d4d940de-49a5-4328-bb87-c0b65aeea942",
+
+        authority:
+            "https://login.microsoftonline.com/consumers",
+
+        redirectUri:
+            "https://pverstrepen2-dev.github.io/IBD-kennisbank/"
 
     }
 
-    };
-    
+};
+
 const msalInstance =
     new msal.PublicClientApplication(
         msalConfig
@@ -1756,7 +1763,7 @@ async function initializeMSAL(){
 
 async function loginMicrosoft(){
 
-  await initializeMSAL();
+    await initializeMSAL();
 
     try{
 

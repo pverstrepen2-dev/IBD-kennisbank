@@ -7,6 +7,7 @@
 <title>IBD Kennisbank</title>
 
 <script src="https://unpkg.com/@azure/msal-browser@latest/lib/msal-browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <style>
 
@@ -229,6 +230,10 @@ border-bottom:1px solid #ddd;
 📚 Documentbibliotheek
 </button>
 
+<button onclick="showOneDriveFolders()">
+📁 Documenten
+</button>
+
 <button onclick="openPage('faq')">
 ❓ FAQ
 </button>
@@ -245,8 +250,8 @@ border-bottom:1px solid #ddd;
 ⚖️ Sociale Gids
 </button>
 
-<button onclick="openPage('media')">
-🎥 Media Bibliotheek
+<button onclick="openPage('websites')">
+    🌐 Websites
 </button>
 
 </div>
@@ -311,10 +316,6 @@ border-bottom:1px solid #ddd;
 🌐 Websites
 </button>
 
-<button onclick="openPage('verenigingen')">
-🏢 IBD Verenigingen
-</button>
-
 </div>
 
 </div>
@@ -338,6 +339,56 @@ border-bottom:1px solid #ddd;
     </div>
 
     <div id="categoryDocuments"></div>
+</div>
+
+<div id="onedriveFolders"
+     class="page hidden">
+
+    <div class="card">
+
+        <h2>
+            📁 OneDrive Mappen
+        </h2>
+
+        <div id="onedriveFoldersList">
+
+        </div>
+
+    </div>
+
+</div>
+
+<div id="workspace"
+     class="page hidden">
+
+    <div class="card">
+
+        <div id="tabFlow">
+
+            🤝 CCV-VZW
+
+        </div>
+
+    </div>
+
+    <div id="workspaceContent">
+    </div>
+
+</div>
+
+<div id="logbook"
+     class="page hidden">
+
+    <div class="card">
+
+        <h2>
+            📜 Activiteitenlog
+        </h2>
+
+        <div id="logContainer">
+        </div>
+
+    </div>
 
 </div>
 
@@ -463,15 +514,15 @@ border-bottom:1px solid #ddd;
 
         <div class="dashboard-grid">
 
-            <button onclick="openCategory('Zorggids','IBD Centra')">
+            <button onclick="showIbdCentraList()">
                 🏥 IBD Centra
             </button>
 
-            <button onclick="openCategory('Zorggids','Ziekenhuizen')">
+            <button onclick="showZiekenhuizenList()">
                 🏨 Ziekenhuizen
             </button>
 
-            <button onclick="openCategory('Zorggids','Gastro-enterologen')">
+            <button onclick="showGastroList()">
                 👨‍⚕️ Gastro-enterologen
             </button>
 
@@ -479,11 +530,11 @@ border-bottom:1px solid #ddd;
                 👩‍⚕️ IBD Verpleegkundigen
             </button>
 
-            <button onclick="openCategory('Zorggids','Diëtisten')">
+           <button onclick="showDietistenList()">
                 🥗 Diëtisten
             </button>
 
-            <button onclick="openCategory('Zorggids','Psychologen')">
+            <button onclick="showPsychologenList()">
                 🧠 Psychologen
             </button>
 
@@ -491,7 +542,7 @@ border-bottom:1px solid #ddd;
                 🤝 Sociale Diensten
             </button>
 
-            <button onclick="openCategory('Zorggids','Apothekers')">
+            <button onclick="showApothekersList()">
                 💊 Apothekers
             </button>
 
@@ -501,6 +552,22 @@ border-bottom:1px solid #ddd;
 
             <button onclick="openCategory('Zorggids','Noodnummers')">
                 🚨 Noodnummers
+            </button>
+
+            <button onclick="showStudieList()">
+                🎓 Studie
+            </button>
+
+            <button onclick="showAttestenList()">
+                📄 Attesten
+            </button>
+
+            <button onclick="showPremiesList()">
+                💰 Premies
+            </button>
+
+            <button onclick="showMantelzorgList()">
+                 👨‍👩‍👧 Mantelzorg
             </button>
 
         </div>
@@ -517,23 +584,23 @@ border-bottom:1px solid #ddd;
 
         <div class="dashboard-grid">
 
-            <button onclick="openCategory('Sociale Gids','Patiëntenrechten')">
+            <button onclick="showRechtenList()">
                 ⚖️ Patiëntenrechten
             </button>
 
-            <button onclick="openCategory('Sociale Gids','Invaliditeit')">
+            <button onclick="showInvaliditeitList()">
                 🏥 Invaliditeit
             </button>
 
-            <button onclick="openCategory('Sociale Gids','Werk')">
-                💼 Werk
+            <button onclick="showWerkList()">
+                 💼 Werk
             </button>
 
             <button onclick="openCategory('Sociale Gids','Studie')">
                 🎓 Studie
             </button>
 
-            <button onclick="openCategory('Sociale Gids','Terugbetalingen')">
+            <button onclick="showTerugbetalingenList()">
                 💰 Terugbetalingen
             </button>
 
@@ -547,39 +614,6 @@ border-bottom:1px solid #ddd;
 
 </div>
 
-<div id="media" class="page hidden">
-
-    <div class="card">
-
-        <h2>🎥 Media Bibliotheek</h2>
-
-        <div class="dashboard-grid">
-
-            <button onclick="openCategory('Media','Webinars')">
-                🎥 Webinars
-            </button>
-
-            <button onclick="openCategory('Media','Video')">
-                📺 Video
-            </button>
-
-            <button onclick="openCategory('Media','Podcasts')">
-                🎙️ Podcasts
-            </button>
-
-            <button onclick="openCategory('Media','Getuigenissen')">
-                👥 Getuigenissen
-            </button>
-
-            <button onclick="openCategory('Media','Expertinterviews')">
-                🎤 Expertinterviews
-            </button>
-
-        </div>
-
-    </div>
-
-</div>
 
 <div id="voeding"
      class="page hidden">
@@ -645,91 +679,38 @@ border-bottom:1px solid #ddd;
 
         <div class="dashboard-grid">
 
-            <button onclick="openCategory('Websites','Belgische organisaties')">
-                🇧🇪 Belgische organisaties
-            </button>
+            <button onclick="openCategory('Websites','Zorginstellingen')">
+    🏥 Zorginstellingen
+</button>
 
-            <button onclick="openCategory('Websites','Internationale organisaties')">
-                🌍 Internationale organisaties
-            </button>
+<button onclick="openCategory('Websites','Organisaties')">
+    🤝 Organisaties
+</button>
 
-            <button onclick="openCategory('Websites','Universitaire centra')">
-                🎓 Universitaire centra
-            </button>
+<button onclick="openCategory('Websites','Wetenschappelijke Bronnen')">
+    🔬 Wetenschappelijke Bronnen
+</button>
 
-            <button onclick="openCategory('Websites','Ziekenhuizen')">
-                🏥 Ziekenhuizen
-            </button>
+<button onclick="openCategory('Websites','Opleiding & Media')">
+    🎥 Opleiding & Media
+</button>
 
-            <button onclick="openCategory('Websites','Wetenschappelijke bronnen')">
-                🔬 Wetenschappelijke bronnen
-            </button>
+<button onclick="openCategory('Websites','Downloads')">
+    📂 Downloads
+</button>
 
-            <button onclick="openCategory('Websites','Patiëntenplatformen')">
-                👥 Patiëntenplatformen
-            </button>
+<button onclick="showNewWebsiteForm()">
+    ➕ Website toevoegen
+</button>
 
-            <button onclick="openCategory('Websites','Video & Media')">
-                🎥 Video & Media
-            </button>
-
-            <button onclick="openCategory('Websites','Downloads')">
-                📂 Downloads
-            </button>
+<button onclick="showWebsiteImport()">
+    📥 Import Websites Excel
+</button>
 
         </div>
     </div>
 </div>
 
-<div id="verenigingen" class="page hidden">
-    <div class="card">
-        <h2>🏢 IBD Verenigingen</h2>
-
-        <div class="dashboard-grid">
-
-            <button onclick="openCategory('IBD Verenigingen','België')">
-                🇧🇪 België
-            </button>
-
-            <button onclick="openCategory('IBD Verenigingen','Nederland')">
-                🇳🇱 Nederland
-            </button>
-
-            <button onclick="openCategory('IBD Verenigingen','Europa')">
-                🇪🇺 Europa
-            </button>
-
-            <button onclick="openCategory('IBD Verenigingen','Wereldwijd')">
-                🌍 Wereldwijd
-            </button>
-
-            <button onclick="openCategory('IBD Verenigingen','Patiëntenverenigingen')">
-                👥 Patiëntenverenigingen
-            </button>
-
-            <button onclick="openCategory('IBD Verenigingen','Jongerenwerkingen')">
-                🧑‍🎓 Jongerenwerkingen
-            </button>
-
-            <button onclick="openCategory('IBD Verenigingen','Lotgenotencontact')">
-                🤝 Lotgenotencontact
-            </button>
-
-            <button onclick="openCategory('IBD Verenigingen','Evenementen')">
-                📅 Evenementen
-            </button>
-
-            <button onclick="openCategory('IBD Verenigingen','Contactgegevens')">
-                📞 Contactgegevens
-            </button>
-
-            <button onclick="openCategory('IBD Verenigingen','Downloads')">
-                📂 Downloads
-            </button>
-
-        </div>
-    </div>
-</div>
 
 <div id="ccv" class="page hidden">
 
@@ -777,30 +758,30 @@ border-bottom:1px solid #ddd;
 
     <div class="dashboard-grid">
 
-        <button onclick="openCategory('CCV-VZW','Nieuwe Vergadering')">
+        <button onclick="showNewMeetingForm()">
             ➕ Vergadering
         </button>
 
-        <button onclick="openCategory('CCV-VZW','Nieuw Project')">
+        <button onclick="showNewProjectForm()">
             ➕ Project
         </button>
 
-        <button onclick="openCategory('CCV-VZW','Nieuwe Taak')">
+        <button onclick="showNewTaskForm()">
             ➕ Taak
         </button>
 
-        <button onclick="openCategory('CCV-VZW','Nieuw Lid')">
+        <button onclick="showNewMemberForm()">
             ➕ Lid
         </button>
 
-        <button onclick="openCategory('CCV-VZW','Nieuwe Activiteit')">
+        <button onclick="showNewActivityForm()">
             ➕ Activiteit
         </button>
 
-        <button onclick="openCategory('CCV-VZW','Nieuw Document')">
-            ➕ Document
-        </button>
-
+        <button onclick="showAttachmentForm()">
+    📎 Bijlage
+</button>
+   
     </div>
 
 </div>
@@ -823,9 +804,13 @@ border-bottom:1px solid #ddd;
         💰 Organisatie
     </button>
 
-    <button onclick="openCategory('CCV-VZW','Kennis & Documenten')">
-        📂 Kennis & Documenten
-    </button>
+    <button onclick="showAttachments()">
+    📎 Bijlagen
+</button>
+
+<button onclick="showLogbook()">
+    📜 Logboek
+</button>
 
 </div>
 
@@ -1029,6 +1014,79 @@ border-bottom:1px solid #ddd;
 
    <select id="manualSubCategory">
     <option>Algemeen</option>
+</select>
+
+<br><br>
+
+<label>
+
+    📄 Documenttype
+
+</label>
+
+<br><br>
+
+<select id="manualDocumentType">
+
+    <option>Artikel</option>
+
+    <option>Brochure</option>
+
+    <option>PDF</option>
+
+    <option>Onderzoek</option>
+
+    <option>Presentatie</option>
+
+    <option>Video</option>
+
+    <option>Website</option>
+
+    <option>FAQ</option>
+
+</select>
+
+<br><br>
+
+<label>
+
+    👥 Doelgroep
+
+</label>
+<br><br>
+
+<label>
+
+    🏷️ Tags
+
+</label>
+
+<br><br>
+
+<input
+    id="manualTags"
+    placeholder="medicatie, biologicals, voeding">
+``
+<br><br>
+
+<select id="manualAudience">
+
+    <option>Patiënt</option>
+
+    <option>Mantelzorger</option>
+
+    <option>Ouder</option>
+
+    <option>Kind</option>
+
+    <option>Adolescent</option>
+
+    <option>Zorgverlener</option>
+
+    <option>Vrijwilliger</option>
+
+    <option>Bestuur</option>
+
 </select>
 
     <br><br>
@@ -1256,6 +1314,12 @@ console.log("MSAL geïnitialiseerd");
 let accessToken = null;
 let currentUser = null;
 let currentRole = "viewer";
+let currentDocumentContext =
+    "Algemeen";
+let currentContextName =
+    "";
+    let currentPageFlow =
+    "CCV-VZW";
 
 function checkLogin(){
 
@@ -1273,15 +1337,35 @@ function checkLogin(){
 
 function determineRole(){
 
-   if(
-currentUser &&
-currentUser.toLowerCase() ===
-"ccv_vzw@outlook.com"
-){
-currentRole = "admin";
-applyPermissions();
-return;
-}
+    if(
+        currentUser &&
+        currentUser.toLowerCase() ===
+        "ccv_vzw@outlook.com"
+    ){
+
+        currentRole = "admin";
+
+        let admin =
+            users.find(
+                u =>
+                    u.email.toLowerCase() ===
+                    currentUser.toLowerCase()
+            );
+
+        if(admin){
+
+            admin.lastLogin =
+                new Date()
+                .toISOString();
+
+            saveData();
+
+        }
+
+        applyPermissions();
+
+        return;
+    }
 
     const user =
         users.find(
@@ -1295,6 +1379,12 @@ return;
 
         currentRole =
             user.role;
+
+        user.lastLogin =
+            new Date()
+            .toISOString();
+
+        saveData();
 
     }else{
 
@@ -1336,6 +1426,72 @@ const DATAFILE = "CCV-VZW/Database/database.json";
 const USERSFILE =
     "CCV-VZW/Database/users.json";
 
+    const MEETINGSFILE =
+    "CCV-VZW/Database/meetings.json";
+
+const PROJECTSFILE =
+    "CCV-VZW/Database/projects.json";
+
+const TASKSFILE =
+    "CCV-VZW/Database/tasks.json";
+
+const MEMBERSFILE =
+    "CCV-VZW/Database/members.json";
+
+const ACTIVITIESFILE =
+    "CCV-VZW/Database/activities.json";
+
+const LOGFILE =
+    "CCV-VZW/Database/systemlog.json";
+
+const ZORGGIDS_IBDCENTRA =
+    "CCV-VZW/Database/zorggids_ibdcentra.json";
+
+const ZORGGIDS_ZIEKENHUIZEN =
+    "CCV-VZW/Database/zorggids_ziekenhuizen.json";
+
+const ZORGGIDS_GASTRO =
+    "CCV-VZW/Database/zorggids_gastro.json";
+
+const ZORGGIDS_DIETISTEN =
+    "CCV-VZW/Database/zorggids_dietisten.json";
+
+const ZORGGIDS_PSYCHOLOGEN =
+    "CCV-VZW/Database/zorggids_psychologen.json";
+
+const ZORGGIDS_APOTHEKERS =
+    "CCV-VZW/Database/zorggids_apothekers.json";
+
+const SOCIAAL_RECHTEN =
+    "CCV-VZW/Database/sociaal_rechten.json";
+
+const SOCIAAL_INVALIDITEIT =
+    "CCV-VZW/Database/sociaal_invaliditeit.json";
+
+const SOCIAAL_WERK =
+    "CCV-VZW/Database/sociaal_werk.json";
+
+const SOCIAAL_STUDIE =
+    "CCV-VZW/Database/sociaal_studie.json";
+
+const SOCIAAL_TERUGBETALINGEN =
+    "CCV-VZW/Database/sociaal_terugbetalingen.json";
+
+const SOCIAAL_ATTESTEN =
+    "CCV-VZW/Database/sociaal_attesten.json";
+
+const SOCIAAL_PREMIES =
+    "CCV-VZW/Database/sociaal_premies.json";
+
+const SOCIAAL_MANTELZORG =
+    "CCV-VZW/Database/sociaal_mantelzorg.json";
+
+const ATTACHMENTSFILE =
+    "CCV-VZW/Database/attachments.json";
+
+const WEBSITESFILE =
+    "CCV-VZW/Database/websites.json";
+
 const CONFIG = {
     graphEnabled: true,
     documentFolder: "/CCV-VZW/Documenten/"
@@ -1346,11 +1502,28 @@ const CONFIG = {
 ================================== */
 
 let knowledgeData = [];
+let systemLog = [];
 let documents = [];
 let meetings = [];
 let projects = [];
 let tasks = [];
+let activities = [];
+let zorggidsIbdCentra = [];
+let zorggidsZiekenhuizen = [];
+let zorggidsGastro = [];
+let zorggidsDietisten = [];
+let zorggidsPsychologen = [];
+let zorggidsApothekers = [];
+let sociaalRechten = [];
+let sociaalInvaliditeit = [];
+let sociaalWerk = [];
+let sociaalStudie = [];
+let sociaalTerugbetalingen = [];
+let sociaalAttesten = [];
+let sociaalPremies = [];
+let sociaalMantelzorg = [];
 let members = [];
+let websitesDatabase = [];
 let users = [
     {
         email:"ccv_vzw@outlook.com",
@@ -1419,6 +1592,7 @@ function openPage(page){
     const pageNames = {
 
     dashboard:"🏠 Dashboard",
+    logbook:"📜 Activiteitenlog",
     knowledge:"📚 Kennisbank",
     documents:"📂 Documentbibliotheek",
     faq:"❓ FAQ",
@@ -1426,8 +1600,7 @@ function openPage(page){
     ccv:"🤝 CCV-VZW",
     zorggids:"🏥 Zorggids",
     sociaal:"⚖️ Sociale Gids",
-    media:"🎥 Media Bibliotheek"
-};
+  };
 
 if(document.getElementById("breadcrumb")){
 
@@ -1608,15 +1781,11 @@ function renderDynamicCategory(
 
     "FAQ":"faq",
 
-    "Media":"media",
-
     "Zorggids":"zorggids",
 
     "Sociale Gids":"sociaal",
 
     "Websites":"websites",
-
-    "IBD Verenigingen":"verenigingen",
 
     "Patiënten Expert Opleiding":"expert"
 
@@ -1669,11 +1838,961 @@ function openCategory(mainCategory, subCategory){
     );
 }
 
+function showNewZorggidsEntry(
+    type
+){
+
+    openPage(
+        "workspace"
+    );
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = `
+
+    <div class="card">
+
+        <h2>
+
+            ➕ Nieuwe Zorggids Entry
+
+        </h2>
+
+        <p>
+
+            Type:
+
+            <b>
+
+                ${type}
+
+            </b>
+
+        </p>
+
+        <input
+            id="zorgNaam"
+            placeholder="Naam">
+
+        <br><br>
+
+        <input
+            id="zorgInstelling"
+            placeholder="Instelling">
+
+        <br><br>
+
+        <input
+            id="zorgAdres"
+            placeholder="Adres">
+
+        <br><br>
+
+        <input
+            id="zorgTelefoon"
+            placeholder="Telefoon">
+
+        <br><br>
+
+        <input
+            id="zorgEmail"
+            placeholder="Email">
+
+        <br><br>
+
+        <input
+            id="zorgWebsite"
+            placeholder="Website">
+
+        <br><br>
+
+        <input
+            id="zorgProvincie"
+            placeholder="Provincie">
+
+        <br><br>
+
+       <h3>
+    🔎 Automatisch opzoeken
+</h3>
+
+<input
+    id="zorgZoekterm"
+    placeholder="Bijvoorbeeld: UZ Leuven">
+
+<button
+    onclick="zoekZorgInfo(
+        '${type}'
+    )">
+
+    🔎 Zoek gegevens
+
+</button>
+
+<br><br>
+
+<div
+    id="zoekResultaat"
+    class="card"
+    style="display:none;">
+
+</div>
+
+        <br><br>
+
+        <textarea
+            id="zorgOpmerking"
+            placeholder="Opmerkingen">
+        </textarea>
+
+        <br><br>
+
+        <button
+    onclick="fillDemoData()">
+
+    ⚡ Test invullen
+
+</button>
+
+<br><br>
+
+<button
+    onclick="saveZorggidsEntry('${type}')">
+
+    💾 Opslaan
+
+</button>
+
+    </div>
+
+    `;
+
+}
+
+function showNewSociaalEntry(
+    type
+){
+
+    openPage("workspace");
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = `
+
+    <div class="card">
+
+        <h2>
+
+            ➕ Nieuwe Sociale Gids Entry
+
+        </h2>
+
+        <p>
+
+            Type:
+
+            <b>${type}</b>
+
+        </p>
+
+        <input
+            id="sociaalNaam"
+            placeholder="Titel">
+
+        <br><br>
+
+        <input
+            id="sociaalInstantie"
+            placeholder="Instantie">
+
+        <br><br>
+
+        <input
+            id="sociaalWebsite"
+            placeholder="Website">
+
+        <br><br>
+
+        <input
+            id="sociaalTelefoon"
+            placeholder="Telefoon">
+
+        <br><br>
+
+        <input
+            id="sociaalEmail"
+            placeholder="Email">
+
+        <br><br>
+
+        <textarea
+            id="sociaalBeschrijving"
+            placeholder="Beschrijving">
+        </textarea>
+
+        <br><br>
+
+        <input
+            id="sociaalZoekterm"
+            placeholder="Zoekterm">
+
+        <button
+            onclick="zoekSociaalInfo(
+                '${type}'
+            )">
+
+            🔎 Zoeken
+
+        </button>
+
+        <br><br>
+
+        <div
+            id="sociaalZoekResultaat"
+            class="card"
+            style="display:none;">
+
+        </div>
+
+        <button
+            onclick="saveSociaalEntry(
+                '${type}'
+            )">
+
+            💾 Opslaan
+
+        </button>
+
+    </div>
+
+    `;
+
+}
+
+async function saveSociaalEntry(
+    type
+){
+
+    const item = {
+
+        id:
+            generateId(),
+
+        type:
+            type,
+
+        titel:
+            document.getElementById(
+                "sociaalNaam"
+            ).value,
+
+        instantie:
+            document.getElementById(
+                "sociaalInstantie"
+            ).value,
+
+        website:
+            document.getElementById(
+                "sociaalWebsite"
+            ).value,
+
+        telefoon:
+            document.getElementById(
+                "sociaalTelefoon"
+            ).value,
+
+        email:
+            document.getElementById(
+                "sociaalEmail"
+            ).value,
+
+        beschrijving:
+            document.getElementById(
+                "sociaalBeschrijving"
+            ).value,
+
+        created:
+            new Date()
+            .toISOString(),
+
+        createdBy:
+            currentUser
+
+    };
+
+    if(type === "Patiëntenrechten")
+        sociaalRechten.push(item);
+
+    if(type === "Invaliditeit")
+        sociaalInvaliditeit.push(item);
+
+    if(type === "Werk")
+        sociaalWerk.push(item);
+
+    if(type === "Studie")
+        sociaalStudie.push(item);
+
+    if(type === "Terugbetalingen")
+        sociaalTerugbetalingen.push(item);
+
+    if(type === "Attesten")
+        sociaalAttesten.push(item);
+
+    if(type === "Premies")
+        sociaalPremies.push(item);
+
+    if(type === "Mantelzorg")
+        sociaalMantelzorg.push(item);
+
+    writeLog(
+        "Sociale gids item toegevoegd",
+        item.titel
+    );
+
+    await saveData();
+
+}
+
+async function saveZorggidsEntry(
+    type
+){
+
+    const item = {
+
+        id:
+            generateId(),
+
+        type:
+            type,
+
+        naam:
+            document.getElementById(
+                "zorgNaam"
+            ).value,
+
+        instelling:
+            document.getElementById(
+                "zorgInstelling"
+            ).value,
+
+        adres:
+            document.getElementById(
+                "zorgAdres"
+            ).value,
+
+        telefoon:
+            document.getElementById(
+                "zorgTelefoon"
+            ).value,
+
+        email:
+            document.getElementById(
+                "zorgEmail"
+            ).value,
+
+        website:
+            document.getElementById(
+                "zorgWebsite"
+            ).value,
+
+        provincie:
+            document.getElementById(
+                "zorgProvincie"
+            ).value,
+
+        opmerkingen:
+            document.getElementById(
+                "zorgOpmerking"
+            ).value,
+
+        created:
+            new Date()
+            .toISOString(),
+
+        createdBy:
+            currentUser
+
+    };
+
+    if(type === "Gastro"){
+
+        zorggidsGastro.push(
+            item
+        );
+
+    }
+
+    await saveData();
+
+    writeLog(
+
+        "Zorggids item toegevoegd",
+
+        item.naam
+
+    );
+
+    alert(
+        "✅ Opgeslagen"
+    );
+
+}
+
+function fillZorgForm(
+    data
+){
+
+    document.getElementById(
+        "zorgNaam"
+    ).value =
+        data.naam || "";
+
+    document.getElementById(
+        "zorgInstelling"
+    ).value =
+        data.instelling || "";
+
+    document.getElementById(
+        "zorgAdres"
+    ).value =
+        data.adres || "";
+
+    document.getElementById(
+        "zorgTelefoon"
+    ).value =
+        data.telefoon || "";
+
+    document.getElementById(
+        "zorgEmail"
+    ).value =
+        data.email || "";
+
+    document.getElementById(
+        "zorgWebsite"
+    ).value =
+        data.website || "";
+
+    document.getElementById(
+        "zorgProvincie"
+    ).value =
+        data.provincie || "";
+
+}
+
+async function zoekZorgInfo(
+    type
+){
+
+    const zoekterm =
+
+        document.getElementById(
+            "zorgZoekterm"
+        ).value;
+
+    if(!zoekterm){
+
+        alert(
+            "Geef eerst een zoekterm in"
+        );
+
+        return;
+
+    }
+
+    const zoekUrl =
+
+        "https://www.google.com/search?q=" +
+
+        encodeURIComponent(
+
+            zoekterm +
+
+            " gastro-enterologie"
+
+        );
+
+    window.open(
+
+        zoekUrl,
+
+        "_blank"
+
+    );
+
+    document.getElementById(
+        "zoekResultaat"
+    ).style.display =
+        "block";
+
+    document.getElementById(
+        "zoekResultaat"
+    ).innerHTML =
+
+        `
+
+        ✅ Zoeken gestart.
+
+        <br><br>
+
+        Zoekresultaten geopend in een nieuw tabblad.
+
+        <br><br>
+
+        Vul de gevonden gegevens hieronder in.
+
+        `;
+
+}
+
+function showGastroList(){
+
+    openPage("workspace");
+
+    currentPageFlow =
+        "🏥 Zorggids > 👨‍⚕️ Gastro-enterologen";
+
+    updateTabFlow();
+
+    let html = `
+
+    <div class="card">
+
+        <h2>
+            👨‍⚕️ Gastro-enterologen
+        </h2>
+
+        <button
+            onclick="showNewZorggidsEntry('Gastro')">
+
+            ➕ Nieuwe Gastro-enteroloog
+
+        </button>
+
+    </div>
+
+    `;
+
+    zorggidsGastro.forEach(item => {
+
+        html += `
+
+        <div class="card">
+
+            <h3>
+
+                ${item.naam}
+
+            </h3>
+
+            🏥
+
+            ${item.instelling || "-"}
+
+            <br><br>
+
+            📍
+
+            ${item.adres || "-"}
+
+            <br><br>
+
+            📞
+
+            ${item.telefoon || "-"}
+
+            <br><br>
+
+            ✉️
+
+            ${item.email || "-"}
+
+            <br><br>
+
+            🌐
+
+            ${
+                item.website
+                ?
+                `${item.website}
+
+                    Website openen
+
+                </a>`
+                :
+                "-"
+            }
+
+            <br><br>
+
+            📌 Provincie:
+
+            ${item.provincie || "-"}
+
+            <hr>
+
+            👤 Ingegeven door:
+
+            ${item.createdBy || "-"}
+
+            <br>
+
+            📅
+
+            ${
+                item.created
+                ?
+                new Date(
+                    item.created
+                ).toLocaleString(
+                    "nl-BE"
+                )
+                :
+                "-"
+            }
+
+        </div>
+
+        `;
+
+    });
+
+    if(
+        zorggidsGastro.length === 0
+    ){
+
+        html += `
+
+        <div class="card">
+
+            Nog geen gastro-enterologen toegevoegd.
+
+        </div>
+
+        `;
+
+    }
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = html;
+
+}
+
+function showIbdCentraList(){
+
+    openPage("workspace");
+
+    currentPageFlow =
+        "🏥 Zorggids > 🏥 IBD Centra";
+
+    updateTabFlow();
+
+    let html = `
+
+    <div class="card">
+
+        <h2>
+            🏥 IBD Centra
+        </h2>
+
+        <button
+            onclick="showNewZorggidsEntry('IBD Centrum')">
+
+            ➕ Nieuw IBD Centrum
+
+        </button>
+
+    </div>
+
+    `;
+
+    zorggidsIbdCentra.forEach(item => {
+
+        html += `
+
+        <div class="card">
+
+            <h3>${item.naam}</h3>
+
+            🏥 ${item.instelling || "-"}
+
+            <br><br>
+
+            📍 ${item.adres || "-"}
+
+            <br><br>
+
+            📞 ${item.telefoon || "-"}
+
+            <br><br>
+
+            ✉️ ${item.email || "-"}
+
+            <br><br>
+
+            🌐 ${item.website || "-"}
+
+            <hr>
+
+            👤 ${item.createdBy || "-"}
+
+            <br>
+
+            📅 ${
+                item.created
+                ?
+                new Date(item.created)
+                .toLocaleString("nl-BE")
+                :
+                "-"
+            }
+
+        </div>
+
+        `;
+
+    });
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = html;
+
+}
+
+function showZiekenhuizenList(){
+
+    openPage("workspace");
+
+    currentPageFlow =
+        "🏥 Zorggids > 🏨 Ziekenhuizen";
+
+    updateTabFlow();
+
+    let html = `
+
+    <div class="card">
+
+        <h2>🏨 Ziekenhuizen</h2>
+
+        <button
+            onclick="showNewZorggidsEntry('Ziekenhuis')">
+
+            ➕ Nieuw Ziekenhuis
+
+        </button>
+
+    </div>
+
+    `;
+
+    zorggidsZiekenhuizen.forEach(item => {
+
+        html += `
+
+        <div class="card">
+
+            <h3>${item.naam}</h3>
+
+            🏥 ${item.instelling || "-"}
+
+            <br><br>
+
+            📍 ${item.adres || "-"}
+
+            <br><br>
+
+            📞 ${item.telefoon || "-"}
+
+            <br><br>
+
+            📌 Provincie:
+            ${item.provincie || "-"}
+
+        </div>
+
+        `;
+
+    });
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = html;
+
+}
+
+function showDietistenList(){
+
+    openPage("workspace");
+
+    currentPageFlow =
+        "🏥 Zorggids > 🥗 Diëtisten";
+
+    updateTabFlow();
+
+    let html = `
+
+    <div class="card">
+
+        <h2>🥗 Diëtisten</h2>
+
+        <button
+            onclick="showNewZorggidsEntry('Diëtist')">
+
+            ➕ Nieuwe Diëtist
+
+        </button>
+
+    </div>
+
+    `;
+
+    zorggidsDietisten.forEach(item => {
+
+        html += `
+
+        <div class="card">
+
+            <h3>${item.naam}</h3>
+
+            🏥 ${item.instelling || "-"}
+
+            <br><br>
+
+            📞 ${item.telefoon || "-"}
+
+            <br><br>
+
+            🌐 ${item.website || "-"}
+
+        </div>
+
+        `;
+
+    });
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = html;
+
+}
+
+function showPsychologenList(){
+
+    openPage("workspace");
+
+    currentPageFlow =
+        "🏥 Zorggids > 🧠 Psychologen";
+
+    updateTabFlow();
+
+    let html = `
+
+    <div class="card">
+
+        <h2>🧠 Psychologen</h2>
+
+        <button
+            onclick="showNewZorggidsEntry('Psycholoog')">
+
+            ➕ Nieuwe Psycholoog
+
+        </button>
+
+    </div>
+
+    `;
+
+    zorggidsPsychologen.forEach(item => {
+
+        html += `
+
+        <div class="card">
+
+            <h3>${item.naam}</h3>
+
+            🏥 ${item.instelling || "-"}
+
+            <br><br>
+
+            📞 ${item.telefoon || "-"}
+
+            <br><br>
+
+            ✉️ ${item.email || "-"}
+
+        </div>
+
+        `;
+
+    });
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = html;
+
+}
+
+function showApothekersList(){
+
+    openPage("workspace");
+
+    currentPageFlow =
+        "🏥 Zorggids > 💊 Apothekers";
+
+    updateTabFlow();
+
+    let html = `
+
+    <div class="card">
+
+        <h2>💊 Apothekers</h2>
+
+        <button
+            onclick="showNewZorggidsEntry('Apotheker')">
+
+            ➕ Nieuwe Apotheker
+
+        </button>
+
+    </div>
+
+    `;
+
+    zorggidsApothekers.forEach(item => {
+
+        html += `
+
+        <div class="card">
+
+            <h3>${item.naam}</h3>
+
+            🏥 ${item.instelling || "-"}
+
+            <br><br>
+
+            📞 ${item.telefoon || "-"}
+
+            <br><br>
+
+            🌐 ${item.website || "-"}
+
+        </div>
+
+        `;
+
+    });
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = html;
+
+}
+
 function showBestuur(){
 
-openPage("documents");
+openPage("workspace");
 
-document.getElementById("documentsContainer").innerHTML = `
+document.getElementById("workspaceContent").innerHTML = `
 
 <div class="card">
 
@@ -1697,35 +2816,92 @@ document.getElementById("documentsContainer").innerHTML = `
 
 function showCommunity(){
 
-openPage("documents");
+    openPage("workspace");
+    currentPageFlow =
 
-document.getElementById("documentsContainer").innerHTML = `
+    "🤝 CCV-VZW > 👥 Community";
 
-<div class="card">
+updateTabFlow();
 
-<h2>👥 Community</h2>
+    let html = `
 
-<div class="dashboard-grid">
+    <div class="card">
 
-<button>👥 Leden</button>
-<button>🙋 Vrijwilligers</button>
-<button>🎓 Patiëntenexperten</button>
-<button>🤝 Lotgenoten</button>
-<button>📧 Nieuwsbrieven</button>
+        <h2>
+        👥 Community
+        </h2>
 
-</div>
+        <button
+            onclick="showNewMemberForm()">
 
-</div>
+            ➕ Nieuw Lid
 
-`;
+        </button>
+
+        <br><br>
+
+    `;
+
+    members.forEach(m => {
+
+        html += `
+
+        <div class="card">
+
+            <b>
+                ${m.naam}
+            </b>
+
+            <br>
+
+            ${m.email}
+
+            <br>
+
+            ${m.type}
+
+            <br>
+
+            ${m.telefoon}
+
+            <br><br>
+
+👤 Aangemaakt door:
+${m.createdBy || "-"}
+
+<br>
+
+📅 Aangemaakt op:
+${
+    m.created
+    ?
+    new Date(m.created)
+    .toLocaleString("nl-BE")
+    :
+    "-"
+}
+
+        </div>
+
+        `;
+
+    });
+
+    html += "</div>";
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = html;
 
 }
 
 function showProjecten(){
 
-openPage("documents");
+openPage("workspace");
 
-document.getElementById("documentsContainer").innerHTML = `
+document.getElementById(
+    "workspaceContent"
+).innerHTML = `
 
 <div class="card">
 
@@ -1748,133 +2924,849 @@ document.getElementById("documentsContainer").innerHTML = `
 }
 
 function showNewProjectForm(){
+   
+    openPage("workspace");
 
-    openPage("documents");
+    currentDocumentContext =
+    "Project";
 
-    document.getElementById("documentsContainer").innerHTML = `
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = `
 
     <div class="card">
 
-        <h2>🚀 Nieuw Project</h2>
+        <h2>
+        🚀 Nieuw Project
+        </h2>
 
-        <input type="text"
-        id="projectName"
-        placeholder="Projectnaam">
+        <input
+            id="projectName"
+            placeholder="Projectnaam">
 
         <br><br>
 
         <textarea
-        id="projectDesc"
-        placeholder="Beschrijving"></textarea>
+            id="projectDesc"
+            placeholder="Beschrijving">
+        </textarea>
 
         <br><br>
 
-        <button onclick="saveProject()">
-            💾 Opslaan
+        <input
+            type="date"
+            id="projectStart">
+
+        <br><br>
+
+        <button
+            onclick="saveProjectNew()">
+
+            Opslaan
+
         </button>
 
     </div>
 
     `;
+
+}
+
+async function saveProjectNew(){
+
+    const project = {
+
+    id:
+        generateId(),
+
+    type:
+        "project",
+
+    naam:
+        document.getElementById(
+            "projectName"
+        ).value,
+
+    omschrijving:
+        document.getElementById(
+            "projectDesc"
+        ).value,
+
+    startdatum:
+        document.getElementById(
+            "projectStart"
+        ).value,
+
+    status:
+        "Actief",
+
+    created:
+        new Date()
+        .toISOString(),
+
+    createdBy:
+        currentUser
+
+};
+
+currentContextName =
+    project.naam;
+    projects.push(
+        project
+    );
+
+    await saveData();
+
+    showProjects();
+
 }
 
 function showNewMemberForm(){
 
-    openPage("documents");
+        openPage("workspace");
 
-    document.getElementById("documentsContainer").innerHTML = `
+        currentDocumentContext =
+    "Lid";
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = `
 
     <div class="card">
 
-        <h2>👥 Nieuw Lid</h2>
+        <h2>
+        👥 Nieuw Lid
+        </h2>
 
-        <input type="text"
-        id="memberName"
-        placeholder="Naam">
-
-        <br><br>
-
-        <input type="email"
-        id="memberEmail"
-        placeholder="Email">
+        <input
+            id="memberName"
+            placeholder="Naam">
 
         <br><br>
 
-        <button>
-            💾 Opslaan
+        <input
+            id="memberEmail"
+            placeholder="Email">
+
+        <br><br>
+
+        <input
+            id="memberPhone"
+            placeholder="Telefoon">
+
+        <br><br>
+
+        <select
+            id="memberType">
+
+            <option>Lid</option>
+            <option>Vrijwilliger</option>
+            <option>Bestuur</option>
+            <option>Patiëntenexpert</option>
+
+        </select>
+
+        <br><br>
+
+        <button
+            onclick="saveMemberNew()">
+
+            Opslaan
+
         </button>
 
     </div>
 
     `;
+
+}
+
+async function saveMemberNew(){
+
+    currentContextName =
+    document.getElementById(
+        "memberName"
+    ).value;
+
+    members.push({
+
+        id:
+            generateId(),
+
+        type:
+            "member",
+
+        naam:
+            document.getElementById(
+                "memberName"
+            ).value,
+
+        email:
+            document.getElementById(
+                "memberEmail"
+            ).value,
+
+        telefoon:
+            document.getElementById(
+                "memberPhone"
+            ).value,
+
+        typeLid:
+            document.getElementById(
+                "memberType"
+            ).value,
+
+        status:
+            "Actief",
+
+        created:
+            new Date()
+            .toISOString(),
+
+        createdBy:
+            currentUser
+
+    });
+
+      writeLog(
+
+        "Lid toegevoegd",
+
+        document.getElementById(
+            "memberName"
+        ).value
+
+    );
+
+    await saveData();
+
+    updateDashboardStats();
+
+    showCommunity();
+
 }
 
 function showNewTaskForm(){
 
-    openPage("documents");
+    openPage("workspace");
 
-    document.getElementById("documentsContainer").innerHTML = `
+    currentDocumentContext =
+    "Taak";
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = `
 
     <div class="card">
 
-        <h2>✅ Nieuwe Taak</h2>
+        <h2>
+        ✅ Nieuwe Taak
+        </h2>
 
-        <input type="text"
-        id="taskTitle"
-        placeholder="Taak">
-
-        <br><br>
-
-        <input type="date"
-        id="taskDate">
+        <input
+            id="taskTitle"
+            placeholder="Taak">
 
         <br><br>
 
-        <button>
-            💾 Opslaan
+        <input
+            type="date"
+            id="taskDate">
+
+        <br><br>
+
+        <select
+            id="taskPriority">
+
+            <option>
+            Laag
+            </option>
+
+            <option>
+            Normaal
+            </option>
+
+            <option>
+            Hoog
+            </option>
+
+        </select>
+
+        <br><br>
+
+        <select
+            id="taskStatus">
+
+            <option>
+            Nieuw
+            </option>
+
+            <option>
+            Bezig
+            </option>
+
+            <option>
+            Afgerond
+            </option>
+
+        </select>
+
+        <br><br>
+
+        <button
+            onclick="saveTaskNew()">
+
+            Opslaan
+
         </button>
 
     </div>
 
     `;
+
+}
+
+async function saveTaskNew(){
+
+        currentContextName =
+    document.getElementById(
+        "taskTitle"
+    ).value;
+    tasks.push({
+
+    id:
+        generateId(),
+
+    type:
+        "task",
+
+    titel:
+        document.getElementById(
+            "taskTitle"
+        ).value,
+
+    deadline:
+        document.getElementById(
+            "taskDate"
+        ).value,
+
+    prioriteit:
+        document.getElementById(
+            "taskPriority"
+        ).value,
+
+    status:
+        document.getElementById(
+            "taskStatus"
+        ).value,
+
+    created:
+        new Date()
+        .toISOString(),
+
+    createdBy:
+        currentUser
+
+});
+
+    await saveData();
+
+    showTasks();
+
+}
+
+function showTasks(){
+
+  openPage("workspace");
+  currentPageFlow =
+
+    "🤝 CCV-VZW > ✅ Taken";
+
+updateTabFlow();
+
+    let html = `
+
+    <div class="card">
+
+        <h2>
+        ✅ Taken
+        </h2>
+
+        <button
+            onclick="showNewTaskForm()">
+
+            ➕ Nieuwe Taak
+
+        </button>
+
+        <br><br>
+
+    `;
+
+    tasks.forEach(t => {
+
+        html += `
+
+        <div class="card">
+
+            <b>
+                ${t.titel}
+            </b>
+
+            <br>
+
+            Deadline:
+            ${t.deadline}
+
+            <br>
+
+            Prioriteit:
+            ${t.prioriteit}
+
+            <br>
+
+            Status:
+            ${t.status}
+
+            <br><br>
+
+👤 Aangemaakt door:
+${t.createdBy || "-"}
+
+<br>
+
+📅 Aangemaakt op:
+${
+    t.created
+    ?
+    new Date(t.created)
+    .toLocaleString("nl-BE")
+    :
+    "-"
+}
+
+        </div>
+
+        `;
+
+    });
+
+    html += "</div>";
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = html;
+
 }
 
 function showNewActivityForm(){
 
-    openPage("documents");
+    openPage("workspace");
 
-    document.getElementById("documentsContainer").innerHTML = `
+    currentDocumentContext =
+    "Activiteit";
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = `
 
     <div class="card">
 
-        <h2>🎉 Nieuwe Activiteit</h2>
+        <h2>
+        🎉 Nieuwe Activiteit
+        </h2>
 
-        <input type="text"
-        id="activityName"
-        placeholder="Naam activiteit">
-
-        <br><br>
-
-        <input type="date"
-        id="activityDate">
+        <input
+            id="activityName"
+            placeholder="Naam">
 
         <br><br>
 
-        <button>
-            💾 Opslaan
+        <input
+            type="date"
+            id="activityDate">
+
+        <br><br>
+
+        <input
+            id="activityLocation"
+            placeholder="Locatie">
+
+        <br><br>
+
+        <button
+            onclick="saveActivityNew()">
+
+            Opslaan
+
         </button>
 
     </div>
 
     `;
+
 }
 
+async function saveActivityNew(){
+
+    currentContextName =
+    document.getElementById(
+        "activityName"
+    ).value;
+
+    activities.push({
+
+        id:
+            generateId(),
+
+        type:
+            "activity",
+
+        naam:
+            document.getElementById(
+                "activityName"
+            ).value,
+
+        datum:
+            document.getElementById(
+                "activityDate"
+            ).value,
+
+        locatie:
+            document.getElementById(
+                "activityLocation"
+            ).value,
+
+        status:
+            "Actief",
+
+        created:
+            new Date()
+            .toISOString(),
+
+        createdBy:
+            currentUser
+
+    });
+
+    writeLog(
+
+        "Activiteit aangemaakt",
+
+        document.getElementById(
+            "activityName"
+        ).value
+
+    );
+
+    await saveData();
+
+    updateDashboardStats();
+
+    showActivities();
+
+}
+function showAttachmentForm(){
+
+    openPage("workspace");
+    currentPageFlow =
+
+    "🤝 CCV-VZW > 📎 Bijlage toevoegen";
+
+updateTabFlow();
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = `
+
+    <div class="card">
+
+        <h2>
+        📎 Bijlage toevoegen
+        </h2>
+
+        <p>
+
+        Wordt gekoppeld aan:
+
+        <b>
+        ${currentDocumentContext}
+        </b>
+
+        </p>
+
+        <input
+            type="file"
+            id="workspaceFile">
+
+        <br><br>
+
+        <input
+            id="workspaceTitle"
+            placeholder="Titel">
+
+        <br><br>
+
+        <textarea
+            id="workspaceDescription"
+            placeholder="Omschrijving">
+        </textarea>
+
+        <br><br>
+
+        <button
+            onclick="saveAttachment()">
+
+            Opslaan
+
+        </button>
+
+    </div>
+
+    `;
+
+}
+
+async function saveAttachment(){
+
+    const file =
+        document.getElementById(
+            "workspaceFile"
+        ).files[0];
+
+    if(!file){
+
+        alert(
+            "Selecteer eerst een bestand"
+        );
+
+        return;
+    }
+
+    await fetch(
+
+        `https://graph.microsoft.com/v1.0/me/drive/root:/CCV-VZW/Documenten/${file.name}:/content`,
+
+        {
+
+            method:"PUT",
+
+            headers:{
+                Authorization:
+                `Bearer ${accessToken}`
+            },
+
+            body:file
+
+        }
+
+    );
+
+    knowledgeData.push({
+
+        id:
+            Date.now(),
+
+            categorie:
+            "CCV-VZW",
+
+        titel:
+            document.getElementById(
+                "workspaceTitle"
+            ).value,
+
+        omschrijving:
+            document.getElementById(
+                "workspaceDescription"
+            ).value,
+
+         contextType:
+    currentDocumentContext,
+
+contextNaam:
+    currentContextName,
+
+        subcategorie:
+            currentDocumentContext,
+
+        bestand:
+            file.name,
+
+        datum:
+            new Date()
+            .toISOString()
+
+    });
+
+    await saveData();
+
+    alert(
+        "✅ Bijlage opgeslagen"
+    );
+showAttachments();
+}
+
+async function saveWorkspaceDocument(){
+
+    const file =
+        document.getElementById(
+            "workspaceFile"
+        ).files[0];
+
+    if(!file){
+
+        alert(
+            "Selecteer eerst een document"
+        );
+
+        return;
+    }
+
+    await fetch(
+
+        `https://graph.microsoft.com/v1.0/me/drive/root:/CCV-VZW/Documenten/${file.name}:/content`,
+
+        {
+
+            method:"PUT",
+
+            headers:{
+                Authorization:
+                `Bearer ${accessToken}`
+            },
+
+            body:file
+
+        }
+
+    );
+
+    knowledgeData.push({
+
+        id:
+            Date.now(),
+
+        titel:
+            document.getElementById(
+                "workspaceTitle"
+            ).value,
+
+        omschrijving:
+            document.getElementById(
+                "workspaceDescription"
+            ).value,
+
+        categorie:
+    "CCV-VZW",
+
+subcategorie:
+    document.getElementById(
+        "ccvSection"
+    ).value,
+
+        bestand:
+            file.name,
+
+        datum:
+            new Date()
+            .toISOString()
+
+    });
+
+    await saveData();
+
+    alert(
+        "✅ Document opgeslagen in OneDrive"
+    );
+
+    showKennisDocumenten();
+
+}
+
+function showActivities(){
+
+    openPage("workspace");
+    currentPageFlow =
+
+    "🤝 CCV-VZW > 🎉 Activiteiten";
+
+updateTabFlow();
+
+    let html = `
+
+    <div class="card">
+
+        <h2>
+        🎉 Activiteiten
+        </h2>
+
+        <button
+            onclick="showNewActivityForm()">
+
+            ➕ Nieuwe Activiteit
+
+        </button>
+
+        <br><br>
+
+    `;
+
+    activities.forEach(a => {
+
+        html += `
+
+        <div class="card">
+
+            <b>
+                ${a.naam}
+            </b>
+
+            <br>
+
+            Datum:
+            ${a.datum}
+
+            <br>
+
+            Locatie:
+            ${a.locatie}
+
+            <br><br>
+
+👤 Aangemaakt door:
+${a.createdBy || "-"}
+
+<br>
+
+📅 Aangemaakt op:
+${
+    a.created
+    ?
+    new Date(a.created)
+    .toLocaleString("nl-BE")
+    :
+    "-"
+}
+
+        </div>
+
+        `;
+
+    });
+
+    html += "</div>";
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = html;
+
+}
 
 function showOrganisatie(){
 
-openPage("documents");
+openPage("workspace");
 
-document.getElementById("documentsContainer").innerHTML = `
+document.getElementById("workspaceContent").innerHTML = `
 
 <div class="card">
 
@@ -1897,63 +3789,599 @@ document.getElementById("documentsContainer").innerHTML = `
 
 }
 
-function showKennisDocumenten(){
+function searchLog(){
 
-openPage("documents");
+    const query =
 
-document.getElementById("documentsContainer").innerHTML = `
+        document.getElementById(
+            "logSearch"
+        )
+        .value
+        .trim()
+        .toLowerCase();
+
+    if(query === ""){
+
+        renderLogbook(
+            [...systemLog]
+            .sort(
+                (a,b) =>
+                    new Date(b.datum) -
+                    new Date(a.datum)
+            )
+        );
+
+        return;
+    }
+
+    const filtered =
+
+        systemLog.filter(
+
+            log =>
+
+                (log.actie || "")
+                .toLowerCase()
+                .includes(query)
+
+                ||
+
+                (log.details || "")
+                .toLowerCase()
+                .includes(query)
+
+                ||
+
+                (log.gebruiker || "")
+                .toLowerCase()
+                .includes(query)
+
+        );
+
+    renderLogbook(
+        filtered
+    );
+
+}
+
+function filterLog(type){
+
+    if(type === "all"){
+
+        renderLogbook(
+            systemLog
+        );
+
+        return;
+
+    }
+
+    const filtered =
+
+        systemLog.filter(
+
+            log =>
+
+                log.actie === type
+
+        );
+
+    renderLogbook(
+        filtered
+    );
+
+}
+
+function renderLogbook(
+    logs
+){
+
+    const container =
+
+        document.getElementById(
+            "logContainer"
+        );
+
+    let html = "";
+
+    logs.forEach(log => {
+
+        html += `
+
+        <div class="card">
+
+            <h3>
+
+                ${log.actie}
+
+            </h3>
+
+            👤
+            ${log.gebruiker}
+
+            <br>
+
+            📅
+            ${new Date(
+                log.datum
+            ).toLocaleString(
+                "nl-BE"
+            )}
+
+            <br>
+
+            📄
+            ${log.details}
+
+        </div>
+
+        `;
+
+    });
+
+    if(html === ""){
+
+    html = `
+
+    <div class="card">
+
+        Geen resultaten gevonden.
+
+    </div>
+
+    `;
+
+}
+
+container.innerHTML =
+    html;
+
+}
+
+
+function showLogbook(){
+
+    openPage("logbook");
+
+    const container =
+
+        document.getElementById(
+            "logContainer"
+        );
+
+    let html = `
 
 <div class="card">
 
-<h2>📂 Kennis & Documenten</h2>
+   <input
+    type="text"
+    id="logSearch"
+    placeholder="🔍 Zoek in logboek..."
+    onkeyup="searchLog()"
+>
 
-<div class="dashboard-grid">
+    <br><br>
 
-<button>📂 Documentbibliotheek</button>
-<button>🌐 Websites</button>
-<button>🏢 Verenigingen</button>
-<button>🏥 Zorggids</button>
-<button>🎥 Media</button>
-<button>📚 Intern Kenniscentrum</button>
+    <button
+        onclick="filterLog('all')">
 
-</div>
+        Alles
+
+    </button>
+
+    <button
+        onclick="filterLog('Vergadering aangemaakt')">
+
+        Vergaderingen
+
+    </button>
+
+    <button
+        onclick="filterLog('Project aangemaakt')">
+
+        Projecten
+
+    </button>
+
+    <button
+        onclick="filterLog('Taak aangemaakt')">
+
+        Taken
+
+    </button>
+
+    <button
+        onclick="filterLog('Lid toegevoegd')">
+
+        Leden
+
+    </button>
+
+    <button
+        onclick="filterLog('Activiteit aangemaakt')">
+
+        Activiteiten
+
+    </button>
 
 </div>
 
 `;
+
+    const sortedLog =
+
+    [...systemLog]
+
+    .sort(
+
+        (a,b) =>
+
+        new Date(b.datum)
+        -
+        new Date(a.datum)
+
+    );
+
+renderLogbook(
+    sortedLog
+);
+
+}
+
+function showAttachments(){
+
+    openPage("workspace");
+
+    let html = `
+
+    <div class="card">
+
+        <h2>
+        📎 Bijlagen CCV-VZW
+        </h2>
+
+    `;
+
+    const groepen = [
+
+        "Vergadering",
+        "Project",
+        "Taak",
+        "Lid",
+        "Activiteit"
+
+    ];
+
+    groepen.forEach(groep => {
+
+        html += `
+
+        <h3>${groep}</h3>
+
+        `;
+
+        const docs =
+
+            knowledgeData.filter(
+
+                d =>
+
+                    d.contextType === groep
+
+            );
+
+        if(docs.length === 0){
+
+            html += `
+                <p>
+                Geen documenten
+                </p>
+            `;
+
+        }
+
+        docs.forEach(doc => {
+
+            html += `
+
+            <div class="card">
+
+                <b>
+                ${doc.titel}
+                </b>
+
+                <br>
+
+                ${doc.contextNaam || ""}
+
+                <br>
+
+                ${doc.bestand || ""}
+
+            </div>
+
+            `;
+
+        });
+
+    });
+
+    html += `</div>`;
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = html;
+
+}
+
+function showWebsiteImport(){
+
+    openPage("workspace");
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = `
+
+    <div class="card">
+
+        <h2>
+            📥 Websites importeren
+        </h2>
+
+        <p>
+            Selecteer websites.xlsx
+        </p>
+
+        <input
+            type="file"
+            id="websiteImportFile"
+            accept=".xlsx,.xls">
+
+        <br><br>
+
+        <button
+            onclick="importWebsiteExcel()">
+
+            🚀 Importeren
+
+        </button>
+
+    </div>
+    `;
+}
+
+function showNewWebsiteForm(){
+
+    openPage("workspace");
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = `
+
+    <div class="card">
+
+        <h2>
+            🌐 Website toevoegen
+        </h2>
+
+        <input
+            id="websiteUrl"
+            placeholder="https://">
+
+        <br><br>
+
+        <input
+            id="websiteTitle"
+            placeholder="Titel">
+
+        <br><br>
+
+        <textarea
+            id="websiteDescription"
+            placeholder="Beschrijving">
+        </textarea>
+
+        <br><br>
+
+        <button
+            onclick="analyseWebsite()">
+
+            🤖 Analyseer Website
+
+        </button>
+
+    </div>
+
+    `;
+}
+
+function showKennisDocumenten(){
+
+    openPage("workspace");
+
+    let html = `
+
+    <div class="card">
+
+        <h2>
+        📂 Kennis & Documenten
+        </h2>
+
+        <button
+            onclick="showNewDocumentForm()">
+
+            ➕ Document
+
+        </button>
+
+        <br><br>
+
+    `;
+
+    const docs =
+        knowledgeData.filter(
+
+            d =>
+                d.categorie ===
+                "CCV-VZW"
+
+        );
+
+    docs.forEach(doc => {
+
+    html += `
+
+    <div class="card">
+
+        <b>
+            ${doc.titel}
+        </b>
+
+        <br>
+
+        <div class="card">
+
+    <b>
+        ${doc.titel}
+    </b>
+
+    <br><br>
+
+    📄 Type:
+    ${doc.documentType || "-"}
+
+    <br>
+
+    👥 Doelgroep:
+    ${doc.doelgroep || "-"}
+
+    <br>
+
+    🏷️ Tags:
+    ${doc.tags || "-"}
+
+    <br><br>
+
+    ${doc.omschrijving || ""}
+
+</div>
+        <strong>Context:</strong>
+
+        ${doc.contextType || "-"}
+
+        -
+
+        ${doc.contextNaam || "-"}
+
+        <br><br>
+
+        ${doc.omschrijving || ""}
+
+        <br><br>
+
+        ${doc.bestand}
+
+    </div>
+
+    `;
+
+});
+
+    html += "</div>";
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = html;
 
 }
 
 
 function showMeetings(){
 
-openPage("documents");
+    openPage("workspace");
+    currentPageFlow =
 
-document.getElementById("documentsContainer").innerHTML = `
+    "🤝 CCV-VZW > 📅 Vergaderingen";
+
+updateTabFlow();
+
+    let html = `
+
+    <div class="card">
+
+    <h2>
+    📅 Vergaderingen
+    </h2>
+
+    <button
+        onclick="showNewMeetingForm()">
+
+        ➕ Vergadering
+
+    </button>
+
+    <br><br>
+
+    `;
+
+    meetings.forEach(m => {
+
+        html += `
 
 <div class="card">
 
-<h2>📅 Vergaderingen</h2>
+    <b>
+    ${m.naam}
+    </b>
 
-<input id="meetingName"
-placeholder="Naam vergadering">
+    <br>
 
-<input type="date"
-id="meetingDate">
+    Datum:
+    ${m.datum}
 
-<br><br>
+    <br>
 
-<button onclick="saveMeeting()">
-➕ Vergadering toevoegen
-</button>
+    Uur:
+    ${m.uur || "-"}
 
-<div id="meetingList"></div>
+    <br>
+
+    Locatie:
+    ${m.locatie || "-"}
+
+    <hr>
+
+    👤 Aangemaakt door:
+    ${m.createdBy || "-"}
+
+    <br>
+
+    📅 Aangemaakt op:
+    ${
+        m.created
+        ?
+        new Date(m.created)
+        .toLocaleString("nl-BE")
+        :
+        "-"
+    }
+
+    <br>
+
+    📌 Status:
+    ${m.status || "-"}
 
 </div>
 
 `;
 
-renderMeetings();
+    });
+
+    html += "</div>";
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = html;
 
 }
 
@@ -1961,7 +4389,7 @@ function saveMeeting(){
 
 meetings.push({
 
-    naam:
+        naam:
     document.getElementById("meetingName").value,
 
     datum:
@@ -1976,18 +4404,24 @@ updateDashboardStats();
 
 function showNewMeetingForm(){
 
-    openPage("documents");
+    openPage("workspace");
 
-    document.getElementById("documentsContainer").innerHTML = `
+    currentDocumentContext =
+    "Vergadering";
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = `
 
     <div class="card">
 
-        <h2>📅 Nieuwe Vergadering</h2>
+        <h2>
+        📅 Nieuwe Vergadering
+        </h2>
 
         <input
-            type="text"
             id="meetingName"
-            placeholder="Naam vergadering">
+            placeholder="Titel">
 
         <br><br>
 
@@ -1999,12 +4433,11 @@ function showNewMeetingForm(){
 
         <input
             type="time"
-            id="meetingStart">
+            id="meetingTime">
 
         <br><br>
 
         <input
-            type="text"
             id="meetingLocation"
             placeholder="Locatie">
 
@@ -2017,8 +4450,11 @@ function showNewMeetingForm(){
 
         <br><br>
 
-        <button onclick="saveMeeting()">
-            💾 Opslaan
+        <button
+            onclick="saveMeetingNew()">
+
+            Opslaan
+
         </button>
 
     </div>
@@ -2054,28 +4490,149 @@ function renderMeetings(){
     meetingList.innerHTML = html;
 }
 
+async function saveMeetingNew(){
+
+    const meeting = {
+
+    id:
+        generateId(),
+
+    type:
+        "meeting",
+
+    naam:
+        document.getElementById(
+            "meetingName"
+        ).value,
+
+    datum:
+        document.getElementById(
+            "meetingDate"
+        ).value,
+
+    uur:
+        document.getElementById(
+            "meetingTime"
+        ).value,
+
+    locatie:
+        document.getElementById(
+            "meetingLocation"
+        ).value,
+
+    agenda:
+        document.getElementById(
+            "meetingAgenda"
+        ).value,
+
+    status:
+        "Actief",
+
+    created:
+        new Date()
+        .toISOString(),
+
+    createdBy:
+        currentUser
+
+};
+
+currentContextName =
+    meeting.naam;
+    meetings.push(
+        meeting
+    );
+
+    writeLog(
+
+    "Vergadering aangemaakt",
+
+    meeting.naam
+
+);
+    await saveData();
+    updateDashboardStats();
+
+    showMeetings();
+
+}
+
 function showProjects(){
 
-openPage("documents");
+    openPage("workspace");
+    currentPageFlow =
 
-document.getElementById("documentsContainer").innerHTML = `
+    "🤝 CCV-VZW > 🚀 Projecten";
 
-<div class="card">
+updateTabFlow();
 
-<h2>🚀 Projecten</h2>
+    let html = `
 
-<input id="projectName"
-placeholder="Projectnaam">
+    <div class="card">
 
-<button onclick="saveProject()">
-➕ Project toevoegen
-</button>
+        <h2>
+        🚀 Projecten
+        </h2>
 
-<div id="projectList"></div>
+        <button
+            onclick="showNewProjectForm()">
+
+            ➕ Nieuw Project
+
+        </button>
+
+        <br><br>
+
+    `;
+
+    projects.forEach(p => {
+
+        html += `
+
+       <div class="card">
+
+    <b>
+    ${p.naam}
+    </b>
+
+    <br>
+
+    Start:
+    ${p.startdatum}
+
+    <br>
+
+    Status:
+    ${p.status}
+
+    <hr>
+
+    👤 Aangemaakt door:
+    ${p.createdBy || "-"}
+
+    <br>
+
+    📅 Aangemaakt op:
+    ${
+        p.created
+        ?
+        new Date(p.created)
+        .toLocaleString("nl-BE")
+        :
+        "-"
+    }
 
 </div>
 
-`;
+        `;
+
+    });
+
+    html += `</div>`;
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = html;
 
 }
 
@@ -2139,6 +4696,241 @@ function updateManualSubCategories(){
 
 }
 
+async function importWebsiteExcel(){
+
+    if(typeof XLSX === "undefined"){
+
+    alert(
+        "XLSX bibliotheek niet geladen"
+    );
+
+    return;
+}
+
+    const file =
+        document.getElementById(
+            "websiteImportFile"
+        ).files[0];
+
+    if(!file){
+
+        alert(
+            "Selecteer eerst een bestand"
+        );
+
+        return;
+    }
+
+    const data =
+        await file.arrayBuffer();
+
+    const workbook =
+        XLSX.read(
+            data,
+            {type:"array"}
+        );
+
+    const sheet =
+        workbook.Sheets[
+            workbook.SheetNames[0]
+        ];
+
+    const rows =
+        XLSX.utils.sheet_to_json(
+            sheet
+        );
+
+        rows.forEach(row => {
+            console.log(row);
+
+    const currentUrl =
+        (row.URL || "")
+            .toLowerCase()
+            .trim()
+            .replace(/\/$/, "");
+
+    const exists =
+        websitesDatabase.some(
+            x =>
+                (x.url || "")
+                    .toLowerCase()
+                    .trim()
+                    .replace(/\/$/, "")
+                === currentUrl
+        );
+
+    if(exists){
+        return;
+    }
+
+    const subcategorie =
+        WEBSITE_IMPORT_MAPPING[
+            row.Categorie
+        ] ||
+        "Organisaties";
+
+    websitesDatabase.push({
+
+            id:
+                generateId(),
+
+            land:
+                row.Land || "",
+
+            titel:
+                row.Website ||
+                row.Naam ||
+                "",
+
+            url:
+                row.URL || "",
+
+            beschrijving:
+                row.Beschrijving || "",
+
+            categorie:
+                "Websites",
+
+            subcategorie:
+                subcategorie,
+
+            documentType:
+                "Website",
+
+            doelgroep:
+                determineWebsiteAudience(
+                    subcategorie
+                ),
+
+            betrouwbaarheid:
+                determineWebsiteTrust(
+                    row.URL || ""
+                ),
+
+            tags:
+                determineWebsiteTags(
+                    row.URL || "",
+                    subcategorie
+                ),
+
+            created:
+                new Date()
+                    .toISOString(),
+
+            createdBy:
+                currentUser
+        });
+    });
+
+    saveData();
+
+    alert(
+        rows.length +
+        " websites geïmporteerd"
+    );
+}
+
+function analyseWebsite(){
+
+    const url =
+        document.getElementById(
+            "websiteUrl"
+        ).value;
+
+    const classification =
+        classifyWebsite(url);
+
+    let doelgroep =
+        "Patiënt";
+
+    let betrouwbaarheid =
+        "Normaal";
+
+    if(
+        classification ===
+        "Wetenschappelijke Bronnen"
+    ){
+        doelgroep =
+            "Zorgverlener";
+
+        betrouwbaarheid =
+            "Hoog";
+    }
+
+    if(
+        classification ===
+        "Zorginstellingen"
+    ){
+        doelgroep =
+            "Patiënt";
+    }
+
+let tags = [];
+
+if(url.includes("pubmed"))
+    tags.push("Onderzoek");
+
+if(url.includes("ecco"))
+    tags.push("ECCO");
+
+if(url.includes("youtube"))
+    tags.push("Video");
+
+if(url.includes("uz"))
+    tags.push("Universitair Centrum");
+
+if(url.includes("crohn"))
+    tags.push("IBD Vereniging");
+
+    websitesDatabase.push({
+
+        id:
+            generateId(),
+
+        titel:
+            document.getElementById(
+                "websiteTitle"
+            ).value,
+
+        url:url,
+
+        beschrijving:
+            document.getElementById(
+                "websiteDescription"
+            ).value,
+
+        categorie:
+            "Websites",
+
+        subcategorie:
+            classification,
+
+        tags:tags,
+
+        documentType:
+            "Website",
+
+        doelgroep:
+            doelgroep,
+
+        betrouwbaarheid:
+            betrouwbaarheid,
+
+        created:
+            new Date()
+            .toISOString(),
+
+        createdBy:
+            currentUser
+    });
+
+    saveData();
+
+    alert(
+        "✅ Website opgeslagen"
+    );
+}
+
 function analyzeDocument(){
 
     const text =
@@ -2154,6 +4946,7 @@ function analyzeDocument(){
         document.getElementById(
             "manualKeywords"
         ).value
+
     ).toLowerCase();
 
     const result =
@@ -2169,11 +4962,91 @@ function analyzeDocument(){
         determineTags(text)
         .join(", ");
 
+    let doelgroep =
+        "Patiënt";
+
+    let documentType =
+        "Artikel";
+
+    /* STAP 6 START */
+
+    if(
+        text.includes(
+            "ouders"
+        )
+    ){
+        doelgroep =
+            "Ouder";
+    }
+
+    if(
+        text.includes(
+            "kind"
+        )
+    ){
+        doelgroep =
+            "Kind";
+    }
+
+    if(
+        text.includes(
+            "vrijwilliger"
+        )
+    ){
+        doelgroep =
+            "Vrijwilliger";
+    }
+
+    if(
+        text.includes(
+            "studie"
+        )
+    ){
+        doelgroep =
+            "Adolescent";
+    }
+
+    if(
+        text.includes(
+            "video"
+        )
+    ){
+        documentType =
+            "Video";
+    }
+
+    if(
+        text.includes(
+            "onderzoek"
+        )
+    ){
+        documentType =
+            "Onderzoek";
+    }
+
+    if(
+        text.includes(
+            "presentatie"
+        )
+    ){
+        documentType =
+            "Presentatie";
+    }
+
+    if(
+        text.includes(
+            "faq"
+        )
+    ){
+        documentType =
+            "FAQ";
+    }
+
     const summary =
-    "Document werd automatisch ingedeeld in " +
-    categorie +
-    " > " +
-    subcategorie;
+        "Document werd automatisch ingedeeld in " +
+        categorie +
+        " > " +
+        subcategorie;
 
     document.getElementById(
         "suggestedCategory"
@@ -2216,6 +5089,274 @@ function analyzeDocument(){
         "manualKeywords"
     ).value =
         keywords;
+
+    document.getElementById(
+    "manualAudience"
+).value =
+    doelgroep;
+
+document.getElementById(
+    "manualDocumentType"
+).value =
+    documentType;
+
+}
+
+function routeManualEntry(
+    entry
+){
+
+    const categorie =
+        entry.categorie;
+
+    const subcategorie =
+        entry.subcategorie;
+
+        /*
+     CCV-VZW
+    */
+
+    if(
+        categorie ===
+        "CCV-VZW"
+    ){
+
+        if(
+            subcategorie ===
+            "Vergaderingen"
+        ){
+
+            meetings.push(
+                entry
+            );
+
+            return;
+        }
+
+        if(
+            subcategorie ===
+            "Projecten"
+        ){
+
+            projects.push(
+                entry
+            );
+
+            return;
+        }
+
+        if(
+            subcategorie ===
+            "Taken"
+        ){
+
+            tasks.push(
+                entry
+            );
+
+            return;
+        }
+
+        if(
+            subcategorie ===
+            "Leden"
+        ){
+
+            members.push(
+                entry
+            );
+
+            return;
+        }
+
+        if(
+            subcategorie ===
+            "Activiteiten"
+        ){
+
+            activities.push(
+                entry
+            );
+
+            return;
+        }
+
+        if(
+            subcategorie ===
+            "Documenten"
+        ){
+
+            knowledgeData.push(
+                entry
+            );
+
+            return;
+        }
+
+    }
+
+    /*
+     SOCIALE GIDS
+    */
+
+    if(
+        categorie ===
+        "Sociale Gids"
+    ){
+
+        if(
+            subcategorie ===
+            "Terugbetalingen"
+        ){
+
+            sociaalTerugbetalingen.push(
+                entry
+            );
+
+            return;
+        }
+
+        if(
+            subcategorie ===
+            "Invaliditeit"
+        ){
+
+            sociaalInvaliditeit.push(
+                entry
+            );
+
+            return;
+        }
+
+        if(
+            subcategorie ===
+            "Werk"
+        ){
+
+            sociaalWerk.push(
+                entry
+            );
+
+            return;
+        }
+
+        if(
+            subcategorie ===
+            "Studie"
+        ){
+
+            sociaalStudie.push(
+                entry
+            );
+
+            return;
+        }
+
+        if(
+            subcategorie ===
+            "Attesten"
+        ){
+
+            sociaalAttesten.push(
+                entry
+            );
+
+            return;
+        }
+
+    }
+
+    /*
+     ZORGGIDS
+    */
+
+    if(
+        categorie ===
+        "Zorggids"
+    ){
+
+        if(
+            subcategorie ===
+            "IBD Centra"
+        ){
+
+            zorggidsIbdCentra.push(
+                entry
+            );
+
+            return;
+        }
+
+        if(
+            subcategorie ===
+            "Ziekenhuizen"
+        ){
+
+            zorggidsZiekenhuizen.push(
+                entry
+            );
+
+            return;
+        }
+
+        if(
+            subcategorie ===
+            "Gastro-enterologen"
+        ){
+
+            zorggidsGastro.push(
+                entry
+            );
+
+            return;
+        }
+
+        if(
+            subcategorie ===
+            "Diëtisten"
+        ){
+
+            zorggidsDietisten.push(
+                entry
+            );
+
+            return;
+        }
+
+        if(
+            subcategorie ===
+            "Psychologen"
+        ){
+
+            zorggidsPsychologen.push(
+                entry
+            );
+
+            return;
+        }
+
+        if(
+            subcategorie ===
+            "Apothekers"
+        ){
+
+            zorggidsApothekers.push(
+                entry
+            );
+
+            return;
+        }
+
+    }
+
+    /*
+     STANDAARD
+    */
+
+    knowledgeData.push(
+        entry
+    );
+
 }
 
 async function saveManualEntry(){
@@ -2239,6 +5380,21 @@ async function saveManualEntry(){
 
     keywords:
         document.getElementById("manualKeywords").value,
+    
+    documentType:
+    document.getElementById(
+        "manualDocumentType"
+    ).value,
+
+doelgroep:
+    document.getElementById(
+        "manualAudience"
+    ).value,
+
+tags:
+    document.getElementById(
+        "manualTags"
+    ).value,
 
     bestand:
     document.getElementById(
@@ -2258,8 +5414,16 @@ async function saveManualEntry(){
    entry.id =
     generateId();
 
-knowledgeData.push(
+routeManualEntry(
     entry
+);
+
+writeLog(
+
+    "Manuele invoer",
+
+    entry.titel
+
 );
 
 await uploadKnowledgeEntry(
@@ -2267,6 +5431,7 @@ await uploadKnowledgeEntry(
 );
 
 await saveData();
+updateDashboardStats();
 
     alert("✅ Informatie opgeslagen");
 }
@@ -2285,11 +5450,17 @@ async function addUser(){
 
     users.push({
 
-        email:email,
-        role:role,
-        actief:true
+    email:email,
+    role:role,
+    actief:true,
 
-    });
+    created:
+        new Date()
+        .toISOString(),
+
+    lastLogin:null
+
+});
 
     await saveData();
 
@@ -2308,26 +5479,71 @@ function renderUsers(){
         return;
     }
 
-    container.innerHTML =
-        users.map(u =>
+    let html = "";
 
-        `
+    users.forEach(u => {
+
+        html += `
+
         <div class="card">
 
-       <b>${u.email}</b>
+            <b>
+                ${u.email}
+            </b>
 
-${u.email === "ccvvzw@outlook.com"
- ? " 👑 Eigenaar"
- : ""}
+            ${
+                u.email ===
+                "ccv_vzw@outlook.com"
 
-        <br>
+                ? " 👑 Eigenaar"
+                : ""
+            }
 
-        ${u.role}
+            <br>
+
+            Rol:
+            ${u.role}
+
+            <br>
+
+            Aangemaakt:
+
+            ${
+                u.created
+                ?
+                new Date(
+                    u.created
+                ).toLocaleString(
+                    "nl-BE"
+                )
+                :
+                "-"
+            }
+
+            <br>
+
+            Laatste login:
+
+            ${
+                u.lastLogin
+                ?
+                new Date(
+                    u.lastLogin
+                ).toLocaleString(
+                    "nl-BE"
+                )
+                :
+                "Nog nooit"
+            }
 
         </div>
-        `
 
-        ).join("");
+        `;
+
+    });
+
+    container.innerHTML =
+        html;
 
 }
 
@@ -2338,11 +5554,9 @@ function analyzeWithAI(){
     );
 }
 
-
-
 function showCCVDashboard(){
 
-document.getElementById("documentsContainer").innerHTML = `
+document.getElementById("workspaceContent").innerHTML = `
 
 <div class="card">
 
@@ -2358,6 +5572,22 @@ document.getElementById("documentsContainer").innerHTML = `
 </div>
 
 `;
+
+}
+
+function updateTabFlow(){
+
+    const flow =
+        document.getElementById(
+            "tabFlow"
+        );
+
+    if(!flow){
+        return;
+    }
+
+    flow.innerHTML =
+        currentPageFlow;
 
 }
 
@@ -2545,6 +5775,65 @@ async function uploadUsers(){
 
 }
 
+async function uploadEntity(
+    file,
+    data
+){
+
+    try{
+
+        const response =
+            await fetch(
+
+                `https://graph.microsoft.com/v1.0/me/drive/root:/${file}:/content`,
+
+                {
+
+                    method:"PUT",
+
+                    headers:{
+                        Authorization:
+                            `Bearer ${accessToken}`,
+
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify(
+                            data,
+                            null,
+                            2
+                        )
+
+                }
+
+            );
+
+        if(!response.ok){
+
+            throw new Error(
+                file +
+                " kon niet opgeslagen worden"
+            );
+
+        }
+
+    }
+
+    catch(error){
+
+        console.error(error);
+
+        alert(
+            "❌ Fout bij opslaan van " +
+            file
+        );
+
+    }
+
+}
+
 async function downloadUsers(){
 
     try{
@@ -2574,6 +5863,57 @@ async function downloadUsers(){
 
 }
 
+async function downloadEntity(
+    file
+){
+
+    try{
+
+        const response =
+            await fetch(
+
+                `https://graph.microsoft.com/v1.0/me/drive/root:/${file}:/content`,
+
+                {
+
+                    headers:{
+                        Authorization:
+                            `Bearer ${accessToken}`
+                    }
+
+                }
+
+            );
+
+        if(!response.ok){
+
+            console.warn(
+                "Bestand niet gevonden:",
+                file
+            );
+
+            return [];
+        }
+
+        return await response.json();
+
+    }
+
+    catch(error){
+
+        console.error(
+            "Download fout:",
+            file,
+            error
+        );
+
+        return [];
+
+    }
+
+}
+
+
 async function downloadJson(){
 
     const response = await fetch(
@@ -2590,19 +5930,117 @@ async function downloadJson(){
 
 async function saveData(){
 
-    if(!checkLogin()) return;
-
-    const data = {
-    meetings,
-    projects,
-    tasks,
-    members,
-    knowledgeData,
-    users
-};
-
-    await uploadJson(data);
     await uploadUsers();
+
+await uploadEntity(
+    MEETINGSFILE,
+    meetings
+);
+
+await uploadEntity(
+    PROJECTSFILE,
+    projects
+);
+
+await uploadEntity(
+    TASKSFILE,
+    tasks
+);
+
+await uploadEntity(
+    MEMBERSFILE,
+    members
+);
+
+await uploadEntity(
+    ACTIVITIESFILE,
+    activities
+);
+
+await uploadEntity(
+    ZORGGIDS_GASTRO,
+    zorggidsGastro
+);
+
+await uploadEntity(
+    ZORGGIDS_IBDCENTRA,
+    zorggidsIbdCentra
+);
+
+await uploadEntity(
+    ZORGGIDS_ZIEKENHUIZEN,
+    zorggidsZiekenhuizen
+);
+
+await uploadEntity(
+    ZORGGIDS_DIETISTEN,
+    zorggidsDietisten
+);
+
+await uploadEntity(
+    ZORGGIDS_PSYCHOLOGEN,
+    zorggidsPsychologen
+);
+
+await uploadEntity(
+    ZORGGIDS_APOTHEKERS,
+    zorggidsApothekers
+);
+
+await uploadEntity(
+    SOCIAAL_RECHTEN,
+    sociaalRechten
+);
+
+await uploadEntity(
+    SOCIAAL_INVALIDITEIT,
+    sociaalInvaliditeit
+);
+
+await uploadEntity(
+    SOCIAAL_WERK,
+    sociaalWerk
+);
+
+await uploadEntity(
+    SOCIAAL_STUDIE,
+    sociaalStudie
+);
+
+await uploadEntity(
+    SOCIAAL_TERUGBETALINGEN,
+    sociaalTerugbetalingen
+);
+
+await uploadEntity(
+    SOCIAAL_ATTESTEN,
+    sociaalAttesten
+);
+
+await uploadEntity(
+    SOCIAAL_PREMIES,
+    sociaalPremies
+);
+
+await uploadEntity(
+    SOCIAAL_MANTELZORG,
+    sociaalMantelzorg
+);
+
+await uploadEntity(
+    LOGFILE,
+    systemLog
+);
+
+await uploadEntity(
+    ATTACHMENTSFILE,
+    knowledgeData
+);
+
+await uploadEntity(
+    WEBSITESFILE,
+    websitesDatabase
+);
 
     alert("✅ Gegevens opgeslagen in OneDrive");
 }
@@ -2613,18 +6051,183 @@ async function loadData(){
 
     try{
 
+        console.log(
+    "Gegevens laden..."
+);
+
         const data = await downloadJson();
 
-        meetings = data.meetings || [];
-        projects = data.projects || [];
-        tasks = data.tasks || [];
-        members = data.members || [];
-        knowledgeData = data.knowledgeData || [];
+       meetings =
+    await downloadEntity(
+        MEETINGSFILE
+    );
 
-        users =
+    if(
+    !Array.isArray(
+        meetings
+    )
+){
+    meetings = [];
+}
+
+projects =
+    await downloadEntity(
+        PROJECTSFILE
+    );
+
+    if(
+!Array.isArray(
+projects
+)
+){
+projects = [];
+}
+    
+tasks =
+    await downloadEntity(
+        TASKSFILE
+    );
+
+    if(
+!Array.isArray(
+tasks
+)
+){
+tasks = [];
+}
+members =
+    await downloadEntity(
+        MEMBERSFILE
+    );
+
+    if(
+!Array.isArray(
+members
+)
+){
+members = [];
+}
+activities =
+    await downloadEntity(
+        ACTIVITIESFILE
+    );
+
+zorggidsGastro =
+    await downloadEntity(
+        ZORGGIDS_GASTRO
+    );
+
+zorggidsIbdCentra =
+    await downloadEntity(
+        ZORGGIDS_IBDCENTRA
+    );
+
+zorggidsZiekenhuizen =
+    await downloadEntity(
+        ZORGGIDS_ZIEKENHUIZEN
+    );
+
+zorggidsDietisten =
+    await downloadEntity(
+        ZORGGIDS_DIETISTEN
+    );
+
+zorggidsPsychologen =
+    await downloadEntity(
+        ZORGGIDS_PSYCHOLOGEN
+    );
+
+zorggidsApothekers =
+    await downloadEntity(
+        ZORGGIDS_APOTHEKERS
+    );
+
+sociaalRechten =
+    await downloadEntity(
+        SOCIAAL_RECHTEN
+    );
+
+sociaalInvaliditeit =
+    await downloadEntity(
+        SOCIAAL_INVALIDITEIT
+    );
+
+sociaalWerk =
+    await downloadEntity(
+        SOCIAAL_WERK
+    );
+
+sociaalStudie =
+    await downloadEntity(
+        SOCIAAL_STUDIE
+    );
+
+sociaalTerugbetalingen =
+    await downloadEntity(
+        SOCIAAL_TERUGBETALINGEN
+    );
+
+sociaalAttesten =
+    await downloadEntity(
+        SOCIAAL_ATTESTEN
+    );
+
+sociaalPremies =
+    await downloadEntity(
+        SOCIAAL_PREMIES
+    );
+
+sociaalMantelzorg =
+    await downloadEntity(
+        SOCIAAL_MANTELZORG
+    );
+
+systemLog =
+    await downloadEntity(
+        LOGFILE
+    );
+
+knowledgeData =
+    await downloadEntity(
+        ATTACHMENTSFILE
+    );
+
+try{
+
+    websitesDatabase =
+        await downloadEntity(
+            WEBSITESFILE
+        );
+
+    if(
+        !Array.isArray(
+            websitesDatabase
+        )
+    ){
+        websitesDatabase = [];
+    }
+
+}catch(error){
+
+    console.warn(
+        "websites.json niet gevonden"
+    );
+
+    websitesDatabase = [];
+}
+
+if(
+    !Array.isArray(
+        websitesDatabase
+    )
+){
+    websitesDatabase = [];
+}
+
+users =
     await downloadUsers();
 
-        users =
+users =
     data.users || [];
 
         document.getElementById(
@@ -2637,6 +6240,8 @@ async function loadData(){
         renderMeetings();
 
         updateDashboardStats();
+
+        showCCVDashboard();
 
        renderAllCategories();
 
@@ -2666,11 +6271,492 @@ await loadFolders();
         error
     );
 
-    alert(
-        error.message
-    );
+    console.log(
+    "✅ Gegevens geladen"
+);
 
 }
+}
+
+function showTerugbetalingenList(){
+
+    console.log(
+    "showTerugbetalingenList gestart"
+);
+
+    openPage("workspace");
+
+    let html = `
+
+    <div class="card">
+
+        <h2>
+
+            💰 Terugbetalingen
+
+        </h2>
+
+        <button
+            onclick="showNewSociaalEntry(
+                'Terugbetalingen'
+            )">
+
+            ➕ Nieuwe regeling
+
+        </button>
+
+    </div>
+
+    `;
+
+    sociaalTerugbetalingen.forEach(item => {
+
+        html += `
+
+        <div class="card">
+
+            <h3>
+
+                ${item.titel}
+
+            </h3>
+
+            🏢 ${item.instantie}
+
+            <br><br>
+
+            📞 ${item.telefoon}
+
+            <br><br>
+
+            🌐 ${item.website}
+
+            <br><br>
+
+            📝 ${item.beschrijving}
+
+            <hr>
+
+            👤 ${item.createdBy}
+
+            <br>
+
+            📅 ${
+                new Date(
+                    item.created
+                ).toLocaleString(
+                    "nl-BE"
+                )
+            }
+
+        </div>
+
+        `;
+
+    });
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML =
+        html;
+
+}
+
+function showRechtenList(){
+
+    openPage("workspace");
+
+    let html = `
+
+    <div class="card">
+
+        <h2>
+            ⚖️ Patiëntenrechten
+        </h2>
+
+        <button
+            onclick="showNewSociaalEntry(
+                'Patiëntenrechten'
+            )">
+
+            ➕ Nieuw recht
+
+        </button>
+
+    </div>
+
+    `;
+
+    sociaalRechten.forEach(item => {
+
+        html += `
+
+        <div class="card">
+
+            <h3>
+                ${item.titel}
+            </h3>
+
+            🏢 ${item.instantie}
+
+            <br><br>
+
+            🌐 ${item.website}
+
+            <br><br>
+
+            📝 ${item.beschrijving}
+
+            <hr>
+
+            👤 ${item.createdBy}
+
+        </div>
+
+        `;
+
+    });
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = html;
+
+}
+
+function showInvaliditeitList(){
+
+    openPage("workspace");
+
+    let html = `
+
+    <div class="card">
+
+        <h2>
+            🏥 Invaliditeit
+        </h2>
+
+        <button
+            onclick="showNewSociaalEntry(
+                'Invaliditeit'
+            )">
+
+            ➕ Nieuwe regeling
+
+        </button>
+
+    </div>
+
+    `;
+
+    sociaalInvaliditeit.forEach(item => {
+
+        html += `
+
+        <div class="card">
+
+            <h3>
+                ${item.titel}
+            </h3>
+
+            🏢 ${item.instantie}
+
+            <br><br>
+
+            📞 ${item.telefoon}
+
+            <br><br>
+
+            📝 ${item.beschrijving}
+
+        </div>
+
+        `;
+
+    });
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = html;
+
+}
+
+function showWerkList(){
+
+    openPage("workspace");
+
+    let html = `
+
+    <div class="card">
+
+        <h2>
+            💼 Werk
+        </h2>
+
+        <button
+            onclick="showNewSociaalEntry(
+                'Werk'
+            )">
+
+            ➕ Nieuw item
+
+        </button>
+
+    </div>
+
+    `;
+
+    sociaalWerk.forEach(item => {
+
+        html += `
+
+        <div class="card">
+
+            <h3>${item.titel}</h3>
+
+            🏢 ${item.instantie}
+
+            <br><br>
+
+            📝 ${item.beschrijving}
+
+        </div>
+
+        `;
+
+    });
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = html;
+
+}
+
+function showStudieList(){
+
+    openPage("workspace");
+
+    let html = `
+
+    <div class="card">
+
+        <h2>
+            🎓 Studie
+        </h2>
+
+        <button
+            onclick="showNewSociaalEntry(
+                'Studie'
+            )">
+
+            ➕ Nieuw item
+
+        </button>
+
+    </div>
+
+    `;
+
+    sociaalStudie.forEach(item => {
+
+        html += `
+
+        <div class="card">
+
+            <h3>${item.titel}</h3>
+
+            📝 ${item.beschrijving}
+
+        </div>
+
+        `;
+
+    });
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = html;
+
+}
+
+function showAttestenList(){
+
+    openPage("workspace");
+
+    let html = `
+
+    <div class="card">
+
+        <h2>
+            📄 Attesten
+        </h2>
+
+        <button
+            onclick="showNewSociaalEntry(
+                'Attesten'
+            )">
+
+            ➕ Nieuw attest
+
+        </button>
+
+    </div>
+
+    `;
+
+    sociaalAttesten.forEach(item => {
+
+        html += `
+
+        <div class="card">
+
+            <h3>${item.titel}</h3>
+
+            🏢 ${item.instantie}
+
+            <br><br>
+
+            📝 ${item.beschrijving}
+
+        </div>
+
+        `;
+
+    });
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = html;
+
+}
+
+function showPremiesList(){
+
+    openPage("workspace");
+
+    let html = `
+
+    <div class="card">
+
+        <h2>
+            💰 Premies
+        </h2>
+
+        <button
+            onclick="showNewSociaalEntry(
+                'Premies'
+            )">
+
+            ➕ Nieuwe premie
+
+        </button>
+
+    </div>
+
+    `;
+
+    sociaalPremies.forEach(item => {
+
+        html += `
+
+        <div class="card">
+
+            <h3>${item.titel}</h3>
+
+            🏢 ${item.instantie}
+
+            <br><br>
+
+            🌐 ${item.website}
+
+            <br><br>
+
+            📝 ${item.beschrijving}
+
+        </div>
+
+        `;
+
+    });
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = html;
+
+}
+
+function showMantelzorgList(){
+
+    openPage("workspace");
+
+    let html = `
+
+    <div class="card">
+
+        <h2>
+            👨‍👩‍👧 Mantelzorg
+        </h2>
+
+        <button
+            onclick="showNewSociaalEntry(
+                'Mantelzorg'
+            )">
+
+            ➕ Nieuwe info
+
+        </button>
+
+    </div>
+
+    `;
+
+    sociaalMantelzorg.forEach(item => {
+
+        html += `
+
+        <div class="card">
+
+            <h3>${item.titel}</h3>
+
+            📝 ${item.beschrijving}
+
+            <br><br>
+
+            🏢 ${item.instantie}
+
+        </div>
+
+        `;
+
+    });
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = html;
+
+}
+
+function writeLog(
+    action,
+    details
+){
+
+    systemLog.push({
+
+        datum:
+            new Date()
+            .toISOString(),
+
+        gebruiker:
+            currentUser,
+
+        actie:
+            action,
+
+        details:
+            details
+
+    });
+
 }
 
 async function loginMicrosoft(){
@@ -3879,6 +7965,26 @@ const KNOWLEDGE_ENGINE = {
 
 },
 
+"CCV-VZW":{
+
+    subcategories:{
+
+        "Vergaderingen":{},
+
+        "Projecten":{},
+
+        "Taken":{},
+
+        "Leden":{},
+
+        "Activiteiten":{},
+
+        "Documenten":{}
+
+    }
+
+},
+
 "Sociale Gids":{
 
     keywords:[
@@ -3918,6 +8024,26 @@ const KNOWLEDGE_ENGINE = {
             "attest",
             "formulier"
         ]
+
+    }
+
+},
+
+"CCV-VZW":{
+
+    subcategories:{
+
+        "Vergaderingen":{},
+
+        "Projecten":{},
+
+        "Taken":{},
+
+        "Leden":{},
+
+        "Activiteiten":{},
+
+        "Documenten":{}
 
     }
 
@@ -3968,45 +8094,49 @@ const KNOWLEDGE_ENGINE = {
         "link"
     ],
 
-    subcategories:{
+   subcategories:{
 
-        "Belgische organisaties":[
-            "belgie",
-            "belgisch"
-        ],
+    "Zorginstellingen":[
+        "ibd centrum",
+        "ziekenhuis",
+        "gastro-enteroloog",
+        "diëtist",
+        "psycholoog",
+        "universitair ziekenhuis"
+    ],
 
-        "Internationale organisaties":[
-            "internationaal"
-        ],
+    "Organisaties":[
+        "vereniging",
+        "organisatie",
+        "patientenplatform",
+        "crohn colitis",
+        "ccv"
+    ],
 
-        "Universitaire centra":[
-            "universitair"
-        ],
+    "Wetenschappelijke Bronnen":[
+        "pubmed",
+        "ecco",
+        "cochrane",
+        "richtlijn",
+        "onderzoek"
+    ],
 
-        "Ziekenhuizen":[
-            "ziekenhuis"
-        ],
+    "Opleiding & Media":[
+        "webinar",
+        "video",
+        "podcast",
+        "interview",
+        "opleiding"
+    ],
 
-        "Wetenschappelijke bronnen":[
-            "pubmed",
-            "ecco",
-            "cochrane"
-        ],
+    "Downloads":[
+        "download",
+        "pdf",
+        "brochure",
+        "presentatie"
+    ]
 
-        "Patiëntenplatformen":[
-            "patientenplatform"
-        ],
-
-        "Video & Media":[
-            "video",
-            "media"
-        ],
-
-        "Downloads":[
-            "download"
-        ]
-
-    }
+}
 
 },
 
@@ -4114,6 +8244,223 @@ const KNOWLEDGE_ENGINE = {
 
 };
 
+const WEBSITE_IMPORT_MAPPING = {
+
+    "IBD Patiënten":
+        "Organisaties",
+
+    "Patiënten":
+        "Organisaties",
+
+    "Organisaties":
+        "Organisaties",
+
+    "IBD Research":
+        "Wetenschappelijke Bronnen",
+
+    "Richtlijnen":
+        "Wetenschappelijke Bronnen",
+
+    "Data/Onderzoek":
+        "Wetenschappelijke Bronnen",
+
+    "Gezondheidszorg":
+        "Zorginstellingen",
+
+    "GGZ":
+        "Zorginstellingen",
+
+    "Psychologie":
+        "Zorginstellingen",
+
+    "Educatie":
+        "Opleiding & Media",
+
+    "IBD Apps":
+        "Opleiding & Media",
+
+    "Podcast":
+        "Opleiding & Media",
+
+    "Video":
+        "Opleiding & Media"
+};
+
+function determineWebsiteAudience(
+    subcategorie
+){
+
+    if(
+        subcategorie ===
+        "Wetenschappelijke Bronnen"
+    ){
+        return "Zorgverlener";
+    }
+
+    if(
+        subcategorie ===
+        "Zorginstellingen"
+    ){
+        return "Patiënt";
+    }
+
+    if(
+        subcategorie ===
+        "Opleiding & Media"
+    ){
+        return "Algemeen";
+    }
+
+    return "Patiënt";
+}
+
+function determineWebsiteTrust(
+    url
+){
+
+    const site =
+        url.toLowerCase();
+
+    if(
+        site.includes("pubmed")
+        ||
+        site.includes("ecco")
+        ||
+        site.includes("cochrane")
+    ){
+        return "Hoog";
+    }
+
+    if(
+        site.includes(".gov")
+        ||
+        site.includes(".edu")
+    ){
+        return "Hoog";
+    }
+
+    return "Normaal";
+}
+
+function classifyWebsite(url){
+
+    const site =
+        url.toLowerCase();
+
+    const rules = {
+
+        // wetenschap
+
+        "pubmed":
+            "Wetenschappelijke Bronnen",
+
+        "ecco":
+            "Wetenschappelijke Bronnen",
+
+        "cochrane":
+            "Wetenschappelijke Bronnen",
+
+        "clinicaltrials":
+            "Wetenschappelijke Bronnen",
+
+        // zorg
+
+        "uz":
+            "Zorginstellingen",
+
+        "ziekenhuis":
+            "Zorginstellingen",
+
+        "gastro":
+            "Zorginstellingen",
+
+        // media
+
+        "youtube":
+            "Opleiding & Media",
+
+        "vimeo":
+            "Opleiding & Media",
+
+        "podcast":
+            "Opleiding & Media",
+
+        "webinar":
+            "Opleiding & Media",
+
+        // organisaties
+
+        "crohn":
+            "Organisaties",
+
+        "colitis":
+            "Organisaties",
+
+        "patientenplatform":
+            "Organisaties",
+
+        "vzw":
+            "Organisaties",
+
+        // downloads
+
+        ".pdf":
+            "Downloads",
+
+        "download":
+            "Downloads"
+
+    };
+
+    for(const keyword in rules){
+
+        if(
+            site.includes(keyword)
+        ){
+
+            return rules[keyword];
+        }
+    }
+
+    return "Organisaties";
+}
+
+function determineWebsiteTags(
+    url,
+    subcategorie
+){
+
+    let tags = [];
+
+    tags.push(subcategorie);
+
+    const site =
+        url.toLowerCase();
+
+    if(site.includes("pubmed"))
+        tags.push("Onderzoek");
+
+    if(site.includes("ecco"))
+        tags.push("ECCO");
+
+    if(site.includes("cochrane"))
+        tags.push("Evidence Based Medicine");
+
+    if(site.includes("youtube"))
+        tags.push("Video");
+
+    if(site.includes("podcast"))
+        tags.push("Podcast");
+
+    if(site.includes("crohn"))
+        tags.push("IBD");
+
+    if(site.includes("colitis"))
+        tags.push("IBD");
+
+    return [...new Set(tags)];
+}
+
 function classifyDocument(filename){
 
     const naam =
@@ -4123,6 +8470,37 @@ function classifyDocument(filename){
     getMedicalMatches(
         filename
     );
+
+if(
+    naam.includes("http://")
+    ||
+    naam.includes("https://")
+    ||
+    naam.includes("www.")
+){
+
+    return {
+
+        categorie:
+            "Websites",
+
+        subcategorie:
+            classifyWebsite(
+                naam
+            )
+
+    };
+}
+
+if(
+    filename.includes("http") ||
+    filename.includes("www.")
+){
+    return {
+        categorie:"Websites",
+        subcategorie:"Organisaties"
+    };
+}
 
     let bestCategory =
         "Algemeen";
@@ -4160,6 +8538,8 @@ function classifyDocument(filename){
 
     });
 
+    if(data.keywords){
+
     data.keywords.forEach(keyword => {
 
         if(
@@ -4171,6 +8551,8 @@ function classifyDocument(filename){
         }
 
     });
+
+}
 
         let bestSubScore = 0;
         let currentSubCategory = "Algemeen";
@@ -4476,6 +8858,26 @@ function determineTags(filename){
 
     });
 
+if(naam.includes("pubmed")){
+    tags.push("Wetenschappelijke Bron");
+}
+
+if(naam.includes("ecco")){
+    tags.push("ECCO");
+}
+
+if(naam.includes("youtube")){
+    tags.push("Video");
+}
+
+if(naam.includes("uz")){
+    tags.push("Universitair Centrum");
+}
+
+if(naam.includes("crohn-colitis")){
+    tags.push("Patiëntenvereniging");
+}
+
     return [...new Set(tags)];
 
 }
@@ -4623,88 +9025,62 @@ function countDocumentsByCategory(
             "documentsContainer"
         );
 
-    if(!container){
-        return;
-    }
+    let html = "";
 
-    container.innerHTML =
+    const folders =
+    [
+        ...new Set(
+            knowledgeData
+                .map(d => d.subcategorie)
+                .filter(Boolean)
+        )
+    ];
 
-    knowledgeData
+    folders.forEach(folder => {
 
-    .filter(
-        doc => doc.type !== "Map"
-    )
-
-    .map(doc => `
-
+        html += `
         <div class="card">
 
-            <input
-                type="checkbox"
-                class="pdfSelect"
-                value="${doc.bestand}"
-            >
+            <details>
+    <summary
+        style="
+            cursor:pointer;
+            font-weight:bold;
+            font-size:18px;
+        "
+    >
+        📁 ${folder}
+    </summary>
+        `;
 
-            <h3>
-
-                📄 ${doc.titel}
-
-            </h3>
-
-            <span class="tag">
-                ${doc.categorie}
-            </span>
-
-            <span class="tag">
-                ${doc.subcategorie || ""}
-            </span>
-
-            <br><br>
-
-           <div class="tagContainer">
-    ${
-        doc.tags
-        ? doc.tags.map(tag =>
-            `<span
-                class="tag"
-                onclick="filterByTag('${tag}')"
-            >
-                ${tag}
-            </span>`
-        ).join("")
-        : ""
-    }
-</div>
-
-            <br><br>
-
-          <br><br>
-
-<a
-    ${doc.bestand}
-    📄 Open document
-</a>
-
-&nbsp;
-
-<button
-    onclick="
-        previewDocument(
-            '${doc.bestand}'
+        knowledgeData
+        .filter(
+            d => d.subcategorie === folder
         )
-    "
->
-    👁 Preview
-</button>
+        .forEach(doc => {
 
-        </div>
+console.log(doc.bestand);
+            html += `
+            <div
+                style="
+                    margin-left:20px;
+                    padding:5px;
+                "
+            >
+                ${doc.bestand}
+    📄 ${doc.titel}
+</a>
+            </div>
+            `;
+        });
 
-    `)
+        html += `
+</details>
+`;
+    });
 
-    .join("");
-
+    container.innerHTML = html;
 }
-
 /* ==================================
    ZOEKEN
 ================================== */
@@ -4844,25 +9220,100 @@ function renderAllCategories(){
 
 }
 
-function previewDocument(url){
+function showOneDriveFolders(){
 
-    window.open(
-        url,
-        "_blank"
-    );
+    openPage("workspace");
 
+    const folders =
+        [...new Set(
+            knowledgeData
+                .map(doc => doc.subcategorie)
+                .filter(Boolean)
+        )];
+
+    let html = `
+    <div class="card">
+
+        <h2>
+            📁 CCV-VZW Documenten
+        </h2>
+    `;
+
+    folders.forEach(folder => {
+
+        html += `
+        <div class="card">
+
+            <h3>
+                📁 ${folder}
+            </h3>
+
+            <button
+                onclick="openFolderContents('${folder}')"
+            >
+                Open
+            </button>
+
+        </div>
+        `;
+    });
+
+    html += `
+    </div>
+    `;
+
+    document.getElementById(
+        "workspaceContent"
+    ).innerHTML = html;
 }
 
-function closePreview(){
+function openFolderContents(folder){
+
+    openPage("workspace");
+
+    const docs =
+        knowledgeData.filter(
+            doc =>
+                doc.subcategorie === folder
+        );
+
+    let html = `
+    <div class="card">
+        <h2>📁 ${folder}</h2>
+    `;
+
+   docs.forEach(doc => {
+
+    const parser =
+        document.createElement("div");
+
+    parser.innerHTML =
+        doc.bestand;
+
+    const url =
+        parser.querySelector("a")?.href;
+
+    html += `
+    <div
+        style="
+            padding:10px;
+            border-bottom:1px solid #ddd;
+        "
+    >
+        ${url}
+            📄 ${doc.titel}
+        </a>
+    </div>
+    `;
+});
+
+    html += `
+    </div>
+    `;
 
     document.getElementById(
-        "previewModal"
-    ).style.display = "none";
-
-    document.getElementById(
-        "previewFrame"
-    ).src = "";
-
+        "workspaceContent"
+    ).innerHTML = html;
 }
 
 function previewSelected(){
@@ -5013,10 +9464,8 @@ async function importSingleFolder(
         return;
     }
 
-    const categorie =
-    classifyDocument(
-        folderName
-    ).categorie;
+   const categorie =
+    folderName;
 
     knowledgeData.push({
 

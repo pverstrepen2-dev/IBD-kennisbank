@@ -1,13 +1,18 @@
 <!DOCTYPE html>
 <html lang="nl">
 
-<script src="https://alcdn.msauth.net/browser/2.38.3/js.min.jsscript>
-  
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>IBD Kennisbank - Finale Werkende Versie</title>
-  <style>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>IBD Kennisbank - Finale Werkende Versie</title>
+
+<script src="https://unpkg.com/@azure/msal-browser@latest/lib/msal-browser.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<style>
     :root {
       --primary: #667eea;
       --secondary: #764ba2;
@@ -436,9 +441,10 @@
 
       <h2 id="activeGroup" style="margin-top:10px; font-size:18px;"></h2>
 
-      <div id="userInfo"></div>
-     Niet aangemeld
+      <div id="userInfo">
+    Niet aangemeld
 </div>
+
 <div style="margin-top:10px;">
 
     <button
@@ -1725,6 +1731,81 @@ function updateUserInfo(){
         <br>
         📧 ${currentUser.email}
         `;
+}
+
+const msalConfig = {
+
+    auth: {
+
+        clientId:
+            "JOUW_CLIENT_ID",
+
+        authority:
+    "https://login.microsoftonline.com/common",
+
+        redirectUri:
+            window.location.origin
+
+    }
+
+    };
+    
+const msalInstance =
+    new msal.PublicClientApplication(
+        msalConfig
+    );
+
+async function loginMicrosoft(){
+
+    try{
+
+        const result =
+            await msalInstance.loginPopup({
+
+                scopes:[
+                    "User.Read"
+                ]
+
+            });
+
+        currentUser = {
+
+            name:
+                result.account.name,
+
+            email:
+                result.account.username
+
+        };
+
+        updateUserInfo();
+
+        document.getElementById(
+            "loginBtn"
+        ).style.display =
+            "none";
+
+        document.getElementById(
+            "logoutBtn"
+        ).style.display =
+            "inline-block";
+
+    }
+    catch(error){
+
+        console.error(
+            "Login fout:",
+            error
+        );
+
+    }
+
+}
+
+function logoutMicrosoft(){
+
+    msalInstance.logoutPopup();
+
 }
 
 currentUser = {

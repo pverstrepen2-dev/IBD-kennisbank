@@ -1755,7 +1755,15 @@ const msalInstance =
         msalConfig
     );
 
+async function initializeMSAL(){
+
+    await msalInstance.initialize();
+
+}
+
 async function loginMicrosoft(){
+
+  await initializeMSAL();
 
     try{
 

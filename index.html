@@ -2938,29 +2938,25 @@ async function openDriveFolder(folderId){
         );
 
         document.getElementById(
-            "driveExplorer"
-        ).innerHTML =
+    "driveExplorer"
+).innerHTML =
 
-            data.value.map(item => `
+    data.value.map(item => `
 
-                <div
-                    class="card"
-                    style="cursor:pointer;"
-                    onclick="${
-                        item.folder
-                        ? `openDriveFolder('${item.id}')`
-                        : ''
-                    }"
-                >
+    <div
+        class="card"
+        style="cursor:pointer;"
+        onclick="openDriveFolder('${item.id}')"
+    >
 
-                    <h3>
-                        ${item.folder ? "📁" : "📄"}
-                        ${item.name}
-                    </h3>
+        <h3>
+            ${item.folder ? "📁" : "📄"}
+            ${item.name}
+        </h3>
 
-                </div>
+    </div>
 
-            `).join("");
+`).join("");
 
     }
     catch(error){

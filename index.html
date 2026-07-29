@@ -2619,7 +2619,7 @@ async function getAccessToken(){
 );
 
     const response =
-        await msalInstance.acquireTokenPopup({
+        await msalInstance.acquireTokenSilent({
 
             account: account,
 
@@ -2638,65 +2638,41 @@ async function loadOneDriveFiles(){
 
     try{
 
+        console.log(
+            "ACTIVE ACCOUNT:",
+            msalInstance.getActiveAccount()
+        );
+
         const token =
             await getAccessToken();
 
-        const response =
         console.log(
-    "TOKEN:",
-    token
-);
-    await fetch(
+            "TOKEN OK"
+        );
 
-        "https://graph.microsoft.com/v1.0/me/drive/root/children",
+        const response =
+            await fetch(
+                "https://graph.microsoft.com/v1.0/me/drive/root/children",
+                {
+                    headers:{
+                        Authorization:
+                            "Bearer " + token
+                    }
+                }
+            );
 
-        {
-            headers: {
-                Authorization:
-                    "Bearer " + token
-            }
-        }
-    );
+        console.log(
+            "STATUS:",
+            response.status
+        );
 
-console.log(
-    "HTTP STATUS:",
-    response.status
-);
+        const data =
+            await response.json();
 
-console.log(
-    "HTTP OK:",
-    response.ok
-);
-
-const data =
-    await response.json();
-
-console.log(
-    "GRAPH RESPONSE:",
-    data
-);
-
-alert(
-    "Aantal items: " +
-    (data.value?.length || 0)
-);
-
-        document.getElementById(
-    "resultsContainer"
-).innerHTML =
-
-    data.value.map(file => `
-
-        <div class="card">
-
-            <b>${file.name}</b>
-            <br>
-
-            ${file.folder ? "📁 Map" : "📄 Bestand"}
-
-        </div>
-
-    `).join("");
+        console.log(
+            "GRAPH RESPONSE:",
+            data
+        );
 
     }
     catch(error){

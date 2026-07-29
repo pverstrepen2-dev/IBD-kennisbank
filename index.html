@@ -1767,27 +1767,28 @@ async function loginMicrosoft(){
 
     try{
 
-console.log(
-  "MSAL login gestart"
-);
+        console.log(
+            "MSAL login gestart"
+        );
+
         const result =
             await msalInstance.loginPopup({
-
-              console.log(
-    "LOGIN RESULT",
-    result
-);
-
-alert(
-    "Aangemeld als: " +
-    result.account.username
-);
 
                 scopes:[
                     "User.Read"
                 ]
 
             });
+
+        console.log(
+            "LOGIN RESULT",
+            result
+        );
+
+        alert(
+            "Aangemeld als: " +
+            result.account.username
+        );
 
         currentUser = {
 

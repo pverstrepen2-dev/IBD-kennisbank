@@ -2906,6 +2906,11 @@ data.value.forEach(item => {
 
 async function openDriveFolder(folderId){
 
+    console.log(
+        "OPEN MAP:",
+        folderId
+    );
+
     try{
 
         const token =
@@ -2927,18 +2932,41 @@ async function openDriveFolder(folderId){
         const data =
             await response.json();
 
-        currentDriveFolder =
-            folderId;
-
-        renderDriveItems(
-            data.value
+        console.log(
+            "MAP INHOUD:",
+            data
         );
+
+        document.getElementById(
+            "driveExplorer"
+        ).innerHTML =
+
+            data.value.map(item => `
+
+                <div
+                    class="card"
+                    style="cursor:pointer;"
+                    onclick="${
+                        item.folder
+                        ? `openDriveFolder('${item.id}')`
+                        : ''
+                    }"
+                >
+
+                    <h3>
+                        ${item.folder ? "📁" : "📄"}
+                        ${item.name}
+                    </h3>
+
+                </div>
+
+            `).join("");
 
     }
     catch(error){
 
         console.error(
-            "Drive fout:",
+            "MAP FOUT:",
             error
         );
 

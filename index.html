@@ -1793,6 +1793,8 @@ const msalInstance =
 })
 .catch(console.error);
 
+})();
+
 async function loginMicrosoft(){
 
     try{
@@ -1837,10 +1839,10 @@ async function logoutMicrosoft(){
 
         await msalInstance.logoutRedirect({
 
-            postLogoutRedirectUri:
-                "https://pverstrepen2-dev.github.io/IBD-kennisbank/"
+    postLogoutRedirectUri:
+        "https://pverstrepen2-dev.github.io/IBD-kennisbank/"
 
-        });
+});
 
     }
     catch(error){

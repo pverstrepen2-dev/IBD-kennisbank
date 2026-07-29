@@ -2604,8 +2604,20 @@ function importVoeding(event, type){
 
 async function getAccessToken(){
 
+  alert("NIEUWE GETACCESSTOKEN");
+
+    const account =
+        msalInstance.getAllAccounts()[0];
+
+        console.log(
+    "ACCOUNT:",
+    account
+);
+
     const response =
-        await msalInstance.acquireTokenSilent({
+        await msalInstance.acquireTokenPopup({
+
+            account: account,
 
             scopes: [
                 "User.Read",

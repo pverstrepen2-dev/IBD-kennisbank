@@ -462,6 +462,12 @@
         🚪 Afmelden
     </button>
 
+    <button
+    onclick="loadOneDriveFiles()"
+    id="onedriveBtn">
+    📁 OneDrive
+</button>
+
 </div>
 
 
@@ -2529,6 +2535,74 @@ function importVoeding(event, type){
   };
 
   reader.readAsText(file);
+}
+
+async function getAccessToken(){
+
+    const response =
+        await msalInstance.acquireTokenSilent({
+
+            scopes: [
+                "User.Read",
+                "Files.Read"
+            ]
+
+        });
+
+    return response.accessToken;
+
+}
+
+async function loadOneDriveFiles(){
+
+    try{
+
+        const token =
+            await getAccessToken();
+
+        const response =
+            await fetch(
+
+                "https://graph.microsoft.com/v1.0/me/drive/root/children",
+
+                {
+                    headers: {
+                        Authorization:
+                            "Bearer " + token
+                    }
+                }
+            );
+
+        const data =
+            await response.json();
+
+        document.getElementById(
+    "resultsContainer"
+).innerHTML =
+
+    data.value.map(file => `
+
+        <div class="card">
+
+            <b>${file.name}</b>
+            <br>
+
+            ${file.folder ? "📁 Map" : "📄 Bestand"}
+
+        </div>
+
+    `).join("");
+
+    }
+    catch(error){
+
+        console.error(
+            "OneDrive fout:",
+            error
+        );
+
+    }
+
 }
 
 // INIT

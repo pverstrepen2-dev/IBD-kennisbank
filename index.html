@@ -814,7 +814,26 @@
       <div class="admin-section">
         <div class="admin-title">⚙️ Beheer alle items</div>
         <input type="text" id="manageSearch" placeholder="Filter op titel..." />
+
         <div id="recordsList" style="margin-top:16px;"></div>
+        <hr style="margin:25px 0;">
+
+<div class="admin-title">
+    📁 OneDrive Verkenner
+</div>
+
+<button
+    class="btn btn-primary"
+    onclick="loadCCVSubFolders()"
+>
+    🤝 Open CCV-VZW
+</button>
+
+<div
+    id="driveExplorer"
+    style="margin-top:15px;"
+>
+</div>
       </div>
     </div>
 
@@ -2827,29 +2846,41 @@ async function loadCCVSubFolders(){
             data
         );
 
+data.value.forEach(item => {
+
+    console.log(
+        "CCV ITEM:",
+        item.name,
+        item.folder ? "MAP" : "BESTAND",
+        item.id
+    );
+
+});
+
         document.getElementById(
-            "resultsContainer"
-        ).innerHTML =
+    "resultsContainer"
+).innerHTML =
 
-            data.value.map(item => `
+    data.value.map(item => `
 
-                <div class="card">
+        <div
+            class="card"
+            style="cursor:pointer;"
+            onclick="${
+                item.folder
+                ? `openDriveFolder('${item.id}')`
+                : ''
+            }"
+        >
 
-                    <h3>${item.name}</h3>
+            <h3>
+                ${item.folder ? "📁" : "📄"}
+                ${item.name}
+            </h3>
 
-                    <p>
-                        ${item.folder
-                            ? "📁 Map"
-                            : "📄 Bestand"}
-                    </p>
+        </div>
 
-                    <small>
-                        ${item.id}
-                    </small>
-
-                </div>
-
-            `).join("");
+    `).join("");
 
     }
     catch(error){

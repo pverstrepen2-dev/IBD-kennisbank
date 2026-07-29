@@ -1773,6 +1773,16 @@ console.log(
         const result =
             await msalInstance.loginPopup({
 
+              console.log(
+    "LOGIN RESULT",
+    result
+);
+
+alert(
+    "Aangemeld als: " +
+    result.account.username
+);
+
                 scopes:[
                     "User.Read"
                 ]

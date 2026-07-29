@@ -1777,6 +1777,10 @@ const msalInstance =
 
         };
 
+        msalInstance.setActiveAccount(
+    response.account
+);
+
         updateUserInfo();
 
         document.getElementById(
@@ -1868,23 +1872,28 @@ async function getAccessToken(){
         msalInstance.getAllAccounts();
 
     console.log(
-        "Accounts:",
+        "ALLE ACCOUNTS:",
         accounts
+    );
+
+    console.log(
+        "ACTIEF ACCOUNT:",
+        msalInstance.getActiveAccount()
     );
 
     if(accounts.length === 0){
 
         throw new Error(
-            "Geen account gevonden"
+            "Geen account gevonden in MSAL"
         );
 
     }
 
     const response =
-
         await msalInstance.acquireTokenSilent({
 
-            account: accounts[0],
+            account:
+                accounts[0],
 
             scopes: [
                 "User.Read",

@@ -2670,10 +2670,34 @@ async function loadOneDriveFiles(){
             await response.json();
 
         console.log(
-            "GRAPH RESPONSE:",
-            data
-        );
+    "GRAPH RESPONSE:",
+    data
+);
 
+data.value.forEach(item => {
+
+    console.log(
+        item.name,
+        item.id
+    );
+
+});
+document.getElementById(
+    "resultsContainer"
+).innerHTML =
+
+    data.value.map(item => `
+
+        <div class="card">
+
+            <b>${item.name}</b>
+            <br>
+
+            ${item.folder ? "📁 Map" : "📄 Bestand"}
+
+        </div>
+
+    `).join("");
     }
     catch(error){
 

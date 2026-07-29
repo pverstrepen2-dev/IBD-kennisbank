@@ -1754,6 +1754,29 @@ const msalInstance =
     new msal.PublicClientApplication(
         msalConfig
     );
+msalInstance.handleRedirectPromise()
+.then(response => {
+
+    if(response){
+
+        currentUser = {
+
+            name: response.account.name,
+            email: response.account.username
+
+        };
+
+        updateUserInfo();
+
+        console.log(
+            "Aangemeld:",
+            response.account.username
+        );
+
+    }
+
+})
+.catch(console.error);
 
 async function initializeMSAL(){
 
@@ -1763,54 +1786,17 @@ async function initializeMSAL(){
 
 async function loginMicrosoft(){
 
-    await initializeMSAL();
-
     try{
 
-        console.log(
-            "MSAL login gestart"
-        );
+        await initializeMSAL();
 
-        const result =
-            await msalInstance.loginRedirect({
+        await msalInstance.loginRedirect({
 
-                scopes:[
-                    "User.Read"
-                ]
+            scopes:[
+                "User.Read"
+            ]
 
-            });
-
-        console.log(
-            "LOGIN RESULT",
-            result
-        );
-
-        alert(
-            "Aangemeld als: " +
-            result.account.username
-        );
-
-        currentUser = {
-
-            name:
-                result.account.name,
-
-            email:
-                result.account.username
-
-        };
-
-        updateUserInfo();
-
-        document.getElementById(
-            "loginBtn"
-        ).style.display =
-            "none";
-
-        document.getElementById(
-            "logoutBtn"
-        ).style.display =
-            "inline-block";
+        });
 
     }
     catch(error){

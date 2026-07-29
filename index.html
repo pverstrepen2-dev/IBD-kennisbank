@@ -2653,6 +2653,16 @@ async function loadOneDriveFiles(){
         const data =
             await response.json();
 
+            console.log(
+    "GRAPH RESPONSE:",
+    data
+);
+
+alert(
+    "Aantal items: " +
+    (data.value?.length || 0)
+);
+
         document.getElementById(
     "resultsContainer"
 ).innerHTML =

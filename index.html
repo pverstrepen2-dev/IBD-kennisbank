@@ -1814,9 +1814,40 @@ async function loginMicrosoft(){
 
 }
 
-function logoutMicrosoft(){
+async function logoutMicrosoft(){
 
-    msalInstance.logoutPopup();
+    try{
+
+        currentUser = null;
+
+        updateUserInfo();
+
+        document.getElementById(
+            "loginBtn"
+        ).style.display =
+            "inline-block";
+
+        document.getElementById(
+            "logoutBtn"
+        ).style.display =
+            "none";
+
+        await msalInstance.logoutRedirect({
+
+            postLogoutRedirectUri:
+                "https://pverstrepen2-dev.github.io/IBD-kennisbank/"
+
+        });
+
+    }
+    catch(error){
+
+        console.error(
+            "Logout fout:",
+            error
+        );
+
+    }
 
 }
 

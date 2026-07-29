@@ -5951,18 +5951,21 @@ docs.forEach(doc => {
 </div>
 `;
 
-   }else{
+        }else{
 
     let bestand = doc.bestand || "";
 
-   html += `
-<div class="card">
-    <h3>${doc.titel || ""}</h3>
+    html += `
+    <div class="card">
+        <h3>${doc.titel || ""}</h3>
 
-    ${bestand}
+        <a href="${bestand}"
+           targetnt
 
-</div>
-`;
+        </a>
+
+    </div>
+    `;
 }
 
     });
@@ -9428,8 +9431,8 @@ function countDocumentsByCategory(
 
 }
 
-   function renderDocuments(){
-
+    function renderDocuments(){
+      
     const container =
         document.getElementById(
             "documentsContainer"
@@ -9437,59 +9440,67 @@ function countDocumentsByCategory(
 
     let html = "";
 
-    // Groepeer op categorie i.p.v. subcategorie
-    const folders = [
+    const folders =
+    [
         ...new Set(
             knowledgeData
-                .map(d => d.categorie)
+                .map(d => d.subcategorie)
                 .filter(Boolean)
         )
-    ].sort();
+    ];
+
+knowledgeData =
+[
+    ...new Map(
+        knowledgeData.map(
+            item => [
+                item.titel,
+                item
+            ]
+        )
+    ).values()
+];
 
     folders.forEach(folder => {
 
         html += `
         <div class="card">
+
             <details>
-                <summary style="
-                    cursor:pointer;
-                    font-weight:bold;
-                    font-size:18px;
-                ">
-                    📁 ${folder}
-                </summary>
+    <summary
+        style="
+            cursor:pointer;
+            font-weight:bold;
+            font-size:18px;
+        "
+    >
+        📁 ${folder}
+    </summary>
         `;
 
-        const docsInFolder =
-            knowledgeData.filter(
-                d => d.categorie === folder
-            );
+        knowledgeData
+        .filter(
+            d => d.subcategorie === folder
+        )
+       .forEach(doc => {
 
-        console.log(
-            folder,
-            docsInFolder.length
-        );
+    console.log(doc.bestand);
 
-        docsInFolder.forEach(doc => {
-
-            let url = doc.bestand || "";
-
-            html += `
-                <div style="
-                    margin-left:20px;
-                    padding:5px;
-                ">
-                    ${url}
-                        📄 ${doc.titel}
-                    </a>
-                </div>
-            `;
-        });
+    html += `
+<div
+    style="
+        margin-left:20px;
+        padding:5px;
+    "
+>
+    ${doc.bestand}
+</div>
+`;
+});
 
         html += `
-            </details>
-        </div>
-        `;
+</details>
+`;
     });
 
     container.innerHTML = html;

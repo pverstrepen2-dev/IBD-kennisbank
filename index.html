@@ -1760,35 +1760,38 @@ const msalInstance =
     await msalInstance.initialize();
 
     msalInstance.handleRedirectPromise()
+.then(response => {
 
-    .then(response => {
+    if(response){
 
-        if(response){
+        currentUser = {
 
-            currentUser = {
+            name: response.account.name,
+            email: response.account.username
 
-                name:
-                    response.account.name,
+        };
 
-                email:
-                    response.account.username
+        updateUserInfo();
 
-            };
+        document.getElementById(
+            "loginBtn"
+        ).style.display =
+            "none";
 
-            updateUserInfo();
+        document.getElementById(
+            "logoutBtn"
+        ).style.display =
+            "inline-block";
 
-            console.log(
-                "Aangemeld:",
-                response.account.username
-            );
+        console.log(
+            "Aangemeld:",
+            response.account.username
+        );
 
-        }
+    }
 
-    })
-
-    .catch(console.error);
-
-})();
+})
+.catch(console.error);
 
 async function loginMicrosoft(){
 

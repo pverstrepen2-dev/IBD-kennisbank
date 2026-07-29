@@ -9441,13 +9441,13 @@ function countDocumentsByCategory(
     let html = "";
 
     const folders =
-    [
-        ...new Set(
-            knowledgeData
-                .map(d => d.subcategorie)
-                .filter(Boolean)
-        )
-    ];
+[
+    ...new Set(
+        knowledgeData
+            .map(d => d.categorie)
+            .filter(Boolean)
+    )
+];
 
 knowledgeData =
 [
@@ -9479,9 +9479,9 @@ knowledgeData =
         `;
 
         knowledgeData
-        .filter(
-            d => d.subcategorie === folder
-        )
+       .filter(
+    d => d.categorie === folder
+)
        .forEach(doc => {
 
     console.log(doc.bestand);

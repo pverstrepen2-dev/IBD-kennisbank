@@ -2929,12 +2929,18 @@ async function openDriveFolder(folderId){
                 }
             );
 
-        const data = await response.json();
+        const data =
+            await response.json();
 
-console.log("STATUS:", response.status);
-console.log("MAP INHOUD:", data);
+        console.log(
+            "MAP INHOUD:",
+            data
+        );
+
+        console.log("STATUS:", response.status);
 
 if (!response.ok) {
+    console.error("GRAPH FOUT:", data);
     throw new Error(JSON.stringify(data));
 }
 
@@ -2952,7 +2958,11 @@ if (!data.value) {
     <div
         class="card"
         style="cursor:pointer;"
-        onclick="openDriveFolder('${item.id}')"
+        onclick="${
+    item.folder
+      ? `openDriveFolder('${item.id}')`
+      : `openFile('${item.id}')`
+}"
     >
 
         <h3>
@@ -3010,6 +3020,32 @@ function renderDriveItems(items){
 
         `).join("");
 
+}
+
+async function openFile(fileId){
+    try{
+        const token = await getAccessToken();
+
+        const response = await fetch(
+            `https://graph.microsoft.com/v1.0/me/drive/items/${fileId}`,
+            {
+                headers:{
+                    Authorization: "Bearer " + token
+                }
+            }
+        );
+
+        const file = await response.json();
+
+        console.log("BESTAND:", file);
+
+        if(file.webUrl){
+            window.open(file.webUrl, "_blank");
+        }
+    }
+    catch(error){
+        console.error("BESTAND FOUT:", error);
+    }
 }
 
 

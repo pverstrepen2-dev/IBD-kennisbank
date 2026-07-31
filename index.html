@@ -2929,13 +2929,19 @@ async function openDriveFolder(folderId){
                 }
             );
 
-        const data =
-            await response.json();
+        const data = await response.json();
 
-        console.log(
-            "MAP INHOUD:",
-            data
-        );
+console.log("STATUS:", response.status);
+console.log("MAP INHOUD:", data);
+
+if (!response.ok) {
+    throw new Error(JSON.stringify(data));
+}
+
+if (!data.value) {
+    console.error("Geen value ontvangen:", data);
+    return;
+}
 
         document.getElementById(
     "driveExplorer"

@@ -508,11 +508,17 @@
           <div class="title">Voeding</div>
           <div class="desc">Dieet</div>
         </div>
-        <div class="disease-btn gutflix" onclick="selectHoofdgroep('gutflix')">
-          <div class="icon">🎬</div>
-          <div class="title">GutFlix</div>
-          <div class="desc">Video's</div>
-        </div>
+        
+        <div
+  class="disease-btn gutflix"
+  onclick="selectHoofdgroep('gutflix')"
+  style="display:none;"
+>
+  <div class="icon">🎬</div>
+  <div class="title">GutFlix</div>
+  <div class="desc">Video's</div>
+</div>
+
         <div class="disease-btn ccv" onclick="selectHoofdgroep('ccv')">
           <div class="icon">🤝</div>
           <div class="title">CCV-VZW</div>
@@ -526,7 +532,15 @@
       <button class="tab-btn" onclick="switchTab(event, 'categories')">📂 Categorieën</button>
       <button class="tab-btn" onclick="switchTab(event, 'search')">🔍 Zoeken</button>
       <button class="tab-btn" onclick="switchTab(event, 'faq')">❓ FAQ</button>
-      <button class="tab-btn" onclick="switchTab(event, 'gutflix')">🎬 GutFlix</button>
+
+      <button
+    class="tab-btn"
+    onclick="switchTab(event, 'gutflix')"
+    style="display:none;"
+>
+    🎬 GutFlix
+</button>
+
       <button class="tab-btn" onclick="switchTab(event, 'voeding')">🍎 Voeding</button>
       <button class="tab-btn" onclick="switchTab(event, 'ccvtab')">🤝 CCV-VZW</button>
       <button class="tab-btn" onclick="switchTab(event, 'add')">➕ Toevoegen</button>
@@ -616,7 +630,11 @@
     </div>
 
     <!-- GutFlix -->
-    <div id="gutflix" class="tab-content">
+    <div
+    id="gutflix"
+    class="tab-content"
+    style="display:none;"
+>
       <div class="admin-section">
         <div class="admin-title">🎬 GutFlix</div>
         <p class="notice">Deze tab is behouden als placeholder. Je kunt hier later je UEG/GutFlix-items verder aan koppelen.</p>
@@ -1006,12 +1024,7 @@ const faqData = {
     "Wat is de 4-7-8 techniek?"
   ],
 
-  gutflix: [
-    "Wat is GutFlix?",
-    "Welke video's zijn het meest bekeken?"
-  ],
-
-  ccv: [
+   ccv: [
     "Wat is CCV-VZW?",
     "Hoe word ik lid?",
     "Welke werkgroepen bestaan er?"
@@ -1268,7 +1281,7 @@ function openDashboardView(type){
         'Mindfulness': ['Mindfulness', 'Dagelijks Leven', 'Ademhalingsoefeningen', 'Meditatie', 'BodyScan','Stressmanagement','Ontspanningsoefeningen'
 ],
         'Voeding': ['Voeding', 'Dagelijks Leven'],
-        'GutFlix': ['Onderzoek'],
+        // 'GutFlix': ['Onderzoek'],
         'CCV-VZW': ['Website']
       };
 

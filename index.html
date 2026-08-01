@@ -822,12 +822,52 @@
     📁 OneDrive Verkenner
 </div>
 
+<!-- TERUGKNOP -->
+<div id="driveNavigation" style="margin-bottom:15px;">
+
+    <button
+        id="backBtn"
+        class="btn btn-secondary"
+        onclick="goBackFolder()"
+        style="display:none;"
+    >
+        ← Terug
+    </button>
+
+    <div
+        id="breadcrumb"
+        style="
+            margin-top:10px;
+            font-weight:bold;
+            color:#555;
+        "
+    >
+        🏠 Home
+    </div>
+
+    <div
+        id="currentFolder"
+        style="
+            margin-top:8px;
+            padding:10px;
+            background:#f4f6fa;
+            border-radius:8px;
+            display:none;
+        "
+    >
+        📂 Huidige map:
+    </div>
+
+</div>
+
 <button
     class="btn btn-primary"
     onclick="loadCCVSubFolders()"
 >
     🤝 Open CCV-VZW
 </button>
+
+<hr style="margin:15px 0;">
 
 <div
     id="driveExplorer"
@@ -875,8 +915,16 @@
    let currentHoofdgroep = 'crohn';
     let websitesOnly = false;
     let favoritesOnly = false;
-    let currentDriveFolder =
-    null;
+    let currentDriveFolder = null;
+
+let folderHistory = [];
+
+let breadcrumbPath = [
+    {
+        id:'root',
+        name:'CCV-VZW'
+    }
+];
 
     const categoryInfo = {
       'Symptomen': { icon: '🩺', desc: 'Herkenbare klachten en symptomen', sections: ['Crohn', 'Colitis Ulcerosa', 'Algemeen IBD'] },
@@ -2845,6 +2893,16 @@ async function loadCCVSubFolders(){
             "CCV SUBFOLDERS:",
             data
         );
+
+        breadcrumbPath = [
+    {
+        id: folderId,
+        name: "CCV-VZW"
+    }
+];
+
+updateBreadcrumb();
+
         console.log(
     "driveExplorer element:",
     document.getElementById(
@@ -2876,11 +2934,11 @@ data.value.forEach(item => {
         <div
             class="card"
             style="cursor:pointer;"
-            onclick="${
-                item.folder
-                ? `openDriveFolder('${item.id}')`
-                : ''
-            }"
+           onclick="${
+    item.folder
+    ? `openDriveFolder('${item.id}','${item.name}')`
+    : ''
+}"
         >
 
             <h3>
@@ -2904,7 +2962,83 @@ data.value.forEach(item => {
 
 }
 
-async function openDriveFolder(folderId){
+function updateBreadcrumb(){
+
+    document.getElementById(
+        "breadcrumb"
+    ).innerHTML =
+        "🏠 Home > " +
+        breadcrumbPath
+        .map(x => x.name)
+        .join(" > ");
+
+    const current =
+        breadcrumbPath[
+            breadcrumbPath.length - 1
+        ];
+
+    document.getElementById(
+        "currentFolder"
+    ).style.display = "block";
+
+    document.getElementById(
+        "currentFolder"
+    ).innerHTML =
+        "📂 Huidige map: "
+        + current.name;
+
+    document.getElementById(
+        "backBtn"
+    ).style.display =
+        breadcrumbPath.length > 1
+        ? "inline-block"
+        : "none";
+}
+
+async function goBackFolder(){
+
+    if(folderHistory.length === 0){
+        return;
+    }
+
+    folderHistory.pop();
+
+    breadcrumbPath.pop();
+
+    const previous =
+        folderHistory[
+            folderHistory.length - 1
+        ];
+
+    if(previous){
+        openDriveFolder(
+            previous.id,
+            false
+        );
+    }
+    else{
+        loadCCVSubFolders();
+    }
+
+    updateBreadcrumb();
+}
+
+function updateBreadcrumb(){
+
+    document.getElementById(
+        "breadcrumb"
+    ).innerHTML =
+        "🏠 Home > " +
+        breadcrumbPath
+          .map(x => x.name)
+          .join(" > ");
+
+}
+
+async function openDriveFolder(
+    folderId,
+    folderName
+){
 
     console.log(
         "OPEN MAP:",
@@ -2932,6 +3066,12 @@ async function openDriveFolder(folderId){
         const data =
             await response.json();
 
+        breadcrumbPath.push({
+    id: folderId,
+    name: folderName
+});
+        
+
         console.log(
             "MAP INHOUD:",
             data
@@ -2949,6 +3089,8 @@ if (!data.value) {
     return;
 }
 
+updateBreadcrumb();
+
         document.getElementById(
     "driveExplorer"
 ).innerHTML =
@@ -2960,7 +3102,7 @@ if (!data.value) {
         style="cursor:pointer;"
         onclick="${
     item.folder
-      ? `openDriveFolder('${item.id}')`
+      ? `openDriveFolder('${item.id}','${item.name}')`
       : `openFile('${item.id}')`
 }"
     >

@@ -551,8 +551,20 @@
     🎬 GutFlix
 </button>
 
-      <button class="tab-btn" onclick="switchTab(event, 'voeding')">🍎 Voeding</button>
-      <button class="tab-btn" onclick="switchTab(event, 'ccvtab')">🤝 CCV-VZW</button>
+     <button
+    class="tab-btn"
+    onclick="switchTab(event, 'voeding')"
+    style="display:none;"
+>
+🍎 Voeding
+</button>
+     <button
+    class="tab-btn"
+    onclick="switchTab(event, 'ccvtab')"
+    style="display:none;"
+>
+🤝 CCV-VZW
+</button>
       <button class="tab-btn" onclick="switchTab(event, 'add')">➕ Toevoegen</button>
       <button class="tab-btn" onclick="switchTab(event, 'manage')">⚙️ Beheer</button>
       <button class="tab-btn" onclick="switchTab(event, 'backup')">💾 Backup</button>
@@ -1169,6 +1181,48 @@ microscopic: [
       updateCategoryGrid();
       performSearch();
       renderFaqByGroup(disease);
+      
+      if(disease === 'voeding'){
+
+    document
+        .getElementById('voeding')
+        .classList.add('active');
+
+    document
+        .querySelectorAll('.tab-content')
+        .forEach(el => {
+
+            if(el.id !== 'voeding'){
+                el.classList.remove('active');
+            }
+
+        });
+
+    renderVoeding('dieet');
+
+    return;
+}
+
+if(disease === 'ccv'){
+
+    document
+        .getElementById('ccvtab')
+        .classList.add('active');
+
+    document
+        .querySelectorAll('.tab-content')
+        .forEach(el => {
+
+            if(el.id !== 'ccvtab'){
+                el.classList.remove('active');
+            }
+
+        });
+
+    renderCCV('taken');
+
+    return;
+}
       document.getElementById('activeGroup').innerText =
   '📂 Actieve hoofdgroep: ' + disease;
     }
@@ -1315,6 +1369,29 @@ function openDashboardView(type){
 }
 
     function updateCategoryGrid() {
+      if(
+    currentHoofdgroep === 'voeding'
+){
+
+    document.getElementById(
+        'categoryGrid'
+    ).innerHTML = '';
+
+    return;
+
+}
+
+if(
+    currentHoofdgroep === 'ccv'
+){
+
+    document.getElementById(
+        'categoryGrid'
+    ).innerHTML = '';
+
+    return;
+
+}
       const data = getFilteredData();
       const allowed = getAllowedSections();
 

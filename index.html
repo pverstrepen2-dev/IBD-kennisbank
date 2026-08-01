@@ -21,6 +21,8 @@
       --ibd: #9b59b6;
       --mindfulness: #8e44ad;
       --voeding: #27ae60;
+      --zorggids: #16a085;
+      --sociaal: #2980b9;
       --gutflix: #e67e22;
       --success: #27ae60;
       --warning: #f39c12;
@@ -134,6 +136,21 @@
     .disease-btn.gutflix.active { background: var(--gutflix); }
     .disease-btn.ccv { border-color: var(--secondary); }
     .disease-btn.ccv.active { background: var(--secondary); }
+    .disease-btn.zorg {
+ border-color: var(--zorggids);
+}
+
+.disease-btn.zorg.active {
+ background: var(--zorggids);
+}
+
+.disease-btn.sociaal {
+ border-color: var(--sociaal);
+}
+
+.disease-btn.sociaal.active {
+ background: var(--sociaal);
+}
 
     .icon { font-size: 22px; margin-bottom: 8px; }
     .title { font-size: 14px; font-weight: 700; }
@@ -518,6 +535,22 @@
           <div class="title">Voeding</div>
           <div class="desc">Dieet</div>
         </div>
+        <div class="disease-btn zorg"
+     onclick="selectHoofdgroep('zorg')">
+
+  <div class="icon">🏥</div>
+  <div class="title">Zorggids</div>
+  <div class="desc">Zorgverleners</div>
+
+</div>
+<div class="disease-btn sociaal"
+     onclick="selectHoofdgroep('sociaal')">
+
+  <div class="icon">⚖️</div>
+  <div class="title">Sociale Gids</div>
+  <div class="desc">Rechten & ondersteuning</div>
+
+</div>
         
         <div
   class="disease-btn gutflix"
@@ -767,6 +800,19 @@ Microscopische Colitis
                 <label><input type="checkbox" name="disease" value="Algemeen IBD"> Algemeen IBD</label>
                 <label><input type="checkbox" name="disease" value="Mindfulness"> Mindfulness</label>
                 <label><input type="checkbox" name="disease" value="Voeding"> Voeding</label>
+                <label>
+<input type="checkbox"
+       name="disease"
+       value="Zorggids">
+Zorggids
+</label>
+
+<label>
+<input type="checkbox"
+       name="disease"
+       value="Sociale Gids">
+Sociale Gids
+</label>
                 <label><input type="checkbox" name="disease" value="GutFlix"> GutFlix</label>
                 <label><input type="checkbox" name="disease" value="CCV-VZW"> CCV-VZW</label>
               </div>
@@ -1002,6 +1048,8 @@ let breadcrumbPath = [
   sections: ['Crohn', 'Colitis Ulcerosa', 'Algemeen IBD'] 
 },
 
+
+
 'Ziekteverloop': { 
   icon: '🔄', 
   desc: 'Hoe IBD evolueert', 
@@ -1082,6 +1130,79 @@ let breadcrumbPath = [
   sections: ['Microscopische Colitis']
 }
 
+,
+
+'IBD Centra': {
+ icon:'🏥',
+ desc:'Expertisecentra',
+ sections:['Zorggids']
+},
+
+'Ziekenhuizen': {
+ icon:'🏨',
+ desc:'Ziekenhuizen',
+ sections:['Zorggids']
+},
+
+'Gastro-enterologen': {
+ icon:'👨‍⚕️',
+ desc:'Specialisten',
+ sections:['Zorggids']
+},
+
+'IBD Verpleegkundigen': {
+ icon:'👩‍⚕️',
+ desc:'Verpleegkundigen',
+ sections:['Zorggids']
+},
+
+'Diëtisten': {
+ icon:'🥗',
+ desc:'Voedingsspecialisten',
+ sections:['Zorggids']
+},
+
+'Psychologen': {
+ icon:'🧠',
+ desc:'Mentale ondersteuning',
+ sections:['Zorggids']
+},
+
+'Patiëntenrechten': {
+ icon:'⚖️',
+ desc:'Rechten',
+ sections:['Sociale Gids']
+},
+
+'Invaliditeit': {
+ icon:'♿',
+ desc:'Arbeidsongeschiktheid',
+ sections:['Sociale Gids']
+},
+
+'Werk': {
+ icon:'💼',
+ desc:'Werk & IBD',
+ sections:['Sociale Gids']
+},
+
+'Studie': {
+ icon:'🎓',
+ desc:'Onderwijs',
+ sections:['Sociale Gids']
+},
+
+'Terugbetalingen': {
+ icon:'💰',
+ desc:'Mutualiteiten',
+ sections:['Sociale Gids']
+},
+
+'Attesten': {
+ icon:'📄',
+ desc:'Documenten',
+ sections:['Sociale Gids']
+}
     };
 
 const faqData = {
@@ -1181,7 +1302,7 @@ microscopic: [
       updateCategoryGrid();
       performSearch();
       renderFaqByGroup(disease);
-      
+
       if(disease === 'voeding'){
 
     document
@@ -1251,6 +1372,8 @@ if(disease === 'ccv'){
         ibd: ['Algemeen IBD', 'Crohn', 'Colitis Ulcerosa'],
         mindfulness: ['Mindfulness'],
         voeding: ['Voeding'],
+        zorg:['Zorggids'],
+        sociaal:['Sociale Gids'],
         gutflix: ['GutFlix'],
         ccv: ['CCV-VZW']
       };
@@ -1471,6 +1594,28 @@ if(
 
         'Algemeen IBD': ['Symptomen', 'Diagnose', 'Behandeling', 'Medicatie', 'Dagelijks Leven', 'Onderzoek', 'Patiëntenrechten'],
         'Mindfulness': ['Mindfulness', 'Dagelijks Leven', 'Ademhalingsoefeningen', 'Meditatie', 'BodyScan','Stressmanagement','Ontspanningsoefeningen'
+],
+
+'Zorggids': [
+
+'IBD Centra',
+'Ziekenhuizen',
+'Gastro-enterologen',
+'IBD Verpleegkundigen',
+'Diëtisten',
+'Psychologen'
+
+],
+
+'Sociale Gids': [
+
+'Patiëntenrechten',
+'Invaliditeit',
+'Werk',
+'Studie',
+'Terugbetalingen',
+'Attesten'
+
 ],
         'Voeding': ['Voeding', 'Dagelijks Leven'],
         // 'GutFlix': ['Onderzoek'],

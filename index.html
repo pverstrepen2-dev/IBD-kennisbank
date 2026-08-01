@@ -2460,7 +2460,22 @@ function saveProject(){
         )
     }
   );
+createProjectFolder(
+    p_title.value
+);
+}
 
+async function createProjectFolder(
+    title
+){
+
+    const projectFolderId =
+        "ID_VAN_PROJECTEN_MAP";
+
+    await createCCVFolder(
+        projectFolderId,
+        title
+    );
 }
 
 function saveMeeting(){
@@ -2486,7 +2501,28 @@ function saveMeeting(){
         )
     }
   );
+  createMeetingFolder(
+    m_title.value,
+    m_date.value
+);
 
+}
+
+async function createMeetingFolder(
+    title,
+    date
+){
+
+    const meetingsFolderId =
+        "ID_VAN_VERGADERINGEN_MAP";
+
+    const folderName =
+        title + "_" + date;
+
+    await createCCVFolder(
+        meetingsFolderId,
+        folderName
+    );
 }
 
 // =========================
@@ -3511,6 +3547,37 @@ function renderDriveItems(items){
 
         `).join("");
 
+}
+
+async function createCCVFolder(
+    parentFolderId,
+    folderName
+){
+
+    const token =
+        await getAccessToken();
+
+    const response =
+        await fetch(
+            `https://graph.microsoft.com/v1.0/me/drive/items/${parentFolderId}/children`,
+            {
+                method: "POST",
+                headers: {
+                    Authorization:
+                        "Bearer " + token,
+                    "Content-Type":
+                        "application/json"
+                },
+                body: JSON.stringify({
+                    name: folderName,
+                    folder: {},
+                    "@microsoft.graph.conflictBehavior":
+                        "rename"
+                })
+            }
+        );
+
+    return await response.json();
 }
 
 async function openFile(fileId){

@@ -682,6 +682,7 @@
       <option value="taken">📋 Taken</option>
       <option value="werkgroepen">👥 Werkgroepen</option>
       <option value="vergaderingen">🗓️ Vergaderingen</option>
+      <option value="projecten">📁 Projecten</option>
       <option value="documenten">📄 Documenten</option>
       <option value="leden">👤 Leden</option>
     </select>
@@ -698,6 +699,7 @@
           <option value="taken">📋 Taak</option>
           <option value="werkgroepen">👥 Werkgroep</option>
           <option value="vergaderingen">🗓️ Vergadering</option>
+          <option value="projecten">📁 Project</option>
           <option value="documenten">📄 Document</option>
           <option value="leden">👤 Lid</option>
         </select>
@@ -719,6 +721,10 @@
       <button class="tab-btn active" onclick="switchCCVTab(event,'taken')">📋 Taken</button>
       <button class="tab-btn" onclick="switchCCVTab(event,'werkgroepen')">👥 Werkgroepen</button>
       <button class="tab-btn" onclick="switchCCVTab(event,'vergaderingen')">🗓️ Vergaderingen</button>
+      <button class="tab-btn"
+onclick="switchCCVTab(event,'projecten')">
+📁 Projecten
+</button>
       <button class="tab-btn" onclick="switchCCVTab(event,'documenten')">📄 Documenten</button>
       <button class="tab-btn" onclick="switchCCVTab(event,'leden')">👤 Leden</button>
     </div>
@@ -2189,6 +2195,7 @@ function renderCCV(tab){
   if(tab==='taken') renderTaken();
   if(tab==='werkgroepen') renderWG();
   if(tab==='vergaderingen') renderMeetings();
+  if(tab==='projecten') renderProjects();
   if(tab==='documenten') renderDocs();
   if(tab==='leden') renderMembers();
 }
@@ -2321,6 +2328,14 @@ function renderMeetings(){
   <input type="date" id="m_date">
   <textarea id="m_agenda" placeholder="Agendapunten"></textarea>
   <textarea id="m_notes" placeholder="Verslag"></textarea>
+  <br>
+
+<label>📎 Bijlagen</label>
+
+<input
+    type="file"
+    id="m_attachment"
+    multiple>
   <button onclick="saveMeeting()">Opslaan</button>
 
   <h3>Overzicht</h3>
@@ -2332,19 +2347,146 @@ function renderMeetings(){
       📅 ${d.date}<br>
       📌 ${d.agenda}<br>
       📝 ${d.notes}
+      ${
+d.attachments
+?
+'<br><br>📎 '
++
+d.attachments.join('<br>📎 ')
+:
+''
+}
     </div>`;
   });
 
   document.getElementById('ccvContent').innerHTML = html;
 }
 
-function saveMeeting(){
-  addCCV('vergaderingen',{
-    title: m_title.value,
-    date: m_date.value,
-    agenda: m_agenda.value,
-    notes: m_notes.value
+function renderProjects(){
+
+  const data =
+    loadCCV()
+    .filter(x => x.type === 'projecten');
+
+  let html = `
+    <h3>Nieuw project</h3>
+
+    <input
+      id="p_title"
+      placeholder="Projectnaam">
+
+    <input
+      id="p_owner"
+      placeholder="Verantwoordelijke">
+
+    <input
+      id="p_status"
+      placeholder="Status">
+
+    <textarea
+      id="p_notes"
+      placeholder="Beschrijving">
+    </textarea>
+
+    <br>
+
+<label>📎 Bijlagen</label>
+
+<input
+    type="file"
+    id="p_attachment"
+    multiple>
+
+    <button
+      onclick="saveProject()">
+      Opslaan
+    </button>
+
+    <h3>Overzicht</h3>
+  `;
+
+  data.forEach(p => {
+
+    html += `
+      <div class="card">
+
+        <b>${p.title}</b><br>
+
+        👤 ${p.owner}<br>
+
+        📌 ${p.status}<br>
+
+        📝 ${p.notes}
+        ${
+p.attachments
+?
+'<br><br>📎 '
++
+p.attachments.join('<br>📎 ')
+:
+''
+}
+
+      </div>
+    `;
+
   });
+
+  document.getElementById(
+      'ccvContent'
+  ).innerHTML = html;
+}
+
+function saveProject(){
+
+  const files =
+    Array.from(
+      document.getElementById(
+        "p_attachment"
+      ).files
+    );
+
+  addCCV(
+    'projecten',
+    {
+      title: p_title.value,
+      owner: p_owner.value,
+      status: p_status.value,
+      notes: p_notes.value,
+
+      attachments:
+        files.map(
+          f => f.name
+        )
+    }
+  );
+
+}
+
+function saveMeeting(){
+
+  const files =
+    Array.from(
+      document.getElementById(
+        "m_attachment"
+      ).files
+    );
+
+  addCCV(
+    'vergaderingen',
+    {
+      title: m_title.value,
+      date: m_date.value,
+      agenda: m_agenda.value,
+      notes: m_notes.value,
+
+      attachments:
+        files.map(
+          f => f.name
+        )
+    }
+  );
+
 }
 
 // =========================
@@ -2469,6 +2611,39 @@ function renderCCVForm() {
       <button onclick="saveCCVUniversal('vergaderingen')">Opslaan</button>
     `;
   }
+
+  if(type === 'projecten'){
+
+  html = `
+
+    <input
+      id="f_title"
+      placeholder="Projectnaam">
+
+    <input
+      id="f_owner"
+      placeholder="Projectleider">
+
+    <input
+      id="f_status"
+      placeholder="Status">
+
+    <textarea
+      id="f_notes"
+      placeholder="Beschrijving">
+    </textarea>
+
+    <button
+      onclick="
+        saveCCVUniversal(
+          'projecten'
+        )
+      ">
+      Opslaan
+    </button>
+
+  `;
+}
 
   if(type === 'documenten'){
     html = `
@@ -2626,6 +2801,22 @@ function saveCCVUniversal(type){
       notes: f_notes.value
     };
   }
+
+if(type==='projecten'){
+
+  obj = {
+
+    title: f_title.value,
+
+    owner: f_owner.value,
+
+    status: f_status.value,
+
+    notes: f_notes.value
+
+  };
+
+}
 
   if(type==='documenten'){
     obj = {

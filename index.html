@@ -2964,35 +2964,66 @@ data.value.forEach(item => {
 
 function updateBreadcrumb(){
 
+    let html =
+        `<span
+            style="
+                cursor:pointer;
+                color:#667eea;
+                font-weight:bold;
+            "
+            onclick="loadCCVSubFolders()"
+        >
+            🏠 Home
+        </span>`;
+
+    breadcrumbPath.forEach(
+        (item,index) => {
+
+            html +=
+                ` > <span
+                    style="
+                        cursor:pointer;
+                        color:#667eea;
+                    "
+                    onclick="
+                        navigateBreadcrumb(
+                            ${index + 1}
+                        )
+                    "
+                >
+                    ${item.name}
+                </span>`;
+        }
+    );
+
     document.getElementById(
         "breadcrumb"
-    ).innerHTML =
-        "🏠 Home > " +
-        breadcrumbPath
-        .map(x => x.name)
-        .join(" > ");
+    ).innerHTML = html;
+}
 
-    const current =
-        breadcrumbPath[
-            breadcrumbPath.length - 1
-        ];
+function navigateBreadcrumb(index){
 
-    document.getElementById(
-        "currentFolder"
-    ).style.display = "block";
+    if(index === 0){
 
-    document.getElementById(
-        "currentFolder"
-    ).innerHTML =
-        "📂 Huidige map: "
-        + current.name;
+        loadCCVSubFolders();
+        return;
 
-    document.getElementById(
-        "backBtn"
-    ).style.display =
-        breadcrumbPath.length > 1
-        ? "inline-block"
-        : "none";
+    }
+
+    const target =
+        breadcrumbPath[index - 1];
+
+    breadcrumbPath =
+        breadcrumbPath.slice(
+            0,
+            index
+        );
+
+    openDriveFolder(
+        target.id,
+        target.name,
+        false
+    );
 }
 
 async function goBackFolder(){
@@ -3037,7 +3068,8 @@ function updateBreadcrumb(){
 
 async function openDriveFolder(
     folderId,
-    folderName
+    folderName,
+    addToBreadcrumb = true
 ){
 
     console.log(
@@ -3066,10 +3098,14 @@ async function openDriveFolder(
         const data =
             await response.json();
 
-        breadcrumbPath.push({
-    id: folderId,
-    name: folderName
-});
+        if(addToBreadcrumb){
+
+    breadcrumbPath.push({
+        id: folderId,
+        name: folderName
+    });
+
+}
         
 
         console.log(

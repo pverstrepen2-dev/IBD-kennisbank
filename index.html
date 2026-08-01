@@ -493,6 +493,16 @@
           <div class="title">Colitis</div>
           <div class="desc">Colitis Ulcerosa</div>
         </div>
+
+        <div class="disease-btn microscopic"
+     onclick="selectHoofdgroep('microscopic')">
+
+    <div class="icon">🔍</div>
+    <div class="title">Microscopische Colitis</div>
+    <div class="desc">Collagene & Lymfocytaire Colitis</div>
+
+</div>
+
         <div class="disease-btn ibd" onclick="selectHoofdgroep('ibd')">
           <div class="icon">💊</div>
           <div class="title">Alle IBD Info</div>
@@ -730,6 +740,12 @@
               <div style="display:flex; flex-direction:column; gap:6px; margin-top:8px;">
                 <label><input type="checkbox" name="disease" value="Crohn" checked> Crohn</label>
                 <label><input type="checkbox" name="disease" value="Colitis Ulcerosa"> Colitis Ulcerosa</label>
+                <label>
+<input type="checkbox"
+       name="disease"
+       value="Microscopische Colitis">
+Microscopische Colitis
+</label>
                 <label><input type="checkbox" name="disease" value="Algemeen IBD"> Algemeen IBD</label>
                 <label><input type="checkbox" name="disease" value="Mindfulness"> Mindfulness</label>
                 <label><input type="checkbox" name="disease" value="Voeding"> Voeding</label>
@@ -991,6 +1007,63 @@ let breadcrumbPath = [
   desc: 'Biologics en moderne behandelingen', 
   sections: ['Crohn', 'Colitis Ulcerosa'] 
 }
+
+,
+
+'Wat is Microscopische Colitis': {
+  icon: '🔍',
+  desc: 'Basisinformatie',
+  sections: ['Microscopische Colitis']
+},
+
+'Symptomen MC': {
+  icon: '🩺',
+  desc: 'Klachten en symptomen',
+  sections: ['Microscopische Colitis']
+},
+
+'Diagnose MC': {
+  icon: '🔬',
+  desc: 'Diagnose via biopten',
+  sections: ['Microscopische Colitis']
+},
+
+'Behandeling MC': {
+  icon: '💊',
+  desc: 'Behandelopties',
+  sections: ['Microscopische Colitis']
+},
+
+'Medicatie MC': {
+  icon: '💉',
+  desc: 'Medicijnen',
+  sections: ['Microscopische Colitis']
+},
+
+'Voeding MC': {
+  icon: '🍎',
+  desc: 'Voeding en dieet',
+  sections: ['Microscopische Colitis']
+},
+
+'Leven met MC': {
+  icon: '🏠',
+  desc: 'Dagelijks leven',
+  sections: ['Microscopische Colitis']
+},
+
+'Onderzoek MC': {
+  icon: '📊',
+  desc: 'Nieuw onderzoek',
+  sections: ['Microscopische Colitis']
+},
+
+'FAQ MC': {
+  icon: '❓',
+  desc: 'Veelgestelde vragen',
+  sections: ['Microscopische Colitis']
+}
+
     };
 
 const faqData = {
@@ -1005,6 +1078,19 @@ const faqData = {
     "Wat is het verschil met Crohn?",
     "Welke behandeling bestaat er?"
   ],
+
+microscopic: [
+
+"Wat is Microscopische Colitis?",
+"Wat is het verschil met Colitis Ulcerosa?",
+"Waarom zijn biopten noodzakelijk?",
+"Welke symptomen komen het meest voor?",
+"Welke medicatie wordt gebruikt?",
+"Kan voeding invloed hebben?",
+"Kan de ziekte in remissie gaan?",
+"Wat is het langetermijnverloop?"
+
+],
 
   ibd: [
     "Wat is IBD?",
@@ -1101,6 +1187,7 @@ const faqData = {
       const map = {
         crohn: ['Crohn'],
         colitis: ['Colitis Ulcerosa'],
+        microscopic: ['Microscopische Colitis'],
         ibd: ['Algemeen IBD', 'Crohn', 'Colitis Ulcerosa'],
         mindfulness: ['Mindfulness'],
         voeding: ['Voeding'],
@@ -1275,6 +1362,28 @@ function openDashboardView(type){
 ],
 
         'Colitis Ulcerosa': ['Symptomen','Diagnose','Behandeling','Medicatie','Complicaties','Operatie','Dagelijks Leven','Onderzoek','Patiëntenrechten','Oorzaken','Ziekteverloop','Flare-ups','Remissie','Biologische therapie'
+],
+
+'Microscopische Colitis': [
+
+'Wat is Microscopische Colitis',
+
+'Symptomen MC',
+
+'Diagnose MC',
+
+'Behandeling MC',
+
+'Medicatie MC',
+
+'Voeding MC',
+
+'Leven met MC',
+
+'Onderzoek MC',
+
+'FAQ MC'
+
 ],
 
         'Algemeen IBD': ['Symptomen', 'Diagnose', 'Behandeling', 'Medicatie', 'Dagelijks Leven', 'Onderzoek', 'Patiëntenrechten'],

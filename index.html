@@ -1828,8 +1828,12 @@ displayResults(result);
         ${item.type || 'Item'}
     </div>
 
-           <div class="result-title">${item.title || 'Geen titel'}</div>
-          <div class="result-meta">
+    <div class="result-title">
+
+        ${item.title || 'Geen titel'}
+
+    </div>
+         <div class="result-meta">
             ${item.url ? `<span class="result-badge website-pill">🌐 Website</span>` : ''}
             ${item.disease ? `<span class="result-badge">${item.disease}</span>` : ''}
             ${item.category ? `<span>${categoryInfo[item.category]?.icon || '📁'} ${item.category}</span>` : ''}

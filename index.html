@@ -1678,6 +1678,12 @@ if(
       console.log("performSearch gestart");
       const allData = getFilteredData();
       const searchTerm = (document.getElementById('searchInput')?.value || '').toLowerCase();
+      console.log("ZOEKTERM:", searchTerm);
+
+console.log(
+    "ALLDATA:",
+    allData.length
+);
       if(!searchTerm){
 
     document.getElementById(
@@ -1793,7 +1799,10 @@ try {
         if (websitesOnly && !item.url) return false;
         return true;
       });
-
+console.log(
+    "RESULT VOOR FAQ/CCV:",
+    result.length
+);
       if (sortBy === 'title') {
         result.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
       } else if (sortBy === 'category') {
@@ -1813,7 +1822,27 @@ try {
     ...voedingResults
 
 ];
+console.log(
+    "FAQ:",
+    faqResults.length
+);
 
+console.log(
+    "CCV:",
+    ccvResults.length
+);
+
+console.log(
+    "VOEDING:",
+    voedingResults.length
+);
+
+console.log(
+    "TOTAAL:",
+    result.length
+);
+
+console.log(result);
 displayResults(result);
     }
 

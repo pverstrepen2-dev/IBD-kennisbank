@@ -1678,6 +1678,18 @@ if(
       console.log("performSearch gestart");
       const allData = getFilteredData();
       const searchTerm = (document.getElementById('searchInput')?.value || '').toLowerCase();
+      if(!searchTerm){
+
+    document.getElementById(
+        'resultsContainer'
+    ).innerHTML = '';
+
+    document.getElementById(
+        'resultsCount'
+    ).textContent = '0 items';
+
+    return;
+}
       let faqResults = [];
 
 Object.entries(faqData).forEach(

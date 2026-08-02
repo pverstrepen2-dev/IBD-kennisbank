@@ -3845,15 +3845,15 @@ console.log("FETCH OK");
 const data =
     await response.json();
 
-await buildOneDriveIndex(
-    folderId,
-    token
-);
+//await buildOneDriveIndex(
+  //  folderId,
+  //  token
+//);
 
-console.log(
-    "ONEDRIVE INDEX:",
-    oneDriveIndex.length
-);
+//console.log(
+ //   "ONEDRIVE INDEX:",
+  //  oneDriveIndex.length
+//);
         console.log(
             "CCV SUBFOLDERS:",
             data
@@ -3926,6 +3926,7 @@ data.value.forEach(item => {
     }
 
 }
+
 const visitedFolders = new Set();
    async function buildOneDriveIndex(
     folderId,

@@ -1733,39 +1733,7 @@ try {
 } catch (e) {
     console.log("CCV nog niet geladen");
 }
-
-        JSON.stringify(item)
-
-        .toLowerCase()
-
-        .includes(searchTerm)
-
-        .map(item => ({
-
-        title:
-
-            item.title
-
-            ||
-
-            item.name
-
-            ||
-
-            'CCV Item',
-
-        category: 'CCV',
-
-        type: item.type,
-
-        source: 'CCV-VZW',
-
-        content:
-
-            JSON.stringify(item)
-
-    }));
-
+       
     const voedingResults =
 
     loadVoeding()
@@ -1850,8 +1818,7 @@ displayResults(result);
 
       container.innerHTML = data.slice(0, 100).map(item => `
         <div class="result-item">
-          <div class="result-item">
-
+          
     <div
         class="result-badge"
         style="
@@ -1861,12 +1828,7 @@ displayResults(result);
         ${item.type || 'Item'}
     </div>
 
-    <div class="result-title">
-
-        ${item.title || 'Geen titel'}
-
-    </div>
-          <div class="result-title">${item.title || 'Geen titel'}</div>
+           <div class="result-title">${item.title || 'Geen titel'}</div>
           <div class="result-meta">
             ${item.url ? `<span class="result-badge website-pill">🌐 Website</span>` : ''}
             ${item.disease ? `<span class="result-badge">${item.disease}</span>` : ''}

@@ -473,10 +473,9 @@
     </button>
 
     <button
+        class="btn btn-primary"
         onclick="logoutMicrosoft()"
-        id="logoutBtn"
-        style="display:none;"
-    >
+        id="logoutBtn">
         🚪 Afmelden
     </button>
 
@@ -2395,101 +2394,117 @@ function toggleFavoritesFilter() {
       URL.revokeObjectURL(a.href);
     }
 
-    function renderFaqByGroup(group){
+    async function renderFaqByGroup(group){
 
-  const titles = {
-    crohn: 'FAQ Crohn',
-    colitis: 'FAQ Colitis',
-    microscopic: 'FAQ MC',
-    voeding: 'FAQ Voeding',
-    mindfulness: 'FAQ Mindfulness',
-    zorg: 'FAQ Zorggids',
-    sociaal: 'FAQ Sociale Gids',
-    ccv: 'FAQ CCV-VZW'
-  };
+    const titles = {
+        crohn: 'FAQ Crohn',
+        colitis: 'FAQ Colitis',
+        microscopic: 'FAQ MC',
+        voeding: 'FAQ Voeding',
+        mindfulness: 'FAQ Mindfulness',
+        zorg: 'FAQ Zorggids',
+        sociaal: 'FAQ Sociale Gids',
+        ccv: 'FAQ CCV-VZW'
+    };
 
-  document.getElementById('faqTitle').innerText =
-      titles[group] || 'FAQ';
+    const faqTitle =
+        document.getElementById('faqTitle');
 
-  const faqCategory =
-      titles[group];
+    if(faqTitle){
 
-  const items =
-      loadData().filter(item =>
-          item.category === faqCategory
-      );
+        faqTitle.innerText =
+            titles[group] || 'FAQ';
+    }
 
-  const container =
-      document.getElementById('faqContainer');
+    const faqCategory =
+        titles[group];
 
-  if(!items.length){
+    const data =
+        await getKnowledgeData();
 
-      container.innerHTML =
-      '<div class="card">Nog geen FAQ beschikbaar.</div>';
+    const items =
+        data.filter(item =>
+            item.category === faqCategory
+        );
 
-      return;
-  }
+    const container =
+        document.getElementById('faqContainer');
 
-  container.innerHTML =
-      items.map((item,index)=>`
+    if(!container) return;
 
-          <div class="card">
+    if(items.length === 0){
 
-              <h3>${index+1}. ${item.title}</h3>
+        container.innerHTML =
+            '<div class="card">Nog geen FAQ beschikbaar.</div>';
 
-              <p>${item.content || ''}</p>
+        return;
+    }
 
-          </div>
+    container.innerHTML =
+        items.map((item,index)=>`
 
-      `).join('');
+            <div class="card">
+
+                <h3>${index+1}. ${item.title}</h3>
+
+                <p>${item.content || ''}</p>
+
+            </div>
+
+        `).join('');
 }
 
-function filterFAQ(){
+async function filterFAQ(){
 
-  const term =
-      document.getElementById('faqSearch')
-      .value
-      .toLowerCase();
+    const term =
+        document.getElementById('faqSearch')
+        .value
+        .toLowerCase();
 
-  const titles = {
-    crohn:'FAQ Crohn',
-    colitis:'FAQ Colitis',
-    microscopic:'FAQ MC',
-    voeding:'FAQ Voeding',
-    mindfulness:'FAQ Mindfulness',
-    zorg:'FAQ Zorggids',
-    sociaal:'FAQ Sociale Gids',
-    ccv:'FAQ CCV-VZW'
-  };
+    const titles = {
+        crohn:'FAQ Crohn',
+        colitis:'FAQ Colitis',
+        microscopic:'FAQ MC',
+        voeding:'FAQ Voeding',
+        mindfulness:'FAQ Mindfulness',
+        zorg:'FAQ Zorggids',
+        sociaal:'FAQ Sociale Gids',
+        ccv:'FAQ CCV-VZW'
+    };
 
-  const faqCategory =
-      titles[currentHoofdgroep];
+    const faqCategory =
+        titles[currentHoofdgroep];
 
-  const results =
-      loadData()
-      .filter(item =>
-          item.category === faqCategory
-      )
-      .filter(item =>
-          item.title.toLowerCase()
-              .includes(term) ||
-          (item.content || '')
-              .toLowerCase()
-              .includes(term)
-      );
+    const data =
+        await getKnowledgeData();
 
-  document.getElementById('faqContainer').innerHTML =
-      results.map((item,index)=>`
+    const results =
+        data.filter(item =>
+            item.category === faqCategory
+        )
+        .filter(item =>
+            (item.title || '')
+                .toLowerCase()
+                .includes(term)
+        );
 
-          <div class="card">
+    document
+        .getElementById(
+            'faqContainer'
+        )
+        .innerHTML =
 
-              <h3>${index+1}. ${item.title}</h3>
+        results.map((item,index)=>`
 
-              <p>${item.content || ''}</p>
+            <div class="card">
 
-          </div>
+                <h3>${index+1}. ${item.title}</h3>
 
-      `).join('');
+                <p>${item.content || ''}</p>
+
+            </div>
+
+        `).join('');
 }
 
     function escapeHtml(value) {

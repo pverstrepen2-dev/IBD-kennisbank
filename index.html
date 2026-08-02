@@ -728,7 +728,7 @@
   id="gutflix"
   class="tab-content"
   style="display:none;">
-  
+
       <div class="admin-section">
         <div class="admin-title">🎬 GutFlix</div>
         <p class="notice">Deze tab is behouden als placeholder. Je kunt hier later je UEG/GutFlix-items verder aan koppelen.</p>
@@ -1060,6 +1060,7 @@ function saveVoeding(data){
   localStorage.setItem(VOEDING_KEY, JSON.stringify(data));
 }
     let currentLang = localStorage.getItem(LANG_KEY) || 'nl';
+    let databaseCache = null;
    let currentHoofdgroep = 'crohn';
     let websitesOnly = false;
     let favoritesOnly = false;
@@ -1180,9 +1181,50 @@ let breadcrumbPath = [
   icon: '❓',
   desc: 'Veelgestelde vragen',
   sections: ['Microscopische Colitis']
-}
+},
 
-,
+'FAQ Crohn': {
+  icon: '❓',
+  desc: 'Veelgestelde vragen Crohn',
+  sections: ['Crohn']
+},
+
+'FAQ Colitis': {
+  icon: '❓',
+  desc: 'Veelgestelde vragen Colitis',
+  sections: ['Colitis Ulcerosa']
+},
+
+'FAQ Voeding': {
+  icon: '❓',
+  desc: 'Veelgestelde vragen Voeding',
+  sections: ['Voeding']
+},
+
+'FAQ Mindfulness': {
+  icon: '❓',
+  desc: 'Veelgestelde vragen Mindfulness',
+  sections: ['Mindfulness']
+},
+
+'FAQ Zorggids': {
+  icon: '❓',
+  desc: 'Veelgestelde vragen Zorggids',
+  sections: ['Zorggids']
+},
+
+'FAQ Sociale Gids': {
+  icon: '❓',
+  desc: 'Veelgestelde vragen Sociale Gids',
+  sections: ['Sociale Gids']
+},
+
+'FAQ CCV-VZW': {
+  icon: '❓',
+  desc: 'Veelgestelde vragen CCV-VZW',
+  sections: ['CCV-VZW']
+},
+
 
 'IBD Centra': {
  icon:'🏥',
@@ -1256,62 +1298,6 @@ let breadcrumbPath = [
  sections:['Sociale Gids']
 }
     };
-
-const faqData = {
-
-  crohn: [
-    "Wat is de ziekte van Crohn?",
-    "Welke symptomen komen het vaakst voor?",
-    "Wat is een flare-up?"
-  ],
-
-  colitis: [
-    "Wat is Colitis Ulcerosa?",
-    "Wat is het verschil met Crohn?",
-    "Welke behandeling bestaat er?"
-  ],
-
-  microscopic: [
-    "Wat is Microscopische Colitis?",
-    "Wat is het verschil met Colitis Ulcerosa?",
-    "Waarom zijn biopten noodzakelijk?",
-    "Welke symptomen komen het meest voor?",
-    "Welke medicatie wordt gebruikt?",
-    "Kan voeding invloed hebben?",
-    "Kan de ziekte in remissie gaan?",
-    "Wat is het langetermijnverloop?"
-  ],
-
-  voeding: [
-    "Welke voeding tijdens een flare-up?",
-    "Wat is FODMAP?",
-    "Welke supplementen zijn nuttig?"
-  ],
-
-  mindfulness: [
-    "Wat is mindfulness?",
-    "Wat is een bodyscan?",
-    "Wat is de 4-7-8 techniek?"
-  ],
-
-  zorg: [
-    "Waar vind ik een IBD-centrum?",
-    "Hoe vind ik een gastro-enteroloog?",
-    "Waar vind ik een gespecialiseerde diëtist?"
-  ],
-
-  sociaal: [
-    "Heb ik recht op invaliditeit?",
-    "Kan ik werken met IBD?",
-    "Welke terugbetalingen bestaan?"
-  ],
-
-  ccv: [
-    "Wat is CCV-VZW?",
-    "Hoe word ik lid?",
-    "Welke werkgroepen bestaan er?"
-  ]
-};
 
     function loadData() {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -1621,62 +1607,47 @@ if(
         .map(cb => cb.value);
 
       const categoryMap = {
-        'Crohn': ['Symptomen','Diagnose','Behandeling','Medicatie','Complicaties','Operatie','Dagelijks Leven','Onderzoek','Patiëntenrechten', 'Oorzaken','Ziekteverloop','Flare-ups','Remissie','Biologische therapie'
+        'Crohn': ['Symptomen','Diagnose','Behandeling','Medicatie','Complicaties','Operatie','Dagelijks Leven','Onderzoek','Patiëntenrechten', 'Oorzaken','Ziekteverloop','Flare-ups','Remissie','Biologische therapie','FAQ Crohn'
 ],
 
-        'Colitis Ulcerosa': ['Symptomen','Diagnose','Behandeling','Medicatie','Complicaties','Operatie','Dagelijks Leven','Onderzoek','Patiëntenrechten','Oorzaken','Ziekteverloop','Flare-ups','Remissie','Biologische therapie'
+        'Colitis Ulcerosa': ['Symptomen','Diagnose','Behandeling','Medicatie','Complicaties','Operatie','Dagelijks Leven','Onderzoek','Patiëntenrechten','Oorzaken','Ziekteverloop','Flare-ups','Remissie','Biologische therapie','FAQ Colitis'
+
 ],
 
 'Microscopische Colitis': [
 
-'Wat is Microscopische Colitis',
-
-'Symptomen MC',
-
-'Diagnose MC',
-
-'Behandeling MC',
-
-'Medicatie MC',
-
-'Voeding MC',
-
-'Leven met MC',
-
-'Onderzoek MC',
-
-'FAQ MC'
+'Wat is Microscopische Colitis','Symptomen MC','Diagnose MC','Behandeling MC','Medicatie MC','Voeding MC','Leven met MC','Onderzoek MC','FAQ MC'
 
 ],
 
         'Algemeen IBD': ['Symptomen', 'Diagnose', 'Behandeling', 'Medicatie', 'Dagelijks Leven', 'Onderzoek', 'Patiëntenrechten'],
-        'Mindfulness': ['Mindfulness', 'Dagelijks Leven', 'Ademhalingsoefeningen', 'Meditatie', 'BodyScan','Stressmanagement','Ontspanningsoefeningen'
+        'Mindfulness': ['Mindfulness', 'Dagelijks Leven', 'Ademhalingsoefeningen', 'Meditatie', 'BodyScan','Stressmanagement','Ontspanningsoefeningen','FAQ Mindfulness'
 ],
 
 'Zorggids': [
 
-'IBD Centra',
-'Ziekenhuizen',
-'Gastro-enterologen',
-'IBD Verpleegkundigen',
-'Diëtisten',
-'Psychologen'
-
+''Zorggids': [
+  'IBD Centra',
+  'Ziekenhuizen',
+  'Gastro-enterologen',
+  'IBD Verpleegkundigen',
+  'Diëtisten',
+  'Psychologen',
+  'FAQ Zorggids'
 ],
 
 'Sociale Gids': [
-
-'Patiëntenrechten',
-'Invaliditeit',
-'Werk',
-'Studie',
-'Terugbetalingen',
-'Attesten'
-
+  'Patiëntenrechten',
+  'Invaliditeit',
+  'Werk',
+  'Studie',
+  'Terugbetalingen',
+  'Attesten',
+  'FAQ Sociale Gids'
 ],
-        'Voeding': ['Voeding', 'Dagelijks Leven'],
+        'Voeding': ['Voeding', 'Dagelijks Leven','FAQ Voeding'],
         // 'GutFlix': ['Onderzoek'],
-        'CCV-VZW': ['Website']
+        'CCV-VZW': ['Website','FAQ CCV-VZW']
       };
 
       const categories = [...new Set(selectedDiseases.flatMap(d => categoryMap[d] || []))];
@@ -2412,70 +2383,98 @@ function toggleFavoritesFilter() {
     function renderFaqByGroup(group){
 
   const titles = {
-    crohn: "FAQ Crohn",
-    colitis: "FAQ Colitis",
-    microscopic: "FAQ MC",
-    voeding: "FAQ Voeding",
-    mindfulness: "FAQ Mindfulness",
-    zorg: "FAQ Zorggids",
-    sociaal: "FAQ Sociale Gids",
-    ccv: "FAQ CCV-VZW"
+    crohn: 'FAQ Crohn',
+    colitis: 'FAQ Colitis',
+    microscopic: 'FAQ MC',
+    voeding: 'FAQ Voeding',
+    mindfulness: 'FAQ Mindfulness',
+    zorg: 'FAQ Zorggids',
+    sociaal: 'FAQ Sociale Gids',
+    ccv: 'FAQ CCV-VZW'
   };
 
-  const faqTitle =
-      document.getElementById('faqTitle');
+  document.getElementById('faqTitle').innerText =
+      titles[group] || 'FAQ';
 
-  if(faqTitle){
-      faqTitle.innerText =
-          titles[group] || "FAQ";
-  }
+  const faqCategory =
+      titles[group];
 
-  const items = faqData[group] || [];
+  const items =
+      loadData().filter(item =>
+          item.category === faqCategory
+      );
 
   const container =
       document.getElementById('faqContainer');
 
-  if(!container) return;
+  if(!items.length){
 
-  if(items.length === 0){
-    container.innerHTML =
-      '<div class="card">Nog geen FAQ beschikbaar voor deze categorie.</div>';
-    return;
+      container.innerHTML =
+      '<div class="card">Nog geen FAQ beschikbaar.</div>';
+
+      return;
   }
 
   container.innerHTML =
-    items.map((q,index)=>`
-      <div class="card">
-        <b>${index + 1}. ${q}</b>
-      </div>
-    `).join('');
+      items.map((item,index)=>`
+
+          <div class="card">
+
+              <h3>${index+1}. ${item.title}</h3>
+
+              <p>${item.content || ''}</p>
+
+          </div>
+
+      `).join('');
 }
 
 function filterFAQ(){
 
-    const term =
-        document.getElementById('faqSearch')
-        .value
-        .toLowerCase();
+  const term =
+      document.getElementById('faqSearch')
+      .value
+      .toLowerCase();
 
-    const items =
-        faqData[currentHoofdgroep] || [];
+  const titles = {
+    crohn:'FAQ Crohn',
+    colitis:'FAQ Colitis',
+    microscopic:'FAQ MC',
+    voeding:'FAQ Voeding',
+    mindfulness:'FAQ Mindfulness',
+    zorg:'FAQ Zorggids',
+    sociaal:'FAQ Sociale Gids',
+    ccv:'FAQ CCV-VZW'
+  };
 
-    const result =
-        items.filter(q =>
-            q.toLowerCase()
-             .includes(term)
-        );
+  const faqCategory =
+      titles[currentHoofdgroep];
 
-    const container =
-        document.getElementById('faqContainer');
+  const results =
+      loadData()
+      .filter(item =>
+          item.category === faqCategory
+      )
+      .filter(item =>
+          item.title.toLowerCase()
+              .includes(term) ||
+          (item.content || '')
+              .toLowerCase()
+              .includes(term)
+      );
 
-    container.innerHTML =
-        result.map((q,index)=>`
-            <div class="card">
-                <b>${index+1}. ${q}</b>
-            </div>
-        `).join('');
+  document.getElementById('faqContainer').innerHTML =
+      results.map((item,index)=>`
+
+          <div class="card">
+
+              <h3>${index+1}. ${item.title}</h3>
+
+              <p>${item.content || ''}</p>
+
+          </div>
+
+      `).join('');
 }
 
     function escapeHtml(value) {
@@ -2761,6 +2760,44 @@ async function getAccessToken(){
 
     return response.accessToken;
 
+}
+
+async function loadDatabaseJson(){
+
+    try{
+
+        const token =
+            await getAccessToken();
+
+        const fileId =
+            "ID_VAN_database.json";
+
+        const response =
+            await fetch(
+                `https://graph.microsoft.com/v1.0/me/drive/items/${fileId}/content`,
+                {
+                    headers:{
+                        Authorization:
+                            "Bearer " + token
+                    }
+                }
+            );
+
+        databaseCache =
+            await response.json();
+
+        return databaseCache;
+
+    }
+    catch(error){
+
+        console.error(
+            "Database fout:",
+            error
+        );
+
+        return null;
+    }
 }
 
 async function loadOneDriveFiles(){
@@ -4367,6 +4404,12 @@ async function openFile(fileId){
         const file = await response.json();
 
         console.log("BESTAND:", file);
+        alert(
+    "Naam: " +
+    file.name +
+    "\nID: " +
+    file.id
+);
 
         if(file.webUrl){
             window.open(file.webUrl, "_blank");

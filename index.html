@@ -3623,9 +3623,7 @@ function importVoeding(event, type){
 
 async function getAccessToken(){
 
-  alert("NIEUWE GETACCESSTOKEN");
-
-    const account =
+      const account =
         msalInstance.getAllAccounts()[0];
 
         console.log(
@@ -3819,17 +3817,13 @@ async function loadCCVSubFolders(){
 
     try{
 
-        const token =
-            await getAccessToken();
+    const folderId =
+        "2B4CCFD79FF4714A!s3451c122bf304e639899a9f1060c96ff";
 
-        const folderId =
-            "2B4CCFD79FF4714A!s3451c122bf304e639899a9f1060c96ff";
+    oneDriveIndex = [];
 
-oneDriveIndex = [];
-
-        const response =
-            await fetch(
-
+    const token =
+        await getAccessToken();
                 `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`,
 
                 {
@@ -3838,12 +3832,13 @@ oneDriveIndex = [];
                             "Bearer " + token
                     }
                 }
-            );
 
         const data =
-            await response.json();
+    await response.json();
+
 await buildOneDriveIndex(
-    folderId
+    folderId,
+    token
 );
 
 console.log(
@@ -3923,12 +3918,10 @@ data.value.forEach(item => {
 
 }
 
-async function buildOneDriveIndex(
-    folderId
+   async function buildOneDriveIndex(
+    folderId,
+    token
 ){
-
-    const token =
-        await getAccessToken();
 
     const response =
         await fetch(
@@ -3971,15 +3964,16 @@ async function buildOneDriveIndex(
 
     for(const item of data.value){
 
-        if(item.folder){
+    if(item.folder){
 
-            await buildOneDriveIndex(
-                item.id
-            );
-
-        }
+        await buildOneDriveIndex(
+            item.id,
+            token
+        );
 
     }
+
+}
 
 }
 

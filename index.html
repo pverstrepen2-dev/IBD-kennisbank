@@ -2625,10 +2625,31 @@ if(toggleBtn){
 
 function updateUserInfo(){
 
+    console.log(
+        "updateUserInfo uitgevoerd"
+    );
+
+    console.log(
+        "currentUser:",
+        currentUser
+    );
+
     const el =
         document.getElementById(
             "userInfo"
         );
+
+    console.log(
+        "userInfo element:",
+        el
+    );
+
+    if(!el){
+        console.error(
+            "userInfo niet gevonden"
+        );
+        return;
+    }
 
     if(!currentUser){
 
@@ -2686,6 +2707,10 @@ msalReady = true;
 
         };
 
+        updateUserInfo();
+        console.log(
+    "USERINFO BIJGEWERKT"
+);
         msalInstance.setActiveAccount(
     response.account
 );

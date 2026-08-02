@@ -465,6 +465,7 @@
 <div style="margin-top:10px;">
 
     <button
+        class="btn btn-primary"
         onclick="loginMicrosoft()"
         id="loginBtn"
     >
@@ -480,24 +481,34 @@
     </button>
 
     <button
+    class="btn btn-primary"
     onclick="loadOneDriveFiles()"
     id="onedriveBtn">
     📁 OneDrive
 </button>
 
 <button
+class="btn btn-primary"
     onclick="openDriveFolder('2B4CCFD79FF4714A!s3451c122bf304e639899a9f1060c96ff')">
     🤝 CCV-VZW
 </button>
 
 <button
+    class="btn btn-primary"
     onclick="loadCCVSubFolders()">
     📂 CCV Structuur
 </button>
 
 <button
+    class="btn btn-primary"
     onclick="testDatabase()">
     🧪 Test DB
+</button>
+
+<button
+    class="btn btn-primary"
+    onclick="testKnowledge()">
+    📚 Test Knowledge
 </button>
 
 </div>
@@ -2805,6 +2816,18 @@ async function loadDatabaseJson(){
     }
 }
 
+async function getKnowledgeData(){
+
+    if(!databaseCache){
+
+        await loadDatabaseJson();
+    }
+
+    return (
+        databaseCache?.knowledgeData
+    ) || [];
+}
+
 async function saveDatabaseJson(){
 
     const token =
@@ -4512,6 +4535,22 @@ async function testDatabase(){
             ? data.knowledgeData.length
             : 0
         )
+    );
+}
+
+async function testKnowledge(){
+
+    const data =
+        await getKnowledgeData();
+
+    console.log(
+        "KNOWLEDGE:",
+        data
+    );
+
+    alert(
+        "Knowledge records: " +
+        data.length
     );
 }
 

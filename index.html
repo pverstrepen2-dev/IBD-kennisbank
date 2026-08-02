@@ -1933,6 +1933,17 @@ console.log(
         .includes(searchTerm)
 
     );
+    const oneDriveResults =
+
+    oneDriveIndex.filter(item =>
+
+        item.title
+
+            .toLowerCase()
+
+            .includes(searchTerm)
+
+    );
 
 result = [
 
@@ -1948,9 +1959,12 @@ result = [
 
     ...projectResults,
 
-    ...taskResults
+    ...taskResults,
+
+    ...oneDriveResults
 
 ];
+
 console.log(
     "FAQ:",
     faqResults.length
@@ -4028,6 +4042,27 @@ async function openDriveFolder(
 
         const data =
             await response.json();
+
+            oneDriveIndex = data.value.map(
+    item => ({
+
+        title: item.name,
+
+        category: 'OneDrive',
+
+        type:
+            item.folder
+            ? 'Map'
+            : 'Bestand',
+
+        source: 'OneDrive',
+
+        content: item.name,
+
+        id: item.id
+
+    })
+);
 
         if(addToBreadcrumb){
 

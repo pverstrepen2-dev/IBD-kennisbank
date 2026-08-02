@@ -657,15 +657,25 @@
   </div>
 
   <div class="results-header">
-    <button id="toggleWebsitesOnly" class="btn btn-sm btn-secondary">
+    <button id="toggleWebsitesOnly"
+        class="btn btn-sm btn-secondary"
+        style="display:none;">
       🌐 Toon alleen websites
     </button>
 
     <div class="results-count" id="resultsCount">0 items</div>
 
     <div>
-      <button class="btn btn-sm btn-success" onclick="exportData('csv')">📊 CSV</button>
-      <button class="btn btn-sm btn-primary" onclick="exportData('json')">📄 JSON</button>
+      <button class="btn btn-sm btn-success"
+        onclick="exportData('csv')"
+        style="display:none;">
+📊 CSV
+</button>
+     <button class="btn btn-sm btn-primary"
+        onclick="exportData('json')"
+        style="display:none;">
+📄 JSON
+</button>
     </div>
   </div>
 

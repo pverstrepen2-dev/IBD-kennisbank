@@ -1640,6 +1640,110 @@ if(
     function performSearch() {
       const allData = getFilteredData();
       const searchTerm = (document.getElementById('searchInput')?.value || '').toLowerCase();
+      let faqResults = [];
+
+Object.entries(faqData).forEach(
+
+  ([group, questions]) => {
+
+    questions.forEach(q => {
+
+      if(
+        q.toLowerCase()
+        .includes(searchTerm)
+      ){
+
+        faqResults.push({
+
+          title: q,
+
+          category: 'FAQ',
+
+          type: 'FAQ',
+
+          source: group,
+
+          content:
+            'Veelgestelde vraag'
+
+        });
+
+      }
+
+    });
+
+  }
+
+);
+
+const ccvResults =
+
+    loadCCV()
+
+    .filter(item =>
+
+        JSON.stringify(item)
+
+        .toLowerCase()
+
+        .includes(searchTerm)
+
+    )
+
+    .map(item => ({
+
+        title:
+
+            item.title
+
+            ||
+
+            item.name
+
+            ||
+
+            'CCV Item',
+
+        category: 'CCV',
+
+        type: item.type,
+
+        source: 'CCV-VZW',
+
+        content:
+
+            JSON.stringify(item)
+
+    }));
+
+    const voedingResults =
+
+    loadVoeding()
+
+    .filter(item =>
+
+        JSON.stringify(item)
+
+        .toLowerCase()
+
+        .includes(searchTerm)
+
+    )
+
+    .map(item => ({
+
+        title: item.title,
+
+        category: 'Voeding',
+
+        type: item.type,
+
+        source: 'Voeding',
+
+        content: item.content
+
+    }));
+
       const category = document.getElementById('categoryFilter')?.value || '';
       const type = document.getElementById('typeFilter')?.value || '';
       const sortBy = document.getElementById('sortBy')?.value || 'recent';
@@ -1668,7 +1772,19 @@ if(
         result.sort((a, b) => (b.id || 0) - (a.id || 0));
       }
 
-      displayResults(result);
+      result = [
+
+    ...result,
+
+    ...faqResults,
+
+    ...ccvResults,
+
+    ...voedingResults
+
+];
+
+displayResults(result);
     }
 
     function displayResults(data) {
@@ -1684,6 +1800,22 @@ if(
 
       container.innerHTML = data.slice(0, 100).map(item => `
         <div class="result-item">
+          <div class="result-item">
+
+    <div
+        class="result-badge"
+        style="
+            margin-bottom:10px;
+        "
+    >
+        ${item.type || 'Item'}
+    </div>
+
+    <div class="result-title">
+
+        ${item.title || 'Geen titel'}
+
+    </div>
           <div class="result-title">${item.title || 'Geen titel'}</div>
           <div class="result-meta">
             ${item.url ? `<span class="result-badge website-pill">🌐 Website</span>` : ''}

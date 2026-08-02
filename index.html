@@ -1033,7 +1033,18 @@ Sociale Gids
     const STORAGE_KEY = 'ibd_kennisbank_multilang';
     const LANG_KEY = 'ibd_selected_language';
     const FAVORITES_KEY = 'ibd_favorites';
+const CCV_KEY = 'ccv_module_data';
 
+function loadCCV(){ return JSON.parse(localStorage.getItem(CCV_KEY)||'[]'); }
+function saveCCV(d){ localStorage.setItem(CCV_KEY, JSON.stringify(d)); }
+
+const VOEDING_KEY = 'voeding_data';
+function loadVoeding(){
+  return JSON.parse(localStorage.getItem(VOEDING_KEY) || '[]');
+}
+function saveVoeding(data){
+  localStorage.setItem(VOEDING_KEY, JSON.stringify(data));
+}
     let currentLang = localStorage.getItem(LANG_KEY) || 'nl';
    let currentHoofdgroep = 'crohn';
     let websitesOnly = false;
@@ -1703,11 +1714,25 @@ Object.entries(faqData).forEach(
 
 );
 
-const ccvResults =
+let ccvResults = [];
 
-    loadCCV()
-
-    .filter(item =>
+try {
+    ccvResults = loadCCV()
+        .filter(item =>
+            JSON.stringify(item)
+                .toLowerCase()
+                .includes(searchTerm.toLowerCase())
+        )
+        .map(item => ({
+            title: item.title || item.name || 'CCV Item',
+            category: 'CCV',
+            type: item.type,
+            source: 'CCV-VZW',
+            content: JSON.stringify(item)
+        }));
+} catch (e) {
+    console.log("CCV nog niet geladen");
+}
 
         JSON.stringify(item)
 
@@ -1715,9 +1740,7 @@ const ccvResults =
 
         .includes(searchTerm)
 
-    )
-
-    .map(item => ({
+        .map(item => ({
 
         title:
 
@@ -2538,11 +2561,6 @@ console.log("FAQ klaar");
 // CCV MODULE (NIEUW)
 // =========================
 
-const CCV_KEY = 'ccv_module_data';
-
-function loadCCV(){ return JSON.parse(localStorage.getItem(CCV_KEY)||'[]'); }
-function saveCCV(d){ localStorage.setItem(CCV_KEY, JSON.stringify(d)); }
-
 function addCCV(type,obj){
   const data = loadCCV();
   obj.id = Date.now();
@@ -3289,16 +3307,6 @@ function initVoedingTabs(){
   });
 }
 
-const VOEDING_KEY = 'voeding_data';
-
-function loadVoeding(){
-  return JSON.parse(localStorage.getItem(VOEDING_KEY) || '[]');
-}
-
-function saveVoeding(data){
-  localStorage.setItem(VOEDING_KEY, JSON.stringify(data));
-}
-
 function addVoeding(type,obj){
   const data = loadVoeding();
   obj.id = Date.now();
@@ -3782,18 +3790,6 @@ async function goBackFolder(){
     }
 
     updateBreadcrumb();
-}
-
-function updateBreadcrumb(){
-
-    document.getElementById(
-        "breadcrumb"
-    ).innerHTML =
-        "🏠 Home > " +
-        breadcrumbPath
-          .map(x => x.name)
-          .join(" > ");
-
 }
 
 async function openDriveFolder(

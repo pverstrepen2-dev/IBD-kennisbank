@@ -3826,9 +3826,10 @@ async function loadCCVSubFolders(){
    const token =
     await getAccessToken();
 
+console.log("FETCH START");
+
 const response =
     await fetch(
-      console.log("FETCH OK");
         `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`,
         {
             headers:{
@@ -3837,6 +3838,8 @@ const response =
             }
         }
     );
+
+console.log("FETCH OK");
 
 const data =
     await response.json();

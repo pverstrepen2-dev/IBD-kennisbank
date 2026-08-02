@@ -699,22 +699,36 @@
     </div>
 
     <!-- FAQ -->
-    <div id="faq" class="tab-content">
-      <div class="admin-section">
-        <div class="admin-title">❓ Veelgestelde vragen</div>
-        <div id="faqTitle"
-     class="admin-title">
-</div>
-        <div class="card-grid" id="faqContainer"></div>
-      </div>
+<div id="faq" class="tab-content">
+
+  <div class="admin-section">
+
+    <div class="admin-title">
+      ❓ Veelgestelde vragen
     </div>
 
-    <!-- GutFlix -->
-    <div
-    id="gutflix"
-    class="tab-content"
-    style="display:none;"
->
+    <div id="faqTitle" class="admin-title"></div>
+
+    <div style="margin-bottom:20px;">
+      <input
+        type="text"
+        id="faqSearch"
+        placeholder="🔍 Zoek binnen FAQ..."
+        oninput="filterFAQ()">
+    </div>
+
+    <div class="card-grid" id="faqContainer"></div>
+
+  </div>
+
+</div>
+
+<!-- GutFlix -->
+<div
+  id="gutflix"
+  class="tab-content"
+  style="display:none;">
+  
       <div class="admin-section">
         <div class="admin-title">🎬 GutFlix</div>
         <p class="notice">Deze tab is behouden als placeholder. Je kunt hier later je UEG/GutFlix-items verder aan koppelen.</p>
@@ -1244,6 +1258,7 @@ let breadcrumbPath = [
     };
 
 const faqData = {
+
   crohn: [
     "Wat is de ziekte van Crohn?",
     "Welke symptomen komen het vaakst voor?",
@@ -1256,23 +1271,15 @@ const faqData = {
     "Welke behandeling bestaat er?"
   ],
 
-microscopic: [
-
-"Wat is Microscopische Colitis?",
-"Wat is het verschil met Colitis Ulcerosa?",
-"Waarom zijn biopten noodzakelijk?",
-"Welke symptomen komen het meest voor?",
-"Welke medicatie wordt gebruikt?",
-"Kan voeding invloed hebben?",
-"Kan de ziekte in remissie gaan?",
-"Wat is het langetermijnverloop?"
-
-],
-
-  ibd: [
-    "Wat is IBD?",
-    "Wat is remissie?",
-    "Wat zijn biologics?"
+  microscopic: [
+    "Wat is Microscopische Colitis?",
+    "Wat is het verschil met Colitis Ulcerosa?",
+    "Waarom zijn biopten noodzakelijk?",
+    "Welke symptomen komen het meest voor?",
+    "Welke medicatie wordt gebruikt?",
+    "Kan voeding invloed hebben?",
+    "Kan de ziekte in remissie gaan?",
+    "Wat is het langetermijnverloop?"
   ],
 
   voeding: [
@@ -1287,7 +1294,19 @@ microscopic: [
     "Wat is de 4-7-8 techniek?"
   ],
 
-   ccv: [
+  zorg: [
+    "Waar vind ik een IBD-centrum?",
+    "Hoe vind ik een gastro-enteroloog?",
+    "Waar vind ik een gespecialiseerde diëtist?"
+  ],
+
+  sociaal: [
+    "Heb ik recht op invaliditeit?",
+    "Kan ik werken met IBD?",
+    "Welke terugbetalingen bestaan?"
+  ],
+
+  ccv: [
     "Wat is CCV-VZW?",
     "Hoe word ik lid?",
     "Welke werkgroepen bestaan er?"
@@ -2392,9 +2411,29 @@ function toggleFavoritesFilter() {
 
     function renderFaqByGroup(group){
 
+  const titles = {
+    crohn: "FAQ Crohn",
+    colitis: "FAQ Colitis",
+    microscopic: "FAQ MC",
+    voeding: "FAQ Voeding",
+    mindfulness: "FAQ Mindfulness",
+    zorg: "FAQ Zorggids",
+    sociaal: "FAQ Sociale Gids",
+    ccv: "FAQ CCV-VZW"
+  };
+
+  const faqTitle =
+      document.getElementById('faqTitle');
+
+  if(faqTitle){
+      faqTitle.innerText =
+          titles[group] || "FAQ";
+  }
+
   const items = faqData[group] || [];
 
-  const container = document.getElementById('faqContainer');
+  const container =
+      document.getElementById('faqContainer');
 
   if(!container) return;
 
@@ -2411,6 +2450,34 @@ function toggleFavoritesFilter() {
       </div>
     `).join('');
 }
+
+function filterFAQ(){
+
+    const term =
+        document.getElementById('faqSearch')
+        .value
+        .toLowerCase();
+
+    const items =
+        faqData[currentHoofdgroep] || [];
+
+    const result =
+        items.filter(q =>
+            q.toLowerCase()
+             .includes(term)
+        );
+
+    const container =
+        document.getElementById('faqContainer');
+
+    container.innerHTML =
+        result.map((q,index)=>`
+            <div class="card">
+                <b>${index+1}. ${q}</b>
+            </div>
+        `).join('');
+}
+
     function escapeHtml(value) {
       return String(value)
         .replace(/&/g, '&amp;')

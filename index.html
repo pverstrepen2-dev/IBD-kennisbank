@@ -1737,6 +1737,112 @@ Object.entries(faqData).forEach(
 );
 
 let ccvResults = [];
+const meetingResults =
+
+    loadCCV()
+
+    .filter(x =>
+
+        x.type ===
+        'vergaderingen'
+
+    )
+
+    .filter(x =>
+
+        JSON.stringify(x)
+
+        .toLowerCase()
+
+        .includes(searchTerm)
+
+    )
+
+    .map(x => ({
+
+        title: x.title,
+
+        type: 'Vergadering',
+
+        category: 'CCV',
+
+        source: 'CCV-VZW',
+
+        content:
+            x.notes || ''
+
+    }));
+
+    const projectResults =
+
+    loadCCV()
+
+    .filter(x =>
+
+        x.type ===
+        'projecten'
+
+    )
+
+    .filter(x =>
+
+        JSON.stringify(x)
+
+        .toLowerCase()
+
+        .includes(searchTerm)
+
+    )
+
+    .map(x => ({
+
+        title: x.title,
+
+        type: 'Project',
+
+        category: 'CCV',
+
+        source: 'CCV-VZW',
+
+        content:
+            x.notes || ''
+
+    }));
+    const taskResults =
+
+    loadCCV()
+
+    .filter(x =>
+
+        x.type ===
+        'taken'
+
+    )
+
+    .filter(x =>
+
+        JSON.stringify(x)
+
+        .toLowerCase()
+
+        .includes(searchTerm)
+
+    )
+
+    .map(x => ({
+
+        title: x.title,
+
+        type: 'Taak',
+
+        category: 'CCV',
+
+        source: 'CCV-VZW',
+
+        content:
+            x.content || ''
+
+    }));
 
 try {
     ccvResults = loadCCV()
@@ -1838,7 +1944,11 @@ result = [
 
     ...voedingResults,
 
-    ...oneDriveResults
+    ...meetingResults,
+
+    ...projectResults,
+
+    ...taskResults
 
 ];
 console.log(
@@ -1854,6 +1964,21 @@ console.log(
 console.log(
     "VOEDING:",
     voedingResults.length
+);
+
+console.log(
+    "VERGADERINGEN:",
+    meetingResults.length
+);
+
+console.log(
+    "PROJECTEN:",
+    projectResults.length
+);
+
+console.log(
+    "TAKEN:",
+    taskResults.length
 );
 
 console.log(
@@ -1875,36 +2000,74 @@ displayResults(result);
         container.innerHTML = `<div class="panel" style="padding:26px; text-align:center;">Geen resultaten gevonden.</div>`;
         return;
       }
+const groups = {};
 
-      container.innerHTML = data.slice(0, 100).map(item => `
-        <div class="result-item">
-          
-    <div
-        class="result-badge"
-        style="
-            margin-bottom:10px;
-        "
-    >
-        ${item.type || 'Item'}
+data.forEach(item => {
+
+    const key =
+        item.type || "Overig";
+
+    if(!groups[key]){
+
+        groups[key] = [];
+
+    }
+
+    groups[key].push(item);
+
+});
+
+      container.innerHTML =
+
+Object.entries(groups)
+
+.map(([groupName,items]) => `
+
+    <div class="card"
+         style="margin-bottom:20px;">
+
+        <h2>
+
+            ${groupName}
+
+            (${items.length})
+
+        </h2>
+
+        ${items.map(item => `
+
+            <div
+                class="result-item"
+                style="
+                    margin-top:10px;
+                "
+            >
+
+                <div class="result-title">
+
+                    ${item.title || 'Geen titel'}
+
+                </div>
+
+                <div class="result-meta">
+
+                    ${item.category || ''}
+
+                </div>
+
+                <div>
+
+                    ${item.content || ''}
+
+                </div>
+
+            </div>
+
+        `).join('')}
+
     </div>
 
-    <div class="result-title">
-
-        ${item.title || 'Geen titel'}
-
-    </div>
-         <div class="result-meta">
-            ${item.url ? `<span class="result-badge website-pill">🌐 Website</span>` : ''}
-            ${item.disease ? `<span class="result-badge">${item.disease}</span>` : ''}
-            ${item.category ? `<span>${categoryInfo[item.category]?.icon || '📁'} ${item.category}</span>` : ''}
-            ${item.type ? `<span>📄 ${item.type}</span>` : ''}
-            ${item.source ? `<span>📚 ${item.source}</span>` : ''}
-          </div>
-          ${item.content ? `<div class="result-content">${escapeHtml(item.content)}</div>` : ''}
-          ${item.tags ? `<div class="notice">🏷️ ${escapeHtml(item.tags)}</div>` : ''}
-          ${item.url ? `<div style="margin-top:10px;"><a href="${item.url}" target="_blank" rel="noopener">🔗 Open bron</a></div>` : ''}
-        </div>
-      `).join('');
+`).join('');
     }
 
     function refreshWebsitesOverview() {

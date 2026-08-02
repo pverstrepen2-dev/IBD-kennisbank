@@ -3814,6 +3814,7 @@ document.getElementById(
 }
 
 async function loadCCVSubFolders(){
+  console.log("START loadCCVSubFolders");
 
     try{
 
@@ -3827,6 +3828,7 @@ async function loadCCVSubFolders(){
 
 const response =
     await fetch(
+      console.log("FETCH OK");
         `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`,
         {
             headers:{

@@ -1076,6 +1076,7 @@ function saveVoeding(data){
   localStorage.setItem(VOEDING_KEY, JSON.stringify(data));
 }
     let currentLang = localStorage.getItem(LANG_KEY) || 'nl';
+    let msalReady = false;
     let databaseCache = null;
    let currentHoofdgroep = 'crohn';
     let websitesOnly = false;
@@ -1360,7 +1361,8 @@ let breadcrumbPath = [
       updateDashboard();
       updateCategoryGrid();
       performSearch();
-      renderFaqByGroup(disease);
+      renderFaqByGroup(disease)
+    .catch(console.error);
 
       if(disease === 'voeding'){
 
@@ -2670,6 +2672,8 @@ const msalInstance =
 
     await msalInstance.initialize();
 
+msalReady = true;
+
     msalInstance.handleRedirectPromise()
 .then(response => {
 
@@ -2686,8 +2690,9 @@ const msalInstance =
     response.account
 );
 
-        updateUserInfo();
-
+        renderFaqByGroup(
+    currentHoofdgroep
+).catch(console.error);
         document.getElementById(
             "loginBtn"
         ).style.display =
@@ -2794,6 +2799,14 @@ async function getAccessToken(){
 
 let databaseFileId = null;
 async function loadDatabaseJson(){
+if(!msalReady){
+
+    console.log(
+        "MSAL nog niet klaar"
+    );
+
+    return null;
+}
 
     try{
 
@@ -2935,7 +2948,9 @@ updateUserInfo();
     performSearch();
     updateRecordsList();
     console.log("FAQ init");
-    renderFaqByGroup(currentHoofdgroep);
+
+// renderFaqByGroup(currentHoofdgroep);
+
 console.log("FAQ klaar");
     refreshWebsitesOverview();
   
@@ -3803,32 +3818,6 @@ function importVoeding(event, type){
   };
 
   reader.readAsText(file);
-}
-
-async function getAccessToken(){
-
-      const account =
-        msalInstance.getAllAccounts()[0];
-
-        console.log(
-    "ACCOUNT:",
-    account
-);
-
-    const response =
-        await msalInstance.acquireTokenSilent({
-
-            account: account,
-
-            scopes: [
-                "User.Read",
-                "Files.Read"
-            ]
-
-        });
-
-    return response.accessToken;
-
 }
 
 async function loadOneDriveFiles(){

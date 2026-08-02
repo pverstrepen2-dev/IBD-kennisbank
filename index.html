@@ -619,8 +619,23 @@
   <div class="search-box">
 
     <div class="search-input-wrapper">
-      <input type="text" id="searchInput" placeholder="Zoek in alle informatie..." />
-      <span class="search-icon">🔍</span>
+     <input
+    type="text"
+    id="searchInput"
+    placeholder="Zoek in alle informatie..."
+    onkeypress="
+        if(event.key==='Enter'){
+            performSearch();
+        }
+    "
+/>
+      <span
+    class="search-icon"
+    onclick="performSearch()"
+    style="cursor:pointer;"
+>
+🔍
+</span>
     </div>
 
     <div class="filters-row">
@@ -1638,6 +1653,8 @@ if(
     }
 
     function performSearch() {
+      console.log("SEARCH ACTIEF");
+      console.log("performSearch gestart");
       const allData = getFilteredData();
       const searchTerm = (document.getElementById('searchInput')?.value || '').toLowerCase();
       let faqResults = [];

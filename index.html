@@ -1684,6 +1684,8 @@ console.log(
     "ALLDATA:",
     allData.length
 );
+console.log(allData);
+
       if(!searchTerm){
 
     document.getElementById(
@@ -1785,13 +1787,16 @@ try {
       const sortBy = document.getElementById('sortBy')?.value || 'recent';
 
       let result = allData.filter(item => {
-        const haystack = [
-          item.title || '',
-          item.content || '',
-          item.tags || '',
-          item.category || '',
-          item.source || ''
-        ].join(' ').toLowerCase();
+       const haystack = [
+
+  item.title || '',
+  item.content || '',
+  item.tags || '',
+  item.category || '',
+  item.source || '',
+  item.disease || ''
+
+].join(' ').toLowerCase();
 
         if (searchTerm && !haystack.includes(searchTerm)) return false;
         if (category && item.category !== category) return false;
@@ -1811,7 +1816,17 @@ console.log(
         result.sort((a, b) => (b.id || 0) - (a.id || 0));
       }
 
-      result = [
+      const oneDriveResults =
+
+    oneDriveIndex.filter(item =>
+
+        item.title
+        .toLowerCase()
+        .includes(searchTerm)
+
+    );
+
+result = [
 
     ...result,
 
@@ -1819,7 +1834,9 @@ console.log(
 
     ...ccvResults,
 
-    ...voedingResults
+    ...voedingResults,
+
+    ...oneDriveResults
 
 ];
 console.log(
@@ -3559,6 +3576,22 @@ async function loadCCVFolder(){
 
         const data =
     await response.json();
+    oneDriveIndex = data.value.map(item => ({
+
+    title: item.name,
+
+    category: 'OneDrive',
+
+    type:
+        item.folder
+        ? 'Map'
+        : 'Bestand',
+
+    source: 'OneDrive',
+
+    content: item.name
+
+}));
 
 console.log(
     "CCV MAP:",

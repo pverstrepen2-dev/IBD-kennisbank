@@ -3822,6 +3822,7 @@ async function loadCCVSubFolders(){
         "2B4CCFD79FF4714A!s3451c122bf304e639899a9f1060c96ff";
 
     oneDriveIndex = [];
+    visitedFolders.clear();
 
    const token =
     await getAccessToken();
@@ -3925,11 +3926,26 @@ data.value.forEach(item => {
     }
 
 }
-
+const visitedFolders = new Set();
    async function buildOneDriveIndex(
     folderId,
     token
 ){
+
+    if(visitedFolders.has(folderId)){
+        console.log(
+            "AL GEZIEN:",
+            folderId
+        );
+        return;
+    }
+
+    visitedFolders.add(folderId);
+
+    console.log(
+        "INDEX MAP:",
+        folderId
+    );
 
     console.log("FETCH START");
 

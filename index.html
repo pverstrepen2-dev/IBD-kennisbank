@@ -2442,9 +2442,13 @@ ${escapeHtml(item.type || '')}
         await getKnowledgeData();
 
     const items =
-        data.filter(item =>
-            item.category === faqCategory
-        );
+    data.filter(item =>
+        (
+            item.category ||
+            item.categorie ||
+            ''
+        ) === faqCategory
+    );
 
     const container =
         document.getElementById('faqContainer');

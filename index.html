@@ -1511,12 +1511,16 @@ if(disease === 'ccv'){
       if (tabName === 'search') performSearch();
            if (tabName === 'manage') {
     updateRecordsList();
-    if (tabName === 'faqbeheer')
-    renderFAQBeheer();
-document.getElementById("driveExplorer").style.display = "block";
+
+    document.getElementById("driveExplorer").style.display = "block";
+
     setTimeout(() => {
         loadCCVSubFolders();
     }, 200);
+}
+
+if (tabName === 'faqbeheer') {
+    renderFAQBeheer();
 }
 
       if (tabName === 'websites') refreshWebsitesOverview();
@@ -2682,6 +2686,11 @@ async function renderFAQBeheer(){
             )?.value || ''
         ).toLowerCase();
 
+            const statusFilter =
+        document.getElementById(
+            'faqStatusFilter'
+        )?.value || '';
+
     const faqItems =
         data.filter(item => {
 
@@ -2704,7 +2713,13 @@ async function renderFAQBeheer(){
             ){
                 return false;
             }
-
+if(
+    statusFilter &&
+    (item.status || 'Concept')
+        !== statusFilter
+){
+    return false;
+}
             return true;
 
         });
@@ -2729,6 +2744,40 @@ async function renderFAQBeheer(){
                 <br>
 
                 📂 ${item.category || ''}
+<br>
+
+📌 Status:
+<span
+    style="
+        font-weight:bold;
+        color:
+            ${
+                item.status === 'Goedgekeurd'
+                ? 'green'
+                : 'orange'
+            };
+    "
+>
+📌 Status:
+<span
+    ${item.status || 'Concept'}
+</span>
+
+<br><br>
+
+<button
+    class="btn btn-primary btn-sm"
+    onclick="editFAQ('${item.id}')"
+>
+    ✏️ Bewerken
+</button>
+
+<button
+    class="btn btn-danger btn-sm"
+    onclick="deleteFAQ('${item.id}')"
+>
+    🗑️ Verwijderen
+</button>
 
             </div>
 
@@ -2864,6 +2913,38 @@ async function deleteFAQ(id){
     );
 }
 
+async function approveFAQ(id){
+
+    const data =
+        await getKnowledgeData();
+
+    const item =
+        data.find(
+            x =>
+                String(x.id) ===
+                String(id)
+        );
+
+    if(!item){
+        return;
+    }
+
+    item.status =
+        'Goedgekeurd';
+
+    databaseCache.knowledgeData =
+        data;
+
+    await saveDatabaseJson();
+
+    renderFAQBeheer();
+
+    showNotification(
+        'FAQ goedgekeurd'
+    );
+
+}
+
     function escapeHtml(value) {
       return String(value)
         .replace(/&/g, '&amp;')
@@ -2945,6 +3026,7 @@ if(toggleBtn){
 
       const newItem = {
         id: Date.now(),
+        status: 'Concept',
         disease: diseases.join(', '),
         category: document.getElementById('newCategory').value,
         country: document.getElementById('newCountry').value,      

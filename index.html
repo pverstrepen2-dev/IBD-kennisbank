@@ -975,6 +975,11 @@ Sociale Gids
     📁 OneDrive Verkenner
 </div>
 
+<div class="notice">
+    Gebruik "🤝 Open CCV-VZW"
+    om door de OneDrive-structuur te bladeren.
+</div>
+
 <!-- TERUGKNOP -->
 <div id="driveNavigation" style="margin-bottom:15px;">
 
@@ -1022,10 +1027,11 @@ Sociale Gids
 
 <hr style="margin:15px 0;">
 
-<div
-    id="driveExplorer"
-    style="margin-top:15px;"
->
+<div id="driveExplorer"
+     style="
+        margin-top:15px;
+        display:none;
+     ">
 </div>
       </div>
     </div>
@@ -4138,6 +4144,10 @@ updateBreadcrumb();
         "driveExplorer"
     )
 );
+document.getElementById(
+    "driveExplorer"
+).style.display = "block";
+
 document.getElementById(
     "driveExplorer"
 ).innerHTML =

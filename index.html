@@ -1084,7 +1084,7 @@ function saveVoeding(data){
     let currentDriveFolder = null;
 
 let oneDriveIndex = [];
-
+const visitedFolders = new Set();
 let folderHistory = [];
 
 let breadcrumbPath = [
@@ -4161,7 +4161,7 @@ data.value.forEach(item => {
 
 }
 
-const visitedFolders = new Set();
+
    async function buildOneDriveIndex(
     folderId,
     token

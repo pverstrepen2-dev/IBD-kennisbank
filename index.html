@@ -2087,15 +2087,22 @@ Object.entries(groups)
     return 'Overig';
   }
 
-  const sourceData =
+ const sourceData =
     await loadData();
 
 const all =
     sourceData.filter(
+        item =>
+            item &&
+            item.url
+    );
 
-  const search =
-    (document.getElementById('websitesSearch')?.value || '')
-    .toLowerCase();
+const search =
+    (
+        document.getElementById(
+            'websitesSearch'
+        )?.value || ''
+    ).toLowerCase();
 
   const favs = loadFavorites();
 
@@ -2342,6 +2349,11 @@ ${escapeHtml(
 ${escapeHtml(item.type || '')}
 </span>
           </div>
+          <button
+    class="btn btn-sm btn-primary"
+    onclick="generateFaqFromItem('${item.id}')">
+    🤖 FAQ
+</button>
           <button class="btn btn-sm btn-danger" onclick="deleteRecord('${item.id}')">🗑️</button>
         </div>
       `).join('') : `<div class="panel" style="padding:20px;">Geen items gevonden.</div>`;
@@ -4621,6 +4633,73 @@ async function testKnowledge(){
     );
 }
 
+async function generateFaqFromItem(id){
+
+    const data =
+        await getKnowledgeData();
+
+    const item =
+        data.find(
+            x =>
+                String(x.id) === String(id)
+        );
+
+    if(!item){
+
+        alert(
+            "Document niet gevonden"
+        );
+
+        return;
+    }
+
+    const titel =
+        item.titel ||
+        item.title ||
+        '';
+
+    const inhoud =
+        item.inhoud ||
+        item.content ||
+        '';
+
+    document.getElementById(
+        'newTitle'
+    ).value =
+        titel;
+
+    document.getElementById(
+        'newContent'
+    ).value =
+`Vraag:
+${titel}
+
+Antwoord:
+${inhoud}`;
+
+    document.getElementById(
+        'newType'
+    ).value =
+        'FAQ';
+document.getElementById(
+    'newCategory'
+).value =
+    'FAQ Crohn';
+
+    switchTab(
+        {
+            target:
+            document.querySelector(
+                '.tab-btn:nth-child(8)'
+            )
+        },
+        'add'
+    );
+
+    alert(
+        'FAQ voorstel aangemaakt'
+    );
+}
 
 // INIT
 renderVoeding('dieet');

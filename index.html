@@ -1209,10 +1209,10 @@ async function saveCCVJson(
 // =========================
 
 const CCV_FILE_ID =
-"PLAATS_HIER_JE_CCV_JSON_FILE_ID";
+"2B4CCFD79FF4714A!s3451c122bf304e639899a9f1060c96ff";
 
 async function loadCCV(){
-
+console.log("loadCCV gestart");
     try{
 
         const data =
@@ -1656,9 +1656,15 @@ if (tabName === 'faqbeheer') {
     return data;
 }
 
-    function renderCCVDashboard(){
+    async function renderCCVDashboard(){
 
-  const data = loadCCV().filter(x => x.type === 'taken');
+  const allData =
+    await loadCCV();
+
+  const data =
+    allData.filter(
+      x => x.type === 'taken'
+    );
 
   const totaal = data.length;
   const open = data.filter(t => t.status === 'Aan te maken').length;
@@ -3056,9 +3062,10 @@ async function approveFAQ(id){
       return String(value).replace(/'/g, "\\'");
     }
 
-    function renderCCVOverview() {
-  const type = document.getElementById('ccvQuickView').value;
-  const data = loadCCV();
+    async function renderCCVOverview(){
+
+  const data =
+    await loadCCV();
 
   const taken = data.filter(x => x.type === 'taken');
   const meetings = data.filter(x => x.type === 'vergaderingen');
@@ -3528,51 +3535,74 @@ console.log("FAQ klaar");
 // CCV MODULE (NIEUW)
 // =========================
 
-function addCCV(type,obj){
-  const data = loadCCV();
+async function addCCV(type,obj){
+
+  const data =
+    await loadCCV();
+
   obj.id = Date.now();
   obj.type = type;
+
   data.unshift(obj);
-  saveCCV(data);
-  renderCCV(type);
+
+  await saveCCV(data);
+
+  await renderCCV(type);
+
 }
 
 // TAB SWITCH
-function switchCCVTab(evt, tab){
+async function switchCCVTab(evt,tab){
   console.log("TAB:", tab);
   document.querySelectorAll('#ccvtab .tab-btn').forEach(b=>b.classList.remove('active'));
   evt.target.classList.add('active');
-  renderCCV(tab);
+  await renderCCV(tab);
 }
 
 // SEARCH (LOS VAN ANDERE SEARCH)
-function searchCCV(){
-  const t = document.getElementById('ccvSearchInput').value.toLowerCase();
-  const data = loadCCV().filter(x =>
-    JSON.stringify(x).toLowerCase().includes(t)
-  );
-  renderCCVResults(data);
+async function searchCCV(){
+
+  const allData =
+    await loadCCV();
+
+  const data =
+    allData.filter(
+      x =>
+      JSON.stringify(x)
+      .toLowerCase()
+      .includes(t)
+    );
 }
 
 // =========================
 // RENDER CORE
 // =========================
 
-function renderCCV(tab){
-  if(tab==='taken') renderTaken();
-  if(tab==='werkgroepen') renderWG();
-  if(tab==='vergaderingen') renderMeetings();
-  if(tab==='projecten') renderProjects();
-  if(tab==='documenten') renderDocs();
+async function renderCCV(tab){
+
+  if(tab==='taken')
+    await renderTaken();
+
+  if(tab==='werkgroepen')
+    await renderWG();
+
+  if(tab==='vergaderingen')
+    await renderMeetings();
+
+  if(tab==='projecten')
+    await renderProjects();
+
+  if(tab==='documenten')
+    await renderDocs();
+
   if(tab==='leden')
-    renderMembers();
+    await renderMembers();
 
-if(tab==='agenda')
-    renderAgenda();
+  if(tab==='agenda')
+    await renderAgenda();
 
-if(tab==='archief')
-    renderArchive();
-
+  if(tab==='archief')
+    await renderArchive();
 }
 
 function renderCCVResults(data){
@@ -3584,18 +3614,21 @@ function renderCCVResults(data){
 // TAKEN
 // =========================
 
-function renderTaken(){
+async function renderTaken(){
+console.log("renderTaken gestart");
 
-  const data =
-    loadCCV().filter(
-      x=>x.type==='taken'
-    );
+  const allData =
+  await loadCCV();
 
-  const projecten =
-    loadCCV()
-    .filter(
-      x=>x.type==='projecten'
-    );
+const data =
+  allData.filter(
+    x => x.type === 'taken'
+  );
+
+ const projecten =
+  allData.filter(
+    x => x.type === 'projecten'
+  );
 
   const projectOptions =
     projecten.map(p=>`
@@ -3658,10 +3691,9 @@ function renderTaken(){
       👥 ${d.people}<br>
 
 📁 ${
-  loadCCV()
-    .find(
-      p=>p.id==d.projectId
-    )?.title || 'Geen project'
+  allData.find(
+    p => p.id == d.projectId
+  )?.title || 'Geen project'
 }<br>
 
 📅 ${d.date}<br>
@@ -3679,8 +3711,8 @@ renderCCVDashboard(); // ✅ HIER
 
 }
 
-function saveTask(){
-  addCCV('taken',{
+async function saveTask(){
+  await addCCV('taken',{
     title: t_title.value,
     owner: t_owner.value,
     group: t_group.value,
@@ -3726,20 +3758,26 @@ const data =
   document.getElementById('ccvContent').innerHTML = html;
 }
 
-function saveWG(){
-  addCCV('werkgroepen',{
+async function saveWG(){
+
+  await addCCV('werkgroepen',{
     name: wg_name.value,
     leader: wg_leader.value,
     members: wg_members.value
   });
+
 }
 
 // =========================
 // VERGADERINGEN
 // =========================
 
-function renderMeetings(){
-  const data = loadCCV().filter(x=>x.type==='vergaderingen');
+async function renderMeetings(){
+  const allData = await loadCCV();
+
+const data = allData.filter(
+  x => x.type === 'vergaderingen'
+);
 
   let html=`
   <h3>Nieuwe vergadering</h3>
@@ -3795,11 +3833,15 @@ d.attachments.join('<br>📎 ')
   document.getElementById('ccvContent').innerHTML = html;
 }
 
-function renderProjects(){
+async function renderProjects(){
+
+  const allData =
+    await loadCCV();
 
   const data =
-    loadCCV()
-    .filter(x => x.type === 'projecten');
+    allData.filter(
+      x => x.type === 'projecten'
+    );
 
   let html = `
     <h3>Nieuw project</h3>
@@ -3889,7 +3931,7 @@ p.attachments.join('<br>📎 ')
   ).innerHTML = html;
 }
 
-function saveProject(){
+async function saveProject(){
 
   const files =
     Array.from(
@@ -3898,20 +3940,20 @@ function saveProject(){
       ).files
     );
 
-  addCCV(
+  await addCCV(
     'projecten',
     {
       title: p_title.value,
       owner: p_owner.value,
-      start:p_start.value,
-end:p_end.value,
-members:p_members.value,
+      start: p_start.value,
+      end: p_end.value,
+      members: p_members.value,
       status: p_status.value,
       notes: p_notes.value,
-      
-      tasks:[],
-documents:[],
-meetings:[],
+
+      tasks: [],
+      documents: [],
+      meetings: [],
 
       attachments:
         files.map(
@@ -3919,9 +3961,7 @@ meetings:[],
         )
     }
   );
-createProjectFolder(
-    p_title.value
-);
+
 }
 
 async function createProjectFolder(
@@ -3990,8 +4030,9 @@ async function createMeetingFolder(
 // DOCUMENTEN
 // =========================
 
-function renderDocs(){
-  const data = loadCCV().filter(x=>x.type==='documenten');
+async function renderDocs(){
+  const allData = await loadCCV();
+  const data = allData.filter(x=>x.type==='documenten');
 
   let html=`
   <h3>Nieuw document</h3>
@@ -4020,8 +4061,15 @@ function saveDoc(){
 // LEDEN
 // =========================
 
-function renderMembers(){
-  const data = loadCCV().filter(x=>x.type==='leden');
+async function renderMembers(){
+
+  const allData =
+    await loadCCV();
+
+  const data =
+    allData.filter(
+      x => x.type === 'leden'
+    );
 
   let html=`
   <h3>Nieuw lid</h3>
@@ -4052,9 +4100,10 @@ function saveMember(){
   });
 }
 
-function renderAgenda(){
+async function renderAgenda(){
 
-  const data = loadCCV();
+  const data =
+    await loadCCV();
 
   const agenda = [
 
@@ -4427,8 +4476,8 @@ document.getElementById('ccvDynamicForm').innerHTML = '';
 }
 
 // init
-renderCCV('taken');
-renderCCVDashboard();
+// renderCCV('taken');
+// renderCCVDashboard();
 // renderCCVOverview();
 
 // =========================

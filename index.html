@@ -1001,12 +1001,6 @@ Sociale Gids
 
 </div>
 
-<div
-    id="recordsList"
-    style="margin-top:16px;"
->
-</div>
-
 <hr style="margin:25px 0;">
 
 <div
@@ -1022,7 +1016,24 @@ Sociale Gids
     om door de OneDrive-structuur te bladeren.
 </div>
 
+<button
+    class="btn btn-primary"
+    onclick="loadCCVSubFolders()"
+>
+    🤝 Open CCV-VZW
+</button>
+
+<div id="driveExplorer"
+     style="
+        margin-top:15px;
+        display:block;
+     ">
+</div>
+
+<hr style="margin:15px 0;">
+
 <!-- TERUGKNOP -->
+
 <div
     id="driveNavigation"
     style="
@@ -1063,27 +1074,16 @@ Sociale Gids
     >
         📂 Huidige map:
     </div>
-
-</div>
-
-<button
-    class="btn btn-primary"
-    onclick="loadCCVSubFolders()"
->
-    🤝 Open CCV-VZW
-</button>
+    </div>
 
 <hr style="margin:15px 0;">
 
-<div id="driveExplorer"
-     style="
-        margin-top:15px;
-        display:block;
-     ">
+<div
+    id="recordsList"
+    style="margin-top:16px;"
+>
 </div>
-      </div>
-    </div>
-
+      
     <!-- Backup -->
     <div id="backup" class="tab-content">
       <div class="admin-section">

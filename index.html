@@ -1718,39 +1718,23 @@ console.log(allData);
 }
       let faqResults = [];
 
-Object.entries(faqData).forEach(
+const faqItems =
+    allData.filter(
+        item =>
+            (item.category || item.categorie || '')
+            .startsWith('FAQ')
+    );
 
-  ([group, questions]) => {
-
-    questions.forEach(q => {
-
-      if(
-        q.toLowerCase()
+faqResults =
+    faqItems.filter(item =>
+        (
+            (item.title || item.titel || '') +
+            ' ' +
+            (item.content || item.inhoud || '')
+        )
+        .toLowerCase()
         .includes(searchTerm)
-      ){
-
-        faqResults.push({
-
-          title: q,
-
-          category: 'FAQ',
-
-          type: 'FAQ',
-
-          source: group,
-
-          content:
-            'Veelgestelde vraag'
-
-        });
-
-      }
-
-    });
-
-  }
-
-);
+    );
 
 let ccvResults = [];
 const meetingResults =
@@ -2485,9 +2469,14 @@ ${escapeHtml(item.type || '')}
 
             <div class="card">
 
-                <h3>${index+1}. ${item.title}</h3>
+                <h3>
+${index+1}.
+${item.title || item.titel || 'Geen titel'}
+</h3>
 
-                <p>${item.content || ''}</p>
+<p>
+${item.content || item.inhoud || ''}
+</p>
 
             </div>
 
@@ -2538,9 +2527,14 @@ async function filterFAQ(){
 
             <div class="card">
 
-                <h3>${index+1}. ${item.title}</h3>
+                <h3>
+${index+1}.
+${item.title || item.titel || 'Geen titel'}
+</h3>
 
-                <p>${item.content || ''}</p>
+<p>
+${item.content || item.inhoud || ''}
+</p>
 
             </div>
 

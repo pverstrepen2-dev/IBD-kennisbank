@@ -1316,10 +1316,9 @@ let breadcrumbPath = [
 }
     };
 
-    function loadData() {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      try { return raw ? JSON.parse(raw) : []; } catch { return []; }
-    }
+    async function loadData(){
+    return await getKnowledgeData();
+}
 
     function saveData(data) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
@@ -1448,10 +1447,18 @@ if(disease === 'ccv'){
       return diseases.some(d => allowed.includes(d));
     }
 
-    function getFilteredData() {
-      const data = loadData();
-      return data.filter(item => (!item.language || item.language === currentLang) && itemMatchesDisease(item));
-    }
+    async function getFilteredData(){
+
+    const data =
+        await loadData();
+
+    return data.filter(item =>
+        (!item.language ||
+         item.language === currentLang)
+        &&
+        itemMatchesDisease(item)
+    );
+}
 
     function renderCCVDashboard(){
 
@@ -1489,8 +1496,9 @@ if(disease === 'ccv'){
     </div>
   `;
 }
-    function updateDashboard() {
-      const data = getFilteredData();
+    async function updateDashboard() {
+      const data =
+    await getFilteredData();
       const categories = [...new Set(data.map(x => x.category).filter(Boolean))];
       const withLinks = data.filter(x => x.url).length;
       const withTips = data.filter(x => x.type === 'Tip').length;
@@ -1552,7 +1560,7 @@ function openDashboardView(type){
   displayResults(data);
 }
 
-    function updateCategoryGrid() {
+    async function updateCategoryGrid() {
       if(
     currentHoofdgroep === 'voeding'
 ){
@@ -1576,7 +1584,8 @@ if(
     return;
 
 }
-      const data = getFilteredData();
+      const data =
+    await getFilteredData();
       const allowed = getAllowedSections();
 
       const counts = {};
@@ -1681,10 +1690,11 @@ if(
       if (categories.includes(current)) select.value = current;
     }
 
-    function performSearch() {
+    async function performSearch() {
       console.log("SEARCH ACTIEF");
       console.log("performSearch gestart");
-      const allData = getFilteredData();
+      const allData =
+    await getFilteredData();
       const searchTerm = (document.getElementById('searchInput')?.value || '').toLowerCase();
       console.log("ZOEKTERM:", searchTerm);
 
@@ -2304,9 +2314,19 @@ function toggleFavoritesFilter() {
       performSearch();
     }
 
-    function updateRecordsList() {
+    async function updateRecordsList() {
       const term = (document.getElementById('manageSearch')?.value || '').toLowerCase();
-      const data = loadData().filter(item => (item.title || '').toLowerCase().includes(term));
+      const allData =
+    await loadData();
+
+const data =
+    allData.filter(
+        item =>
+            (item.title || '')
+            .toLowerCase()
+            .includes(term)
+    );
+
       const list = document.getElementById('recordsList');
       if (!list) return;
 

@@ -964,10 +964,24 @@ Sociale Gids
     <!-- Manage -->
     <div id="manage" class="tab-content">
       <div class="admin-section">
-        <div class="admin-title">⚙️ Beheer alle items</div>
+       <div class="admin-title">
+    ⚙️ Beheer alle items
+</div>
 
-        <input type="text" id="manageSearch" placeholder="Filter op titel..." />
-       <div
+<input
+    type="text"
+    id="manageSearch"
+    placeholder="Filter op titel..."
+/>
+
+<div
+    id="manageCount"
+    class="notice"
+    style="margin-top:10px;"
+>
+</div>
+
+<div
     style="
         margin-top:10px;
         margin-bottom:10px;
@@ -987,10 +1001,15 @@ Sociale Gids
 
 </div>
 
-        <div id="recordsList" style="margin-top:16px;"></div>
-        <hr style="margin:25px 0;">
+<div
+    id="recordsList"
+    style="margin-top:16px;"
+>
+</div>
 
-<<div
+<hr style="margin:25px 0;">
+
+<div
     class="admin-title"
     style="cursor:pointer;"
     onclick="toggleExplorer()"
@@ -2384,13 +2403,25 @@ const data =
 
     });
 
-      const list = document.getElementById('recordsList');
-      if (!list) return;
-      document.getElementById(
-    "manageCount"
-).innerText =
-    data.length +
-    " items gevonden";
+      const list =
+    document.getElementById(
+        'recordsList'
+    );
+
+if (!list) return;
+
+const countEl =
+    document.getElementById(
+        "manageCount"
+    );
+
+if(countEl){
+
+    countEl.innerText =
+        data.length +
+        " items gevonden";
+
+}
 
       list.innerHTML = data.length ? data.map(item => `
         <div class="record-row">

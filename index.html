@@ -967,11 +967,34 @@ Sociale Gids
         <div class="admin-title">⚙️ Beheer alle items</div>
 
         <input type="text" id="manageSearch" placeholder="Filter op titel..." />
+       <div
+    style="
+        margin-top:10px;
+        margin-bottom:10px;
+    "
+>
+
+    <select
+        id="manageCategory"
+        onchange="updateRecordsList()"
+    >
+
+        <option value="">
+            Alle categorieën
+        </option>
+
+    </select>
+
+</div>
 
         <div id="recordsList" style="margin-top:16px;"></div>
         <hr style="margin:25px 0;">
 
-<div class="admin-title">
+<<div
+    class="admin-title"
+    style="cursor:pointer;"
+    onclick="toggleExplorer()"
+>
     📁 OneDrive Verkenner
 </div>
 
@@ -981,7 +1004,13 @@ Sociale Gids
 </div>
 
 <!-- TERUGKNOP -->
-<div id="driveNavigation" style="margin-bottom:15px;">
+<<div
+    id="driveNavigation"
+    style="
+        display:none;
+        margin-bottom:15px;
+    "
+>
 
     <button
         id="backBtn"
@@ -2313,19 +2342,55 @@ function toggleFavoritesFilter() {
 
     async function updateRecordsList() {
       const term = (document.getElementById('manageSearch')?.value || '').toLowerCase();
+
+      const categoryFilter =
+    document.getElementById(
+        'manageCategory'
+    )?.value || '';
+
       const allData =
     await loadData();
 
 const data =
-    allData.filter(
-        item =>
-            (item.title || item.titel || '')
-            .toLowerCase()
-            .includes(term)
-    );
+    allData.filter(item => {
+
+        const title =
+            (
+                item.title ||
+                item.titel ||
+                ''
+            ).toLowerCase();
+
+        const category =
+            item.category ||
+            item.categorie ||
+            '';
+
+        if(
+            term &&
+            !title.includes(term)
+        ){
+            return false;
+        }
+
+        if(
+            categoryFilter &&
+            category !== categoryFilter
+        ){
+            return false;
+        }
+
+        return true;
+
+    });
 
       const list = document.getElementById('recordsList');
       if (!list) return;
+      document.getElementById(
+    "manageCount"
+).innerText =
+    data.length +
+    " items gevonden";
 
       list.innerHTML = data.length ? data.map(item => `
         <div class="record-row">
@@ -2359,6 +2424,11 @@ const data =
     </span>
 
 </div>
+<button
+    class="btn btn-sm btn-success"
+    onclick="openKnowledgeFile('${item.id}')">
+    📂 Open
+</button>
           <button
     class="btn btn-sm btn-primary"
     onclick="generateFaqFromItem('${item.id}')">
@@ -4725,6 +4795,48 @@ document.getElementById(
     alert(
         'FAQ voorstel aangemaakt'
     );
+}
+
+async function openKnowledgeFile(id){
+
+    const data =
+        await getKnowledgeData();
+
+    const item =
+        data.find(
+            x =>
+                String(x.id) === String(id)
+        );
+
+    if(!item){
+        alert("Document niet gevonden");
+        return;
+    }
+
+    if(item.bestand){
+        window.open(
+            item.bestand,
+            "_blank"
+        );
+    }
+}
+
+function toggleExplorer(){
+
+    const nav =
+        document.getElementById(
+            "driveNavigation"
+        );
+
+    if(
+        nav.style.display === "none"
+    ){
+        nav.style.display = "block";
+    }
+    else{
+        nav.style.display = "none";
+    }
+
 }
 
 // INIT

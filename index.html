@@ -2104,6 +2104,7 @@ const search =
         )?.value || ''
     ).toLowerCase();
 
+
   const favs = loadFavorites();
 
   const filtered = all
@@ -2324,31 +2325,34 @@ const data =
         <div class="record-row">
           <div>
 
-  ${
-      item.bestand
-      ? item.bestand
-      : escapeHtml(
-            item.title ||
+    <strong>
+        ${escapeHtml(
             item.titel ||
+            item.title ||
             'Geen titel'
-        )
-  }
-            <span class="notice">
-${escapeHtml(
-    item.disease ||
-    item.sectie ||
-    ''
-)}
-|
-${escapeHtml(
-    item.category ||
-    item.categorie ||
-    ''
-)}
-|
-${escapeHtml(item.type || '')}
-</span>
-          </div>
+        )}
+    </strong>
+
+    <br>
+
+    <span class="notice">
+
+        ${escapeHtml(
+            item.category ||
+            item.categorie ||
+            ''
+        )}
+
+        |
+
+        ${escapeHtml(
+            item.type ||
+            ''
+        )}
+
+    </span>
+
+</div>
           <button
     class="btn btn-sm btn-primary"
     onclick="generateFaqFromItem('${item.id}')">

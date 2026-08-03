@@ -2322,7 +2322,7 @@ function toggleFavoritesFilter() {
 const data =
     allData.filter(
         item =>
-            (item.title || '')
+            (item.title || item.titel || '')
             .toLowerCase()
             .includes(term)
     );
@@ -2333,8 +2333,26 @@ const data =
       list.innerHTML = data.length ? data.map(item => `
         <div class="record-row">
           <div>
-            <strong>${escapeHtml(item.title || 'Geen titel')}</strong><br />
-            <span class="notice">${escapeHtml(item.disease || '')} | ${escapeHtml(item.category || '')} | ${escapeHtml(item.type || '')}</span>
+            ${escapeHtml(
+    item.title ||
+    item.titel ||
+    'Geen titel'
+)}
+            <span class="notice">
+${escapeHtml(
+    item.disease ||
+    item.sectie ||
+    ''
+)}
+|
+${escapeHtml(
+    item.category ||
+    item.categorie ||
+    ''
+)}
+|
+${escapeHtml(item.type || '')}
+</span>
           </div>
           <button class="btn btn-sm btn-danger" onclick="deleteRecord('${item.id}')">🗑️</button>
         </div>

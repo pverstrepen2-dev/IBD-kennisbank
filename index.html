@@ -5115,6 +5115,31 @@ async function openDriveFolder(
         const data =
             await response.json();
 
+            console.log(
+    "===== INHOUD MAP ====="
+);
+
+data.value.forEach(item => {
+
+    console.log(
+        "BESTAND:",
+        item.name
+    );
+
+    console.log(
+        "ID:",
+        item.id
+    );
+
+    console.log(
+        "TYPE:",
+        item.folder
+            ? "MAP"
+            : "BESTAND"
+    );
+
+});
+
             oneDriveIndex = data.value.map(
     item => ({
 

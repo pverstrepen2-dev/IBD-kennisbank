@@ -599,6 +599,11 @@ class="btn btn-primary"
     🎬 GutFlix
 </button>
 
+<button class="tab-btn"
+        onclick="switchTab(event, 'faqbeheer')">
+    ❓ FAQ Beheer
+</button>
+
      <button
     class="tab-btn"
     onclick="switchTab(event, 'voeding')"
@@ -737,7 +742,38 @@ class="btn btn-primary"
   </div>
 
 </div>
+<!-- FAQ BEHEER -->
+<div id="faqbeheer" class="tab-content">
 
+    <div class="admin-section">
+
+        <div class="admin-title">
+            ❓ FAQ Beheer
+        </div>
+
+        <input
+            type="text"
+            id="faqBeheerSearch"
+            placeholder="Zoek FAQ..."
+            oninput="renderFAQBeheer()"
+        />
+
+        <div
+            id="faqBeheerCount"
+            class="notice"
+            style="margin-top:10px;"
+        >
+        </div>
+
+        <div
+            id="faqBeheerContainer"
+            style="margin-top:15px;"
+        >
+        </div>
+
+    </div>
+
+</div>
 <!-- GutFlix -->
 <div
   id="gutflix"
@@ -1475,6 +1511,8 @@ if(disease === 'ccv'){
       if (tabName === 'search') performSearch();
            if (tabName === 'manage') {
     updateRecordsList();
+    if (tabName === 'faqbeheer')
+    renderFAQBeheer();
 document.getElementById("driveExplorer").style.display = "block";
     setTimeout(() => {
         loadCCVSubFolders();
@@ -2630,6 +2668,72 @@ ${item.content || item.inhoud || ''}
             </div>
 
         `).join('');
+}
+
+async function renderFAQBeheer(){
+
+    const data =
+        await getKnowledgeData();
+
+    const search =
+        (
+            document.getElementById(
+                'faqBeheerSearch'
+            )?.value || ''
+        ).toLowerCase();
+
+    const faqItems =
+        data.filter(item => {
+
+            const category =
+                item.category || '';
+
+            if(
+                !category.startsWith('FAQ')
+            ){
+                return false;
+            }
+
+            const txt =
+                JSON.stringify(item)
+                .toLowerCase();
+
+            if(
+                search &&
+                !txt.includes(search)
+            ){
+                return false;
+            }
+
+            return true;
+
+        });
+
+    document.getElementById(
+        'faqBeheerCount'
+    ).innerText =
+        faqItems.length +
+        ' FAQ records';
+
+    document.getElementById(
+        'faqBeheerContainer'
+    ).innerHTML =
+        faqItems.map(item => `
+
+            <div class="card">
+
+                <b>
+                    ${item.title || ''}
+                </b>
+
+                <br>
+
+                📂 ${item.category || ''}
+
+            </div>
+
+        `).join('');
+
 }
 
 async function filterFAQ(){

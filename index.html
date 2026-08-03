@@ -4006,10 +4006,10 @@ async function saveMeeting(){
         )
     }
   );
-  await createMeetingFolder(
-    m_title.value,
-    m_date.value
-);
+  // await createMeetingFolder(
+//     m_title.value,
+//     m_date.value
+// );
 
 }
 
@@ -4018,8 +4018,7 @@ async function createMeetingFolder(
     date
 ){
 
-    const meetingsFolderId =
-        "ID_VAN_VERGADERINGEN_MAP";
+   return;
 
     const folderName =
         title + "_" + date;

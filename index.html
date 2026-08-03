@@ -3981,7 +3981,7 @@ async function createProjectFolder(
     );
 }
 
-function saveMeeting(){
+async function saveMeeting(){
 
   const files =
     Array.from(
@@ -3990,7 +3990,7 @@ function saveMeeting(){
       ).files
     );
 
-  addCCV(
+  await addCCV(
     'vergaderingen',
     {
       title: m_title.value,
@@ -4006,7 +4006,7 @@ function saveMeeting(){
         )
     }
   );
-  createMeetingFolder(
+  await createMeetingFolder(
     m_title.value,
     m_date.value
 );
@@ -4054,11 +4054,16 @@ async function renderDocs(){
   document.getElementById('ccvContent').innerHTML = html;
 }
 
-function saveDoc(){
-  addCCV('documenten',{
-    title: d_title.value,
-    url: d_url.value
-  });
+async function saveDoc(){
+
+  await addCCV(
+    'documenten',
+    {
+      title: d_title.value,
+      url: d_url.value
+    }
+  );
+
 }
 
 // =========================
@@ -4096,12 +4101,17 @@ async function renderMembers(){
   document.getElementById('ccvContent').innerHTML = html;
 }
 
-function saveMember(){
-  addCCV('leden',{
-    name: l_name.value,
-    region: l_region.value,
-    contact: l_contact.value
-  });
+async function saveMember(){
+
+  await addCCV(
+    'leden',
+    {
+      name: l_name.value,
+      region: l_region.value,
+      contact: l_contact.value
+    }
+  );
+
 }
 
 async function renderAgenda(){
@@ -4408,7 +4418,7 @@ Gebruik bij matige tot ernstige IBD`;
 }
 
 
-function saveCCVUniversal(type){
+async function saveCCVUniversal(type){
   let obj = {};
 
  if(type==='taken'){
@@ -4471,8 +4481,11 @@ if(type==='projecten'){
     };
   }
 
-  addCCV(type, obj);
-  renderCCV(type);
+  await addCCV(
+    type,
+    obj
+);
+
   // formulier sluiten na opslaan
 document.getElementById('ccvFormWrapper').style.display = 'none';
 document.getElementById('ccvTypeSelect').value = '';

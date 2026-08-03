@@ -1023,7 +1023,7 @@ Sociale Gids
 </div>
 
 <!-- TERUGKNOP -->
-<<div
+<div
     id="driveNavigation"
     style="
         display:none;
@@ -1078,7 +1078,7 @@ Sociale Gids
 <div id="driveExplorer"
      style="
         margin-top:15px;
-        display:none;
+        display:block;
      ">
 </div>
       </div>
@@ -1473,7 +1473,14 @@ if(disease === 'ccv'){
       if (tabName === 'dashboard') updateDashboard();
       if (tabName === 'categories') updateCategoryGrid();
       if (tabName === 'search') performSearch();
-           if (tabName === 'manage') updateRecordsList();
+           if (tabName === 'manage') {
+    updateRecordsList();
+
+    setTimeout(() => {
+        loadCCVSubFolders();
+    }, 200);
+}
+
       if (tabName === 'websites') refreshWebsitesOverview();
       if (tabName === 'voeding') renderVoeding('dieet');
     }
@@ -4186,6 +4193,7 @@ document.getElementById(
 
 async function loadCCVSubFolders(){
   console.log("START loadCCVSubFolders");
+  console.log("CCV VERKENNER WORDT GELADEN");
 
     try{
 

@@ -1475,7 +1475,7 @@ if(disease === 'ccv'){
       if (tabName === 'search') performSearch();
            if (tabName === 'manage') {
     updateRecordsList();
-
+document.getElementById("driveExplorer").style.display = "block";
     setTimeout(() => {
         loadCCVSubFolders();
     }, 200);

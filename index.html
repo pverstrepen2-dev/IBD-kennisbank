@@ -2074,7 +2074,7 @@ Object.entries(groups)
 `).join('');
     }
 
-    function refreshWebsitesOverview() {
+    async function refreshWebsitesOverview() {
 
   function detectCountry(url){
     if(!url) return 'Overig';
@@ -2087,7 +2087,11 @@ Object.entries(groups)
     return 'Overig';
   }
 
-  const all = loadData().filter(item => item && item.url);
+  const sourceData =
+    await loadData();
+
+const all =
+    sourceData.filter(
 
   const search =
     (document.getElementById('websitesSearch')?.value || '')
@@ -2312,11 +2316,16 @@ const data =
       list.innerHTML = data.length ? data.map(item => `
         <div class="record-row">
           <div>
-            ${escapeHtml(
-    item.title ||
-    item.titel ||
-    'Geen titel'
-)}
+
+  ${
+      item.bestand
+      ? item.bestand
+      : escapeHtml(
+            item.title ||
+            item.titel ||
+            'Geen titel'
+        )
+  }
             <span class="notice">
 ${escapeHtml(
     item.disease ||

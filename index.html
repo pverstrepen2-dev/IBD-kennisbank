@@ -2794,6 +2794,76 @@ ${item.content || item.inhoud || ''}
         `).join('');
 }
 
+async function editFAQ(id){
+
+    const data =
+        await getKnowledgeData();
+
+    const item =
+        data.find(
+            x =>
+            String(x.id) === String(id)
+        );
+
+    if(!item){
+        return;
+    }
+
+    document.getElementById(
+        'newTitle'
+    ).value =
+        item.title || '';
+
+    document.getElementById(
+        'newContent'
+    ).value =
+        item.content || '';
+
+    document.getElementById(
+        'newCategory'
+    ).value =
+        item.category || '';
+
+    switchTab(
+        {
+            target: document.querySelectorAll('.tab-btn')[7]
+        },
+        'add'
+    );
+}
+
+async function deleteFAQ(id){
+
+    if(
+        !confirm(
+            'FAQ verwijderen?'
+        )
+    ){
+        return;
+    }
+
+    const data =
+        await getKnowledgeData();
+
+    const filtered =
+        data.filter(
+            item =>
+                String(item.id) !==
+                String(id)
+        );
+
+    databaseCache.knowledgeData =
+        filtered;
+
+    await saveDatabaseJson();
+
+    renderFAQBeheer();
+
+    showNotification(
+        'FAQ verwijderd'
+    );
+}
+
     function escapeHtml(value) {
       return String(value)
         .replace(/&/g, '&amp;')

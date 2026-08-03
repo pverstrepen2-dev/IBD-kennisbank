@@ -2477,20 +2477,23 @@ if(countEl){
       `).join('') : `<div class="panel" style="padding:20px;">Geen items gevonden.</div>`;
     }
 
-    function deleteRecord(id) {
-      if (!confirm('Weet je zeker dat je dit item wilt verwijderen?')) return;
-      const data = loadData().filter(item => String(item.id) !== String(id));
-      saveData(data);
-      showNotification('Item verwijderd');
-      updateDashboard();
-      updateCategoryGrid();
-      performSearch();
-      updateRecordsList();
-      refreshWebsitesOverview();
-    }
+   async function deleteRecord(id){
 
-    function exportData(format) {
-      const data = getFilteredData();
+    const data = await getKnowledgeData();
+
+    const filtered = data.filter(
+        item => String(item.id) !== String(id)
+    );
+
+    databaseCache.knowledgeData = filtered;
+
+    await saveDatabaseJson();
+
+    updateRecordsList();
+}
+
+    async function exportData(format) {
+const data = await getFilteredData();
       if (format === 'json') {
         downloadFile(JSON.stringify(data, null, 2), `ibd-export-${Date.now()}.json`, 'application/json');
       } else {
@@ -2503,10 +2506,18 @@ if(countEl){
       showNotification(`Export ${format.toUpperCase()} gedownload`);
     }
 
-    function downloadBackup() {
-      downloadFile(JSON.stringify(loadData(), null, 2), `ibd-backup-${Date.now()}.json`, 'application/json');
-      showNotification('Backup gemaakt');
-    }
+    async function downloadBackup() {
+
+    const data = await loadData();
+
+    downloadFile(
+        JSON.stringify(data, null, 2),
+        `ibd-backup-${Date.now()}.json`,
+        'application/json'
+    );
+
+    showNotification('Backup gemaakt');
+}
 
     function restoreBackup(event) {
       const file = event.target.files?.[0];

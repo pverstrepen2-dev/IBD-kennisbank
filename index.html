@@ -2638,7 +2638,7 @@ if(toggleBtn){
       cb.addEventListener('change', updateCategoryOptions);
     });
 
-    document.getElementById('addItemForm').addEventListener('submit', e => {
+    document.getElementById('addItemForm').addEventListener('submit', async e => {
       e.preventDefault();
 
       const diseases = Array.from(document.querySelectorAll('#addItemForm input[name="disease"]:checked'))
@@ -2661,19 +2661,31 @@ if(toggleBtn){
         tags: document.getElementById('newTags').value.trim()
       };
 
-      const data = loadData();
-      data.unshift(newItem);
-      saveData(data);
+      const data =
+    await loadData();
 
-      showNotification('Item opgeslagen');
-      e.target.reset();
-      document.querySelector('#addItemForm input[name="disease"][value="Crohn"]').checked = true;
-      updateCategoryOptions();
-      updateDashboard();
-      updateCategoryGrid();
-      performSearch();
-      updateRecordsList();
-      refreshWebsitesOverview();
+data.unshift(
+    newItem
+);
+      databaseCache.knowledgeData = data;
+
+await saveDatabaseJson();
+
+     showNotification(
+    'Item opgeslagen'
+);
+
+e.target.reset();
+
+await updateDashboard();
+
+await updateCategoryGrid();
+
+await performSearch();
+
+await updateRecordsList();
+
+await refreshWebsitesOverview();
     });
 
     // Init

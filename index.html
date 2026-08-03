@@ -1204,6 +1204,58 @@ async function saveCCVJson(
     );
 }
 
+    // =========================
+// CCV DATABASE
+// =========================
+
+const CCV_FILE_ID =
+"PLAATS_HIER_JE_CCV_JSON_FILE_ID";
+
+async function loadCCV(){
+
+    try{
+
+        const data =
+            await loadCCVJson(
+                CCV_FILE_ID
+            );
+
+        return data || [];
+
+    }
+    catch(error){
+
+        console.error(
+            "CCV load fout:",
+            error
+        );
+
+        return [];
+    }
+
+}
+
+async function saveCCV(data){
+
+    try{
+
+        await saveCCVJson(
+            CCV_FILE_ID,
+            data
+        );
+
+    }
+    catch(error){
+
+        console.error(
+            "CCV save fout:",
+            error
+        );
+
+    }
+
+}
+
 const VOEDING_KEY = 'voeding_data';
 function loadVoeding(){
   return JSON.parse(localStorage.getItem(VOEDING_KEY) || '[]');
@@ -3487,6 +3539,7 @@ function addCCV(type,obj){
 
 // TAB SWITCH
 function switchCCVTab(evt, tab){
+  console.log("TAB:", tab);
   document.querySelectorAll('#ccvtab .tab-btn').forEach(b=>b.classList.remove('active'));
   evt.target.classList.add('active');
   renderCCV(tab);
@@ -3647,8 +3700,14 @@ function saveTask(){
 // WERKGROEP
 // =========================
 
-function renderWG(){
-  const data = loadCCV().filter(x=>x.type==='werkgroepen');
+async function renderWG(){
+  const allData =
+    await loadCCV();
+
+const data =
+    allData.filter(
+       x=>x.type==='werkgroepen'
+    );
 
   let html=`
   <h3>Nieuwe werkgroep</h3>
@@ -4052,43 +4111,33 @@ function renderAgenda(){
 
 }
 
-function renderArchive(){
+async function renderArchive(){
 
-  const data = loadCCV()
+    console.log("ARCHIEF GESTART");
 
-    .filter(
-      x =>
+    const allData =
+        await loadCCV();
 
-      x.status === 'Afgerond'
+    const data =
+        allData.filter(
+            x =>
+            x.status === 'Afgerond'
+            ||
+            x.status === 'Beëindigd'
+        );
 
-      ||
+    document
+        .getElementById('ccvContent')
+        .innerHTML =
 
-      x.status === 'Beëindigd'
-    );
-
-  document
-    .getElementById(
-      'ccvContent'
-    )
-    .innerHTML =
-
-    data.map(item => `
-
-      <div class="card">
-
-        <b>
-          ${item.title}
-        </b>
-
-        <br>
-
-        📌 Status:
-        ${item.status}
-
-      </div>
-
-    `).join('');
-
+        data.map(item => `
+            <div class="card">
+                <b>${item.title}</b>
+                <br>
+                📌 Status:
+                ${item.status}
+            </div>
+        `).join('');
 }
 
 function toggleCCVForm() {

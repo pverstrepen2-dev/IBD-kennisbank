@@ -3988,6 +3988,9 @@ const data =
       </option>
     `).join('');
 
+const documents =
+    await loadDocuments();
+
   let html = `
   <h3>Nieuwe taak</h3>
   
@@ -4090,6 +4093,8 @@ async function saveTask(){
         projectId: t_project.value,
 
         topic: t_topic.value,
+        documentId:
+    t_document.value,
 
         people: t_people.value,
 
@@ -4286,8 +4291,24 @@ async function renderProjects(){
   const data =
     await loadProjects();
 
+    const documents =
+    await loadDocuments();
+
+const documentOptions =
+
+    documents.map(d => `
+
+        <option value="${d.id}">
+
+            ${d.title}
+
+        </option>
+
+    `).join('');
+
     const members =
     await loadMembers();
+
     const memberOptions =
     members.map(m => `
         <option value="${m.id}">
@@ -4341,6 +4362,18 @@ placeholder="Leden">
       placeholder="Beschrijving">
     </textarea>
 
+<h4>Document</h4>
+
+<select id="p_document">
+
+    <option value="">
+        Geen document
+    </option>
+
+    ${documentOptions}
+
+</select>
+
     <br>
 
 <label>📎 Bijlagen</label>
@@ -4376,9 +4409,47 @@ placeholder="Leden">
         📌 ${p.status}<br>
 
         📝 ${p.notes}
-        ${
-p.attachments
-?
+        <br>
+
+${
+    p.documentId
+
+    ?
+
+    (() => {
+
+        const doc =
+            documents.find(
+                d =>
+                    String(d.id) ===
+                    String(p.documentId)
+            );
+
+        return doc
+
+            ?
+
+            `<br>
+             📎
+             ${doc.url}
+
+               ${doc.title}
+
+             </a>`
+
+            :
+
+            '';
+
+    })()
+
+    :
+
+    ''
+}
+        
+        ${p.attachments?
+
 '<br><br>📎 '
 +
 p.attachments.join('<br>📎 ')
@@ -4426,13 +4497,16 @@ data.unshift({
 
     status: p_status.value,
 
-    notes: p_notes.value,
+notes: p_notes.value,
 
-    tasks: [],
+documentId:
+    p_document.value,
 
-    documents: [],
+tasks: [],
 
-    meetings: [],
+documents: [],
+
+meetings: [],
 
     attachments:
         files.map(
@@ -4561,15 +4635,22 @@ async function saveDoc(){
 
     data.unshift({
 
-        id: Date.now(),
+    id: Date.now(),
 
-        type: 'documenten',
+    type: 'documenten',
 
-        title: d_title.value,
+    title: d_title.value,
 
-        url: d_url.value
+    url: d_url.value,
 
-    });
+    projectIds: [],
+
+    taskIds: [],
+
+    meetingIds: []
+
+});
+
 
     await saveDocuments(
         data

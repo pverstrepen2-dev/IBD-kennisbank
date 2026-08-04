@@ -4710,6 +4710,15 @@ async function renderMembers(){
     </option>
 
 </select>
+<br><br>
+
+<button onclick="saveMember()">
+
+    Opslaan
+
+</button>
+
+<br><br>
 
   <h3>Overzicht</h3>
   `;
@@ -4721,13 +4730,13 @@ async function renderMembers(){
 
         <b>${d.name}</b><br>
 
-        📧 ${d.email || ''}<br>
+        ${d.email ? `📧 ${d.email}<br>` : ''}
 
-        📞 ${d.phone || ''}<br>
+${d.phone ? `📞 ${d.phone}<br>` : ''}
 
-        📍 ${d.region || ''}<br>
+${d.region ? `📍 ${d.region}<br>` : ''}
 
-        🏷️ ${d.role || ''}
+${d.role ? `🏷️ ${d.role}<br>` : ''}
 
     </div>`;
 

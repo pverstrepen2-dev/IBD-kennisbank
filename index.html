@@ -4590,21 +4590,63 @@ async function renderMembers(){
 
   let html=`
   <h3>Nieuw lid</h3>
-  <input id="l_name" placeholder="Naam">
-  <input id="l_region" placeholder="Regio">
-  <input id="l_contact" placeholder="Contact">
-  <button onclick="saveMember()">Opslaan</button>
+ <input
+    id="l_name"
+    placeholder="Naam">
+
+<input
+    id="l_email"
+    placeholder="E-mail">
+
+<input
+    id="l_phone"
+    placeholder="Telefoon">
+
+<input
+    id="l_region"
+    placeholder="Regio">
+
+<select id="l_role">
+
+    <option value="">
+        Kies rol
+    </option>
+
+    <option>
+        Bestuur
+    </option>
+
+    <option>
+        Werkgroepverantwoordelijke
+    </option>
+
+    <option>
+        Vrijwilliger
+    </option>
+
+    <option>
+        Lid
+    </option>
+
+</select>
 
   <h3>Overzicht</h3>
   `;
 
-  data.forEach(d=>{
-    html+=`<div class="card">
-      <b>${d.name}</b><br>
-      ${d.region}<br>
-      ${d.contact}
-    </div>`;
-  });
+  dhtml += `
+<div class="card">
+
+    <b>${d.name}</b><br>
+
+    📧 ${d.email || ''}<br>
+
+    📞 ${d.phone || ''}<br>
+
+    📍 ${d.region || ''}<br>
+
+    🏷️ ${d.role || ''}
+
+</div>`;
 
   document.getElementById('ccvContent').innerHTML = html;
 }
@@ -4614,19 +4656,23 @@ async function saveMember(){
     const data =
         await loadMembers();
 
-    data.unshift({
+   data.unshift({
 
-        id: Date.now(),
+    id: Date.now(),
 
-        type: 'leden',
+    type: 'leden',
 
-        name: l_name.value,
+    name: l_name.value,
 
-        region: l_region.value,
+    email: l_email.value,
 
-        contact: l_contact.value
+    phone: l_phone.value,
 
-    });
+    region: l_region.value,
+
+    role: l_role.value
+
+});
 
     await saveMembers(
         data

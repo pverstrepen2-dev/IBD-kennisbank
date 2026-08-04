@@ -3966,6 +3966,16 @@ console.log("renderTaken gestart");
  const allData =
   await loadTasks();
 
+  const members =
+    await loadMembers();
+
+const memberOptions =
+    members.map(m => `
+        <option value="${m.id}">
+            ${m.name}
+        </option>
+    `).join('');
+
 const data =
   allData;
 
@@ -3985,7 +3995,15 @@ const data =
   <input type="file" id="voedingImport" accept=".json" style="display:none" onchange="importVoeding(event)">
 
   <input id="t_title" placeholder="Titel">
-  <input id="t_owner" placeholder="Inbrenger">
+  <select id="t_owner">
+
+    <option value="">
+        Kies eigenaar
+    </option>
+
+    ${memberOptions}
+
+</select>
   <input id="t_group" placeholder="Werkgroep">
 
 <select id="t_project">
@@ -4028,7 +4046,11 @@ const data =
     html+=`
     <div class="card">
       <b>${d.title}</b><br>
-      👤 ${d.owner}<br>
+      👤 ${
+    members.find(
+        m => String(m.id) === String(d.ownerId)
+    )?.name || 'Onbekend'
+}<br>
       👥 ${d.people}<br>
 
 📁 Geen project<br>
@@ -4096,10 +4118,28 @@ async function renderWG(){
 const data =
     await loadGroups();
 
+const members =
+    await loadMembers();
+
+const memberOptions =
+    members.map(m => `
+        <option value="${m.id}">
+            ${m.name}
+        </option>
+    `).join('');
+
   let html=`
   <h3>Nieuwe werkgroep</h3>
   <input id="wg_name" placeholder="Naam">
-  <input id="wg_leader" placeholder="Verantwoordelijke">
+  <select id="wg_leader">
+
+    <option value="">
+        Kies verantwoordelijke
+    </option>
+
+    ${memberOptions}
+
+</select>
   <input id="wg_members" placeholder="Leden">
   <button onclick="saveWG()">Opslaan</button>
 
@@ -4107,7 +4147,20 @@ const data =
   `;
 
   data.forEach(d=>{
-    html+=`<div class="card"><b>${d.name}</b><br>${d.members}</div>`;
+   html += `
+<div class="card">
+
+    <b>${d.name}</b><br>
+
+    👤 ${
+        members.find(
+            m => String(m.id) === String(d.leaderId)
+        )?.name || 'Onbekend'
+    }<br>
+
+    👥 ${d.members}
+
+</div>`;
   });
 
   document.getElementById('ccvContent').innerHTML = html;
@@ -4126,7 +4179,7 @@ async function saveWG(){
 
         name: wg_name.value,
 
-        leader: wg_leader.value,
+        leaderId: wg_leader.value,
 
         members: wg_members.value
 
@@ -4148,6 +4201,27 @@ async function renderMeetings(){
   const data =
     await loadMeetings();
 
+    const members =
+    await loadMembers();
+
+    const memberCheckboxes =
+    members.map(m => `
+
+        <label>
+
+            <input
+                type="checkbox"
+                class="meetingMember"
+                value="${m.id}">
+
+            ${m.name}
+
+        </label>
+
+        <br>
+
+    `).join('');
+
   let html=`
   <h3>Nieuwe vergadering</h3>
   <input id="m_title" placeholder="Titel">
@@ -4165,7 +4239,12 @@ async function renderMeetings(){
     id="m_actions"
     placeholder="Actiepunten">
 </textarea>
-  <br>
+
+<h4>Deelnemers</h4>
+
+${memberCheckboxes}
+
+<br>
 
 <label>📎 Bijlagen</label>
 
@@ -4207,23 +4286,39 @@ async function renderProjects(){
   const data =
     await loadProjects();
 
+    const members =
+    await loadMembers();
+    const memberOptions =
+    members.map(m => `
+        <option value="${m.id}">
+            ${m.name}
+        </option>
+    `).join('');
+
   let html = `
     <h3>Nieuw project</h3>
 
     <input
-      id="p_title"
-      placeholder="Projectnaam">
+    id="p_title"
+    placeholder="Projectnaam">
 
-    <input
-      id="p_owner"
-      placeholder="Verantwoordelijke">
-      <input
-type="date"
-id="p_start">
+<select id="p_owner">
+
+    <option value="">
+        Kies verantwoordelijke
+    </option>
+
+    ${memberOptions}
+
+</select>
 
 <input
-type="date"
-id="p_end">
+    type="date"
+    id="p_start">
+
+<input
+    type="date"
+    id="p_end">
 
     <select id="p_status">
 
@@ -4270,7 +4365,13 @@ placeholder="Leden">
 
         <b>${p.title}</b><br>
 
-        👤 ${p.owner}<br>
+        👤 ${
+    members.find(
+        m =>
+            String(m.id) ===
+            String(p.ownerId)
+    )?.name || 'Onbekend'
+}<br>
 
         📌 ${p.status}<br>
 
@@ -4304,27 +4405,47 @@ async function saveProject(){
       ).files
     );
 
-  await addCCV(
-    'projecten',
-    {
-      title: p_title.value,
-      owner: p_owner.value,
-      start: p_start.value,
-      end: p_end.value,
-      members: p_members.value,
-      status: p_status.value,
-      notes: p_notes.value,
+  const data =
+    await loadProjects();
 
-      tasks: [],
-      documents: [],
-      meetings: [],
+data.unshift({
 
-      attachments:
+    id: Date.now(),
+
+    type: 'projecten',
+
+    title: p_title.value,
+
+    ownerId: p_owner.value,
+
+    start: p_start.value,
+
+    end: p_end.value,
+
+    members: p_members.value,
+
+    status: p_status.value,
+
+    notes: p_notes.value,
+
+    tasks: [],
+
+    documents: [],
+
+    meetings: [],
+
+    attachments:
         files.map(
-          f => f.name
+            f => f.name
         )
-    }
-  );
+
+});
+
+await saveProjects(
+    data
+);
+
+await renderProjects();
 
 }
 
@@ -4523,11 +4644,16 @@ async function renderAgenda(){
 const meetings =
     await loadMeetings();
 
+const projects =
+    await loadProjects();
+
 const agenda = [
 
     ...tasks,
 
-    ...meetings
+    ...meetings,
+
+    ...projects
 
 ];
 

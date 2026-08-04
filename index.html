@@ -768,6 +768,35 @@ class="btn btn-primary"
     <div id="websites" class="tab-content">
       <div class="admin-section">
         <div class="admin-title">🌐 Websites</div>
+        <hr>
+
+<h3>➕ Nieuwe website</h3>
+
+<input
+    id="w_title"
+    placeholder="Naam website">
+
+<input
+    id="w_url"
+    placeholder="https://">
+
+<input
+    id="w_category"
+    placeholder="Categorie">
+
+<input
+    id="w_tags"
+    placeholder="Tags">
+
+<button
+    class="btn btn-success"
+    onclick="saveWebsite()">
+
+    Opslaan
+
+</button>
+
+<hr>
         <p class="notice">Zoek websites, markeer favorieten met ⭐ en open je belangrijkste links rechtstreeks.</p>
 
         <div class="filters-row" style="margin-top:14px; margin-bottom:12px;">
@@ -1727,6 +1756,8 @@ async function saveProjects(data){
 }
 
 const VOEDING_KEY = 'voeding_data';
+const WEBSITES_KEY =
+'websites_data';
 function loadVoeding(){
   return JSON.parse(localStorage.getItem(VOEDING_KEY) || '[]');
 }
@@ -1978,6 +2009,31 @@ let breadcrumbPath = [
     return await getKnowledgeData();
 }
 
+function loadWebsites(){
+
+    return JSON.parse(
+
+        localStorage.getItem(
+            WEBSITES_KEY
+        )
+
+        || '[]'
+
+    );
+
+}
+
+function saveWebsites(data){
+
+    localStorage.setItem(
+
+        WEBSITES_KEY,
+
+        JSON.stringify(data)
+
+    );
+
+}
     function saveData(data) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     }
@@ -2764,15 +2820,21 @@ Object.entries(groups)
     return 'Overig';
   }
 
- const sourceData =
+ const knowledgeData =
     await loadData();
 
-const all =
-    sourceData.filter(
-        item =>
-            item &&
-            item.url
-    );
+const customWebsites =
+    loadWebsites();
+
+const all = [
+
+    ...knowledgeData.filter(
+        item => item.url
+    ),
+
+    ...customWebsites
+
+];
 
 const search =
     (
@@ -5666,6 +5728,37 @@ function saveVoedingItem(type){
     title,
     content
   });
+}
+
+function saveWebsite(){
+
+    const data =
+        loadWebsites();
+
+    data.unshift({
+
+        id: Date.now(),
+
+        title:
+            w_title.value,
+
+        url:
+            w_url.value,
+
+        category:
+            w_category.value,
+
+        tags:
+            w_tags.value
+
+    });
+
+    saveWebsites(
+        data
+    );
+
+    refreshWebsitesOverview();
+
 }
 
 function importVoeding(event, type){

@@ -873,12 +873,7 @@ onclick="switchCCVTab(event,'archief')">
 
       <button class="tab-btn" onclick="switchCCVTab(event,'documenten')">📄 Documenten</button>
       <button class="tab-btn" onclick="switchCCVTab(event,'leden')">👤 Leden</button>
-      <button
-onclick="switchCCVTab(event,'users')">
-
-⚙ Gebruikers
-
-</button>
+      <button class="tab-btn" onclick="switchCCVTab(event,'users')">⚙ Gebruikers</button>
     </div>
 
     <!-- ✅ content -->
@@ -3664,7 +3659,7 @@ const msalInstance =
 msalReady = true;
 
     msalInstance.handleRedirectPromise()
-.then(response => {
+.then(async response => {
 
     if(response){
 
@@ -3674,6 +3669,7 @@ msalReady = true;
             email: response.account.username
 
         };
+await loadCurrentRole();
 
         updateUserInfo();
         console.log(
@@ -4052,15 +4048,16 @@ async function renderCCV(tab){
   if(tab==='leden')
     await renderMembers();
 
+     if(tab==='users')
+    await renderUsers();
+
   if(tab==='agenda')
     await renderAgenda();
 
   if(tab==='archief')
     await renderArchive();
 
-    if(tab==='users')
-    await renderUsers();
-}
+   }
 
 function renderCCVResults(data){
   document.getElementById('ccvContent').innerHTML =

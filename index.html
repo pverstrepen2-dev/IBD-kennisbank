@@ -3797,35 +3797,42 @@ function applyRolePermissions(){
             'ccvFormWrapper'
         );
 
-    if(!form){
-        return;
-    }
+    const userTab =
+        document.querySelector(
+            '[onclick*="users"]'
+        );
 
     if(currentRole === 'Lezen'){
 
-        form.style.display =
-            'none';
+        if(form){
+            form.style.display = 'none';
+        }
 
-        return;
+    } else {
+
+        if(form){
+            form.style.display = 'block';
+        }
 
     }
 
-    form.style.display =
-        'block';
-if(userTab){
+    if(userTab){
 
-    userTab.style.display =
+        if(currentRole === 'Administrator'){
 
-        currentRole ===
-        'Administrator'
+            userTab.style.display =
+                'inline-block';
 
-        ? 'inline-block'
+        } else {
 
-        : 'none';
+            userTab.style.display =
+                'none';
+
+        }
+
+    }
 
 }
-}
-
 async function getAccessToken(){
 
     const account =

@@ -3695,7 +3695,10 @@ async function renderTaken(){
 console.log("renderTaken gestart");
 
  const allData =
-    await loadTasks();
+  await loadTasks();
+
+const data =
+  allData;
 
  const projecten = [];
  
@@ -3759,8 +3762,7 @@ console.log("renderTaken gestart");
       👤 ${d.owner}<br>
       👥 ${d.people}<br>
 
-📁 Geen project
-}<br>
+📁 Geen project<br>
 
 📅 ${d.date}<br>
      
@@ -3773,7 +3775,7 @@ ${d.urgency === 'Dringend' || d.urgency === 'Zeer dringend' ? '<div style="color
   document.getElementById('ccvContent').innerHTML = html;
 
   
-renderCCVDashboard(); // ✅ HIER
+await renderCCVDashboard(); // ✅ HIER
 
 }
 

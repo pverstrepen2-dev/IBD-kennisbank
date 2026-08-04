@@ -1324,6 +1324,9 @@ const CCV_FILE_ID =
 const USERS_FILE_ID =
 "2B4CCFD79FF4714A!s020b00ce15934e67a3555487dc4048ec";
 
+const WEBSITES_FILE_ID =
+"2B4CCFD79FF4714A!sd8b62adcd44343ca8e59b7578b20300b";
+
 
 async function loadCCV(){
 console.log("loadCCV gestart");
@@ -2009,30 +2012,38 @@ let breadcrumbPath = [
     return await getKnowledgeData();
 }
 
-function loadWebsites(){
+async function loadWebsites(){
+    try{
+        const data =
+            await loadCCVJson(
+                WEBSITES_FILE_ID
+            );
 
-    return JSON.parse(
+        return data || [];
+    }
+    catch(error){
+        console.error(
+            "WEBSITES load fout:",
+            error
+        );
 
-        localStorage.getItem(
-            WEBSITES_KEY
-        )
-
-        || '[]'
-
-    );
-
+        return [];
+    }
 }
 
-function saveWebsites(data){
-
-    localStorage.setItem(
-
-        WEBSITES_KEY,
-
-        JSON.stringify(data)
-
-    );
-
+async function saveWebsites(data){
+    try{
+        await saveCCVJson(
+            WEBSITES_FILE_ID,
+            data
+        );
+    }
+    catch(error){
+        console.error(
+            "WEBSITES save fout:",
+            error
+        );
+    }
 }
     function saveData(data) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));

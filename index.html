@@ -3697,14 +3697,8 @@ console.log("renderTaken gestart");
  const allData =
     await loadTasks();
 
-const data =
-  allData; 
-
- const projecten =
-  allData.filter(
-    x => x.type === 'projecten'
-  );
-
+ const projecten = [];
+ 
   const projectOptions =
     projecten.map(p=>`
       <option value="${p.id}">
@@ -3765,10 +3759,7 @@ const data =
       👤 ${d.owner}<br>
       👥 ${d.people}<br>
 
-📁 ${
-  allData.find(
-    p => p.id == d.projectId
-  )?.title || 'Geen project'
+📁 Geen project
 }<br>
 
 📅 ${d.date}<br>
@@ -3787,20 +3778,44 @@ renderCCVDashboard(); // ✅ HIER
 }
 
 async function saveTask(){
-  await addCCV('taken',{
-    title: t_title.value,
-    owner: t_owner.value,
-    group: t_group.value,
-    projectId:
-  t_project.value,
-    topic: t_topic.value,
-    people: t_people.value,
-    date: t_date.value,
-    urgency: t_urgency.value,
-    status: t_status.value
-  });
 
-    renderCCVDashboard(); // ✅ HIER
+    const data =
+        await loadTasks();
+
+    data.unshift({
+
+        id: Date.now(),
+
+        type: 'taken',
+
+        title: t_title.value,
+
+        owner: t_owner.value,
+
+        group: t_group.value,
+
+        projectId: t_project.value,
+
+        topic: t_topic.value,
+
+        people: t_people.value,
+
+        date: t_date.value,
+
+        urgency: t_urgency.value,
+
+        status: t_status.value
+
+    });
+
+    await saveTasks(
+        data
+    );
+
+    await renderTaken();
+
+    await renderCCVDashboard();
+
 }
 
 // =========================

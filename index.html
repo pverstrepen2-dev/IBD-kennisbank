@@ -2013,6 +2013,14 @@ let breadcrumbPath = [
 }
 
 async function loadWebsites(){
+
+    if(!msalReady){
+        console.log(
+            "MSAL nog niet klaar"
+        );
+        return [];
+    }
+
     try{
         const data =
             await loadCCVJson(
@@ -2835,7 +2843,7 @@ Object.entries(groups)
     await loadData();
 
 const customWebsites =
-    loadWebsites();
+    await loadWebsites();
 
 const all = [
 
@@ -4142,7 +4150,11 @@ async function loadOneDriveFiles(){
 // renderFaqByGroup(currentHoofdgroep);
 
 console.log("FAQ klaar");
-    refreshWebsitesOverview();
+   setTimeout(() => {
+    if(msalReady){
+        refreshWebsitesOverview();
+    }
+}, 2000);
   
   // =========================
 // CCV MODULE (NIEUW)
@@ -5741,35 +5753,32 @@ function saveVoedingItem(type){
   });
 }
 
-function saveWebsite(){
+async function saveWebsite(){
 
     const data =
-        loadWebsites();
+        await loadWebsites();
 
     data.unshift({
-
         id: Date.now(),
-
         title:
             w_title.value,
-
         url:
             w_url.value,
-
         category:
             w_category.value,
-
         tags:
             w_tags.value
-
     });
 
-    saveWebsites(
+    await saveWebsites(
         data
     );
 
-    refreshWebsitesOverview();
+    await refreshWebsitesOverview();
 
+    showNotification(
+        "Website opgeslagen"
+    );
 }
 
 function importVoeding(event, type){

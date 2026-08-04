@@ -1333,6 +1333,283 @@ async function saveTasks(data){
 
 }
 
+// =========================
+// MEETINGS DATABASE
+// =========================
+
+async function loadMeetings(){
+
+    try{
+
+        const data =
+            await loadCCVJson(
+                MEETINGS_FILE_ID
+            );
+
+        console.log(
+            "MEETINGS DATA:",
+            data
+        );
+
+        return data || [];
+
+    }
+    catch(error){
+
+        console.error(
+            "MEETINGS load fout:",
+            error
+        );
+
+        return [];
+
+    }
+
+}
+
+async function saveMeetings(data){
+
+    try{
+
+        await saveCCVJson(
+            MEETINGS_FILE_ID,
+            data
+        );
+
+    }
+    catch(error){
+
+        console.error(
+            "MEETINGS save fout:",
+            error
+        );
+
+    }
+
+}
+
+// =========================
+// MEMBERS DATABASE
+// =========================
+
+async function loadMembers(){
+
+    try{
+
+        const data =
+            await loadCCVJson(
+                MEMBERS_FILE_ID
+            );
+
+        console.log(
+            "MEMBERS DATA:",
+            data
+        );
+
+        return data || [];
+
+    }
+    catch(error){
+
+        console.error(
+            "MEMBERS load fout:",
+            error
+        );
+
+        return [];
+
+    }
+
+}
+
+async function saveMembers(data){
+
+    try{
+
+        await saveCCVJson(
+            MEMBERS_FILE_ID,
+            data
+        );
+
+    }
+    catch(error){
+
+        console.error(
+            "MEMBERS save fout:",
+            error
+        );
+
+    }
+
+}
+
+
+
+// =========================
+// DOCUMENTS DATABASE
+// =========================
+
+async function loadDocuments(){
+
+    try{
+
+        const data =
+            await loadCCVJson(
+                DOCUMENTS_FILE_ID
+            );
+
+        console.log(
+            "DOCUMENTS DATA:",
+            data
+        );
+
+        return data || [];
+
+    }
+    catch(error){
+
+        console.error(
+            "DOCUMENTS load fout:",
+            error
+        );
+
+        return [];
+
+    }
+
+}
+
+async function saveDocuments(data){
+
+    try{
+
+        await saveCCVJson(
+            DOCUMENTS_FILE_ID,
+            data
+        );
+
+    }
+    catch(error){
+
+        console.error(
+            "DOCUMENTS save fout:",
+            error
+        );
+
+    }
+
+}
+
+// =========================
+// GROUPS DATABASE
+// =========================
+
+async function loadGroups(){
+
+    try{
+
+        const data =
+            await loadCCVJson(
+                GROUPS_FILE_ID
+            );
+
+        console.log(
+            "GROUPS DATA:",
+            data
+        );
+
+        return data || [];
+
+    }
+    catch(error){
+
+        console.error(
+            "GROUPS load fout:",
+            error
+        );
+
+        return [];
+
+    }
+
+}
+
+async function saveGroups(data){
+
+    try{
+
+        await saveCCVJson(
+            GROUPS_FILE_ID,
+            data
+        );
+
+    }
+    catch(error){
+
+        console.error(
+            "GROUPS save fout:",
+            error
+        );
+
+    }
+
+}
+
+// =========================
+// PROJECTS DATABASE
+// =========================
+
+async function loadProjects(){
+
+    try{
+
+        const data =
+            await loadCCVJson(
+                PROJECTS_FILE_ID
+            );
+
+        console.log(
+            "PROJECTS DATA:",
+            data
+        );
+
+        return data || [];
+
+    }
+    catch(error){
+
+        console.error(
+            "PROJECTS load fout:",
+            error
+        );
+
+        return [];
+
+    }
+
+}
+
+async function saveProjects(data){
+
+    try{
+
+        await saveCCVJson(
+            PROJECTS_FILE_ID,
+            data
+        );
+
+    }
+    catch(error){
+
+        console.error(
+            "PROJECTS save fout:",
+            error
+        );
+
+    }
+
+}
+
 const VOEDING_KEY = 'voeding_data';
 function loadVoeding(){
   return JSON.parse(localStorage.getItem(VOEDING_KEY) || '[]');
@@ -3639,16 +3916,8 @@ async function switchCCVTab(evt,tab){
 // SEARCH (LOS VAN ANDERE SEARCH)
 async function searchCCV(){
 
-  const allData =
-    await loadCCV();
+    return;
 
-  const data =
-    allData.filter(
-      x =>
-      JSON.stringify(x)
-      .toLowerCase()
-      .includes(t)
-    );
 }
 
 // =========================
@@ -3823,15 +4092,9 @@ async function saveTask(){
 // =========================
 // WERKGROEP
 // =========================
-
 async function renderWG(){
-  const allData =
-    await loadCCV();
-
 const data =
-    allData.filter(
-       x=>x.type==='werkgroepen'
-    );
+    await loadGroups();
 
   let html=`
   <h3>Nieuwe werkgroep</h3>
@@ -3852,11 +4115,28 @@ const data =
 
 async function saveWG(){
 
-  await addCCV('werkgroepen',{
-    name: wg_name.value,
-    leader: wg_leader.value,
-    members: wg_members.value
-  });
+    const data =
+        await loadGroups();
+
+    data.unshift({
+
+        id: Date.now(),
+
+        type: 'werkgroepen',
+
+        name: wg_name.value,
+
+        leader: wg_leader.value,
+
+        members: wg_members.value
+
+    });
+
+    await saveGroups(
+        data
+    );
+
+    await renderWG();
 
 }
 
@@ -3865,11 +4145,8 @@ async function saveWG(){
 // =========================
 
 async function renderMeetings(){
-  const allData = await loadCCV();
-
-const data = allData.filter(
-  x => x.type === 'vergaderingen'
-);
+  const data =
+    await loadMeetings();
 
   let html=`
   <h3>Nieuwe vergadering</h3>
@@ -3927,13 +4204,8 @@ d.attachments.join('<br>📎 ')
 
 async function renderProjects(){
 
-  const allData =
-    await loadCCV();
-
   const data =
-    allData.filter(
-      x => x.type === 'projecten'
-    );
+    await loadProjects();
 
   let html = `
     <h3>Nieuw project</h3>
@@ -4078,26 +4350,46 @@ async function saveMeeting(){
       ).files
     );
 
-  await addCCV(
-    'vergaderingen',
-    {
-      title: m_title.value,
-      date: m_date.value,
-      location:m_location.value,
-      agenda: m_agenda.value,
-      notes: m_notes.value,
-      decisions:m_decisions.value,
-      actions:m_actions.value,
-      attachments:
-        files.map(
-          f => f.name
-        )
-    }
+  const data =
+    await loadMeetings();
+
+  data.unshift({
+
+    id: Date.now(),
+
+    type: 'vergaderingen',
+
+    title: m_title.value,
+
+    date: m_date.value,
+
+    location: m_location.value,
+
+    agenda: m_agenda.value,
+
+    notes: m_notes.value,
+
+    decisions: m_decisions.value,
+
+    actions: m_actions.value,
+
+    attachments:
+      files.map(
+        f => f.name
+      )
+
+  });
+
+  await saveMeetings(
+    data
   );
+
+  await renderMeetings();
+
   // await createMeetingFolder(
-//     m_title.value,
-//     m_date.value
-// );
+  //     m_title.value,
+  //     m_date.value
+  // );
 
 }
 
@@ -4122,8 +4414,8 @@ async function createMeetingFolder(
 // =========================
 
 async function renderDocs(){
-  const allData = await loadCCV();
-  const data = allData.filter(x=>x.type==='documenten');
+  const data =
+    await loadDocuments();
 
   let html=`
   <h3>Nieuw document</h3>
@@ -4143,13 +4435,26 @@ async function renderDocs(){
 
 async function saveDoc(){
 
-  await addCCV(
-    'documenten',
-    {
-      title: d_title.value,
-      url: d_url.value
-    }
-  );
+    const data =
+        await loadDocuments();
+
+    data.unshift({
+
+        id: Date.now(),
+
+        type: 'documenten',
+
+        title: d_title.value,
+
+        url: d_url.value
+
+    });
+
+    await saveDocuments(
+        data
+    );
+
+    await renderDocs();
 
 }
 
@@ -4159,13 +4464,8 @@ async function saveDoc(){
 
 async function renderMembers(){
 
-  const allData =
-    await loadCCV();
-
   const data =
-    allData.filter(
-      x => x.type === 'leden'
-    );
+    await loadMembers();
 
   let html=`
   <h3>Nieuw lid</h3>
@@ -4190,37 +4490,46 @@ async function renderMembers(){
 
 async function saveMember(){
 
-  await addCCV(
-    'leden',
-    {
-      name: l_name.value,
-      region: l_region.value,
-      contact: l_contact.value
-    }
-  );
+    const data =
+        await loadMembers();
+
+    data.unshift({
+
+        id: Date.now(),
+
+        type: 'leden',
+
+        name: l_name.value,
+
+        region: l_region.value,
+
+        contact: l_contact.value
+
+    });
+
+    await saveMembers(
+        data
+    );
+
+    await renderMembers();
 
 }
 
 async function renderAgenda(){
 
-  const data =
-    await loadCCV();
+  const tasks =
+    await loadTasks();
 
-  const agenda = [
+const meetings =
+    await loadMeetings();
 
-    ...data.filter(
-      x=>x.type==='taken'
-    ),
+const agenda = [
 
-    ...data.filter(
-      x=>x.type==='vergaderingen'
-    ),
+    ...tasks,
 
-    ...data.filter(
-      x=>x.type==='projecten'
-    )
+    ...meetings
 
-  ];
+];
 
   agenda.sort(
     (a,b)=>

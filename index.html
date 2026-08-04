@@ -1207,6 +1207,24 @@ async function saveCCVJson(
     // =========================
 // CCV DATABASE
 // =========================
+const TASKS_FILE_ID =
+"2B4CCFD79FF4714A!sffe81f5a12a04828b053970cd3794294";
+
+const MEETINGS_FILE_ID =
+"2B4CCFD79FF4714A!sa2e9083f1c324098bd76da3ca11c9435";
+
+const PROJECTS_FILE_ID =
+"2B4CCFD79FF4714A!s5874d6078aa14c9097140977a0213521";
+
+const MEMBERS_FILE_ID =
+"2B4CCFD79FF4714A!s47603787381b4a0696e8679de0be4d86";
+
+const DOCUMENTS_FILE_ID =
+"2B4CCFD79FF4714A!s1c128481d7a048fb91944acbf41be6f6";
+
+const GROUPS_FILE_ID =
+"2B4CCFD79FF4714A!s44957b6e7ec24c87aa0445d636d4e02c";
+
 
 const CCV_FILE_ID =
 "2B4CCFD79FF4714A!s4c3f65a432524a44ab4c72c4f3878ef3";
@@ -1259,6 +1277,63 @@ async function saveCCV(data){
     }
 
 }
+
+// =========================
+// TASKS DATABASE
+// =========================
+
+async function loadTasks(){
+
+    try{
+
+        const data =
+            await loadCCVJson(
+                TASKS_FILE_ID
+            );
+
+        console.log(
+            "TASKS DATA:",
+            data
+        );
+
+        return data || [];
+
+    }
+    catch(error){
+
+        console.error(
+            "TASKS load fout:",
+            error
+        );
+
+        return [];
+
+    }
+
+}
+
+async function saveTasks(data){
+
+    try{
+
+        await saveCCVJson(
+            TASKS_FILE_ID,
+            data
+        );
+
+    }
+    catch(error){
+
+        console.error(
+            "TASKS save fout:",
+            error
+        );
+
+    }
+
+}
+
+loadTasks();
 
 const VOEDING_KEY = 'voeding_data';
 function loadVoeding(){

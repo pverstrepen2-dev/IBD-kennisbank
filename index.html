@@ -3622,12 +3622,14 @@ function updateUserInfo(){
         return;
     }
 
-    el.innerHTML =
-        `
-        👤 ${currentUser.name}
-        <br>
-        📧 ${currentUser.email}
-        `;
+   el.innerHTML =
+`
+👤 ${currentUser.name}
+<br>
+📧 ${currentUser.email}
+<br>
+🛡️ ${currentRole}
+`;
 }
 
 const msalConfig = {
@@ -3810,7 +3812,18 @@ function applyRolePermissions(){
 
     form.style.display =
         'block';
+if(userTab){
 
+    userTab.style.display =
+
+        currentRole ===
+        'Administrator'
+
+        ? 'inline-block'
+
+        : 'none';
+
+}
 }
 
 async function getAccessToken(){
@@ -4937,18 +4950,65 @@ async function renderUsers(){
     `;
 
     users.forEach(u => {
+      
 
-        html += `
+        const member =
+    members.find(
+        m =>
+            String(m.id) ===
+            String(u.memberId)
+    );
 
-        <div class="card">
+html += `
+<div class="card">
 
-            📧 ${u.email}<br>
+    <b>
+        ${member?.name || 'Onbekend'}
+    </b>
+    <br>
 
-            🏷️ ${u.role}
+    📧 ${u.email}
+    <br>
 
-        </div>
+    🛡️ ${u.role}
+    <br><br>
 
-        `;
+Rol wijzigen:
+
+<select
+    onchange="
+        changeUserRole(
+            '${u.id}',
+            this.value
+        )
+    ">
+
+    <option
+        ${u.role==='Administrator' ? 'selected' : ''}>
+        Administrator
+    </option>
+
+    <option
+        ${u.role==='Bestuur' ? 'selected' : ''}>
+        Bestuur
+    </option>
+
+    <option
+        ${u.role==='Medewerker' ? 'selected' : ''}>
+        Medewerker
+    </option>
+
+    <option
+        ${u.role==='Lezen' ? 'selected' : ''}>
+        Lezen
+    </option>
+
+</select>
+
+    ${u.active ? '✅ Actief' : '❌ Inactief'}
+
+</div>
+`;
 
     });
 
@@ -4981,6 +5041,37 @@ async function saveUser(){
         active: true
 
     });
+
+    await saveUsers(
+        users
+    );
+
+    await renderUsers();
+
+}
+
+async function changeUserRole(
+    userId,
+    newRole
+){
+
+    const users =
+        await loadUsers();
+
+    const user =
+        users.find(
+            u =>
+                String(u.id)
+                ===
+                String(userId)
+        );
+
+    if(!user){
+        return;
+    }
+
+    user.role =
+        newRole;
 
     await saveUsers(
         users

@@ -873,6 +873,12 @@ onclick="switchCCVTab(event,'archief')">
 
       <button class="tab-btn" onclick="switchCCVTab(event,'documenten')">📄 Documenten</button>
       <button class="tab-btn" onclick="switchCCVTab(event,'leden')">👤 Leden</button>
+      <button
+onclick="switchCCVTab(event,'users')">
+
+⚙ Gebruikers
+
+</button>
     </div>
 
     <!-- ✅ content -->
@@ -1229,6 +1235,9 @@ const GROUPS_FILE_ID =
 const CCV_FILE_ID =
 "2B4CCFD79FF4714A!s4c3f65a432524a44ab4c72c4f3878ef3";
 
+const USERS_FILE_ID =
+"2B4CCFD79FF4714A!s020b00ce15934e67a3555487dc4048ec";
+
 
 async function loadCCV(){
 console.log("loadCCV gestart");
@@ -1548,6 +1557,56 @@ async function saveGroups(data){
 
         console.error(
             "GROUPS save fout:",
+            error
+        );
+
+    }
+
+}
+
+// =========================
+// USERS DATABASE
+// =========================
+
+async function loadUsers(){
+
+    try{
+
+        const data =
+            await loadCCVJson(
+                USERS_FILE_ID
+            );
+
+        return data || [];
+
+    }
+    catch(error){
+
+        console.error(
+            "USERS load fout:",
+            error
+        );
+
+        return [];
+
+    }
+
+}
+
+async function saveUsers(data){
+
+    try{
+
+        await saveCCVJson(
+            USERS_FILE_ID,
+            data
+        );
+
+    }
+    catch(error){
+
+        console.error(
+            "USERS save fout:",
             error
         );
 
@@ -3529,7 +3588,8 @@ await refreshWebsitesOverview();
     });
 
     // Init
-    let currentUser = null;
+    let currentRole =
+    'Lezen';
 
 function updateUserInfo(){
 
@@ -3677,6 +3737,7 @@ async function logoutMicrosoft(){
     try{
 
         currentUser = null;
+        await loadCurrentRole();
 
         updateUserInfo();
 
@@ -3706,6 +3767,53 @@ async function logoutMicrosoft(){
         );
 
     }
+
+}
+
+async function loadCurrentRole(){
+
+    const users =
+        await loadUsers();
+
+    const user =
+        users.find(
+            u =>
+                u.email &&
+                currentUser &&
+                u.email.toLowerCase()
+                ===
+                currentUser.email.toLowerCase()
+        );
+
+    currentRole =
+        user?.role || 'Lezen';
+
+    applyRolePermissions();
+
+}
+
+function applyRolePermissions(){
+
+    const form =
+        document.getElementById(
+            'ccvFormWrapper'
+        );
+
+    if(!form){
+        return;
+    }
+
+    if(currentRole === 'Lezen'){
+
+        form.style.display =
+            'none';
+
+        return;
+
+    }
+
+    form.style.display =
+        'block';
 
 }
 
@@ -3949,6 +4057,9 @@ async function renderCCV(tab){
 
   if(tab==='archief')
     await renderArchive();
+
+    if(tab==='users')
+    await renderUsers();
 }
 
 function renderCCVResults(data){
@@ -4743,6 +4854,143 @@ ${d.role ? `🏷️ ${d.role}<br>` : ''}
 });
 
   document.getElementById('ccvContent').innerHTML = html;
+}
+
+async function renderUsers(){
+
+    if(
+        currentRole !==
+        'Administrator'
+    ){
+
+        document
+            .getElementById(
+                'ccvContent'
+            )
+            .innerHTML =
+            'Geen toegang';
+
+        return;
+
+    }
+
+    const users =
+        await loadUsers();
+
+    const members =
+        await loadMembers();
+
+    const memberOptions =
+
+        members.map(m => `
+
+            <option value="${m.id}">
+                ${m.name}
+            </option>
+
+        `).join('');
+
+    let html = `
+
+        <h3>
+        Nieuwe gebruiker
+        </h3>
+
+        <select id="u_member">
+
+            ${memberOptions}
+
+        </select>
+
+        <input
+            id="u_email"
+            placeholder="Microsoft e-mail">
+
+        <select id="u_role">
+
+            <option>
+                Administrator
+            </option>
+
+            <option>
+                Bestuur
+            </option>
+
+            <option>
+                Medewerker
+            </option>
+
+            <option>
+                Lezen
+            </option>
+
+        </select>
+
+        <button
+            onclick="saveUser()">
+
+            Opslaan
+
+        </button>
+
+        <h3>
+        Overzicht
+        </h3>
+
+    `;
+
+    users.forEach(u => {
+
+        html += `
+
+        <div class="card">
+
+            📧 ${u.email}<br>
+
+            🏷️ ${u.role}
+
+        </div>
+
+        `;
+
+    });
+
+    document
+        .getElementById(
+            'ccvContent'
+        )
+        .innerHTML = html;
+
+}
+
+async function saveUser(){
+
+    const users =
+        await loadUsers();
+
+    users.unshift({
+
+        id: Date.now(),
+
+        memberId:
+            u_member.value,
+
+        email:
+            u_email.value,
+
+        role:
+            u_role.value,
+
+        active: true
+
+    });
+
+    await saveUsers(
+        users
+    );
+
+    await renderUsers();
+
 }
 
 async function saveMember(){

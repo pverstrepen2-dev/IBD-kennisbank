@@ -4714,20 +4714,24 @@ async function renderMembers(){
   <h3>Overzicht</h3>
   `;
 
-  html += `
-<div class="card">
+ data.forEach(d => {
 
-    <b>${d.name}</b><br>
+    html += `
+    <div class="card">
 
-    📧 ${d.email || ''}<br>
+        <b>${d.name}</b><br>
 
-    📞 ${d.phone || ''}<br>
+        📧 ${d.email || ''}<br>
 
-    📍 ${d.region || ''}<br>
+        📞 ${d.phone || ''}<br>
 
-    🏷️ ${d.role || ''}
+        📍 ${d.region || ''}<br>
 
-</div>`;
+        🏷️ ${d.role || ''}
+
+    </div>`;
+
+});
 
   document.getElementById('ccvContent').innerHTML = html;
 }

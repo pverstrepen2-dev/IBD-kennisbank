@@ -1333,8 +1333,6 @@ async function saveTasks(data){
 
 }
 
-loadTasks();
-
 const VOEDING_KEY = 'voeding_data';
 function loadVoeding(){
   return JSON.parse(localStorage.getItem(VOEDING_KEY) || '[]');
@@ -3696,13 +3694,11 @@ function renderCCVResults(data){
 async function renderTaken(){
 console.log("renderTaken gestart");
 
-  const allData =
-  await loadCCV();
+ const allData =
+    await loadTasks();
 
 const data =
-  allData.filter(
-    x => x.type === 'taken'
-  );
+  allData; 
 
  const projecten =
   allData.filter(

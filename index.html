@@ -6819,8 +6819,7 @@ async function scanFolderDocuments(){
     "2B4CCFD79FF4714A!s3451c122bf304e639899a9f1060c96ff";
 
     const response =
-    console.log("STAP 3 FETCH OK");
-        await fetch(
+            await fetch(
             `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`,
             {
                 headers:{
@@ -6830,9 +6829,11 @@ async function scanFolderDocuments(){
             }
         );
 
+        console.log("STAP 3 FETCH OK");
+        
     const data =
-    console.log("STAP 4 DATA", data);
-        await response.json();
+           await response.json();
+            console.log("STAP 4 DATA", data);
 
     const results = [];
 

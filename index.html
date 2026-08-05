@@ -6799,6 +6799,54 @@ async function analyseDocumentAI(file){
         categorie = "Symptomen";
     }
 
+    if(
+    fileName.includes("medic")
+){
+    categorie = "Medicatie";
+    confidence = 90;
+}
+
+if(
+    fileName.includes("voeding")
+){
+    categorie = "Voeding";
+    confidence = 90;
+}
+
+if(
+    fileName.includes("operatie")
+){
+    categorie = "Operatie";
+    confidence = 90;
+}
+
+if(
+    fileName.includes("stoma")
+){
+    categorie = "Operatie";
+    confidence = 90;
+}
+
+if(
+    fileName.includes("vermoeid")
+){
+    categorie = "Dagelijks Leven";
+    confidence = 90;
+}
+
+if(
+    fileName.includes("werk")
+){
+    categorie = "Patiëntenrechten";
+    confidence = 90;
+}
+
+if(
+    fileName.includes("zwangerschap")
+){
+    categorie = "Dagelijks Leven";
+    confidence = 90;
+}
     return {
         hoofdgroep,
         categorie,
@@ -6968,7 +7016,7 @@ if(
 }
 currentAIResults =
     results;
-    
+
    const container =
     document.getElementById(
         "aiResultsContainer"

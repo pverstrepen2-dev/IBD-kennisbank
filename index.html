@@ -6896,7 +6896,10 @@ if(
     };
 }
 
-async function scanSubFolder(folderId){
+async function scanSubFolder(
+    folderId,
+    results
+){
 
     const token =
         await getAccessToken();
@@ -6928,7 +6931,8 @@ async function scanSubFolder(folderId){
         if(file.folder){
 
             await scanSubFolder(
-                file.id
+                file.id,
+                results
             );
 
             continue;
@@ -6944,6 +6948,24 @@ async function scanSubFolder(folderId){
             file.name,
             analyse
         );
+        results.push({
+
+    fileName:
+        file.name,
+
+    fileId:
+        file.id,
+
+    hoofdgroep:
+        analyse.hoofdgroep,
+
+    categorie:
+        analyse.categorie,
+
+    confidence:
+        analyse.confidence
+
+});
     }
 }
 
@@ -6996,8 +7018,9 @@ async function scanFolderDocuments(){
    if(file.folder){
 
     await scanSubFolder(
-        file.id
-    );
+    file.id,
+    results
+);
 
     continue;
 }

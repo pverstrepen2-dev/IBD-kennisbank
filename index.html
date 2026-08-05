@@ -6805,6 +6805,57 @@ async function analyseDocumentAI(file){
     };
 }
 
+async function scanSubFolder(folderId){
+
+    const token =
+        await getAccessToken();
+
+    const response =
+        await fetch(
+            `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`,
+            {
+                headers:{
+                    Authorization:
+                        "Bearer " + token
+                }
+            }
+        );
+
+    const data =
+        await response.json();
+
+    for(
+        const file
+        of data.value
+    ){
+
+        console.log(
+            "SUBMAP ITEM:",
+            file.name
+        );
+
+        if(file.folder){
+
+            await scanSubFolder(
+                file.id
+            );
+
+            continue;
+        }
+
+        const analyse =
+            await analyseDocumentAI(
+                file
+            );
+
+        console.log(
+            "ANALYSE:",
+            file.name,
+            analyse
+        );
+    }
+}
+
 async function scanFolderDocuments(){
 
     console.log("AI BUTTON GEKLIKT");
@@ -6851,11 +6902,9 @@ async function scanFolderDocuments(){
         file.name
     );
 
-    if(file.folder){
+   if(file.folder){
 
-    console.log(
-        "MAP GEVONDEN:",
-        file.name,
+    await scanSubFolder(
         file.id
     );
 

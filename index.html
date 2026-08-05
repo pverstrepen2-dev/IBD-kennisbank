@@ -707,6 +707,7 @@ class="btn btn-primary"
   </div>
 
   <div id="resultsContainer"></div>
+  <div id="aiResultsContainer"></div>
 </div>
 
 <div id="info" class="tab-content">
@@ -4941,14 +4942,16 @@ async function renderDocs(){
     }
 
     ${
-        d.url
-        ?
-        `<br>
-        <a href="${d.url}"
-              </a>`
-        :
-        ''
-    }
+    d.url
+    ?
+    `<br>
+    <a href="${d.url}"
+  en document
+    </a>`
+    :
+    ''
+}
+
 
 </div>
 `;
@@ -4993,6 +4996,16 @@ async function saveAIClassification(result){
 
     const documents =
         await loadDocuments();
+
+    const exists =
+        documents.find(
+            d =>
+            d.fileId === result.fileId
+        );
+
+    if(exists){
+        return;
+    }
 
     documents.unshift({
 
@@ -6868,9 +6881,9 @@ if(
 
 }
 
-    const container =
+   const container =
     document.getElementById(
-        "resultsContainer"
+        "aiResultsContainer"
     );
 
 container.innerHTML =

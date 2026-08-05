@@ -631,6 +631,7 @@ class="btn btn-primary"
 </button>
       <button class="tab-btn" onclick="switchTab(event, 'add')">➕ Toevoegen</button>
       <button class="tab-btn" onclick="switchTab(event, 'manage')">⚙️ Beheer</button>
+      <button class="tab-btn" onclick="switchTab(event, 'aiapproved')">🤖 AI Goedgekeurd</button>
       <button class="tab-btn" onclick="switchTab(event, 'backup')">💾 Backup</button>
       <button class="tab-btn" onclick="switchTab(event, 'info')">ℹ️ Info</button>
       <button class="tab-btn" onclick="switchTab(event, 'websites')">🌐 Websites</button>
@@ -1124,6 +1125,19 @@ Sociale Gids
     id="manageSearch"
     placeholder="Filter op titel..."
 />
+
+<div id="aiapproved"
+     class="tab-content">
+
+    <h2>
+        🤖 AI Goedgekeurde Documenten
+    </h2>
+
+    <div id="aiApprovedList">
+
+    </div>
+
+</div>
 
 <div
     id="manageCount"
@@ -2155,7 +2169,9 @@ if(disease === 'ccv'){
     }
 
     function switchTab(evt, tabName) {
-      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
+      document.querySelectorAll('.tab-btn')
+      .forEach(btn => btn.classList.remove('active'));
       evt.target.classList.add('active');
 
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -2178,7 +2194,9 @@ if(disease === 'ccv'){
 if (tabName === 'faqbeheer') {
     renderFAQBeheer();
 }
-
+if (tabName === 'aiapproved') {
+    renderAIApproved();
+}
       if (tabName === 'websites') refreshWebsitesOverview();
       if (tabName === 'voeding') renderVoeding('dieet');
     }
@@ -5004,18 +5022,28 @@ async function saveAIClassification(result){
         await loadDocuments();
 
     const exists =
-        documents.find(
-            d =>
-            d.fileId === result.fileId
-        );
 
-    if(exists){
-        return;
-    }
+    documents.find(
+        d =>
+        d.fileId ===
+        result.fileId
+    );
+
+if(exists){
+
+    alert(
+        "Document reeds opgeslagen"
+    );
+
+    return;
+}
 
     documents.unshift({
 
         id: Date.now(),
+
+        status:
+             "goedgekeurd",
 
         fileId:
             result.fileId,
@@ -7101,7 +7129,12 @@ currentAIResults =
     );
 
 container.innerHTML =
-    results.map(r => `
+    results
+    .filter(
+        r => r.confidence >= 80
+    )
+    .map(r => `
+
         <div class="card">
 
             <h3>${r.fileName}</h3>
@@ -7181,6 +7214,57 @@ async function acceptAIProposal(
     alert(
         "Opgeslagen"
     );
+
+}
+
+async function renderAIApproved(){
+
+    const docs =
+        await loadDocuments();
+
+    const container =
+        document.getElementById(
+            "aiApprovedList"
+        );
+
+    container.innerHTML =
+
+        docs
+        .filter(
+            d => d.fileId
+        )
+        .map(d => `
+
+            <div class="card">
+
+                <h3>
+                    ${d.title}
+                </h3>
+
+                <p>
+                    📂
+                    ${d.hoofdgroep}
+                </p>
+
+                <p>
+                    🏷️
+                    ${d.categorie}
+                </p>
+
+                <p>
+                    🎯
+                    ${d.confidence}%
+                </p>
+
+                <p>
+                    ✅
+                    ${d.status}
+                </p>
+
+            </div>
+
+        `)
+        .join("");
 
 }
 

@@ -6852,8 +6852,15 @@ async function scanFolderDocuments(){
     );
 
     if(file.folder){
-        continue;
-    }
+
+    console.log(
+        "MAP GEVONDEN:",
+        file.name,
+        file.id
+    );
+
+    continue;
+}
 
     console.log(
         "ANALYSE:",

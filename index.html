@@ -6813,11 +6813,13 @@ async function scanFolderDocuments(){
 
     const token =
         await getAccessToken();
+        console.log("STAP 2 TOKEN OK");
 
     const folderId =
     "2B4CCFD79FF4714A!s3451c122bf304e639899a9f1060c96ff";
 
     const response =
+    console.log("STAP 3 FETCH OK");
         await fetch(
             `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`,
             {
@@ -6829,6 +6831,7 @@ async function scanFolderDocuments(){
         );
 
     const data =
+    console.log("STAP 4 DATA", data);
         await response.json();
 
     const results = [];

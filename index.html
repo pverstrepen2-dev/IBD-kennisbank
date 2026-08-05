@@ -6830,24 +6830,45 @@ async function scanFolderDocuments(){
         );
 
         console.log("STAP 3 FETCH OK");
-        
+
     const data =
            await response.json();
             console.log("STAP 4 DATA", data);
+            console.log(
+    "AANTAL ITEMS:",
+    data.value.length
+);
 
     const results = [];
 
     for(
-        const file
-        of data.value
-    ){
+    const file
+    of data.value
+){
 
-        if(file.folder){
-            continue;
-        }
+    console.log(
+        "BESTAND:",
+        file.name
+    );
 
-        const analyse =
-            await analyseDocumentAI(file);
+    if(file.folder){
+        continue;
+    }
+
+    console.log(
+        "ANALYSE:",
+        file.name
+    );
+
+    const analyse =
+        await analyseDocumentAI(
+            file
+        );
+
+    console.log(
+        "RESULTAAT:",
+        analyse
+    );
 
        results.push({
     fileName:

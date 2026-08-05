@@ -4893,17 +4893,65 @@ async function renderDocs(){
   const data =
     await loadDocuments();
 
+    const aiCount =
+    data.filter(
+        d => d.confidence
+    ).length;
+
   let html=`
   <h3>Nieuw document</h3>
+
   <input id="d_title" placeholder="Titel">
+
   <input id="d_url" placeholder="Link">
-  <button onclick="saveDoc()">Opslaan</button>
+
+  <button onclick="saveDoc()">
+    Opslaan
+  </button>
 
   <h3>Overzicht</h3>
-  `;
+
+  <p>
+    🤖 AI gecategoriseerd:
+    ${aiCount}
+    documenten
+  </p>
+`;
 
   data.forEach(d=>{
-    html+=`<div class="card"><a href="${d.url}" target="_blank">${d.title}</a></div>`;
+   html+=`
+<div class="card">
+
+    <b>
+        ${d.title}
+    </b>
+
+    <br>
+
+    ${d.hoofdgroep || ''}
+
+    ${d.categorie || ''}
+
+    ${
+        d.confidence
+        ?
+        `<br>🤖 AI: ${d.confidence}%`
+        :
+        ''
+    }
+
+    ${
+        d.url
+        ?
+        `<br>
+        <a href="${d.url}"
+              </a>`
+        :
+        ''
+    }
+
+</div>
+`;
   });
 
   document.getElementById('ccvContent').innerHTML = html;

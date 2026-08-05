@@ -6807,6 +6807,48 @@ async function analyseDocumentAI(file){
 }
 
 if(
+    fileName.includes("immunosuppress")
+){
+    categorie = "Medicatie";
+    confidence = 90;
+}
+
+if(
+    fileName.includes("mesalazine")
+){
+    categorie = "Medicatie";
+    confidence = 90;
+}
+
+if(
+    fileName.includes("biologische")
+){
+    categorie = "Biologische therapie";
+    confidence = 90;
+}
+
+if(
+    fileName.includes("leven")
+){
+    categorie = "Dagelijks Leven";
+    confidence = 90;
+}
+
+if(
+    fileName.includes("fistel")
+){
+    categorie = "Complicaties";
+    confidence = 90;
+}
+
+if(
+    fileName.includes("psychosocial")
+){
+    categorie = "Dagelijks Leven";
+    confidence = 90;
+}
+
+if(
     fileName.includes("voeding")
 ){
     categorie = "Voeding";

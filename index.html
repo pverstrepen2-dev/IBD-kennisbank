@@ -1783,6 +1783,7 @@ function saveVoeding(data){
     let currentDriveFolder = null;
 
 let oneDriveIndex = [];
+let currentAIResults = [];
 const visitedFolders = new Set();
 let folderHistory = [];
 
@@ -6895,7 +6896,7 @@ async function scanFolderDocuments(){
     for(
     const file
     of data.value
-){
+    ){
 
     console.log(
         "BESTAND:",
@@ -6965,7 +6966,9 @@ if(
 }
 
 }
-
+currentAIResults =
+    results;
+    
    const container =
     document.getElementById(
         "aiResultsContainer"
@@ -6974,19 +6977,32 @@ if(
 container.innerHTML =
     results.map(r => `
         <div class="card">
+
             <h3>${r.fileName}</h3>
 
             <p>
-                📂 ${r.hoofdgroep}
+                📂 Voorstel hoofdgroep:
+                <b>${r.hoofdgroep}</b>
             </p>
 
             <p>
-                🏷️ ${r.categorie}
+                🏷️ Voorstel categorie:
+                <b>${r.categorie}</b>
             </p>
 
             <p>
-                🎯 ${r.confidence}%
+                🎯 Zekerheid:
+                <b>${r.confidence}%</b>
             </p>
+
+            <button
+                class="btn btn-success"
+                onclick="acceptAIProposal('${r.fileId}')">
+
+                ✅ Accepteren
+
+            </button>
+
         </div>
     `).join("");
 
@@ -7016,6 +7032,30 @@ async function openKnowledgeFile(id){
             "_blank"
         );
     }
+}
+
+async function acceptAIProposal(
+    fileId
+){
+
+    const result =
+        currentAIResults.find(
+            x =>
+            x.fileId === fileId
+        );
+
+    if(!result){
+        return;
+    }
+
+    await saveAIClassification(
+        result
+    );
+
+    alert(
+        "Opgeslagen"
+    );
+
 }
 
 function toggleExplorer(){

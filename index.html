@@ -2469,13 +2469,26 @@ if(
     }
 
     async function performSearch() {
+
       console.log("SEARCH ACTIEF");
       console.log("performSearch gestart");
-      const knowledgeData =
+      
+     const knowledgeData =
     await getFilteredData();
 
-const aiDocs =
-    await loadDocuments();
+let aiDocs = [];
+
+if(msalReady){
+    try{
+        aiDocs =
+            await loadDocuments();
+    }
+    catch(error){
+        console.log(
+            "AI documenten nog niet beschikbaar"
+        );
+    }
+}
 
 const allData = [
 

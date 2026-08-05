@@ -2471,8 +2471,34 @@ if(
     async function performSearch() {
       console.log("SEARCH ACTIEF");
       console.log("performSearch gestart");
-      const allData =
+      const knowledgeData =
     await getFilteredData();
+
+const aiDocs =
+    await loadDocuments();
+
+const allData = [
+
+    ...knowledgeData,
+
+    ...aiDocs.map(doc => ({
+
+        title: doc.title,
+
+        category: doc.categorie,
+
+        type: "AI Document",
+
+        content: "",
+
+        source: "AI",
+
+        disease: doc.hoofdgroep
+
+    }))
+
+];
+
       const searchTerm = (document.getElementById('searchInput')?.value || '').toLowerCase();
       console.log("ZOEKTERM:", searchTerm);
 

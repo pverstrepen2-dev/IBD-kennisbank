@@ -2722,27 +2722,35 @@ try {
       const sortBy = document.getElementById('sortBy')?.value || 'recent';
 
       let result = allData.filter(item => {
-       const haystack = [
 
-  item.title || '',
-  item.content || '',
-  item.tags || '',
-  item.category || '',
-  item.source || '',
-  item.disease || ''
+    const haystack = [
+        item.title || '',
+        item.content || '',
+        item.tags || '',
+        item.category || '',
+        item.source || '',
+        item.disease || ''
+    ].join(' ').toLowerCase();
 
-].join(' ').toLowerCase();
+    if (searchTerm && !haystack.includes(searchTerm))
+        return false;
 
-        if (searchTerm && !haystack.includes(searchTerm)) return false;
-        if (category && item.category !== category) return false;
-        if (type && item.type !== type) return false;
-        if (websitesOnly && !item.url) return false;
-        return true;
-      });
+    if (category && item.category !== category)
+        return false;
+
+    if (type && item.type !== type)
+        return false;
+
+    return true;
+});
+
 console.log(
     "RESULT VOOR FAQ/CCV:",
     result.length
 );
+
+console.table(result);
+
       if (sortBy === 'title') {
         result.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
       } else if (sortBy === 'category') {

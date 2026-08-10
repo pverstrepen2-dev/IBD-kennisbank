@@ -1813,6 +1813,23 @@ function saveVoeding(data){
 
 let oneDriveIndex = [];
 let currentAIResults = [];
+// =====================================
+// VERENIGINGEN -> ONEDRIVE MAPPEN
+// =====================================
+
+const verenigingFolders = {
+
+    "VPP": "2B4CCFD79FF4714A!s30d2ab55ea7e42428131c95479626cc2",
+
+    "CCV Vereniging": "2B4CCFD79FF4714A!s639be803a4d144208d5ce252931bde76",
+
+    "Crohn & Colitis Nederland": "2B4CCFD79FF4714A!s80d207c4ba3c4a5596157109ac51302d",
+
+    "IFCCA": "2B4CCFD79FF4714A!s3e9a9f747f8c47adb52f75b6387a87b9",
+
+    "Overige Verenigingen": "2B4CCFD79FF4714A!s44957b6e7ec24c87aa0445d636d4e02c"
+
+};
 const visitedFolders = new Set();
 let folderHistory = [];
 
@@ -6517,6 +6534,28 @@ async function goBackFolder(){
     }
 
     updateBreadcrumb();
+}
+
+function openVerenigingFolder(categorie){
+
+    const folderId =
+        verenigingFolders[categorie];
+
+    if(folderId){
+
+        openDriveFolder(
+            folderId,
+            categorie
+        );
+
+    }else{
+
+        alert(
+            "Geen map gekoppeld aan: " +
+            categorie
+        );
+
+    }
 }
 
 async function openDriveFolder(

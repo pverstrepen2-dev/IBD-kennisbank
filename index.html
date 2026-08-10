@@ -135,6 +135,8 @@
     .disease-btn.gutflix { border-color: var(--gutflix); }
     .disease-btn.gutflix.active { background: var(--gutflix); }
     .disease-btn.ccv { border-color: var(--secondary); }
+    .disease-btn.verenigingen { border-color: #8e44ad; }
+    .disease-btn.verenigingen.active { background: #8e44ad; }
     .disease-btn.ccv.active { background: var(--secondary); }
     .disease-btn.zorg {
  border-color: var(--zorggids);
@@ -588,6 +590,13 @@ class="btn btn-primary"
   <div class="desc">Video's</div>
 </div>
 
+<div class="disease-btn verenigingen"
+     onclick="selectHoofdgroep('verenigingen')">
+  <div class="icon">🤝</div>
+  <div class="title">Verenigingen</div>
+  <div class="desc">Patiëntenverenigingen</div>
+</div>
+
         <div class="disease-btn ccv" onclick="selectHoofdgroep('ccv')">
           <div class="icon">🤝</div>
           <div class="title">CCV-VZW</div>
@@ -1020,6 +1029,7 @@ Zorggids
 Sociale Gids
 </label>
                 <label><input type="checkbox" name="disease" value="GutFlix"> GutFlix</label>
+                <label><input type="checkbox" name="disease" value="Verenigingen">Verenigingen</label>
                 <label><input type="checkbox" name="disease" value="CCV-VZW"> CCV-VZW</label>
               </div>
             </div>
@@ -1835,6 +1845,7 @@ let breadcrumbPath = [
   icon: '🧬', 
   desc: 'Waarom ontstaat IBD', 
   sections: ['Crohn', 'Colitis Ulcerosa', 'Algemeen IBD'] 
+  
 },
 
 
@@ -1861,9 +1872,7 @@ let breadcrumbPath = [
   icon: '💉', 
   desc: 'Biologics en moderne behandelingen', 
   sections: ['Crohn', 'Colitis Ulcerosa'] 
-}
-
-,
+},
 
 'Wat is Microscopische Colitis': {
   icon: '🔍',
@@ -2032,6 +2041,48 @@ let breadcrumbPath = [
  icon:'📄',
  desc:'Documenten',
  sections:['Sociale Gids']
+},
+
+'VPP': {
+ icon:'🤝',
+ desc:'Vlaams Patiëntenplatform',
+ sections:['Verenigingen']
+},
+
+'CCV Vereniging': {
+ icon:'🤝',
+ desc:'Crohn-Colitis Vlaanderen',
+ sections:['Verenigingen']
+},
+
+'Crohn & Colitis Nederland': {
+ icon:'🇳🇱',
+ desc:'Nederlandse patiëntenvereniging',
+ sections:['Verenigingen']
+},
+
+'IFCCA': {
+ icon:'🌍',
+ desc:'Internationale samenwerking',
+ sections:['Verenigingen']
+},
+
+'EFCCA': {
+ icon:'🇪🇺',
+ desc:'Europese federatie',
+ sections:['Verenigingen']
+},
+
+'Overige Verenigingen': {
+ icon:'📂',
+ desc:'Overige patiëntenverenigingen',
+ sections:['Verenigingen']
+},
+
+'FAQ Verenigingen': {
+ icon:'❓',
+ desc:'Veelgestelde vragen verenigingen',
+ sections:['Verenigingen']
 }
     };
 
@@ -2212,6 +2263,7 @@ if (tabName === 'aiapproved') {
         zorg:['Zorggids'],
         sociaal:['Sociale Gids'],
         gutflix: ['GutFlix'],
+        verenigingen: ['Verenigingen'],
         ccv: ['CCV-VZW']
       };
       return map[currentHoofdgroep] || ['Crohn'];
@@ -2450,6 +2502,15 @@ if(
 ],
         'Voeding': ['Voeding', 'Dagelijks Leven','FAQ Voeding'],
         // 'GutFlix': ['Onderzoek'],
+        'Verenigingen': [
+ 'VPP',
+ 'CCV Vereniging',
+ 'Crohn & Colitis Nederland',
+ 'IFCCA',
+ 'EFCCA',
+ 'Overige Verenigingen',
+ 'FAQ Verenigingen'
+],
         'CCV-VZW': ['Website','FAQ CCV-VZW']
       };
 
@@ -3348,6 +3409,7 @@ const data = await getFilteredData();
         mindfulness: 'FAQ Mindfulness',
         zorg: 'FAQ Zorggids',
         sociaal: 'FAQ Sociale Gids',
+        verenigingen:'FAQ Verenigingen',
         ccv: 'FAQ CCV-VZW'
     };
 

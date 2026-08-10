@@ -6691,20 +6691,16 @@ if (!data.value) {
 
 updateBreadcrumb();
 
-        document.getElementById(
-    "driveExplorer"
-).innerHTML =
-
-    data.value.map(item => `
+        const html = data.value.map(item => `
 
     <div
         class="card"
         style="cursor:pointer;"
         onclick="${
-    item.folder
-      ? `openDriveFolder('${item.id}','${item.name}')`
-      : `openFile('${item.id}')`
-}"
+            item.folder
+                ? `openDriveFolder('${item.id}','${item.name}')`
+                : `openFile('${item.id}')`
+        }"
     >
 
         <h3>
@@ -6715,6 +6711,25 @@ updateBreadcrumb();
     </div>
 
 `).join("");
+
+if(currentHoofdgroep === 'verenigingen'){
+
+    document.getElementById("categoryGrid").innerHTML =
+        `
+        <button
+            class="btn btn-secondary"
+            onclick="updateCategoryGrid()"
+            style="margin-bottom:15px;"
+        >
+            ← Terug
+        </button>
+        `
+        + html;
+
+}
+document.getElementById(
+    "driveExplorer"
+).innerHTML = html;
 
     }
     catch(error){

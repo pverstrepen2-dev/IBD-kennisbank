@@ -2443,7 +2443,14 @@ if(
       const cards = Object.entries(categoryInfo)
         .filter(([_, info]) => info.sections.some(s => allowed.includes(s)))
         .map(([cat, info]) => `
-          <div class="category-card" onclick="filterByCategory('${escapeAttr(cat)}')">
+          <div class="category-card"
+onclick="
+if(currentHoofdgroep==='verenigingen'){
+    openVerenigingFolder('${escapeAttr(cat)}');
+}else{
+    filterByCategory('${escapeAttr(cat)}');
+}
+">
             <div class="category-header">
               <div style="display:flex; align-items:center; gap:10px;">
                 <div>${info.icon}</div>
@@ -6556,6 +6563,20 @@ function openVerenigingFolder(categorie){
         );
 
     }
+}
+
+function handleCategoryClick(cat){
+
+    if(currentHoofdgroep === 'verenigingen'){
+
+        openVerenigingFolder(cat);
+
+    }else{
+
+        filterByCategory(cat);
+
+    }
+
 }
 
 async function openDriveFolder(

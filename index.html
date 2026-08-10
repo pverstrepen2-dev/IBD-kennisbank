@@ -2084,11 +2084,6 @@ let breadcrumbPath = [
  sections:['Verenigingen']
 },
 
-'EFCCA': {
- icon:'🇪🇺',
- desc:'Europese federatie',
- sections:['Verenigingen']
-},
 
 'Overige Verenigingen': {
  icon:'📂',
@@ -6712,21 +6707,21 @@ updateBreadcrumb();
 
 `).join("");
 
-if(currentHoofdgroep === 'verenigingen'){
-
-    document.getElementById("categoryGrid").innerHTML =
-        `
-        <button
-            class="btn btn-secondary"
-            onclick="updateCategoryGrid()"
-            style="margin-bottom:15px;"
-        >
-            ← Terug
-        </button>
-        `
-        + html;
-
-}
+const backButton = `
+<div class="card"
+     style="
+        cursor:pointer;
+        text-align:center;
+        font-weight:bold;
+     "
+     onclick="${
+        currentHoofdgroep === 'verenigingen'
+        ? 'updateCategoryGrid()'
+        : 'goBackFolder()'
+     }">
+    ← Terug
+</div>
+`;
 document.getElementById(
     "driveExplorer"
 ).innerHTML = html;

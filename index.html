@@ -6714,17 +6714,24 @@ const backButton = `
         text-align:center;
         font-weight:bold;
      "
-     onclick="${
-        currentHoofdgroep === 'verenigingen'
-        ? 'updateCategoryGrid()'
-        : 'goBackFolder()'
-     }">
+     onclick="goBackFolder()"
+     >
     ← Terug
 </div>
 `;
-document.getElementById(
-    "driveExplorer"
-).innerHTML = html;
+if(currentHoofdgroep === 'verenigingen'){
+
+    document.getElementById(
+        "categoryGrid"
+    ).innerHTML = backButton + html;
+
+}else{
+
+    document.getElementById(
+        "driveExplorer"
+    ).innerHTML = backButton + html;
+
+}
 
     }
     catch(error){

@@ -985,6 +985,7 @@ onclick="switchCCVTab(event,'archief')">
 </button>
 
       <button class="tab-btn" onclick="switchCCVTab(event,'documenten')">📄 Documenten</button>
+      <button class="tab-btn" onclick="switchCCVTab(event,'werkdocumenten')">⭐ Werkdocumenten</button>
       <button class="tab-btn" onclick="switchCCVTab(event,'leden')">👤 Leden</button>
       <button class="tab-btn" onclick="switchCCVTab(event,'users')">⚙ Gebruikers</button>
     </div>
@@ -1363,6 +1364,23 @@ const USERS_FILE_ID =
 const WEBSITES_FILE_ID =
 "2B4CCFD79FF4714A!sd8b62adcd44343ca8e59b7578b20300b";
 
+const IMPORTANT_DOCS_FOLDER_ID = "2B4CCFD79FF4714A!s914e3bb09f4f437881e24d2b981aa540";
+
+const werkdocumentFolders = {
+
+    "Rugzak":
+    "ID_VAN_DE_RUGZAK_MAP",
+
+    "Startermap":
+    "ID_VAN_DE_STARTERMAP",
+
+    "Verzendrugzak":
+    "ID_VAN_DE_VERZENDRUGZAK_MAP",
+
+    "Gesprekswijzer":
+    "ID_VAN_DE_GESPREKSWIJZER_MAP"
+
+};
 
 async function loadCCV(){
 console.log("loadCCV gestart");
@@ -4371,6 +4389,9 @@ async function renderCCV(tab){
   if(tab==='documenten')
     await renderDocs();
 
+    if(tab==='werkdocumenten')
+    await renderWerkdocumenten();
+
   if(tab==='leden')
     await renderMembers();
 
@@ -4393,6 +4414,79 @@ function renderCCVResults(data){
 // =========================
 // TAKEN
 // =========================
+
+function openWerkdocument(folderName){
+
+    const folderId =
+        werkdocumentFolders[folderName];
+
+    if(folderId){
+
+        openDriveFolder(
+            folderId,
+            folderName
+        );
+
+    }
+
+}
+
+async function renderWerkdocumenten(){
+
+    document.getElementById('ccvContent').innerHTML = `
+
+        <h2>⭐ Belangrijke Werkdocumenten</h2>
+
+        <div id="werkdocsList">
+
+            Werkdocumenten worden geladen...
+
+        </div>
+
+    `;
+
+    await loadWerkdocumenten();
+
+}
+
+async function loadWerkdocumenten(){
+
+    document.getElementById(
+        'werkdocsList'
+    ).innerHTML = `
+
+        <div class="card"
+     onclick="openWerkdocument('Rugzak')"
+     style="cursor:pointer">
+
+    📁 Rugzak
+
+</div>
+
+        <div class="card"
+     onclick="openWerkdocument('Startermap')"
+     style="cursor:pointer">
+
+    📁 Startermap
+
+</div>
+
+        <div class="card"
+     onclick="openWerkdocument('Verzendrugzak')"
+     style="cursor:pointer">
+
+    📁 Verzendrugzak
+
+<div class="card"
+     onclick="openWerkdocument('Gesprekswijzer')"
+     style="cursor:pointer">
+
+📁 Gesprekswijzer
+
+</div>
+
+    `;
+}
 
 async function renderTaken(){
 console.log("renderTaken gestart");
@@ -6584,6 +6678,13 @@ async function openDriveFolder(
         "MAP ID:",
         folderId
     );
+
+    alert(
+    "Mapnaam: " +
+    folderName +
+    "\n\nMap ID:\n" +
+    folderId
+);
 
     console.log(
         "MAP NAAM:",

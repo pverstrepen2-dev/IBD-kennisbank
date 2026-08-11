@@ -4477,6 +4477,8 @@ async function loadWerkdocumenten(){
 
     📁 Verzendrugzak
 
+    </div>
+    
 <div class="card"
      onclick="openWerkdocument('Gesprekswijzer')"
      style="cursor:pointer">
@@ -4484,7 +4486,6 @@ async function loadWerkdocumenten(){
 📁 Gesprekswijzer
 
 </div>
-
     `;
 }
 
@@ -6620,11 +6621,12 @@ async function goBackFolder(){
         ];
 
     if(previous){
-        openDriveFolder(
-            previous.id,
-            false
-        );
-    }
+    openDriveFolder(
+        previous.id,
+        previous.name,
+        false
+    );
+}
     else{
         loadCCVSubFolders();
     }

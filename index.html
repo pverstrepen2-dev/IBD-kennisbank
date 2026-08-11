@@ -2659,6 +2659,9 @@ const allData = [
 ];
 
       const searchTerm = (document.getElementById('searchInput')?.value || '').toLowerCase();
+      const category = document.getElementById('categoryFilter')?.value || '';
+      const type = document.getElementById('typeFilter')?.value || '';
+      const sortBy = document.getElementById('sortBy')?.value || 'recent';
       console.log("ZOEKTERM:", searchTerm);
 
 console.log(
@@ -2667,7 +2670,7 @@ console.log(
 );
 console.log(allData);
 
-      if(!searchTerm){
+     if(!searchTerm && !category){
 
     document.getElementById(
         'resultsContainer'
@@ -2867,9 +2870,7 @@ const voedingResults =
 
     }));
 
-      const category = document.getElementById('categoryFilter')?.value || '';
-      const type = document.getElementById('typeFilter')?.value || '';
-      const sortBy = document.getElementById('sortBy')?.value || 'recent';
+      
 
       let result = allData.filter(item => {
 

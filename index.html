@@ -2432,6 +2432,10 @@ function openDashboardView(type){
 }
 
     async function updateCategoryGrid() {
+        console.log(
+    "HOOFDGROEP:",
+    currentHoofdgroep
+);
       if(
     currentHoofdgroep === 'voeding'
 ){
@@ -2457,6 +2461,10 @@ if(
 }
       const data =
     await getFilteredData();
+    console.log(
+    "DATA IN CATEGORYGRID:",
+    data.length
+);
       const allowed = getAllowedSections();
 
       const counts = {};

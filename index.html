@@ -4478,7 +4478,7 @@ async function loadWerkdocumenten(){
     📁 Verzendrugzak
 
     </div>
-    
+
 <div class="card"
      onclick="openWerkdocument('Gesprekswijzer')"
      style="cursor:pointer">
@@ -6605,31 +6605,24 @@ function navigateBreadcrumb(index){
     );
 }
 
-async function goBackFolder(){
+async function goBackFolder() {
 
-    if(folderHistory.length === 0){
+    if (breadcrumbPath.length <= 1) {
         return;
     }
-
-    folderHistory.pop();
 
     breadcrumbPath.pop();
 
     const previous =
-        folderHistory[
-            folderHistory.length - 1
+        breadcrumbPath[
+            breadcrumbPath.length - 1
         ];
 
-    if(previous){
-    openDriveFolder(
+    await openDriveFolder(
         previous.id,
         previous.name,
         false
     );
-}
-    else{
-        loadCCVSubFolders();
-    }
 
     updateBreadcrumb();
 }
@@ -6810,30 +6803,24 @@ updateBreadcrumb();
 
 `).join("");
 
-const backButton = `
-<div class="card"
-     style="
-        cursor:pointer;
-        text-align:center;
-        font-weight:bold;
-     "
-     onclick="goBackFolder()"
-     >
-    ← Terug
-</div>
-`;
-if(currentHoofdgroep === 'verenigingen'){
+const backBtn =
+    document.getElementById("backBtn");
 
+if (breadcrumbPath.length > 1) {
+    backBtn.style.display = "inline-block";
+} else {
+    backBtn.style.display = "none";
+}
+
+if(currentHoofdgroep === 'verenigingen'){
     document.getElementById(
         "categoryGrid"
-    ).innerHTML = backButton + html;
-
-}else{
-
+    ).innerHTML = html;
+}
+else{
     document.getElementById(
         "driveExplorer"
-    ).innerHTML = backButton + html;
-
+    ).innerHTML = html;
 }
 
     }

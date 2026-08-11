@@ -3991,46 +3991,52 @@ const msalInstance =
 
 msalReady = true;
 
-    msalInstance.handleRedirectPromise()
+   msalInstance.handleRedirectPromise()
 .then(async response => {
 
     if(response){
 
         currentUser = {
-
             name: response.account.name,
             email: response.account.username
-
         };
-await loadCurrentRole();
+
+        await loadCurrentRole();
 
         updateUserInfo();
+
         console.log(
-    "USERINFO BIJGEWERKT"
-);
+            "USERINFO BIJGEWERKT"
+        );
+
         msalInstance.setActiveAccount(
-    response.account
-);
+            response.account
+        );
 
         renderFaqByGroup(
-    currentHoofdgroep
-).catch(console.error);
+            currentHoofdgroep
+        ).catch(console.error);
+
         document.getElementById(
             "loginBtn"
-        ).style.display =
-            "none";
+        ).style.display = "none";
 
         document.getElementById(
             "logoutBtn"
-        ).style.display =
-            "inline-block";
+        ).style.display = "inline-block";
 
         console.log(
             "Aangemeld:",
             response.account.username
         );
-
     }
+
+    // HIER TOEVOEGEN
+
+    await updateDashboard();
+    await updateCategoryGrid();
+    await performSearch();
+    await updateRecordsList();
 
 })
 .catch(console.error);
@@ -4325,14 +4331,14 @@ async function loadOneDriveFiles(){
 
 }
 
-    populateFilters();
-    setLanguage(currentLang);
-    updateDashboard();
-    document.getElementById('activeGroup').innerText =
-  '📂 Actieve hoofdgroep: ' + currentHoofdgroep;
-    updateCategoryGrid();
-    performSearch();
-    updateRecordsList();
+   // populateFilters();
+  //  setLanguage(currentLang);
+  //  updateDashboard();
+ //   document.getElementById('activeGroup').innerText =
+ // '📂 Actieve hoofdgroep: ' + currentHoofdgroep;
+ //   updateCategoryGrid();
+ //   performSearch();
+    //updateRecordsList();
     console.log("FAQ init");
 
 // renderFaqByGroup(currentHoofdgroep);

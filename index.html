@@ -2308,10 +2308,21 @@ if (tabName === 'aiapproved') {
 
     async function getFilteredData(){
 
-    const data =
-        await loadData();
+    const knowledge =
+        await getKnowledgeData();
 
-    return data;
+    const docs =
+        await loadDocuments();
+
+    return [
+        ...knowledge,
+        ...docs.map(doc => ({
+            title: doc.title,
+            category: doc.categorie,
+            disease: doc.hoofdgroep,
+            type: "AI Document"
+        }))
+    ];
 }
 
     async function renderCCVDashboard(){

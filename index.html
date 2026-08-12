@@ -1001,13 +1001,6 @@ onclick="switchCCVTab(event,'archief')">
     
 
     <!-- ✅ content -->
-     <div id="driveExplorer"
-     style="
-        margin-top:15px;
-        display:block;
-     ">
-</div>
-
     <div id="ccvContent"></div>
      </div>
 </div>
@@ -1216,7 +1209,12 @@ Sociale Gids
     🤝 Open CCV-VZW
 </button>
 
-
+<div id="driveExplorer"
+     style="
+        margin-top:15px;
+        display:block;
+     ">
+</div>
 
 <hr style="margin:15px 0;">
 
@@ -1271,8 +1269,7 @@ Sociale Gids
     style="margin-top:16px;"
 >
 </div>
-      </div>
-
+      
     <!-- Backup -->
     <div id="backup" class="tab-content">
       <div class="admin-section">
@@ -6471,9 +6468,6 @@ document.getElementById(
     "driveExplorer"
 ).style.display = "block";
 
-document.getElementById("driveExplorer").style.minHeight = "300px";
-document.getElementById("driveExplorer").style.border = "3px solid red";
-
 document.getElementById(
     "driveExplorer"
 ).innerHTML =
@@ -6490,30 +6484,30 @@ data.value.forEach(item => {
 
 });
 
-      const explorer =
+        document.getElementById(
+    "driveExplorer"
+).innerHTML =
 
-      document.getElementById("driveExplorer").style.display = "block";
-    let html = "<h2>CCV Structuur</h2>";
+    data.value.map(item => `
 
-data.value.forEach(item => {
+        <div
+            class="card"
+            style="cursor:pointer;"
+           onclick="${
+    item.folder
+    ? `openDriveFolder('${item.id}','${item.name}')`
+    : ''
+}"
+        >
 
-    html += `
-        <div class="card"
-             style="margin:10px;padding:10px;border:1px solid #ccc;cursor:pointer;"
-             onclick="${
-                 item.folder
-                 ? `openDriveFolder('${item.id}','${item.name}')`
-                 : `openFile('${item.id}')`
-             }">
-
-            ${item.folder ? "📁" : "📄"} ${item.name}
+            <h3>
+                ${item.folder ? "📁" : "📄"}
+                ${item.name}
+            </h3>
 
         </div>
-    `;
 
-});
-
-document.getElementById("driveExplorer").innerHTML = html;
+    `).join("");
 
     }
     catch(error){
@@ -6845,40 +6839,35 @@ if (!data.value) {
 
 updateBreadcrumb();
 
-      let html = "";
+        const html = data.value.map(item => `
 
-data.value.forEach(item => {
+    <div
+        class="card"
+        style="cursor:pointer;"
+        onclick="${
+            item.folder
+                ? `openDriveFolder('${item.id}','${item.name}')`
+                : `openFile('${item.id}')`
+        }"
+    >
 
-    if (item.folder) {
+        <h3>
+            ${item.folder ? "📁" : "📄"}
+            ${item.name}
+        </h3>
 
-        html += `
-            <div class="card"
-                 onclick="openDriveFolder('${item.id}','${item.name}')">
-                📁 ${item.name}
-            </div>
-        `;
+    </div>
 
-    } else {
+`).join("");
 
-        html += `
-            <div class="card"
-                 onclick="openFile('${item.id}')">
-                📄 ${item.name}
-            </div>
-        `;
+const backBtn =
+    document.getElementById("backBtn");
 
-    }
-
-});
-
-if(backBtn){
-    if(breadcrumbPath.length > 1){
-        backBtn.style.display = "inline-block";
-    }else{
-        backBtn.style.display = "none";
-    }
+if (breadcrumbPath.length > 1) {
+    backBtn.style.display = "inline-block";
+} else {
+    backBtn.style.display = "none";
 }
-
 alert("HTML WORDT GESCHREVEN");
 document.getElementById("driveExplorer").innerHTML =
     "<h2>📂 " + folderName + "</h2>" + html;

@@ -3023,11 +3023,14 @@ Object.entries(groups)
         ${items.map(item => `
 
             <div
-                class="result-item"
-                style="
-                    margin-top:10px;
-                "
-            >
+    class="result-item"
+    style="margin-top:10px; cursor:pointer;"
+    onclick="${
+        item.source === 'OneDrive'
+        ? `openFile('${item.id}')`
+        : ''
+    }"
+>
 
                 <div class="result-title">
 
@@ -3046,7 +3049,17 @@ Object.entries(groups)
                     ${item.content || ''}
 
                 </div>
-
+${item.source === 'OneDrive'
+ ? `
+ <br><br>
+ <button
+     class="btn btn-primary"
+     onclick="event.stopPropagation(); openFile('${item.id}')">
+     📂 Open bestand
+ </button>
+ `
+ : ''
+}
             </div>
 
         `).join('')}

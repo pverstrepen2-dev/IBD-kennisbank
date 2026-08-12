@@ -1001,7 +1001,15 @@ onclick="switchCCVTab(event,'archief')">
     
 
     <!-- ✅ content -->
+     <div id="driveExplorer"
+     style="
+        margin-top:15px;
+        display:block;
+     ">
+</div>
+    <div id="folderViewer"></div>
     <div id="ccvContent"></div>
+    <div id="folderContent"></div>
      </div>
 </div>
 
@@ -1209,12 +1217,7 @@ Sociale Gids
     🤝 Open CCV-VZW
 </button>
 
-<div id="driveExplorer"
-     style="
-        margin-top:15px;
-        display:block;
-     ">
-</div>
+
 
 <hr style="margin:15px 0;">
 
@@ -6869,7 +6872,7 @@ if (breadcrumbPath.length > 1) {
     backBtn.style.display = "none";
 }
 alert("HTML WORDT GESCHREVEN");
-document.getElementById("driveExplorer").innerHTML =
+document.getElementById("folderViewer").innerHTML =
     "<h2>📂 " + folderName + "</h2>" + html;
     }
     catch(error){

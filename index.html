@@ -6869,7 +6869,12 @@ if (breadcrumbPath.length > 1) {
     backBtn.style.display = "none";
 }
 alert("HTML WORDT GESCHREVEN");
-document.getElementById("driveExplorer").innerHTML =
+const target =
+    document.getElementById("werkdocsList")
+        ? "werkdocsList"
+        : "driveExplorer";
+
+document.getElementById(target).innerHTML =
     "<h2>📂 " + folderName + "</h2>" + html;
     }
     catch(error){

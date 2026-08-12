@@ -6351,21 +6351,13 @@ async function loadCCVFolder(){
 
         const data =
     await response.json();
-    oneDriveIndex = data.value.map(item => ({
-
+   oneDriveIndex = data.value.map(item => ({
     title: item.name,
-
     category: 'OneDrive',
-
-    type:
-        item.folder
-        ? 'Map'
-        : 'Bestand',
-
+    type: item.folder ? 'Map' : 'Bestand',
     source: 'OneDrive',
-
-    content: item.name
-
+    content: item.name,
+    id: item.id
 }));
 
 console.log(

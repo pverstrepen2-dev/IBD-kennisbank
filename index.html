@@ -1007,11 +1007,8 @@ onclick="switchCCVTab(event,'archief')">
         display:block;
      ">
 </div>
-    <div id="folderViewer"
-     style="border:5px solid red; min-height:200px; background:yellow;">
-</div>
+
     <div id="ccvContent"></div>
-    <div id="folderContent"></div>
      </div>
 </div>
 
@@ -1274,6 +1271,7 @@ Sociale Gids
     style="margin-top:16px;"
 >
 </div>
+      </div>
       
     <!-- Backup -->
     <div id="backup" class="tab-content">
@@ -6880,7 +6878,7 @@ if(backBtn){
 }
 
 alert("HTML WORDT GESCHREVEN");
-document.getElementById("folderViewer").innerHTML =
+document.getElementById("driveExplorer").innerHTML =
     "<h2>📂 " + folderName + "</h2>" + html;
     }
     catch(error){

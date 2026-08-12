@@ -6493,30 +6493,27 @@ data.value.forEach(item => {
       const explorer =
 
       document.getElementById("driveExplorer").style.display = "block";
-    document.getElementById("driveExplorer");
+    let html = "<h2>CCV Structuur</h2>";
 
-explorer.innerHTML =
+data.value.forEach(item => {
 
-    data.value.map(item => `
+    html += `
+        <div class="card"
+             style="margin:10px;padding:10px;border:1px solid #ccc;cursor:pointer;"
+             onclick="${
+                 item.folder
+                 ? `openDriveFolder('${item.id}','${item.name}')`
+                 : `openFile('${item.id}')`
+             }">
 
-        <div
-            class="card"
-            style="cursor:pointer;"
-            onclick="${
-                item.folder
-                ? `openDriveFolder('${item.id}','${item.name}')`
-                : ''
-            }"
-        >
-
-            <h3>
-                ${item.folder ? "📁" : "📄"}
-                ${item.name}
-            </h3>
+            ${item.folder ? "📁" : "📄"} ${item.name}
 
         </div>
+    `;
 
-    `).join("");
+});
+
+document.getElementById("driveExplorer").innerHTML = html;
 
     }
     catch(error){

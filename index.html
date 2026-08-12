@@ -1007,7 +1007,9 @@ onclick="switchCCVTab(event,'archief')">
         display:block;
      ">
 </div>
-    <div id="folderViewer"></div>
+    <div id="folderViewer"
+     style="border:5px solid red; min-height:200px; background:yellow;">
+</div>
     <div id="ccvContent"></div>
     <div id="folderContent"></div>
      </div>
@@ -6842,35 +6844,26 @@ if (!data.value) {
 
 updateBreadcrumb();
 
-        const html = data.value.map(item => `
+       let html = "";
 
-    <div
-        class="card"
-        style="cursor:pointer;"
-        onclick="${
-            item.folder
-                ? `openDriveFolder('${item.id}','${item.name}')`
-                : `openFile('${item.id}')`
-        }"
-    >
+data.value.forEach(item => {
 
-        <h3>
-            ${item.folder ? "📁" : "📄"}
-            ${item.name}
-        </h3>
+    html += "<div style='padding:10px;margin:10px;border:2px solid red;'>";
 
-    </div>
+    html += item.name;
 
-`).join("");
+    html += "</div>";
 
-const backBtn =
-    document.getElementById("backBtn");
+});
 
-if (breadcrumbPath.length > 1) {
-    backBtn.style.display = "inline-block";
-} else {
-    backBtn.style.display = "none";
+if(backBtn){
+    if(breadcrumbPath.length > 1){
+        backBtn.style.display = "inline-block";
+    }else{
+        backBtn.style.display = "none";
+    }
 }
+
 alert("HTML WORDT GESCHREVEN");
 document.getElementById("folderViewer").innerHTML =
     "<h2>📂 " + folderName + "</h2>" + html;

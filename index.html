@@ -1272,7 +1272,7 @@ Sociale Gids
 >
 </div>
       </div>
-      
+
     <!-- Backup -->
     <div id="backup" class="tab-content">
       <div class="admin-section">
@@ -6471,6 +6471,9 @@ document.getElementById(
     "driveExplorer"
 ).style.display = "block";
 
+document.getElementById("driveExplorer").style.minHeight = "300px";
+document.getElementById("driveExplorer").style.border = "3px solid red";
+
 document.getElementById(
     "driveExplorer"
 ).innerHTML =
@@ -6488,6 +6491,8 @@ data.value.forEach(item => {
 });
 
       const explorer =
+
+      document.getElementById("driveExplorer").style.display = "block";
     document.getElementById("driveExplorer");
 
 explorer.innerHTML =

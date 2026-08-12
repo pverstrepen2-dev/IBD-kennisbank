@@ -6738,7 +6738,6 @@ async function openDriveFolder(
     "\n\nMap ID:\n" +
     folderId
 );
-alert("VOOR FETCH");
 
     console.log(
         "MAP NAAM:",
@@ -6765,7 +6764,6 @@ alert("VOOR FETCH");
 
         const data =
             await response.json();
-alert("NA FETCH");
 
             console.log(
     "===== INHOUD MAP ====="
@@ -6871,13 +6869,9 @@ if (breadcrumbPath.length > 1) {
 } else {
     backBtn.style.display = "none";
 }
-console.log("HTML LENGTE:", html.length);
-console.log(
-"DRIVEEXPLORER:",
-document.getElementById("driveExplorer")
-);
-document.getElementById("ccvContent").innerHTML = "<h2>📂 " + folderName + "</h2>" + html;
 
+document.getElementById("driveExplorer").innerHTML =
+    "<h2>📂 " + folderName + "</h2>" + html;
     }
     catch(error){
 

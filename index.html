@@ -6844,15 +6844,29 @@ if (!data.value) {
 
 updateBreadcrumb();
 
-       let html = "";
+      let html = "";
 
 data.value.forEach(item => {
 
-    html += "<div style='padding:10px;margin:10px;border:2px solid red;'>";
+    if (item.folder) {
 
-    html += item.name;
+        html += `
+            <div class="card"
+                 onclick="openDriveFolder('${item.id}','${item.name}')">
+                📁 ${item.name}
+            </div>
+        `;
 
-    html += "</div>";
+    } else {
+
+        html += `
+            <div class="card"
+                 onclick="openFile('${item.id}')">
+                📄 ${item.name}
+            </div>
+        `;
+
+    }
 
 });
 

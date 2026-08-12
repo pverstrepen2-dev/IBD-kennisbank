@@ -6765,6 +6765,15 @@ async function openDriveFolder(
         const data =
             await response.json();
 
+            console.table(
+    data.value.map(x => ({
+        naam: x.name,
+        map: !!x.folder,
+        bestand: !!x.file,
+        id: x.id
+    }))
+);
+
             console.log(
     "===== INHOUD MAP ====="
 );

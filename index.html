@@ -6885,20 +6885,13 @@ if (breadcrumbPath.length > 1) {
     backBtn.style.display = "none";
 }
 
-if(currentHoofdgroep === 'verenigingen'){
-    document.getElementById(
-        "categoryGrid"
-    ).innerHTML = html;
-}
-else{
-    document.getElementById(
-    "ccvContent"
+document.getElementById(
+    "driveExplorer"
 ).innerHTML =
     "<h2>📂 " +
     folderName +
     "</h2>" +
     html;
-}
 
     }
     catch(error){

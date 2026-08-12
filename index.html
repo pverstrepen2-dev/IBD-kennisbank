@@ -2637,27 +2637,7 @@ if(msalReady){
     }
 }
 
-const allData = [
-
-    ...knowledgeData,
-
-    ...aiDocs.map(doc => ({
-
-        title: doc.title,
-
-        category: doc.categorie,
-
-        type: "AI Document",
-
-        content: "",
-
-        source: "AI",
-
-        disease: doc.hoofdgroep
-
-    }))
-
-];
+const allData = knowledgeData;
 
       const searchTerm = (document.getElementById('searchInput')?.value || '').toLowerCase();
       const category = document.getElementById('categoryFilter')?.value || '';

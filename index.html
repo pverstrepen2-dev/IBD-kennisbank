@@ -6564,23 +6564,15 @@ console.log("FETCH OK");
     data.value.forEach(item => {
 
         oneDriveIndex.push({
-
-            title: item.name,
-
-            category: 'OneDrive',
-
-            type:
-                item.folder
-                ? 'Map'
-                : 'Bestand',
-
-            source: 'OneDrive',
-
-            content: item.name,
-
-            id: item.id
-
-        });
+    title: item.name,
+    category: 'OneDrive',
+    type: item.folder ? 'Map' : 'Bestand',
+    source: 'OneDrive',
+    content: item.name,
+    id: item.id,
+    folder: item.folder,
+    file: item.file
+});
 
     });
 
@@ -6810,7 +6802,9 @@ data.value.forEach(item => {
 
         content: item.name,
 
-        id: item.id
+        id: item.id,
+folder: item.folder,
+file: item.file
 
     })
 );

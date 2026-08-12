@@ -6489,20 +6489,21 @@ data.value.forEach(item => {
 
 });
 
-        document.getElementById(
-    "driveExplorer"
-).innerHTML =
+      const explorer =
+    document.getElementById("driveExplorer");
+
+explorer.innerHTML =
 
     data.value.map(item => `
 
         <div
             class="card"
             style="cursor:pointer;"
-           onclick="${
-    item.folder
-    ? `openDriveFolder('${item.id}','${item.name}')`
-    : ''
-}"
+            onclick="${
+                item.folder
+                ? `openDriveFolder('${item.id}','${item.name}')`
+                : ''
+            }"
         >
 
             <h3>

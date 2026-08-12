@@ -3033,7 +3033,7 @@ ${(item.source === 'OneDrive' || item.source === 'AI')
  <br><br>
  <button
      class="btn btn-primary"
-     onclick="event.stopPropagation(); openFile('${item.id}')">
+     onclick="event.stopPropagation(); openFile('${item.fileId || item.id}')"
      📂 Open bestand
  </button>
  `
@@ -6876,13 +6876,7 @@ console.log(
 "DRIVEEXPLORER:",
 document.getElementById("driveExplorer")
 );
-document.getElementById(
-    "driveExplorer"
-).innerHTML =
-    "<h2>📂 " +
-    folderName +
-    "</h2>" +
-    html;
+document.getElementById("ccvContent").innerHTML = "<h2>📂 " + folderName + "</h2>" + html;
 
     }
     catch(error){

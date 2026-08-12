@@ -6869,10 +6869,14 @@ if (breadcrumbPath.length > 1) {
     backBtn.style.display = "none";
 }
 alert("HTML WORDT GESCHREVEN");
-const target =
-    document.getElementById("werkdocsList")
-        ? "werkdocsList"
-        : "driveExplorer";
+let target = "driveExplorer";
+
+if(document.getElementById("werkdocsList")){
+    target = "werkdocsList";
+}
+else if(currentHoofdgroep === "verenigingen"){
+    target = "categoryGrid";
+}
 
 document.getElementById(target).innerHTML =
     "<h2>📂 " + folderName + "</h2>" + html;

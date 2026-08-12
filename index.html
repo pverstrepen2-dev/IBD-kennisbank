@@ -933,6 +933,30 @@ class="btn btn-primary"
     
     <!-- ✅ Dashboard bovenaan -->
     <div id="ccvDashboard"></div>
+    <div class="tabs" style="margin-top:14px;">
+      <button class="tab-btn active" onclick="switchCCVTab(event,'taken')">📋 Taken</button>
+      <button class="tab-btn" onclick="switchCCVTab(event,'werkgroepen')">👥 Werkgroepen</button>
+      <button class="tab-btn" onclick="switchCCVTab(event,'vergaderingen')">🗓️ Vergaderingen</button>
+      <button class="tab-btn"
+onclick="switchCCVTab(event,'projecten')">
+📁 Projecten
+</button>
+
+<button class="tab-btn"
+onclick="switchCCVTab(event,'agenda')">
+📅 Agenda
+</button>
+
+<button class="tab-btn"
+onclick="switchCCVTab(event,'archief')">
+📦 Archief
+</button>
+
+      <button class="tab-btn" onclick="switchCCVTab(event,'documenten')">📄 Documenten</button>
+      <button class="tab-btn" onclick="switchCCVTab(event,'werkdocumenten')">⭐ Werkdocumenten</button>
+      <button class="tab-btn" onclick="switchCCVTab(event,'leden')">👤 Leden</button>
+      <button class="tab-btn" onclick="switchCCVTab(event,'users')">⚙ Gebruikers</button>
+    </div>
 
     <!-- ✅ dropdown -->
     <select id="ccvQuickView" style="margin-bottom:10px;">
@@ -974,30 +998,7 @@ class="btn btn-primary"
     />
 
     <!-- ✅ tabs -->
-    <div class="tabs" style="margin-top:14px;">
-      <button class="tab-btn active" onclick="switchCCVTab(event,'taken')">📋 Taken</button>
-      <button class="tab-btn" onclick="switchCCVTab(event,'werkgroepen')">👥 Werkgroepen</button>
-      <button class="tab-btn" onclick="switchCCVTab(event,'vergaderingen')">🗓️ Vergaderingen</button>
-      <button class="tab-btn"
-onclick="switchCCVTab(event,'projecten')">
-📁 Projecten
-</button>
-
-<button class="tab-btn"
-onclick="switchCCVTab(event,'agenda')">
-📅 Agenda
-</button>
-
-<button class="tab-btn"
-onclick="switchCCVTab(event,'archief')">
-📦 Archief
-</button>
-
-      <button class="tab-btn" onclick="switchCCVTab(event,'documenten')">📄 Documenten</button>
-      <button class="tab-btn" onclick="switchCCVTab(event,'werkdocumenten')">⭐ Werkdocumenten</button>
-      <button class="tab-btn" onclick="switchCCVTab(event,'leden')">👤 Leden</button>
-      <button class="tab-btn" onclick="switchCCVTab(event,'users')">⚙ Gebruikers</button>
-    </div>
+    
 
     <!-- ✅ content -->
     <div id="ccvContent"></div>

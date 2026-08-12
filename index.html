@@ -2335,7 +2335,8 @@ if (tabName === 'aiapproved') {
             disease: doc.hoofdgroep,
             type: "AI Document",
             source: "AI",
-            content: ""
+            content: "",
+            fileId: doc.fileId
         }))
 
     ];
@@ -3018,7 +3019,8 @@ Object.entries(groups)
                 <div class="result-meta">
 
                     ${item.category || ''}
-
+                    Naam: ${item.title}
+                    FileID: ${item.fileId}
                 </div>
 
                 <div>

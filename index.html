@@ -2912,25 +2912,20 @@ console.table(result);
       }
 
       
-result = [
+if (searchTerm.trim() !== '') {
 
-    ...result,
+    result = [
+        ...result,
+        ...faqResults,
+        ...ccvResults,
+        ...voedingResults,
+        ...meetingResults,
+        ...projectResults,
+        ...taskResults,
+        ...oneDriveResults
+    ];
 
-    ...faqResults,
-
-    ...ccvResults,
-
-    ...voedingResults,
-
-    ...meetingResults,
-
-    ...projectResults,
-
-    ...taskResults,
-
-    ...oneDriveResults
-
-];
+}
 
 console.log(
     "FAQ:",
@@ -2972,6 +2967,8 @@ console.log(
     result.length
 );
 
+console.log("CATEGORIE:", category);
+console.log("RESULT:", result);
 console.log(result);
 displayResults(result);
     }
@@ -3299,12 +3296,26 @@ function toggleFavoritesFilter() {
   refreshWebsitesOverview();
 }
 
-    function filterByCategory(category) {
-      const searchBtn = Array.from(document.querySelectorAll('.tab-btn')).find(btn => btn.textContent.includes('Zoeken'));
-      if (searchBtn) searchBtn.click();
-      document.getElementById('categoryFilter').value = category;
-      performSearch();
+    function filterByCategory(category){
+
+    document.getElementById('searchInput').value = '';
+
+    document.getElementById('categoryFilter').value = category;
+
+    const searchBtn =
+        Array.from(
+            document.querySelectorAll('.tab-btn')
+        ).find(
+            btn => btn.textContent.includes('Zoeken')
+        );
+
+    if(searchBtn){
+        searchBtn.click();
     }
+
+    performSearch();
+
+}
 
     async function updateRecordsList() {
       const term = (document.getElementById('manageSearch')?.value || '').toLowerCase();

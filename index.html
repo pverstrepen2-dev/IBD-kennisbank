@@ -16,6 +16,13 @@
 
 <script>
 
+console.log("PDF TEST", window.pdfjsLib);
+console.log("PDF TEST 2", window["pdfjs-dist/build/pdf"]);
+
+</script>
+
+<script>
+
 pdfjsLib.GlobalWorkerOptions.workerSrc =
 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.js';
 
@@ -7240,6 +7247,10 @@ async function extractDocumentText(file){
 }
 
 async function extractPdfText(fileId){
+    console.log(
+    "PDF FILE:",
+    fileId
+);
 
     const token = await getAccessToken();
 
@@ -7259,6 +7270,10 @@ async function extractPdfText(fileId){
     const pdf = await pdfjsLib.getDocument(pdfUrl).promise;
 
     let text = "";
+    console.log(
+    "PDF PAGINA'S:",
+    pdf.numPages
+);
 
     for(let pageNum = 1; pageNum <= pdf.numPages; pageNum++){
 
@@ -7272,6 +7287,10 @@ async function extractPdfText(fileId){
 
         text += "\n";
     }
+    console.log(
+    "PDF TEKST:",
+    text.substring(0,200)
+);
 
     return text;
 }

@@ -12,6 +12,8 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.js"></script>
+
 <style>
     :root {
       --primary: #667eea;
@@ -5346,6 +5348,12 @@ if(exists){
 
         categorie:
             result.categorie,
+        
+        tags: result.tags || [],
+samenvatting:
+    result.samenvatting || "",
+faq:
+    result.faq || [],
 
         confidence:
             result.confidence,
@@ -7123,6 +7131,103 @@ document.getElementById(
     );
 }
 
+async function extractPdfText(fileId){
+
+    const token = await getAccessToken();
+
+    const response = await fetch(
+        `https://graph.microsoft.com/v1.0/me/drive/items/${fileId}/content`,
+        {
+            headers:{
+                Authorization:"Bearer " + token
+            }
+        }
+    );
+
+    const pdfBlob = await response.blob();
+
+    const pdfUrl = URL.createObjectURL(pdfBlob);
+
+    const pdf = await pdfjsLib.getDocument(pdfUrl).promise;
+
+    let text = "";
+
+    for(let pageNum = 1; pageNum <= pdf.numPages; pageNum++){
+
+        const page = await pdf.getPage(pageNum);
+
+        const content = await page.getTextContent();
+
+        text += content.items
+            .map(item => item.str)
+            .join(" ");
+
+        text += "\n";
+    }
+
+    return text;
+}
+
+async function analyseDocumentContent(text){
+
+    let hoofdgroep = "ibd";
+    let categorie = "Onderzoek";
+    let tags = [];
+
+    const lower = text.toLowerCase();
+
+    if(lower.includes("crohn")){
+        hoofdgroep = "crohn";
+        tags.push("Crohn");
+    }
+
+    if(lower.includes("colitis ulcerosa")){
+        hoofdgroep = "colitis";
+        tags.push("Colitis");
+    }
+
+    if(
+        lower.includes("infliximab") ||
+        lower.includes("adalimumab")
+    ){
+        categorie = "Biologische therapie";
+        tags.push("Biologicals");
+    }
+
+    if(
+        lower.includes("mesalazine") ||
+        lower.includes("azathioprine")
+    ){
+        categorie = "Medicatie";
+        tags.push("Medicatie");
+    }
+
+    return {
+        hoofdgroep,
+        categorie,
+        tags
+    };
+}
+
+function generateSummary(text){
+
+    return text
+        .substring(0,500)
+        .replace(/\n/g," ");
+}
+
+function generateFAQ(text){
+
+    return [
+        {
+            vraag:
+                "Waarover gaat dit document?",
+            antwoord:
+                text.substring(0,300)
+        }
+    ];
+}
+
 async function analyseDocumentAI(file){
 
     const fileName =
@@ -7396,10 +7501,33 @@ async function scanFolderDocuments(){
         file.name
     );
 
-    const analyse =
+    let analyse;
+let text = "";
+
+try{
+
+    text =
+        await extractPdfText(
+            file.id
+        );
+
+    analyse =
+        await analyseDocumentContent(
+            text
+        );
+
+}
+catch(error){
+
+    console.log(
+        "PDF analyse mislukt"
+    );
+
+    analyse =
         await analyseDocumentAI(
             file
         );
+}
 
     console.log(
         "RESULTAAT:",
@@ -7416,7 +7544,15 @@ async function scanFolderDocuments(){
     categorie:
         analyse.categorie,
     confidence:
-        analyse.confidence
+        analyse.confidence,
+samenvatting:
+    generateSummary(text),
+
+faq:
+    generateFAQ(text),
+
+tags:
+    analyse.tags || []
 });
 
 if(

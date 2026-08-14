@@ -2866,7 +2866,10 @@ const voedingResults =
         item.tags || '',
         item.category || '',
         item.source || '',
-        item.disease || ''
+        item.disease || '',
+        item.samenvatting || '',
+        item.zoekindex || ''
+       
     ].join(' ').toLowerCase();
 
     if (searchTerm && !haystack.includes(searchTerm))
@@ -5356,7 +5359,8 @@ samenvatting:
     result.samenvatting || "",
 faq:
     result.faq || [],
-
+zoekindex:
+    result.zoekindex || "",
         confidence:
             result.confidence,
 
@@ -7267,43 +7271,88 @@ async function extractPdfText(fileId){
 
 async function analyseDocumentContent(text){
 
+    const lower =
+        text.toLowerCase();
+
     let hoofdgroep = "ibd";
     let categorie = "Onderzoek";
-    let tags = [];
+    let confidence = 90;
+    const tags = [];
 
-    const lower = text.toLowerCase();
+    const zoekwoorden = [
+        "crohn",
+        "colitis",
+        "infliximab",
+        "adalimumab",
+        "mesalazine",
+        "azathioprine",
+        "stoma",
+        "voeding",
+        "operatie",
+        "vermoeidheid"
+    ];
+
+    zoekwoorden.forEach(word => {
+
+        if(lower.includes(word)){
+            tags.push(word);
+        }
+
+    });
 
     if(lower.includes("crohn")){
-        hoofdgroep = "crohn";
-        tags.push("Crohn");
-    }
+    hoofdgroep = "crohn";
+    confidence = 95;
+}
 
-    if(lower.includes("colitis ulcerosa")){
-        hoofdgroep = "colitis";
-        tags.push("Colitis");
-    }
+    if(lower.includes("colitis")){
+    hoofdgroep = "colitis";
+    confidence = 95;
+}
 
-    if(
-        lower.includes("infliximab") ||
-        lower.includes("adalimumab")
-    ){
-        categorie = "Biologische therapie";
-        tags.push("Biologicals");
-    }
+   if(
+    lower.includes("infliximab") ||
+    lower.includes("adalimumab")
+){
+    categorie =
+        "Biologische therapie";
+
+    confidence = 98;
+}
+
 
     if(
         lower.includes("mesalazine") ||
         lower.includes("azathioprine")
     ){
-        categorie = "Medicatie";
-        tags.push("Medicatie");
+        categorie =
+            "Medicatie";
     }
 
+    const samenvatting =
+        generateSummary(text);
+
+    const faq =
+        generateFAQ(text);
+
+    const zoekindex =
+        (
+            tags.join(" ")
+            + " "
+            + samenvatting
+        ).toLowerCase();
+
     return {
-        hoofdgroep,
-        categorie,
-        tags
-    };
+
+    hoofdgroep,
+    categorie,
+    tags,
+    samenvatting,
+    faq,
+    zoekindex,
+    confidence
+
+};
 }
 
 function generateSummary(text){
@@ -7642,24 +7691,33 @@ catch(error){
     );
 
        results.push({
+
     fileName:
         file.name,
+
     fileId:
         file.id,
+
     hoofdgroep:
         analyse.hoofdgroep,
+
     categorie:
         analyse.categorie,
+
+    tags:
+        analyse.tags || [],
+
+    samenvatting:
+        analyse.samenvatting || "",
+
+    faq:
+        analyse.faq || [],
+
+    zoekindex:
+        analyse.zoekindex || "",
+
     confidence:
-        analyse.confidence,
-samenvatting:
-    generateSummary(text),
-
-faq:
-    generateFAQ(text),
-
-tags:
-    analyse.tags || []
+        analyse.confidence || 90
 });
 
 if(

@@ -7323,14 +7323,23 @@ async function analyseDocumentContent(text){
 
     });
 
-    if(lower.includes("crohn")){
+   const crohnCount =
+    (lower.match(/crohn/g) || []).length;
+
+const colitisCount =
+    (lower.match(/colitis/g) || []).length;
+
+if(crohnCount > colitisCount){
     hoofdgroep = "crohn";
     confidence = 95;
 }
-
-    if(lower.includes("colitis")){
+else if(colitisCount > crohnCount){
     hoofdgroep = "colitis";
     confidence = 95;
+}
+else{
+    hoofdgroep = "ibd";
+    confidence = 90;
 }
 
    if(
@@ -7352,6 +7361,34 @@ async function analyseDocumentContent(text){
             "Medicatie";
     }
 
+    if(lower.includes("werk")){
+    categorie = "Patiëntenrechten";
+}
+
+if(lower.includes("voeding")){
+    categorie = "Voeding";
+}
+
+if(lower.includes("vermoeid")){
+    categorie = "Dagelijks Leven";
+}
+
+if(lower.includes("zwangerschap")){
+    categorie = "Dagelijks Leven";
+}
+
+if(lower.includes("fistel")){
+    categorie = "Complicaties";
+}
+
+if(lower.includes("stoma")){
+    categorie = "Operatie";
+}
+
+if(lower.includes("operatie")){
+    categorie = "Operatie";
+}
+
     const samenvatting =
         generateSummary(text);
 
@@ -7364,6 +7401,14 @@ async function analyseDocumentContent(text){
             + " "
             + samenvatting
         ).toLowerCase();
+
+        console.log(
+    "CLASSIFICATIE:",
+    hoofdgroep,
+    categorie,
+    crohnCount,
+    colitisCount
+);
 
     return {
 

@@ -664,6 +664,7 @@ class="btn btn-primary"
 </button>
       <button class="tab-btn" onclick="switchTab(event, 'add')">➕ Toevoegen</button>
       <button class="tab-btn" onclick="switchTab(event, 'manage')">⚙️ Beheer</button>
+      <button class="tab-btn" onclick="switchTab(event, 'aiproposals')">🤖 AI Voorstellen</button>
       <button class="tab-btn" onclick="switchTab(event, 'aiapproved')">🤖 AI Goedgekeurd</button>
       <button class="tab-btn" onclick="switchTab(event, 'backup')">💾 Backup</button>
       <button class="tab-btn" onclick="switchTab(event, 'info')">ℹ️ Info</button>
@@ -1161,6 +1162,12 @@ Sociale Gids
     id="manageSearch"
     placeholder="Filter op titel..."
 />
+
+<div id="aiproposals"
+     class="tab-content">
+    <h2>🤖 AI Voorstellen</h2>
+    <div id="aiProposalList"></div>
+</div>
 
 <div id="aiapproved"
      class="tab-content">
@@ -1856,6 +1863,7 @@ function saveVoeding(data){
 
 let oneDriveIndex = [];
 let currentAIResults = [];
+let aiProposals = [];
 // =====================================
 // VERENIGINGEN -> ONEDRIVE MAPPEN
 // =====================================
@@ -2299,6 +2307,10 @@ if(disease === 'ccv'){
 
 if (tabName === 'faqbeheer') {
     renderFAQBeheer();
+    
+}
+if (tabName === 'aiproposals') {
+    renderAIProposals();
 }
 if (tabName === 'aiapproved') {
     renderAIApproved();
@@ -7867,31 +7879,6 @@ catch(error){
         analyse.confidence || 90
 });
 
-if(
-    analyse.confidence >= 90
-){
-// later opnieuw activeren
-    await saveAIClassification({
-
-        fileName:
-            file.name,
-
-        fileId:
-            file.id,
-
-        hoofdgroep:
-            analyse.hoofdgroep,
-
-        categorie:
-            analyse.categorie,
-
-        confidence:
-            analyse.confidence
-
-    });
-
-}
-
 }
 console.log(
     "RESULTATEN:",
@@ -7903,6 +7890,7 @@ console.log(
 );
 currentAIResults =
     results;
+aiProposals = results;
 
    const container =
     document.getElementById(
@@ -7991,11 +7979,54 @@ async function acceptAIProposal(
     await saveAIClassification(
         result
     );
+    aiProposals =
+    aiProposals.filter(
+        x => x.fileId !== fileId
+    );
+
+renderAIProposals();
 
     alert(
         "Opgeslagen"
     );
 
+}
+
+function renderAIProposals(){
+
+    const container =
+        document.getElementById(
+            "aiProposalList"
+        );
+
+    if(!container){
+        return;
+    }
+
+    container.innerHTML =
+        aiProposals.map(doc => `
+            <div class="card">
+                <h3>${doc.fileName}</h3>
+
+                <p>
+                    📂 ${doc.hoofdgroep}
+                </p>
+
+                <p>
+                    🏷️ ${doc.categorie}
+                </p>
+
+                <p>
+                    🎯 ${doc.confidence}%
+                </p>
+
+                <button
+                    class="btn btn-success"
+                    onclick="acceptAIProposal('${doc.fileId}')">
+                    ✅ Accepteren
+                </button>
+            </div>
+        `).join("");
 }
 
 async function renderAIApproved(){

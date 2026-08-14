@@ -7300,6 +7300,15 @@ async function analyseDocumentContent(text){
     let hoofdgroep = "ibd";
     let categorie = "Onderzoek";
     let confidence = 90;
+    const scores = {
+    "Medicatie": 0,
+    "Voeding": 0,
+    "Operatie": 0,
+    "Complicaties": 0,
+    "Dagelijks Leven": 0,
+    "Patiëntenrechten": 0,
+    "Onderzoek": 0
+};
     const tags = [];
 
     const zoekwoorden = [
@@ -7361,33 +7370,56 @@ else{
             "Medicatie";
     }
 
-    if(lower.includes("werk")){
-    categorie = "Patiëntenrechten";
-}
+    if(lower.includes("medicijn"))
+    scores["Medicatie"] += 4;
 
-if(lower.includes("voeding")){
-    categorie = "Voeding";
-}
+if(lower.includes("medicatie"))
+    scores["Medicatie"] += 4;
 
-if(lower.includes("vermoeid")){
-    categorie = "Dagelijks Leven";
-}
+if(lower.includes("mesalazine"))
+    scores["Medicatie"] += 5;
 
-if(lower.includes("zwangerschap")){
-    categorie = "Dagelijks Leven";
-}
+if(lower.includes("immunosuppressiva"))
+    scores["Medicatie"] += 5;
 
-if(lower.includes("fistel")){
-    categorie = "Complicaties";
-}
+if(lower.includes("voeding"))
+    scores["Voeding"] += 5;
 
-if(lower.includes("stoma")){
-    categorie = "Operatie";
-}
+if(lower.includes("dieet"))
+    scores["Voeding"] += 5;
 
-if(lower.includes("operatie")){
-    categorie = "Operatie";
-}
+if(lower.includes("operatie"))
+    scores["Operatie"] += 5;
+
+if(lower.includes("stoma"))
+    scores["Operatie"] += 6;
+
+if(lower.includes("fistel"))
+    scores["Complicaties"] += 6;
+
+if(lower.includes("vermoeid"))
+    scores["Dagelijks Leven"] += 5;
+
+if(lower.includes("zwangerschap"))
+    scores["Dagelijks Leven"] += 5;
+
+if(lower.includes("werk"))
+    scores["Patiëntenrechten"] += 5;
+
+if(lower.includes("werkgever"))
+    scores["Patiëntenrechten"] += 5;
+
+if(lower.includes("werknemer"))
+    scores["Patiëntenrechten"] += 5;
+
+if(lower.includes("onderzoek"))
+    scores["Onderzoek"] += 2;
+
+categorie =
+    Object.entries(scores)
+        .sort((a,b) => b[1] - a[1])[0][0];
+
+console.log("SCORES", scores);
 
     const samenvatting =
         generateSummary(text);

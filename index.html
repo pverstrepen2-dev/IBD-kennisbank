@@ -14,6 +14,13 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.js"></script>
 
+<script>
+
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.js';
+
+</script>
+
 <script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
 
 <style>
@@ -7555,17 +7562,51 @@ async function scanSubFolder(
             continue;
         }
 
-        const analyse =
+        let analyse;
+let text = "";
+
+try{
+
+    text =
+        await extractDocumentText(
+            file
+        );
+
+    if(text){
+
+        analyse =
+            await analyseDocumentContent(
+                text
+            );
+
+    }else{
+
+        analyse =
             await analyseDocumentAI(
                 file
             );
+    }
+
+}
+catch(error){
+
+    console.error(
+        "SUBMAP ERROR:",
+        error
+    );
+
+    analyse =
+        await analyseDocumentAI(
+            file
+        );
+}
 
         console.log(
             "ANALYSE:",
             file.name,
             analyse
         );
-        results.push({
+       results.push({
 
     fileName:
         file.name,
@@ -7579,8 +7620,20 @@ async function scanSubFolder(
     categorie:
         analyse.categorie,
 
+    tags:
+        analyse.tags || [],
+
+    samenvatting:
+        analyse.samenvatting || "",
+
+    faq:
+        analyse.faq || [],
+
+    zoekindex:
+        analyse.zoekindex || "",
+
     confidence:
-        analyse.confidence
+        analyse.confidence || 90
 
 });
     }
@@ -7675,8 +7728,9 @@ try{
 }
 catch(error){
 
-    console.log(
-        "PDF analyse mislukt"
+    console.error(
+        "DOCUMENT ERROR:",
+        error
     );
 
     analyse =

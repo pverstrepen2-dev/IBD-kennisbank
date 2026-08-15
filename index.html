@@ -6228,30 +6228,58 @@ function saveVoedingItem(type){
 
 async function saveWebsite(){
 
-    const data =
-        await loadWebsites();
+    console.log("SAVE WEBSITE START");
 
-    data.unshift({
-        id: Date.now(),
-        title:
-            w_title.value,
-        url:
-            w_url.value,
-        category:
-            w_category.value,
-        tags:
-            w_tags.value
-    });
+    const title =
+        document.getElementById("w_title").value;
 
-    await saveWebsites(
-        data
-    );
+    const url =
+        document.getElementById("w_url").value;
 
-    await refreshWebsitesOverview();
+    const category =
+        document.getElementById("w_category").value;
 
-    showNotification(
-        "Website opgeslagen"
-    );
+    const tags =
+        document.getElementById("w_tags").value;
+
+    console.log(title, url);
+
+    try{
+
+        let data =
+            await loadWebsites();
+
+        data.unshift({
+            id: Date.now(),
+            title,
+            url,
+            category,
+            tags
+        });
+
+        await saveWebsites(data);
+
+        await refreshWebsitesOverview();
+
+        showNotification(
+            "✅ Website opgeslagen"
+        );
+
+        console.log("OPSLAAN GELUKT");
+
+    }
+    catch(error){
+
+        console.error(
+            "SAVE WEBSITE FOUT:",
+            error
+        );
+
+        showNotification(
+            "❌ Opslaan mislukt",
+            "error"
+        );
+    }
 }
 
 function importVoeding(event, type){

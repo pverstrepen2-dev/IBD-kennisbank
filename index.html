@@ -1900,6 +1900,78 @@ const WEBSITE_CATEGORIES = [
     { value:"Overig", icon:"📁" }
 ];
 
+const FAQ_CATEGORIES = [
+    {
+        key: "crohn",
+        category: "FAQ Crohn",
+        title: "FAQ Crohn"
+    },
+    {
+        key: "colitis",
+        category: "FAQ Colitis",
+        title: "FAQ Colitis"
+    },
+    {
+        key: "microscopic",
+        category: "FAQ MC",
+        title: "FAQ Microscopische Colitis"
+    },
+    {
+        key: "voeding",
+        category: "FAQ Voeding",
+        title: "FAQ Voeding"
+    },
+    {
+        key: "mindfulness",
+        category: "FAQ Mindfulness",
+        title: "FAQ Mindfulness"
+    },
+    {
+        key: "zorg",
+        category: "FAQ Zorggids",
+        title: "FAQ Zorggids"
+    },
+    {
+        key: "sociaal",
+        category: "FAQ Sociale Gids",
+        title: "FAQ Sociale Gids"
+    },
+    {
+        key: "verenigingen",
+        category: "FAQ Verenigingen",
+        title: "FAQ Verenigingen"
+    },
+    {
+        key: "ccv",
+        category: "FAQ CCV-VZW",
+        title: "FAQ CCV-VZW"
+    }
+];
+
+function getFAQCategory(group){
+
+    const faq =
+        FAQ_CATEGORIES.find(
+            x => x.key === group
+        );
+
+    return faq
+        ? faq.category
+        : "FAQ";
+}
+
+function getFAQTitle(group){
+
+    const faq =
+        FAQ_CATEGORIES.find(
+            x => x.key === group
+        );
+
+    return faq
+        ? faq.title
+        : "FAQ";
+}
+
 function getWebsiteCategories(){
 
     return WEBSITE_CATEGORIES
@@ -3574,43 +3646,33 @@ const data = await getFilteredData();
       URL.revokeObjectURL(a.href);
     }
 
-    async function renderFaqByGroup(group){
+   async function renderFaqByGroup(group){
 
-    const titles = {
-        crohn: 'FAQ Crohn',
-        colitis: 'FAQ Colitis',
-        microscopic: 'FAQ MC',
-        voeding: 'FAQ Voeding',
-        mindfulness: 'FAQ Mindfulness',
-        zorg: 'FAQ Zorggids',
-        sociaal: 'FAQ Sociale Gids',
-        verenigingen:'FAQ Verenigingen',
-        ccv: 'FAQ CCV-VZW'
-    };
+    const faqCategory =
+        getFAQCategory(group);
+
+    const faqTitleText =
+        getFAQTitle(group);
 
     const faqTitle =
         document.getElementById('faqTitle');
 
     if(faqTitle){
-
         faqTitle.innerText =
-            titles[group] || 'FAQ';
+            faqTitleText;
     }
-
-    const faqCategory =
-        titles[group];
 
     const data =
         await getKnowledgeData();
 
     const items =
-    data.filter(item =>
-        (
-            item.category ||
-            item.categorie ||
-            ''
-        ) === faqCategory
-    );
+        data.filter(item =>
+            (
+                item.category ||
+                item.categorie ||
+                ''
+            ) === faqCategory
+        );
 
     const container =
         document.getElementById('faqContainer');
@@ -3631,13 +3693,13 @@ const data = await getFilteredData();
             <div class="card">
 
                 <h3>
-${index+1}.
-${item.title || item.titel || 'Geen titel'}
-</h3>
+                    ${index + 1}.
+                    ${item.title || item.titel || 'Geen titel'}
+                </h3>
 
-<p>
-${item.content || item.inhoud || ''}
-</p>
+                <p>
+                    ${item.content || item.inhoud || ''}
+                </p>
 
             </div>
 
@@ -3762,19 +3824,10 @@ async function filterFAQ(){
         .value
         .toLowerCase();
 
-    const titles = {
-        crohn:'FAQ Crohn',
-        colitis:'FAQ Colitis',
-        microscopic:'FAQ MC',
-        voeding:'FAQ Voeding',
-        mindfulness:'FAQ Mindfulness',
-        zorg:'FAQ Zorggids',
-        sociaal:'FAQ Sociale Gids',
-        ccv:'FAQ CCV-VZW'
-    };
-
-    const faqCategory =
-        titles[currentHoofdgroep];
+   const faqCategory =
+    getFAQCategory(
+        currentHoofdgroep
+    );
 
     const data =
         await getKnowledgeData();
@@ -7232,7 +7285,9 @@ ${inhoud}`;
 document.getElementById(
     'newCategory'
 ).value =
-    'FAQ Crohn';
+    getFAQCategory(
+        currentHoofdgroep
+    );
 
     switchTab(
         {

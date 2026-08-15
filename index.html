@@ -7448,7 +7448,10 @@ async function extractPdfText(fileId){
     return text;
 }
 
-async function analyseDocumentContent(text){
+async function analyseDocumentContent(
+    text,
+    title = ""
+){
 
     const lower =
         text.toLowerCase();
@@ -7581,7 +7584,10 @@ console.log("SCORES", scores);
         generateSummary(text);
 
     const faq =
-        generateFAQ(text);
+    generateFAQ(
+        text,
+        title
+    );
 
     const zoekindex =
         (
@@ -7618,16 +7624,47 @@ function generateSummary(text){
         .replace(/\n/g," ");
 }
 
-function generateFAQ(text){
+function generateFAQ(text,title=""){
 
-    return [
-        {
-            vraag:
-                "Waarover gaat dit document?",
-            antwoord:
-                text.substring(0,300)
-        }
-    ];
+    const faq = [];
+
+    if(title){
+
+        faq.push({
+            vraag: title.replace(".pdf","").replace(".docx",""),
+            antwoord: text.substring(0,400)
+        });
+
+    }
+
+    if(text.toLowerCase().includes("medicatie")){
+
+        faq.push({
+            vraag:"Welke medicatie wordt besproken?",
+            antwoord:text.substring(0,300)
+        });
+
+    }
+
+    if(text.toLowerCase().includes("crohn")){
+
+        faq.push({
+            vraag:"Wat is Crohn?",
+            antwoord:text.substring(0,300)
+        });
+
+    }
+
+    if(text.toLowerCase().includes("colitis")){
+
+        faq.push({
+            vraag:"Wat is Colitis Ulcerosa?",
+            antwoord:text.substring(0,300)
+        });
+
+    }
+
+    return faq;
 }
 
 async function analyseDocumentAI(file){
@@ -7824,9 +7861,10 @@ try{
     if(text){
 
         analyse =
-            await analyseDocumentContent(
-                text
-            );
+    await analyseDocumentContent(
+        text,
+        file.name
+    );
 
     }else{
 
@@ -7962,9 +8000,10 @@ try{
     if(text){
 
     analyse =
-        await analyseDocumentContent(
-            text
-        );
+    await analyseDocumentContent(
+        text,
+        file.name
+    );
 
 }else{
 
@@ -8074,6 +8113,12 @@ container.innerHTML =
                 ✅ Accepteren
 
             </button>
+
+<button
+    class="btn btn-primary"
+    onclick="createFAQFromAI('${r.fileId}')">
+    ❓ FAQ maken
+</button>
 
         </div>
     `).join("");
@@ -8239,6 +8284,50 @@ function toggleExplorer(){
     else{
         nav.style.display = "none";
     }
+
+}
+
+async function createFAQFromAI(fileId){
+
+    const doc =
+        currentAIResults.find(
+            x => x.fileId === fileId
+        );
+
+    if(!doc) return;
+
+    const question =
+        doc.fileName
+            .replace(".pdf","")
+            .replace(".docx","");
+
+    document.getElementById(
+        "newType"
+    ).value = "FAQ";
+
+    document.getElementById(
+        "newTitle"
+    ).value = question;
+
+    document.getElementById(
+        "newContent"
+    ).value =
+        doc.samenvatting || "";
+
+    document.getElementById(
+        "newCategory"
+    ).value =
+        getFAQCategory(
+            currentHoofdgroep
+        );
+
+    switchTab(
+        {
+            target:
+                document.querySelectorAll('.tab-btn')[7]
+        },
+        'add'
+    );
 
 }
 

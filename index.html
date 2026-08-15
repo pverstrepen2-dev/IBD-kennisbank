@@ -542,6 +542,18 @@ class="btn btn-primary"
     🤖 AI Analyse
 </button>
 
+<button
+    class="btn btn-primary"
+    onclick="openMailbox('patrick.verstrepen22@outlook.com')">
+    📧 Patrick Mail
+</button>
+
+<button
+    class="btn btn-primary"
+    onclick="openMailbox('ccv_vzw@outlook.com')">
+    📬 CCV-VZW Mail
+</button>
+
 <div id="aiResultsContainer"
      style="
         margin-top:20px;
@@ -8095,6 +8107,18 @@ function toggleExplorer(){
     else{
         nav.style.display = "none";
     }
+
+}
+
+function openMailbox(mailbox){
+
+    const url =
+        `https://outlook.office.com/mail/?delegatedOrg=&exsvurl=1&email=${mailbox}`;
+
+    window.open(
+        url,
+        "_blank"
+    );
 
 }
 

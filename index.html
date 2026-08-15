@@ -8327,22 +8327,58 @@ async function createFAQFromAI(fileId){
     console.log("CURRENT AI RESULTS:");
     console.log(currentAIResults);
 
-    const doc =
-        currentAIResults.find(
-            x => x.fileId === fileId
+    let doc =
+    currentAIResults.find(
+        x => x.fileId === fileId
+    );
+
+if(!doc){
+
+    console.warn(
+        "Niet gevonden in currentAIResults"
+    );
+
+    const docs =
+        await loadDocuments();
+
+    const saved =
+        docs.find(
+            d => d.fileId === fileId
         );
 
-    console.log("DOC GEVONDEN:");
-    console.log(doc);
+    if(saved){
 
-    if(!doc){
+        doc = {
 
-        console.error(
-            "STOP: DOC IS UNDEFINED"
-        );
+            fileId:
+                saved.fileId,
 
-        return;
+            fileName:
+                saved.title,
+
+            hoofdgroep:
+                saved.hoofdgroep,
+
+            samenvatting:
+                saved.samenvatting,
+
+            faq:
+                saved.faq || []
+
+        };
+
     }
+
+}
+
+if(!doc){
+
+    alert(
+        "Document niet gevonden"
+    );
+
+    return;
+}
 
     const data =
         await getKnowledgeData();

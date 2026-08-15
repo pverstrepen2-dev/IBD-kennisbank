@@ -917,6 +917,23 @@ class="btn btn-primary"
             placeholder="Zoek FAQ..."
             oninput="renderFAQBeheer()"
         />
+<select
+    id="faqStatusFilter"
+    onchange="renderFAQBeheer()">
+
+    <option value="">
+        Alle statussen
+    </option>
+
+    <option value="Concept">
+        Concept
+    </option>
+
+    <option value="Goedgekeurd">
+        Goedgekeurd
+    </option>
+
+</select>
 
         <div
             id="faqBeheerCount"
@@ -3665,14 +3682,19 @@ const data = await getFilteredData();
     const data =
         await getKnowledgeData();
 
-    const items =
-        data.filter(item =>
-            (
-                item.category ||
-                item.categorie ||
-                ''
-            ) === faqCategory
-        );
+   const items =
+    data.filter(item =>
+        (
+            item.category ||
+            item.categorie ||
+            ''
+        ) === faqCategory
+        &&
+        (
+            item.status ===
+            "Goedgekeurd"
+        )
+    );
 
     const container =
         document.getElementById('faqContainer');
@@ -3802,6 +3824,12 @@ if(
     onclick="editFAQ('${item.id}')"
 >
     ✏️ Bewerken
+</button>
+
+<button
+    class="btn btn-success btn-sm"
+    onclick="approveFAQ('${item.id}')">
+    ✅ Goedkeuren
 </button>
 
 <button
@@ -8294,41 +8322,73 @@ async function createFAQFromAI(fileId){
             x => x.fileId === fileId
         );
 
-    if(!doc) return;
+    if(!doc){
+        return;
+    }
 
-    const question =
-        doc.fileName
-            .replace(".pdf","")
-            .replace(".docx","");
+    const data =
+        await getKnowledgeData();
 
-    document.getElementById(
-        "newType"
-    ).value = "FAQ";
+    const faqList =
+        doc.faq || [];
 
-    document.getElementById(
-        "newTitle"
-    ).value = question;
+    if(faqList.length === 0){
 
-    document.getElementById(
-        "newContent"
-    ).value =
-        doc.samenvatting || "";
+        faqList.push({
+            vraag:
+                doc.fileName
+                    .replace(".pdf","")
+                    .replace(".docx",""),
+            antwoord:
+                doc.samenvatting || ""
+        });
+    }
 
-    document.getElementById(
-        "newCategory"
-    ).value =
-        getFAQCategory(
-            currentHoofdgroep
-        );
+    faqList.forEach(faq => {
 
-    switchTab(
-        {
-            target:
-                document.querySelectorAll('.tab-btn')[7]
-        },
-        'add'
+        data.unshift({
+            id:
+                Date.now()
+                + Math.random(),
+
+            status:"Concept",
+
+            type:"FAQ",
+
+            category:
+                getFAQCategory(
+                    doc.hoofdgroep
+                ),
+
+            disease:
+                doc.hoofdgroep,
+
+            title:
+                faq.vraag,
+
+            content:
+                faq.antwoord,
+
+            source:
+                doc.fileName,
+
+            fileId:
+                doc.fileId
+        });
+
+    });
+
+    databaseCache.knowledgeData =
+        data;
+
+    await saveDatabaseJson();
+
+    showNotification(
+        faqList.length +
+        " FAQ voorstellen aangemaakt"
     );
 
+    renderFAQBeheer();
 }
 
 function openMailbox(mailbox){

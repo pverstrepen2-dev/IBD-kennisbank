@@ -3166,6 +3166,7 @@ const search =
 
   const filtered = all
     .filter(site => {
+console.log("ALLE WEBSITES", all);
 
       const txt = [
         site.title || '',
@@ -3309,7 +3310,7 @@ filtered.forEach(site => {
   `;
 
 });
-
+console.log("GEFILTERD", filtered);
   listEl.innerHTML =
     html ||
     `<div class="panel" style="padding:22px;text-align:center;">
@@ -6295,6 +6296,14 @@ async function saveWebsite(){
 
 
         await saveWebsites(data);
+
+const controle =
+    await loadWebsites();
+
+console.log(
+    "NA OPSLAAN:",
+    controle
+);
 
         await refreshWebsitesOverview();
 

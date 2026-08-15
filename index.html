@@ -839,9 +839,19 @@ class="btn btn-primary"
     id="w_url"
     placeholder="https://">
 
-<input
-    id="w_category"
-    placeholder="Categorie">
+<select id="w_category">
+    <option value="Onderwijs">🎓 Onderwijs</option>
+    <option value="Ziekenhuis">🏥 Ziekenhuis</option>
+    <option value="Patiëntenvereniging">🤝 Patiëntenvereniging</option>
+    <option value="Onderzoek">🔬 Onderzoek</option>
+    <option value="Overheid">🏛️ Overheid</option>
+    <option value="Voeding">🍎 Voeding</option>
+    <option value="Mindfulness">🧘 Mindfulness</option>
+    <option value="Farmaceutisch">💊 Farmaceutisch</option>
+    <option value="Video">🎬 Video</option>
+    <option value="Forum">💬 Forum</option>
+    <option value="Overig">📁 Overig</option>
+</select>
 
 <input
     id="w_tags"
@@ -1876,6 +1886,31 @@ function saveVoeding(data){
 let oneDriveIndex = [];
 let currentAIResults = [];
 let aiProposals = [];
+const WEBSITE_CATEGORIES = [
+    { value:"Onderwijs", icon:"🎓" },
+    { value:"Ziekenhuis", icon:"🏥" },
+    { value:"Patiëntenvereniging", icon:"🤝" },
+    { value:"Onderzoek", icon:"🔬" },
+    { value:"Overheid", icon:"🏛️" },
+    { value:"Voeding", icon:"🍎" },
+    { value:"Mindfulness", icon:"🧘" },
+    { value:"Farmaceutisch", icon:"💊" },
+    { value:"Video", icon:"🎬" },
+    { value:"Forum", icon:"💬" },
+    { value:"Overig", icon:"📁" }
+];
+
+function getWebsiteCategories(){
+
+    return WEBSITE_CATEGORIES
+        .map(cat => `
+            <option value="${cat.value}">
+                ${cat.icon} ${cat.value}
+            </option>
+        `)
+        .join("");
+
+}
 // =====================================
 // VERENIGINGEN -> ONEDRIVE MAPPEN
 // =====================================
@@ -6249,13 +6284,15 @@ async function saveWebsite(){
         let data =
             await loadWebsites();
 
-        data.unshift({
-            id: Date.now(),
-            title,
-            url,
-            category,
-            tags
-        });
+       data.unshift({
+    id: Date.now(),
+    title: document.getElementById("w_title").value,
+    url: document.getElementById("w_url").value,
+    category: document.getElementById("w_category").value,
+    websiteGroup: document.getElementById("w_category").value,
+    tags: document.getElementById("w_tags").value
+});
+
 
         await saveWebsites(data);
 
@@ -6264,6 +6301,10 @@ async function saveWebsite(){
         showNotification(
             "✅ Website opgeslagen"
         );
+document.getElementById("w_title").value = "";
+document.getElementById("w_url").value = "";
+document.getElementById("w_tags").value = "";
+document.getElementById("w_category").selectedIndex = 0;
 
         console.log("OPSLAAN GELUKT");
 
@@ -8147,6 +8188,22 @@ function openMailbox(mailbox){
         "_blank"
     );
 
+}
+
+const websiteSelect =
+    document.getElementById("w_category");
+
+if(websiteSelect){
+    websiteSelect.innerHTML =
+        getWebsiteCategories();
+}
+
+const websiteGroupSelect =
+    document.getElementById("newWebsiteGroup");
+
+if(websiteGroupSelect){
+    websiteGroupSelect.innerHTML =
+        getWebsiteCategories();
 }
 
 // INIT

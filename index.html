@@ -3684,7 +3684,11 @@ const data = await getFilteredData();
 
    const items = data.filter(item =>
     item.type === 'FAQ' &&
-    item.status === 'Goedgekeurd' &&
+    (
+        item.status === 'Goedgekeurd' ||
+        item.status === 'Concept' ||
+        !item.status
+    ) &&
     item.category === faqCategory
 );
 

@@ -3684,16 +3684,8 @@ const data = await getFilteredData();
 
    const items =
     data.filter(item =>
-        (
-            item.category ||
-            item.categorie ||
-            ''
-        ) === faqCategory
-        &&
-        (
-            item.status ===
-            "Goedgekeurd"
-        )
+        item.type === 'FAQ' &&
+        item.status === 'Goedgekeurd'
     );
 
     const container =
@@ -3861,9 +3853,10 @@ async function filterFAQ(){
         await getKnowledgeData();
 
     const results =
-        data.filter(item =>
-            item.category === faqCategory
-        )
+    data.filter(item =>
+        item.type === "FAQ" &&
+        item.status === "Goedgekeurd"
+    )
         .filter(item =>
             (item.title || '')
                 .toLowerCase()
@@ -3981,19 +3974,22 @@ async function approveFAQ(id){
     }
 
     item.status =
-        'Goedgekeurd';
+        "Goedgekeurd";
 
     databaseCache.knowledgeData =
         data;
 
     await saveDatabaseJson();
 
-    renderFAQBeheer();
+    await renderFAQBeheer();
 
-    showNotification(
-        'FAQ goedgekeurd'
+    await renderFaqByGroup(
+        currentHoofdgroep
     );
 
+    showNotification(
+        "FAQ goedgekeurd"
+    );
 }
 
     function escapeHtml(value) {

@@ -4139,12 +4139,11 @@ async function loginMicrosoft(){
     try{
 
             await msalInstance.loginRedirect({
-
-            scopes:[
-                "User.Read"
-            ]
-
-        });
+    scopes:[
+        "User.Read",
+        "Files.ReadWrite"
+    ]
+});
 
     }
     catch(error){

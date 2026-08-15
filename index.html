@@ -7288,44 +7288,50 @@ async function generateFaqFromItem(id){
         item.content ||
         '';
 
-    document.getElementById(
-        'newTitle'
-    ).value =
-        titel;
+    data.unshift({
 
-    document.getElementById(
-        'newContent'
-    ).value =
-`Vraag:
-${titel}
+    id: Date.now(),
 
-Antwoord:
-${inhoud}`;
+    status: "Concept",
 
-    document.getElementById(
-        'newType'
-    ).value =
-        'FAQ';
-document.getElementById(
-    'newCategory'
-).value =
-    getFAQCategory(
-        currentHoofdgroep
-    );
+    disease:
+        item.disease || "",
 
-    switchTab(
-        {
-            target:
-            document.querySelector(
-                '.tab-btn:nth-child(8)'
-            )
-        },
-        'add'
-    );
+    category:
+        getFAQCategory(
+            currentHoofdgroep
+        ),
 
-    alert(
-        'FAQ voorstel aangemaakt'
-    );
+    type: "FAQ",
+
+    language:
+        item.language || "nl",
+
+    title: titel,
+
+    content: inhoud,
+
+    source:
+        item.source || "",
+
+    url:
+        item.url || "",
+
+    tags:
+        item.tags || ""
+
+});
+
+databaseCache.knowledgeData =
+    data;
+
+await saveDatabaseJson();
+
+await renderFAQBeheer();
+
+showNotification(
+    "FAQ opgeslagen"
+);
 }
 
 async function extractDocxText(fileId){
@@ -8312,43 +8318,89 @@ function toggleExplorer(){
 }
 
 async function createFAQFromAI(fileId){
-console.log("FAQ CREATE START", fileId);
+
+    console.log("================================");
+    console.log("FAQ CREATE START");
+    console.log("FILE ID:", fileId);
+    console.log("================================");
+
+    console.log("CURRENT AI RESULTS:");
+    console.log(currentAIResults);
+
     const doc =
         currentAIResults.find(
             x => x.fileId === fileId
         );
 
+    console.log("DOC GEVONDEN:");
+    console.log(doc);
+
     if(!doc){
+
+        console.error(
+            "STOP: DOC IS UNDEFINED"
+        );
+
         return;
     }
 
     const data =
         await getKnowledgeData();
 
+    console.log(
+        "KNOWLEDGE RECORDS:",
+        data.length
+    );
+
+    console.log(
+        "DOC FAQ PROPERTY:"
+    );
+    console.log(doc.faq);
+
     const faqList =
         doc.faq || [];
 
-        console.log("FAQ LIST:", faqList);
-console.log("FAQ COUNT:", faqList.length);
+    console.log(
+        "FAQ COUNT:",
+        faqList.length
+    );
 
     if(faqList.length === 0){
+
+        console.warn(
+            "GEEN FAQ GEVONDEN - DEFAULT FAQ WORDT GEMAAKT"
+        );
 
         faqList.push({
             vraag:
                 doc.fileName
                     .replace(".pdf","")
                     .replace(".docx",""),
+
             antwoord:
                 doc.samenvatting || ""
         });
     }
 
+    console.log(
+        "FAQ LIST NA OPBOUW:"
+    );
+
+    console.table(faqList);
+
     faqList.forEach(faq => {
 
+        console.log(
+            "FAQ TOEVOEGEN:"
+        );
+
+        console.log(faq);
+
         data.unshift({
+
             id:
-                Date.now()
-                + Math.random(),
+                Date.now() +
+                Math.random(),
 
             status:"Concept",
 
@@ -8377,17 +8429,43 @@ console.log("FAQ COUNT:", faqList.length);
 
     });
 
+    console.log(
+        "AANTAL FAQ'S IN DATA:"
+    );
+
+    console.log(
+        data.filter(
+            x => x.type === "FAQ"
+        ).length
+    );
+
     databaseCache.knowledgeData =
         data;
 
+    console.log(
+        "VOOR SAVE DATABASE"
+    );
+
     await saveDatabaseJson();
+
+    console.log(
+        "DATABASE OPGESLAGEN"
+    );
 
     showNotification(
         faqList.length +
         " FAQ voorstellen aangemaakt"
     );
 
+    console.log(
+        "FAQ BEHEER REFRESH"
+    );
+
     renderFAQBeheer();
+
+    console.log(
+        "FAQ CREATE EINDE"
+    );
 }
 
 function openMailbox(mailbox){

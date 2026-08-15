@@ -3682,11 +3682,11 @@ const data = await getFilteredData();
     const data =
         await getKnowledgeData();
 
-   const items =
-    data.filter(item =>
-        item.type === 'FAQ' &&
-        item.status === 'Goedgekeurd'
-    );
+   const items = data.filter(item =>
+    item.type === 'FAQ' &&
+    item.status === 'Goedgekeurd' &&
+    item.category === faqCategory
+);
 
     const container =
         document.getElementById('faqContainer');
@@ -8312,7 +8312,7 @@ function toggleExplorer(){
 }
 
 async function createFAQFromAI(fileId){
-
+console.log("FAQ CREATE START", fileId);
     const doc =
         currentAIResults.find(
             x => x.fileId === fileId
@@ -8327,6 +8327,9 @@ async function createFAQFromAI(fileId){
 
     const faqList =
         doc.faq || [];
+
+        console.log("FAQ LIST:", faqList);
+console.log("FAQ COUNT:", faqList.length);
 
     if(faqList.length === 0){
 

@@ -2052,7 +2052,48 @@ let breadcrumbPath = [
       'Onderzoek': { icon: '📊', desc: 'Wetenschappelijke studies', sections: ['Crohn', 'Colitis Ulcerosa', 'Algemeen IBD'] },
       'Patiëntenrechten': { icon: '⚖️', desc: 'Rechten en ondersteuning', sections: ['Crohn', 'Colitis Ulcerosa', 'Algemeen IBD'] },
       'Mindfulness': { icon: '🧘', desc: 'Meditatie en ontspanning', sections: ['Mindfulness'] },
-      'Voeding': { icon: '🍎', desc: 'Dieet en voeding', sections: ['Voeding'] },
+      'Voeding': {
+  icon: '🍎',
+  desc: 'Dieet en voeding',
+  sections: ['Voeding']
+},
+
+'FODMAP': {
+  icon: '🥗',
+  desc: 'FODMAP begeleiding',
+  sections: ['Voeding']
+},
+
+'Diëten': {
+  icon: '📋',
+  desc: 'Voedingsschema’s',
+  sections: ['Voeding']
+},
+
+'Recepten': {
+  icon: '🍲',
+  desc: 'IBD-vriendelijke recepten',
+  sections: ['Voeding']
+},
+
+'Supplementen': {
+  icon: '💊',
+  desc: 'Supplementen en vitaminen',
+  sections: ['Voeding']
+},
+
+'Tekorten': {
+  icon: '⚠️',
+  desc: 'Voedingstekorten',
+  sections: ['Voeding']
+},
+
+'Gezonde keuzes': {
+  icon: '✅',
+  desc: 'Gezonde voedingskeuzes',
+  sections: ['Voeding']
+},
+
       'Website': { icon: '🌐', desc: 'Website of externe bron', sections: ['CCV-VZW'] },
       'Ademhalingsoefeningen': { icon: '🌬️', desc: 'Ademhalingstechnieken', sections: ['Mindfulness'] },
 'Meditatie': { icon: '🧘‍♂️', desc: 'Meditatie oefeningen', sections: ['Mindfulness'] },
@@ -2699,7 +2740,19 @@ if(currentHoofdgroep==='verenigingen'){
               <div class="category-count">${counts[cat] || 0}</div>
             </div>
             <div class="notice" style="margin-top:0;">${info.desc}</div>
+            
           </div>
+          ${cat === 'Voeding' ? `
+<ul class="food-submenu">
+    <li>FODMAP</li>
+    <li>Diëten</li>
+    <li>Recepten</li>
+    <li>Supplementen</li>
+    <li>Tekorten</li>
+    <li>Gezonde keuzes</li>
+</ul>
+` : ''}
+</div>
         `).join('');
 
       document.getElementById('categoryGrid').innerHTML = cards || `<div class="panel" style="padding:20px;">Geen categorieën gevonden.</div>`;
@@ -2764,7 +2817,17 @@ if(currentHoofdgroep==='verenigingen'){
   'Attesten',
   'FAQ Sociale Gids'
 ],
-        'Voeding': ['Voeding', 'Dagelijks Leven','FAQ Voeding'],
+        'Voeding': [
+    'Voeding',
+    'FODMAP',
+    'Diëten',
+    'Recepten',
+    'Supplementen',
+    'Tekorten',
+    'Gezonde keuzes',
+    'Dagelijks Leven',
+    'FAQ Voeding'
+],
         // 'GutFlix': ['Onderzoek'],
         'Verenigingen': [
  'VPP',
@@ -6301,49 +6364,79 @@ function switchVoedingTab(evt, tab){
 // HIER IS DE FUNCTIE DIE JIJ MISSEDE 👇
 function renderVoeding(tab){
 
-  const titles = {
-    dieet: '🥗 Dieetadvies',
-    recepten: '🍲 Recepten',
-    supplementen: '💊 Supplementen',
-    vermijden: '🚫 Te vermijden',
-    gezond: '✅ Gezonde keuzes'
-  };
+    const titles = {
+        dieet: '🥗 Dieetadvies',
+        recepten: '🍲 Recepten',
+        supplementen: '💊 Supplementen',
+        vermijden: '🚫 Te vermijden',
+        gezond: '✅ Gezonde keuzes'
+    };
 
-  const data = loadVoeding().filter(x => x.type === tab);
+    const data = loadVoeding().filter(x => x.type === tab);
 
-  let html = `
-    <h3>${titles[tab]}</h3>
+    const voedingData = loadVoeding();
 
-    <h4>➕ Nieuw toevoegen</h4>
+    const stats = {
+        dieet: voedingData.filter(x => x.type === 'dieet').length,
+        recepten: voedingData.filter(x => x.type === 'recepten').length,
+        supplementen: voedingData.filter(x => x.type === 'supplementen').length,
+        vermijden: voedingData.filter(x => x.type === 'vermijden').length,
+        gezond: voedingData.filter(x => x.type === 'gezond').length
+    };
 
-    <input id="v_title" placeholder="Titel">
+    let html = `
 
-    <textarea id="v_content" placeholder="Beschrijving"></textarea>
+        <div class="voeding-overzicht">
 
-    <button onclick="saveVoedingItem('${tab}')">Opslaan</button>
+            <div class="voeding-stat">
+                🥗 Dieetadvies
+                <span>${stats.dieet}</span>
+            </div>
 
-    <hr style="margin:15px 0">
+            <div class="voeding-stat">
+                🍲 Recepten
+                <span>${stats.recepten}</span>
+            </div>
 
-    <h4>📥 Importeren</h4>
+            <div class="voeding-stat">
+                💊 Supplementen
+                <span>${stats.supplementen}</span>
+            </div>
 
-    <button onclick="document.getElementById('voedingImport_${tab}').click()">Importeer JSON</button>
-    <input type="file" id="voedingImport_${tab}" accept=".json" style="display:none" onchange="importVoeding(event,'${tab}')">
+            <div class="voeding-stat">
+                🚫 Te vermijden
+                <span>${stats.vermijden}</span>
+            </div>
 
-    <hr style="margin:20px 0">
+            <div class="voeding-stat">
+                ✅ Gezonde keuzes
+                <span>${stats.gezond}</span>
+            </div>
 
-    <h4>📂 Overzicht</h4>
-  `;
+        </div>
 
-  data.forEach(d => {
-    html += `
-      <div class="card">
-        <b>${d.title}</b><br>
-        ${d.content}
-      </div>
+        <hr style="margin:20px 0">
+
+        <h3>${titles[tab]}</h3>
+
+        <hr style="margin:20px 0">
+
+        <h4>📂 Overzicht</h4>
+
     `;
-  });
 
-  document.getElementById('voedingContent').innerHTML = html;
+    data.forEach(d => {
+
+        html += `
+            <div class="card">
+                <b>${d.title}</b><br>
+                ${d.content}
+            </div>
+        `;
+
+    });
+
+    document.getElementById('voedingContent').innerHTML = html;
 }
 
 // OPSLAAN
@@ -7507,9 +7600,15 @@ async function analyseDocumentContent(
     let hoofdgroep = "ibd";
     let categorie = "Onderzoek";
     let confidence = 90;
-    const scores = {
+   const scores = {
     "Medicatie": 0,
     "Voeding": 0,
+    "FODMAP": 0,
+    "Diëten": 0,
+    "Recepten": 0,
+    "Supplementen": 0,
+    "Tekorten": 0,
+    "Gezonde keuzes": 0,
     "Operatie": 0,
     "Complicaties": 0,
     "Dagelijks Leven": 0,
@@ -7621,6 +7720,39 @@ if(lower.includes("werknemer"))
 
 if(lower.includes("onderzoek"))
     scores["Onderzoek"] += 2;
+
+if(lower.includes("fodmap"))
+    scores["FODMAP"] += 10;
+
+if(lower.includes("eliminatiedieet"))
+    scores["FODMAP"] += 8;
+
+if(lower.includes("recept"))
+    scores["Recepten"] += 8;
+
+if(lower.includes("ingrediënt"))
+    scores["Recepten"] += 5;
+
+if(lower.includes("supplement"))
+    scores["Supplementen"] += 10;
+
+if(lower.includes("vitamine"))
+    scores["Supplementen"] += 8;
+
+if(lower.includes("b12"))
+    scores["Tekorten"] += 8;
+
+if(lower.includes("ijzer"))
+    scores["Tekorten"] += 8;
+
+if(lower.includes("tekort"))
+    scores["Tekorten"] += 5;
+
+if(lower.includes("gezond"))
+    scores["Gezonde keuzes"] += 5;
+
+if(lower.includes("evenwichtige voeding"))
+    scores["Gezonde keuzes"] += 8;
 
 categorie =
     Object.entries(scores)

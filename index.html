@@ -656,23 +656,42 @@ class="btn btn-primary"
     </div>
 
     <div class="tabs">
-      <button class="tab-btn active" onclick="switchTab(event, 'dashboard')">📊 Dashboard</button>
-      <button class="tab-btn" onclick="switchTab(event, 'categories')">📂 Categorieën</button>
-      <button class="tab-btn" onclick="switchTab(event, 'search')">🔍 Zoeken</button>
-      <button class="tab-btn" onclick="switchTab(event, 'faq')">❓ FAQ</button>
 
-      <button
-    class="tab-btn"
-    onclick="switchTab(event, 'gutflix')"
-    style="display:none;"
->
-    🎬 GutFlix
-</button>
+    <button class="tab-btn active"
+            onclick="switchTab(event,'dashboard')">
+        📊 Dashboard
+    </button>
 
-<button class="tab-btn"
-        onclick="switchTab(event, 'faqbeheer')">
-    ❓ FAQ Beheer
-</button>
+    <button class="tab-btn"
+            onclick="switchTab(event,'categories')">
+        📂 Categorieën
+    </button>
+
+    <button class="tab-btn"
+            onclick="switchTab(event,'search')">
+        🔍 Zoeken
+    </button>
+
+    <button class="tab-btn"
+            onclick="switchTab(event,'faq')">
+        ❓ FAQ
+    </button>
+
+    <button class="tab-btn"
+            onclick="switchTab(event,'aifaq')">
+        🤖 AI FAQ
+    </button>
+
+    <button class="tab-btn"
+            onclick="switchTab(event,'faqbeheer')">
+        ❓ FAQ Beheer
+    </button>
+
+    <button class="tab-btn"
+            onclick="switchTab(event,'gutflix')"
+            style="display:none;">
+        🎬 GutFlix
+    </button>
 
      <button
     class="tab-btn"
@@ -894,12 +913,31 @@ class="btn btn-primary"
 
     <!-- FAQ -->
 <div id="faq" class="tab-content">
-
   <div class="admin-section">
-
     <div class="admin-title">
       ❓ Veelgestelde vragen
     </div>
+
+    <!-- AI Vraag aan Kennisbank -->
+<div class="card" style="margin-bottom:20px;">
+    <h3>🤖 Stel een vraag aan de kennisbank</h3>
+
+    <input
+        type="text"
+        id="aiQuestion"
+        placeholder="Bijvoorbeeld: Welke medicatie wordt gebruikt bij Crohn?">
+
+    <button
+        class="btn btn-primary"
+        onclick="askKnowledgeAI()">
+        🤖 Vraag stellen
+    </button>
+
+    <div
+        id="aiAnswer"
+        style="margin-top:15px;">
+    </div>
+</div>
 
     <div id="faqTitle" class="admin-title"></div>
 
@@ -914,6 +952,46 @@ class="btn btn-primary"
     <div class="card-grid" id="faqContainer"></div>
 
   </div>
+
+</div>
+
+<div id="aifaq" class="tab-content">
+
+    <div class="admin-section">
+
+        <div class="admin-title">
+
+            🤖 AI FAQ Generator
+
+        </div>
+
+        <input
+            type="text"
+            id="faqTopic"
+            placeholder="Onderwerp">
+
+        <button
+            class="btn btn-primary"
+            onclick="generateInternetTop10()">
+
+            🌍 Maak Internet Top 10
+
+        </button>
+
+<button
+    class="btn btn-success"
+    onclick="saveInternetTop10()">
+
+    💾 Opslaan
+
+</button>
+
+        <div
+            id="internetTop10"
+            style="margin-top:20px;">
+        </div>
+
+    </div>
 
 </div>
 <!-- FAQ BEHEER -->
@@ -958,6 +1036,13 @@ class="btn btn-primary"
 
     🤖 Maak Top 10 FAQ
 
+</button>
+
+<button
+    class="btn btn-success"
+    onclick="generateInternetTop10()">
+
+    🌍 Top 10 van internet
 </button>
 
 <div
@@ -2567,6 +2652,10 @@ if(disease === 'ccv'){
     setTimeout(() => {
         loadCCVSubFolders();
     }, 200);
+}
+
+if (tabName === 'aifaq') {
+    renderAIFAQ();
 }
 
 if (tabName === 'faqbeheer') {
@@ -9122,6 +9211,167 @@ const websiteGroupSelect =
 if(websiteGroupSelect){
     websiteGroupSelect.innerHTML =
         getWebsiteCategories();
+}
+
+async function generateInternetTop10(){
+
+    const onderwerp =
+        document.getElementById(
+            "faqTopic"
+        ).value;
+
+    document.getElementById(
+        "internetTop10"
+    ).innerHTML = `
+
+        <div class="card">
+
+            <h3>
+                🌍 Top 10 FAQ
+            </h3>
+
+            <ol>
+
+                <li>Wat is ${onderwerp}?</li>
+
+                <li>Wat veroorzaakt ${onderwerp}?</li>
+
+                <li>Welke symptomen zijn er?</li>
+
+                <li>Hoe wordt het vastgesteld?</li>
+
+                <li>Welke behandelingen bestaan?</li>
+
+                <li>Welke medicatie wordt gebruikt?</li>
+
+                <li>Welke voeding wordt aanbevolen?</li>
+
+                <li>Welke complicaties kunnen optreden?</li>
+
+                <li>Wat is de prognose?</li>
+
+                <li>Waar vind ik meer informatie?</li>
+
+            </ol>
+
+        </div>
+
+    `;
+}
+
+async function askKnowledgeAI(){
+
+    const vraag =
+        document.getElementById("aiQuestion")
+        .value
+        .toLowerCase();
+
+    const knowledge =
+        await getKnowledgeData();
+
+    const docs =
+        await loadDocuments();
+
+    const alles = [
+        ...knowledge,
+        ...docs
+    ];
+
+    const resultaten =
+        alles.filter(item =>
+            JSON.stringify(item)
+            .toLowerCase()
+            .includes(vraag)
+        );
+
+    const antwoordDiv =
+        document.getElementById("aiAnswer");
+
+    if(resultaten.length === 0){
+
+        antwoordDiv.innerHTML = `
+            <div class="card">
+                ❌ Geen antwoord gevonden.
+            </div>
+        `;
+
+        return;
+    }
+
+    antwoordDiv.innerHTML = `
+        <div class="card">
+            <h4>✅ Mogelijke antwoorden</h4>
+
+            ${resultaten.slice(0,5).map(r => `
+                <div style="margin-bottom:15px;">
+                    <b>${r.title || r.fileName}</b>
+                    <br>
+                    ${r.content || r.samenvatting || ""}
+                </div>
+            `).join("")}
+        </div>
+    `;
+}
+
+async function saveInternetTop10(){
+
+    const data =
+        await getKnowledgeData();
+
+    const topic =
+        document.getElementById(
+            "faqTopic"
+        ).value;
+
+    data.unshift({
+
+        id: Date.now(),
+
+        status: "Concept",
+
+        type: "FAQ",
+
+        category:
+            getFAQCategory(
+                currentHoofdgroep
+            ),
+
+        disease:
+            currentHoofdgroep,
+
+        title:
+            "Top 10 FAQ - " + topic,
+
+        content:
+            "Automatisch gegenereerd"
+
+    });
+
+    databaseCache.knowledgeData = data;
+
+    await saveDatabaseJson();
+
+    showNotification(
+        "✅ Top 10 opgeslagen"
+    );
+
+    renderFAQBeheer();
+}
+
+function renderAIFAQ(){
+
+    document.getElementById("internetTop10").innerHTML = `
+        <div class="card">
+
+            <h3>🤖 AI FAQ Generator</h3>
+
+            <p>
+                Geef een onderwerp in en genereer automatisch
+                FAQ-voorstellen.
+            </p>
+
+        </div>
+    `;
 }
 
 // INIT

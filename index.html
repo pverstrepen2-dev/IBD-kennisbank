@@ -1177,16 +1177,6 @@ Sociale Gids
     style="margin-top:20px;">
 </div>
 
-<div
-    id="webSearchResults"
-    style="margin-top:15px;">
-</div>
-
-<div
-    id="aiWebResults"
-    style="margin-top:20px;">
-</div>
-
 </div>
             <div>
               <label>Taal</label>
@@ -6532,8 +6522,38 @@ function aiSearchKnowledge(){
     const website =
         document.getElementById("newWebsiteGroup").value;
 
-    const query =
-        `${category} ${website} ${country}`;
+    let query =
+`${category} ${website} ${country}`;
+
+if(category === "FODMAP"){
+    query =
+    "FODMAP voeding Crohn Colitis";
+}
+
+if(category === "Diëten"){
+    query =
+    "IBD dieet voeding richtlijnen";
+}
+
+if(category === "Recepten"){
+    query =
+    "IBD recepten voeding";
+}
+
+if(category === "Supplementen"){
+    query =
+    "IBD supplementen vitamine B12 ijzer";
+}
+
+if(category === "Tekorten"){
+    query =
+    "IBD vitamine tekort ijzer B12";
+}
+
+if(category === "Gezonde keuzes"){
+    query =
+    "IBD gezonde voeding levensstijl";
+}
 
     document.getElementById(
         "aiSearchResults"
@@ -6546,6 +6566,21 @@ function aiSearchKnowledge(){
                 Zoekterm:
                 <b>${query}</b>
             </p>
+
+<p>
+    📂 Categorie:
+    <b>${category}</b>
+</p>
+
+<p>
+    🌐 Website type:
+    <b>${website}</b>
+</p>
+
+<p>
+    🇧🇪 Land:
+    <b>${country}</b>
+</p>
 
             <button
                 class="btn btn-primary"
@@ -6560,51 +6595,57 @@ function aiSearchKnowledge(){
 
             </button>
 
+<button
+    class="btn btn-success"
+    onclick="
+        useAISuggestion(
+            '${query}',
+            '${category}',
+            '${website}'
+        )
+    ">
+
+    ➕ Gebruik als zoekvoorstel
+
+</button>
+
         </div>
     `;
 }
 
-function runAISearch(){
-
-    const category =
-        document.getElementById('newCategory')?.value || '';
-
-    const websiteType =
-        document.getElementById('newWebsiteGroup')?.value || '';
-
-    const country =
-        document.getElementById('newCountry')?.value || '';
-
-    const query =
-        `${category} ${websiteType} ${country}`;
+function useAISuggestion(
+    query,
+    category,
+    website
+){
 
     document.getElementById(
-        "aiWebResults"
-    ).innerHTML = `
-        <div class="card">
+        "newTitle"
+    ).value =
+        category + " - " + website;
 
-            <h3>🤖 AI Zoekvoorstel</h3>
+    document.getElementById(
+    "newTags"
+).value =
+    category +
+    "," +
+    website +
+    ",IBD";
 
-            <p>
-                Zoekterm:
-                <b>${query}</b>
-            </p>
+    document.getElementById(
+        "newCategory"
+    ).value =
+        category;
 
-            <button
-                class="btn btn-primary"
-                onclick="
-                    window.open(
-                        'https://www.google.com/search?q=' +
-                        encodeURIComponent('${query}')
-                    )
-                ">
-                🌐 Open zoekresultaten
-            </button>
+    document.getElementById(
+        "newWebsiteGroup"
+    ).value =
+        website;
 
-        </div>
-    `;
+    showNotification(
+        "🤖 AI voorstel ingevuld"
+    );
 }
-
 
 async function saveWebsite(){
 

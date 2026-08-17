@@ -211,12 +211,20 @@ console.log("PDF TEST", window.pdfjsLib);
     .category-grid, .card-grid { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
     .form-grid { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
 
-    .stat-card, .category-card, .result-item, .card {
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.08);
-      padding: 22px;
-    }
+    /* FAQ layout fix */
+#faqContainer {
+    align-items: stretch;
+}
+
+#faqContainer .card {
+    height: 350px;
+    overflow-y: auto;
+}
+
+#faqContainer .card h3 {
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
 
     .stat-number {
       font-size: 42px;

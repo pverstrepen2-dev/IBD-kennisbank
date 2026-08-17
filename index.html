@@ -1146,6 +1146,61 @@ Sociale Gids
     <option value="Forum">💬 Forum</option>
     <option value="Overig">📁 Overig</option>
   </select>
+
+  <hr style="margin:20px 0;">
+
+<h3>🔎 Internet zoeken</h3>
+
+<input
+    type="text"
+    id="webSearchInput"
+    placeholder="Zoekterm..." />
+
+<button
+    type="button"
+    class="btn btn-primary"
+    onclick="searchInternet()">
+    🌐 Zoek op internet
+</button>
+
+<button
+    type="button"
+    class="btn btn-success"
+    onclick="aiSearchKnowledge()">
+
+    🤖 AI Zoekvoorstel
+
+</button>
+
+<button
+    type="button"
+    class="btn btn-success"
+    onclick="runAISearch()">
+
+    🤖 AI Zoekvoorstel
+
+</button>
+
+<div
+    id="webSearchResults"
+    style="margin-top:15px;">
+</div>
+
+<div
+    id="aiSearchResults"
+    style="margin-top:20px;">
+</div>
+
+<div
+    id="webSearchResults"
+    style="margin-top:15px;">
+</div>
+
+<div
+    id="aiWebResults"
+    style="margin-top:20px;">
+</div>
+
 </div>
             <div>
               <label>Taal</label>
@@ -6449,6 +6504,121 @@ function saveVoedingItem(type){
     content
   });
 }
+
+function buildSearchQuery(){
+
+    const category =
+        document.getElementById('newCategory')?.value || '';
+
+    const websiteType =
+        document.getElementById('newWebsiteGroup')?.value || '';
+
+    const country =
+        document.getElementById('newCountry')?.value || '';
+
+    return `${category} ${websiteType} ${country}`.trim();
+}
+
+function searchInternet(){
+
+    let query =
+        document.getElementById('webSearchInput').value;
+
+    if(!query){
+        query = buildSearchQuery();
+    }
+
+    window.open(
+        "https://www.google.com/search?q="
+        + encodeURIComponent(query),
+        "_blank"
+    );
+}
+
+function aiSearchKnowledge(){
+
+    const category =
+        document.getElementById("newCategory").value;
+
+    const country =
+        document.getElementById("newCountry").value;
+
+    const website =
+        document.getElementById("newWebsiteGroup").value;
+
+    const query =
+        `${category} ${website} ${country}`;
+
+    document.getElementById(
+        "aiSearchResults"
+    ).innerHTML = `
+        <div class="card">
+
+            <h3>🤖 AI Zoekvoorstel</h3>
+
+            <p>
+                Zoekterm:
+                <b>${query}</b>
+            </p>
+
+            <button
+                class="btn btn-primary"
+                onclick="
+                    window.open(
+                        'https://www.google.com/search?q=' +
+                        encodeURIComponent('${query}')
+                    )
+                ">
+
+                🌐 Zoek op internet
+
+            </button>
+
+        </div>
+    `;
+}
+
+function runAISearch(){
+
+    const category =
+        document.getElementById('newCategory')?.value || '';
+
+    const websiteType =
+        document.getElementById('newWebsiteGroup')?.value || '';
+
+    const country =
+        document.getElementById('newCountry')?.value || '';
+
+    const query =
+        `${category} ${websiteType} ${country}`;
+
+    document.getElementById(
+        "aiWebResults"
+    ).innerHTML = `
+        <div class="card">
+
+            <h3>🤖 AI Zoekvoorstel</h3>
+
+            <p>
+                Zoekterm:
+                <b>${query}</b>
+            </p>
+
+            <button
+                class="btn btn-primary"
+                onclick="
+                    window.open(
+                        'https://www.google.com/search?q=' +
+                        encodeURIComponent('${query}')
+                    )
+                ">
+                🌐 Open zoekresultaten
+            </button>
+
+        </div>
+    `;
+}
+
 
 async function saveWebsite(){
 

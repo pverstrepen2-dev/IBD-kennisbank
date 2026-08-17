@@ -925,6 +925,48 @@ class="btn btn-primary"
             ❓ FAQ Beheer
         </div>
 
+<hr>
+
+<h3>🏆 Top 10 FAQ Generator</h3>
+
+<input
+    type="text"
+    id="faqTop10Search"
+    placeholder="Bijvoorbeeld: Crohn, Colitis, Voeding, FODMAP">
+<select id="faqTop10Bron">
+
+    <option value="alles">
+        Alles
+    </option>
+
+    <option value="faq">
+        FAQ
+    </option>
+
+    <option value="documents">
+        AI Documenten
+    </option>
+
+    <option value="knowledge">
+        Kennisbank
+    </option>
+
+</select>
+<button
+    class="btn btn-success"
+    onclick="generateTop10Faq()">
+
+    🤖 Maak Top 10 FAQ
+
+</button>
+
+<div
+    id="top10Results"
+    style="margin-top:15px;">
+</div>
+
+<hr>
+
         <input
             type="text"
             id="faqBeheerSearch"
@@ -3947,6 +3989,209 @@ if(
 
         `).join('');
 
+}
+
+async function generateTop10Faq(){
+
+    const topic =
+        document.getElementById(
+            "faqTop10Search"
+        ).value.toLowerCase();
+
+    const bron =
+    document.getElementById(
+        "faqTop10Bron"
+    ).value;
+
+    const knowledge =
+        await getKnowledgeData();
+
+    const docs =
+        await loadDocuments();
+
+    let sourceData = [];
+
+if(bron === "alles"){
+
+    sourceData = [
+
+        ...knowledge,
+        ...docs
+
+    ];
+
+}
+
+if(bron === "knowledge"){
+
+    sourceData = knowledge;
+
+}
+
+if(bron === "documents"){
+
+    sourceData = docs;
+
+}
+
+if(bron === "faq"){
+
+    sourceData =
+        knowledge.filter(
+            x => x.type === "FAQ"
+        );
+
+}
+
+const matches =
+    sourceData.filter(item => {
+
+        const txt =
+            JSON.stringify(item)
+            .toLowerCase();
+
+        return txt.includes(topic);
+
+    });
+
+    let html = `
+        <div class="card">
+
+            <h3>
+    🤖 AI Top FAQ
+</h3>
+
+<p>
+    Bron:
+    <b>${bron}</b>
+</p>
+
+<p>
+    Resultaten:
+    <b>${matches.length}</b>
+</p>
+    `;
+matches.sort((a,b) => {
+
+    const aTitle =
+        (a.title || a.titel || "").length;
+
+    const bTitle =
+        (b.title || b.titel || "").length;
+
+    return bTitle - aTitle;
+
+});
+    matches
+        .slice(0,10)
+        .forEach((item,index)=>{
+
+            html += `
+
+                <div style="margin-bottom:10px;">
+
+                    <b>
+                        ${index+1}.
+                    </b>
+
+                    ${item.title || item.titel || item.fileName || 'Onbekend item'}
+
+                </div>
+
+            `;
+
+        });
+
+    html += `
+
+            <button
+                class="btn btn-success"
+                onclick="saveTop10Faq('${topic}')">
+
+                💾 Opslaan als FAQ
+
+            </button>
+
+        </div>
+    `;
+
+    document.getElementById(
+        "top10Results"
+    ).innerHTML = html;
+}
+async function saveTop10Faq(topic){
+
+    const knowledge =
+        await getKnowledgeData();
+
+    const docs =
+        await loadDocuments();
+
+    const matches = [
+
+        ...knowledge,
+        ...docs
+
+    ].filter(item => {
+
+        const txt =
+            JSON.stringify(item)
+            .toLowerCase();
+
+        return txt.includes(
+            topic.toLowerCase()
+        );
+
+    });
+
+    matches
+        .slice(0,10)
+        .forEach(item=>{
+
+            knowledge.unshift({
+
+                id:
+                    Date.now()
+                    + Math.random(),
+
+                status:
+                    "Concept",
+
+                type:
+                    "FAQ",
+
+                category:
+                    getFAQCategory(
+                        currentHoofdgroep
+                    ),
+
+                disease:
+                    currentHoofdgroep,
+
+                title:
+                    item.title
+                    || item.titel,
+
+                content:
+                    item.samenvatting
+                    || item.content
+                    || item.inhoud
+                    || ""
+
+            });
+
+        });
+
+    databaseCache.knowledgeData =
+        knowledge;
+
+    await saveDatabaseJson();
+
+    await renderFAQBeheer();
+
+    showNotification(
+        "✅ AI FAQ opgeslagen"
+    );
 }
 
 async function filterFAQ(){

@@ -9866,6 +9866,31 @@ async function generateInternetTop10(){
             "faqTopic"
         ).value;
 
+    let vragen = [];
+
+    if(currentHoofdgroep === "voeding"){
+
+        vragen = [
+            "Wat mag ik eten?",
+            "Wat moet ik vermijden?",
+            "Is FODMAP geschikt?",
+            "Welke voeding veroorzaakt klachten?",
+            "Welke recepten zijn geschikt?"
+        ];
+
+    }
+    else{
+
+        vragen = [
+            `Wat is ${onderwerp}?`,
+            `Wat veroorzaakt ${onderwerp}?`,
+            `Welke symptomen zijn er?`,
+            `Hoe wordt het vastgesteld?`,
+            `Welke behandelingen bestaan?`
+        ];
+
+    }
+
     document.getElementById(
         "internetTop10"
     ).innerHTML = `
@@ -9877,27 +9902,7 @@ async function generateInternetTop10(){
             </h3>
 
             <ol>
-
-                <li>Wat is ${onderwerp}?</li>
-
-                <li>Wat veroorzaakt ${onderwerp}?</li>
-
-                <li>Welke symptomen zijn er?</li>
-
-                <li>Hoe wordt het vastgesteld?</li>
-
-                <li>Welke behandelingen bestaan?</li>
-
-                <li>Welke medicatie wordt gebruikt?</li>
-
-                <li>Welke voeding wordt aanbevolen?</li>
-
-                <li>Welke complicaties kunnen optreden?</li>
-
-                <li>Wat is de prognose?</li>
-
-                <li>Waar vind ik meer informatie?</li>
-
+                ${vragen.map(v => `<li>${v}</li>`).join("")}
             </ol>
 
         </div>
@@ -10026,8 +10031,32 @@ async function runAIKnowledgeSearch(){
         document.getElementById(
             "aiKnowledgeSearch"
         ).value;
+const aiKnowledge = await loadAIKnowledge();
+const knowledgeData = await getKnowledgeData();
+const documenten = await loadDocuments();
 
-    const groep =
+const bestaandeItems = [
+    ...aiKnowledge,
+    ...knowledgeData,
+    ...documenten
+].filter(item =>
+    JSON.stringify(item)
+        .toLowerCase()
+        .includes(zoekterm.toLowerCase())
+);
+
+if(bestaandeItems.length > 0){
+    document.getElementById(
+        "aiKnowledgeResults"
+    ).innerHTML = `
+        <div class="card">
+            <h3>⚠ Reeds gevonden</h3>
+            <p>${bestaandeItems.length} bestaande items gevonden.</p>
+            <p>✅ Aanvullen?</p>
+        </div>
+    `;
+}
+        const groep =
         document.getElementById(
             "aiKnowledgeTarget"
         ).value;
@@ -10052,7 +10081,10 @@ categorie:
     title: zoekterm,
 
     groep: groep,
-        bron: zoekUrl,
+        bronType: "Internet",
+bronUrl: zoekUrl,
+gevondenOp: new Date().toISOString(),
+bron: zoekUrl,
 
         samenvatting:
             "Internetresultaat voor " +
@@ -10072,25 +10104,29 @@ categorie:
     }];
 
     document.getElementById(
-        "aiKnowledgeResults"
-    ).innerHTML = `
+    "aiKnowledgeResults"
+).innerHTML = `
 
-        <div class="card">
+<div class="card">
 
-            <h3>${zoekterm}</h3>
+    <h3>${zoekterm}</h3>
 
-            📂 ${groep}
+    📂 ${groep}
 
-            <br><br>
+    <br><br>
 
-            🌍 Internet zoekopdracht klaar
+    🌍 Internet zoekopdracht klaar
 
-            <br><br>
+    <br><br>
 
-            <a href="${zoekUrl}"
-               target="_blank"
+    <a
+        href="${zoekUrl}"
+        target="_blank"
+        rel="noopener">
 
-            </a>
+        🔗 Open zoekresultaten
+
+               </a>
 
         </div>
 
@@ -10108,9 +10144,14 @@ async function saveAIKnowledgeResult(){
     const data =
         await loadAIKnowledge();
 
-    data.unshift(
-        currentAIKnowledge[0]
-    );
+    const item = currentAIKnowledge[0];
+
+item.faq = generateFAQ(
+    item.samenvatting,
+    item.title
+);
+
+data.unshift(item);
 
     await saveAIKnowledge(
         data
@@ -10186,28 +10227,51 @@ async function renderAIBibliotheek(){
 
         `;
 
-        groepen[groep]
-        .forEach(item => {
+       const categorien = {};
 
-            html += `
+groepen[groep].forEach(item => {
 
-                <div class="card">
+    if(!categorien[item.categorie]){
+        categorien[item.categorie] = [];
+    }
 
-                    <b>
-                        ${item.title}
-                    </b>
+    categorien[item.categorie].push(item);
 
-                    <br>
+});
 
-                    ${item.samenvatting || ""}
+Object.keys(categorien).forEach(cat => {
 
-                </div>
+    html += `
+    <div class="card">
+        <h4>📁 ${cat}</h4>
+    `;
 
-            `;
+    categorien[cat].forEach(item => {
 
-        });
+    html += `
+    <div style="margin-left:20px;margin-bottom:10px;">
 
-    });
+        • ${item.title}
+
+        <br>
+
+        <button
+            class="btn btn-warning btn-sm"
+            onclick="reanalyseKnowledge('${item.id}')">
+
+            🔄 Heranalyse
+
+        </button>
+
+    </div>
+    `;
+
+});
+
+    html += `</div>`;
+
+});
+});
 
     document.getElementById(
         "bibliotheekContent"
@@ -10215,17 +10279,112 @@ async function renderAIBibliotheek(){
 
 }
 
+async function reanalyseKnowledge(id){
+
+    const data =
+        await loadAIKnowledge();
+
+    const item =
+        data.find(
+            x => String(x.id) === String(id)
+        );
+
+    if(!item){
+        return;
+    }
+
+    const analyse =
+        await analyseDocumentContent(
+            item.samenvatting || "",
+            item.title || ""
+        );
+
+    item.categorie =
+        analyse.categorie;
+
+    item.faq =
+        analyse.faq;
+
+    item.tags =
+        analyse.tags;
+
+    item.zoekindex =
+        analyse.zoekindex;
+
+    await saveAIKnowledge(data);
+
+    renderAIBibliotheek();
+
+    showNotification(
+        "✅ Heranalyse uitgevoerd"
+    );
+
+}
+
 async function runCCVAI(){
 
     const q =
-    document.getElementById(
-        "ccvAiInput"
-    ).value;
+        document.getElementById(
+            "ccvAiInput"
+        ).value.toLowerCase();
+
+    const aiKnowledge =
+        await loadAIKnowledge();
+
+    const knowledge =
+        await getKnowledgeData();
+
+    const docs =
+        await loadDocuments();
+
+    const alles = [
+
+        ...aiKnowledge,
+        ...knowledge,
+        ...docs
+
+    ];
+
+    const resultaten =
+        alles.filter(item =>
+
+            JSON.stringify(item)
+                .toLowerCase()
+                .includes(q)
+
+        );
+
+    const html = resultaten.length
+
+        ? resultaten.map(item => `
+
+            <div class="card">
+
+                <h3>
+                    ${item.title || item.fileName}
+                </h3>
+
+                <p>
+                    ${
+                        item.samenvatting ||
+                        item.content ||
+                        ""
+                    }
+                </p>
+
+            </div>
+
+        `).join("")
+
+        :
+
+        `<div class="card">
+            Geen informatie gevonden.
+        </div>`;
 
     document.getElementById(
         "ccvAiResult"
-    ).innerHTML =
-    "🤖 Vraag ontvangen: " + q;
+    ).innerHTML = html;
 
 }
 

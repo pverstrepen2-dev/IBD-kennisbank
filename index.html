@@ -5547,25 +5547,45 @@ async function renderRecentWerkdocumenten(){
 
     const recent = docs
 
-        .sort((a,b)=>
+    .filter(doc =>
 
-            new Date(
-                b.gewijzigdOp ||
-                b.modifiedDate ||
-                0
-            )
+        doc.title &&
 
-            -
+        (
 
-            new Date(
-                a.gewijzigdOp ||
-                a.modifiedDate ||
-                0
-            )
+            doc.title
+                .toLowerCase()
+                .endsWith(".xls")
+
+            ||
+
+            doc.title
+                .toLowerCase()
+                .endsWith(".xlsx")
 
         )
 
-        .slice(0,10);
+    )
+
+    .sort((a,b)=>
+
+        new Date(
+            b.gewijzigdOp ||
+            b.modifiedDate ||
+            0
+        )
+
+        -
+
+        new Date(
+            a.gewijzigdOp ||
+            a.modifiedDate ||
+            0
+        )
+
+    )
+
+    .slice(0,20);
 
     let html =
         "<h2>⚡ Recente Werkdocumenten</h2>";
@@ -5577,8 +5597,8 @@ async function renderRecentWerkdocumenten(){
         <div class="card">
 
             <b>
-                ${doc.title}
-            </b>
+    📊 ${doc.title}
+</b>
 
             <br>
 

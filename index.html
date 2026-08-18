@@ -719,6 +719,7 @@ class="btn btn-primary"
       <button class="tab-btn" onclick="switchTab(event, 'aiapproved')">🤖 AI Goedgekeurd</button>
       <button class="tab-btn" onclick="switchTab(event, 'backup')">💾 Backup</button>
       <button class="tab-btn" onclick="switchTab(event,'chatai')">🤖 CCV AI</button>
+      <button class="tab-btn" onclick="switchTab(event,'aikennis')">🧠 AI Kenniscentrum</button>
       <button class="tab-btn" onclick="switchTab(event, 'info')">ℹ️ Info</button>
       <button class="tab-btn" onclick="switchTab(event, 'websites')">🌐 Websites</button>
     </div>
@@ -838,7 +839,71 @@ Vraag stellen
 
 </div>
 
+<div id="aikennis" class="tab-content">
+
+    <div class="admin-section">
+
+        <h2>
+            🧠 AI Kenniscentrum
+        </h2>
+
+        <input
+            id="aiKnowledgeSearch"
+            placeholder="Zoekterm">
+
+        <select id="aiKnowledgeTarget">
+
+            <option value="Voeding">🍎 Voeding</option>
+            <option value="Mindfulness">🧘 Mindfulness</option>
+            <option value="Zorggids">🏥 Zorggids</option>
+            <option value="SocialeGids">⚖️ Sociale Gids</option>
+            <option value="CCV">🤝 CCV-VZW</option>
+
+        </select>
+
+        <button
+            class="btn btn-primary"
+            onclick="runAIKnowledgeSearch()">
+
+            🌍 Internet zoeken
+
+        </button>
+
+        <button
+            class="btn btn-success"
+            onclick="saveAIKnowledgeResult()">
+
+            💾 Opslaan
+
+        </button>
+
+        <div
+            id="aiKnowledgeResults"
+            style="margin-top:20px;">
+        </div>
+
+    </div>
+
+</div>
+
 <div id="info" class="tab-content">
+
+    <div class="admin-section">
+
+        <div class="admin-title">
+            ℹ️ Over deze toepassing
+        </div>
+
+        <p>
+            <b>IBD Kennisbank & CCV-VZW Werkruimte</b>
+            ...
+        </p>
+
+        ...
+        
+    </div>
+
+</div>
 
     <div class="admin-section">
 
@@ -1648,6 +1713,18 @@ const MEMBERS_FILE_ID =
 const DOCUMENTS_FILE_ID =
 "2B4CCFD79FF4714A!s1c128481d7a048fb91944acbf41be6f6";
 
+const VOEDING_FILE_ID =
+"2B4CCFD79FF4714A!s84e158b95b6248d882fbbf72c70b923e";
+
+const MINDFULNESS_FILE_ID =
+"2B4CCFD79FF4714A!s2a2df69ca1eb405680e9f1ae8357aeed";
+
+const ZORGGIDS_FILE_ID =
+"2B4CCFD79FF4714A!se997655d6cea4b26b20c90d40e579efa";
+
+const SOCIAAL_FILE_ID =
+"2B4CCFD79FF4714A!s09b56869ffc746f18ad85e4eb6281593";
+
 const GROUPS_FILE_ID =
 "2B4CCFD79FF4714A!s44957b6e7ec24c87aa0445d636d4e02c";
 
@@ -1971,6 +2048,110 @@ async function saveDocuments(data){
 
 }
 
+async function loadVoedingDB(){
+
+    try{
+        return await loadCCVJson(
+            VOEDING_FILE_ID
+        );
+    }
+    catch{
+        return [];
+    }
+
+}
+
+async function saveVoedingDB(data){
+
+    await saveCCVJson(
+        VOEDING_FILE_ID,
+        data
+    );
+
+}
+
+async function loadMindfulnessDB(){
+
+    try{
+
+        return await loadCCVJson(
+            MINDFULNESS_FILE_ID
+        );
+
+    }
+
+    catch{
+
+        return [];
+
+    }
+
+}
+
+async function saveMindfulnessDB(data){
+
+    await saveCCVJson(
+        MINDFULNESS_FILE_ID,
+        data
+    );
+
+}
+
+async function loadZorggidsDB(){
+
+    try{
+
+        return await loadCCVJson(
+            ZORGGIDS_FILE_ID
+        );
+
+    }
+
+    catch{
+
+        return [];
+
+    }
+
+}
+
+async function saveZorggidsDB(data){
+
+    await saveCCVJson(
+        ZORGGIDS_FILE_ID,
+        data
+    );
+
+}
+
+async function loadSociaalDB(){
+
+    try{
+
+        return await loadCCVJson(
+            SOCIAAL_FILE_ID
+        );
+
+    }
+
+    catch{
+
+        return [];
+
+    }
+
+}
+
+async function saveSociaalDB(data){
+
+    await saveCCVJson(
+        SOCIAAL_FILE_ID,
+        data
+    );
+
+}
+
+
 // =========================
 // GROUPS DATABASE
 // =========================
@@ -2137,20 +2318,37 @@ const WEBSITES_KEY =
 function loadVoeding(){
   return JSON.parse(localStorage.getItem(VOEDING_KEY) || '[]');
 }
+
 function saveVoeding(data){
-  localStorage.setItem(VOEDING_KEY, JSON.stringify(data));
+    localStorage.setItem(
+        VOEDING_KEY,
+        JSON.stringify(data)
+    );
 }
-    let currentLang = localStorage.getItem(LANG_KEY) || 'nl';
-    let msalReady = false;
-    let databaseCache = null;
-   let currentHoofdgroep = 'crohn';
-    let websitesOnly = false;
-    let favoritesOnly = false;
-    let currentDriveFolder = null;
+
+let currentLang =
+    localStorage.getItem(LANG_KEY) || 'nl';
+
+let msalReady = false;
+
+let databaseCache = null;
+
+let currentHoofdgroep = 'crohn';
+
+let websitesOnly = false;
+
+let favoritesOnly = false;
+
+let currentDriveFolder = null;
 
 let oneDriveIndex = [];
+
 let currentAIResults = [];
+
 let aiProposals = [];
+
+let currentAIKnowledge = [];
+
 const WEBSITE_CATEGORIES = [
     { value:"Onderwijs", icon:"🎓" },
     { value:"Ziekenhuis", icon:"🏥" },
@@ -2746,8 +2944,13 @@ if (tabName === 'aiapproved') {
 }
       if (tabName === 'websites') refreshWebsitesOverview();
       if (tabName === 'voeding') renderVoeding('dieet');
+      if (tabName === 'aikennis'){
+    console.log(
+        "AI Kenniscentrum geopend"
+    );
     }
 
+}
     function getAllowedSections() {
       const map = {
         crohn: ['Crohn'],
@@ -9747,6 +9950,154 @@ function renderAIFAQ(){
 
         </div>
     `;
+}
+
+async function runAIKnowledgeSearch(){
+
+    const zoekterm =
+    document.getElementById(
+        "aiKnowledgeSearch"
+    ).value;
+
+    const groep =
+    document.getElementById(
+        "aiKnowledgeTarget"
+    ).value;
+
+    currentAIKnowledge = [{
+
+        id: Date.now(),
+
+        title: zoekterm,
+
+        groep: groep,
+
+        samenvatting:
+        "AI samenvatting van "
+        + zoekterm,
+
+        faq:[
+            {
+                vraag:
+                "Wat is " +
+                zoekterm + "?",
+
+                antwoord:
+                "Automatisch gegenereerd"
+            }
+        ]
+
+    }];
+
+    document.getElementById(
+        "aiKnowledgeResults"
+    ).innerHTML =
+
+    `
+    <div class="card">
+
+        <h3>
+        ${zoekterm}
+        </h3>
+
+        📂 ${groep}
+
+        <br><br>
+
+        📝 AI samenvatting gemaakt
+
+        <br><br>
+
+        ❓ FAQ gegenereerd
+
+    </div>
+    `;
+
+}
+
+async function saveAIKnowledgeResult(){
+
+    if(
+        currentAIKnowledge.length === 0
+    ){
+        return;
+    }
+
+    const item =
+    currentAIKnowledge[0];
+
+    switch(item.groep){
+
+        case "Voeding":
+
+            const voeding =
+            await loadVoedingDB();
+
+            voeding.unshift(item);
+
+            await saveVoedingDB(
+                voeding
+            );
+
+            break;
+
+        case "Mindfulness":
+
+            const mind =
+            await loadMindfulnessDB();
+
+            mind.unshift(item);
+
+            await saveMindfulnessDB(
+                mind
+            );
+
+            break;
+
+        case "Zorggids":
+
+            const zorg =
+            await loadZorggidsDB();
+
+            zorg.unshift(item);
+
+            await saveZorggidsDB(
+                zorg
+            );
+
+            break;
+
+        case "SocialeGids":
+
+            const sociaal =
+            await loadSociaalDB();
+
+            sociaal.unshift(item);
+
+            await saveSociaalDB(
+                sociaal
+            );
+
+            break;
+
+        case "CCV":
+
+            const docs =
+            await loadDocuments();
+
+            docs.unshift(item);
+
+            await saveDocuments(
+                docs
+            );
+
+            break;
+    }
+
+    showNotification(
+        "✅ AI item opgeslagen"
+    );
+await renderKnowledgeGraph();
 }
 
 async function runCCVAI(){

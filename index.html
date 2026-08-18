@@ -914,6 +914,33 @@ Vraag stellen
             id="aiKnowledgeResults"
             style="margin-top:20px;">
         </div>
+<hr style="margin:20px 0;">
+
+<h3>⚡ AI Capture</h3>
+<input
+    type="url"
+    id="aiCaptureUrl"
+    placeholder="https://linkedin.com/... of website URL">
+
+<textarea
+    id="aiCaptureText"
+    placeholder="Plak hier LinkedIn, website, nieuwsbrief of andere tekst...">
+</textarea>
+
+<br><br>
+
+<button
+    class="btn btn-success"
+    onclick="runAICapture()">
+
+    ⚡ Analyseer en opslaan
+
+</button>
+
+<div
+    id="aiCaptureResult"
+    style="margin-top:20px;">
+</div>
 
     </div>
 
@@ -10183,9 +10210,11 @@ async function renderAIBibliotheek(){
         if(
             groepen[item.hoofdgroep]
         ){
+
             groepen[
                 item.hoofdgroep
             ].push(item);
+
         }
 
     });
@@ -10227,51 +10256,83 @@ async function renderAIBibliotheek(){
 
         `;
 
-       const categorien = {};
+        const categorien = {};
 
-groepen[groep].forEach(item => {
+        groepen[groep].forEach(item => {
 
-    if(!categorien[item.categorie]){
-        categorien[item.categorie] = [];
-    }
+            if(!categorien[item.categorie]){
 
-    categorien[item.categorie].push(item);
+                categorien[item.categorie] = [];
 
-});
+            }
 
-Object.keys(categorien).forEach(cat => {
+            categorien[item.categorie].push(item);
 
-    html += `
-    <div class="card">
-        <h4>📁 ${cat}</h4>
-    `;
+        });
 
-    categorien[cat].forEach(item => {
+        Object.keys(categorien).forEach(cat => {
 
-    html += `
-    <div style="margin-left:20px;margin-bottom:10px;">
+            html += `
 
-        • ${item.title}
+                <div class="card">
 
-        <br>
+                    <h4>
+                        📁 ${cat}
+                    </h4>
 
-        <button
-            class="btn btn-warning btn-sm"
-            onclick="reanalyseKnowledge('${item.id}')">
+            `;
 
-            🔄 Heranalyse
+            categorien[cat].forEach(item => {
 
-        </button>
+                html += `
 
-    </div>
-    `;
+                    <div
+                        style="
+                            margin-left:20px;
+                            margin-bottom:10px;
+                        ">
 
-});
+                        • ${item.title}
 
-    html += `</div>`;
+                        ${
+                            item.bronUrl
+                            ? `
+                                <br>
 
-});
-});
+                                ${item.bronUrl}
+
+                                    🌐 Bron openen
+
+                                </a>
+                              `
+                            : ""
+                        }
+
+                        <br><br>
+
+                        <button
+                            class="btn btn-warning btn-sm"
+                            onclick="reanalyseKnowledge('${item.id}')">
+
+                            🔄 Heranalyse
+
+                        </button>
+
+                    </div>
+
+                `;
+
+            });
+
+            html += `
+
+                </div>
+
+            `;
+
+        });
+
+    });
 
     document.getElementById(
         "bibliotheekContent"
@@ -10386,6 +10447,108 @@ async function runCCVAI(){
         "ccvAiResult"
     ).innerHTML = html;
 
+}
+
+async function runAICapture(){
+
+    const text =
+        document.getElementById(
+            "aiCaptureText"
+        ).value;
+
+    const bronUrl =
+        document.getElementById(
+            "aiCaptureUrl"
+        ).value;
+
+    if(!text){
+        return;
+    }
+
+    const analyse =
+        await analyseDocumentContent(
+            text,
+            "AI Capture"
+        );
+
+    const item = {
+
+        id: Date.now(),
+
+        hoofdgroep:
+            analyse.hoofdgroep,
+
+        categorie:
+            analyse.categorie,
+
+        title:
+            text
+            .split(".")[0]
+            .substring(0,80),
+
+        samenvatting:
+            analyse.samenvatting,
+
+        tags:
+            analyse.tags,
+
+        faq:
+            analyse.faq,
+
+        zoekindex:
+            analyse.zoekindex,
+
+        bronType:
+            "AI Capture",
+
+        bronUrl:
+            bronUrl,
+
+        gevondenOp:
+            new Date().toISOString()
+
+    };
+
+    const data =
+        await loadAIKnowledge();
+
+    data.unshift(item);
+
+    await saveAIKnowledge(data);
+
+    document.getElementById(
+        "aiCaptureResult"
+    ).innerHTML = `
+
+        <div class="card">
+
+            <h3>✅ Opgeslagen</h3>
+
+            <p>
+                Categorie:
+                <b>${item.categorie}</b>
+            </p>
+
+            <p>
+                Tags:
+                ${item.tags.join(", ")}
+            </p>
+
+        </div>
+
+    `;
+
+    showNotification(
+        "✅ AI Capture opgeslagen"
+    );
+
+    document.getElementById(
+        "aiCaptureText"
+    ).value = "";
+
+    document.getElementById(
+        "aiCaptureUrl"
+    ).value = "";
 }
 
 async function runNaturalLanguage(){

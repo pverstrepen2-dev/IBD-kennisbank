@@ -1331,6 +1331,7 @@ onclick="switchCCVTab(event,'archief')">
 
       <button class="tab-btn" onclick="switchCCVTab(event,'documenten')">📄 Documenten</button>
       <button class="tab-btn" onclick="switchCCVTab(event,'werkdocumenten')">⭐ Werkdocumenten</button>
+      <button class="tab-btn" onclick="switchTab(event,'recenteWerkdocumenten')">⚡ Recente Werkdocumenten</button>
       <button class="tab-btn" onclick="switchCCVTab(event,'leden')">👤 Leden</button>
       <button class="tab-btn" onclick="switchCCVTab(event,'users')">⚙ Gebruikers</button>
     </div>
@@ -5439,6 +5440,9 @@ if(tab==='knowledge')
     if(tab==='werkdocumenten')
     await renderWerkdocumenten();
 
+if(tab==='recentewerkdocs')
+    await renderRecentWerkdocumenten();
+
   if(tab==='leden')
     await renderMembers();
 
@@ -5534,6 +5538,67 @@ async function loadWerkdocumenten(){
 
 </div>
     `;
+}
+
+async function renderRecentWerkdocumenten(){
+
+    const docs =
+        await loadDocuments();
+
+    const recent = docs
+
+        .sort((a,b)=>
+
+            new Date(
+                b.gewijzigdOp ||
+                b.modifiedDate ||
+                0
+            )
+
+            -
+
+            new Date(
+                a.gewijzigdOp ||
+                a.modifiedDate ||
+                0
+            )
+
+        )
+
+        .slice(0,10);
+
+    let html =
+        "<h2>⚡ Recente Werkdocumenten</h2>";
+
+    recent.forEach(doc => {
+
+        html += `
+
+        <div class="card">
+
+            <b>
+                ${doc.title}
+            </b>
+
+            <br>
+
+            📅
+            ${
+                doc.modifiedDate ||
+                doc.gewijzigdOp ||
+                "-"
+            }
+
+        </div>
+
+        `;
+
+    });
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = html;
+
 }
 
 async function renderTaken(){

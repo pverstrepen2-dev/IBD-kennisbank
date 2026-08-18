@@ -5542,72 +5542,111 @@ async function loadWerkdocumenten(){
 
 async function renderRecentWerkdocumenten(){
 
-    const docs =
-        await loadDocuments();
+    const token =
+        await getAccessToken();
 
-    const recent = docs
+    let bestanden = [];
 
-    .filter(doc =>
+    for(const folderName in werkdocumentFolders){
 
-        doc.title &&
+        const folderId =
+            werkdocumentFolders[
+                folderName
+            ];
 
-        (
+        const response =
+            await fetch(
 
-            doc.title
-                .toLowerCase()
-                .endsWith(".xls")
+                `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`,
 
-            ||
+                {
+                    headers:{
+                        Authorization:
+                            "Bearer " + token
+                    }
+                }
 
-            doc.title
-                .toLowerCase()
-                .endsWith(".xlsx")
+            );
+
+        const data =
+            await response.json();
+
+        bestanden.push(
+
+            ...data.value
+
+        );
+
+    }
+
+    bestanden = bestanden
+
+        .filter(file =>
+
+            !file.folder &&
+
+            (
+
+                file.name
+                    .toLowerCase()
+                    .endsWith(".xls")
+
+                ||
+
+                file.name
+                    .toLowerCase()
+                    .endsWith(".xlsx")
+
+            )
 
         )
 
-    )
+        .sort((a,b)=>
 
-    .sort((a,b)=>
+            new Date(
+                b.lastModifiedDateTime
+            )
 
-        new Date(
-            b.gewijzigdOp ||
-            b.modifiedDate ||
-            0
-        )
+            -
 
-        -
+            new Date(
+                a.lastModifiedDateTime
+            )
 
-        new Date(
-            a.gewijzigdOp ||
-            a.modifiedDate ||
-            0
-        )
-
-    )
-
-    .slice(0,20);
+        );
 
     let html =
         "<h2>⚡ Recente Werkdocumenten</h2>";
 
-    recent.forEach(doc => {
+    bestanden.forEach(file => {
 
         html += `
 
         <div class="card">
 
             <b>
-    📊 ${doc.title}
-</b>
+
+                📊 ${file.name}
+
+            </b>
 
             <br>
 
             📅
-            ${
-                doc.modifiedDate ||
-                doc.gewijzigdOp ||
-                "-"
-            }
+
+            ${new Date(
+                file.lastModifiedDateTime
+            ).toLocaleString("nl-BE")}
+
+            <br><br>
+
+            <button
+                class="btn btn-primary"
+                onclick="openFile('${file.id}')">
+
+                📂 Open
+
+            </button>
 
         </div>
 

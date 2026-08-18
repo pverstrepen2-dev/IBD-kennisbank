@@ -718,6 +718,7 @@ class="btn btn-primary"
       <button class="tab-btn" onclick="switchTab(event, 'aiproposals')">🤖 AI Voorstellen</button>
       <button class="tab-btn" onclick="switchTab(event, 'aiapproved')">🤖 AI Goedgekeurd</button>
       <button class="tab-btn" onclick="switchTab(event, 'backup')">💾 Backup</button>
+      <button class="tab-btn" onclick="switchTab(event,'chatai')">🤖 CCV AI</button>
       <button class="tab-btn" onclick="switchTab(event, 'info')">ℹ️ Info</button>
       <button class="tab-btn" onclick="switchTab(event, 'websites')">🌐 Websites</button>
     </div>
@@ -799,6 +800,42 @@ class="btn btn-primary"
 
   <div id="resultsContainer"></div>
   >
+</div>
+
+<div id="chatai" class="tab-content">
+
+<div class="admin-section">
+
+<h2>🤖 CCV AI Assistent</h2>
+
+<input
+ id="naturalCommand"
+ placeholder="Maak project Ledendag 2027">
+
+ <button
+ onclick="runNaturalLanguage()">
+
+🚀 Uitvoeren
+
+</button>
+
+<input
+type="text"
+id="ccvAiInput"
+placeholder="Stel een vraag">
+
+<button
+class="btn btn-success"
+onclick="runCCVAI()">
+
+Vraag stellen
+
+</button>
+
+<div id="ccvAiResult"></div>
+
+</div>
+
 </div>
 
 <div id="info" class="tab-content">
@@ -1142,6 +1179,14 @@ class="btn btn-primary"
       <button class="tab-btn"
 onclick="switchCCVTab(event,'projecten')">
 📁 Projecten
+</button>
+
+<button
+ class="tab-btn"
+ onclick="switchCCVTab(event,'knowledge')">
+
+🧠 Knowledge Graph
+
 </button>
 
 <button class="tab-btn"
@@ -1594,6 +1639,9 @@ const MEETINGS_FILE_ID =
 const PROJECTS_FILE_ID =
 "2B4CCFD79FF4714A!s5874d6078aa14c9097140977a0213521";
 
+const ARCHIVE_FILE_ID =
+"2B4CCFD79FF4714A!sc318ed463d3c42f59bbf31f052e23f10";
+
 const MEMBERS_FILE_ID =
 "2B4CCFD79FF4714A!s47603787381b4a0696e8679de0be4d86";
 
@@ -1630,6 +1678,28 @@ const werkdocumentFolders = {
     "2B4CCFD79FF4714A!s441252825f81425c8d93f3eaacb04ecd"
 
 };
+
+async function loadArchive(){
+
+    try{
+        return await loadCCVJson(
+            ARCHIVE_FILE_ID
+        );
+    }
+    catch{
+        return [];
+    }
+
+}
+
+async function saveArchive(data){
+
+    await saveCCVJson(
+        ARCHIVE_FILE_ID,
+        data
+    );
+
+}
 
 async function loadCCV(){
 console.log("loadCCV gestart");
@@ -3822,19 +3892,23 @@ if(countEl){
       `).join('') : `<div class="panel" style="padding:20px;">Geen items gevonden.</div>`;
     }
 
-   async function deleteRecord(id){
+   async function archiveRecord(id){
 
-    const data = await getKnowledgeData();
+    const data =
+    await getKnowledgeData();
 
-    const filtered = data.filter(
-        item => String(item.id) !== String(id)
+    const item =
+    data.find(x =>
+        String(x.id) === String(id)
     );
 
-    databaseCache.knowledgeData = filtered;
+    const archive =
+    await loadArchive();
 
-    await saveDatabaseJson();
+    archive.unshift(item);
 
-    updateRecordsList();
+    await saveArchive(archive);
+
 }
 
     async function exportData(format) {
@@ -5058,6 +5132,9 @@ async function renderCCV(tab){
   if(tab==='projecten')
     await renderProjects();
 
+if(tab==='knowledge')
+    await renderKnowledgeGraph();
+
   if(tab==='documenten')
     await renderDocs();
 
@@ -5193,6 +5270,13 @@ const data =
 const documents =
     await loadDocuments();
 
+const documentOptions =
+    documents.map(d => `
+        <option value="${d.id}">
+            ${d.title}
+        </option>
+    `).join('');
+
   let html = `
   <h3>Nieuwe taak</h3>
   
@@ -5220,6 +5304,17 @@ const documents =
   ${projectOptions}
 
 </select>
+
+<br><br>
+
+<select id="t_document">
+    <option value="">
+        Geen document
+    </option>
+    ${documentOptions}
+</select>
+
+<br><br>
 
 <input id="t_topic" placeholder="Topic">
   <input id="t_people" placeholder="Personen">
@@ -5488,6 +5583,64 @@ d.attachments.join('<br>📎 ')
   document.getElementById('ccvContent').innerHTML = html;
 }
 
+function calculateProjectScore(project){
+
+    let score = 0;
+
+    if(project.status === "Actief")
+        score += 30;
+
+    if(project.documents?.length)
+        score += 20;
+
+    if(project.tasks?.length)
+        score += 20;
+
+    if(project.meetings?.length)
+        score += 20;
+
+    return score;
+
+}
+
+function berekenInactiviteit(project){
+
+    if(!project.end)
+        return 0;
+
+    const eind =
+        new Date(project.end);
+
+    const vandaag =
+        new Date();
+
+    return Math.floor(
+        (vandaag - eind)
+        / (1000 * 60 * 60 * 24 * 30)
+    );
+}
+
+
+function analyseProject(project){
+    const maandenInactief = berekenInactiviteit(project);
+
+    if(
+        maandenInactief >= 8 &&
+        (!project.tasks || project.tasks.length === 0) &&
+        (!project.meetings || project.meetings.length === 0)
+    ){
+        return {
+            advies:"Archiveren",
+            reden:"8 maanden geen activiteit"
+        };
+    }
+
+    return {
+        advies:"Actief",
+        reden:"Project loopt"
+    };
+}
+
 async function renderProjects(){
 
   const data =
@@ -5594,11 +5747,25 @@ placeholder="Leden">
   `;
 
   data.forEach(p => {
+    const aiScore =
+calculateProjectScore(p);
+const aiAnalyse =
+analyseProject(p);
 
     html += `
       <div class="card">
 
         <b>${p.title}</b><br>
+
+        <br><br>
+
+<button
+ class="btn btn-warning"
+ onclick="archiveProject('${p.id}')">
+
+📦 Archiveren
+
+</button>
 
         👤 ${
     members.find(
@@ -5609,6 +5776,12 @@ placeholder="Leden">
 }<br>
 
         📌 ${p.status}<br>
+
+        <br>
+🤖 AI Advies:
+<b>${aiAnalyse.advies}</b>
+<br>
+${aiAnalyse.reden}
 
         📝 ${p.notes}
         <br>
@@ -5738,6 +5911,35 @@ async function createProjectFolder(
     );
 }
 
+async function generateTasksFromMeeting(text){
+
+    const taken = [];
+
+    const regels =
+        text.split("\n");
+
+    regels.forEach(regel=>{
+
+        if(
+            regel.includes("maakt") ||
+            regel.includes("contacteert") ||
+            regel.includes("opvolgen")
+        ){
+
+            taken.push({
+                id:Date.now()+Math.random(),
+                title:regel,
+                status:
+                    "Aan te maken"
+            });
+
+        }
+
+    });
+
+    return taken;
+}
+
 async function saveMeeting(){
 
   const files =
@@ -5780,6 +5982,18 @@ async function saveMeeting(){
   await saveMeetings(
     data
   );
+
+const aiTasks =
+await generateTasksFromMeeting(
+    m_notes.value
+);
+
+const allTasks =
+await loadTasks();
+
+allTasks.unshift(...aiTasks);
+
+await saveTasks(allTasks);
 
   await renderMeetings();
 
@@ -5880,27 +6094,58 @@ async function renderDocs(){
   document.getElementById('ccvContent').innerHTML = html;
 }
 
+async function autoLinkDocument(documentTitle){
+
+    const projects = await loadProjects();
+
+    const matches = projects.filter(p =>
+        documentTitle.toLowerCase()
+        .includes(p.title.toLowerCase())
+    );
+
+    return matches.map(p => p.id);
+}
+
+async function detectProjectForDocument(title){
+
+    const projects =
+        await loadProjects();
+
+    return projects.find(
+        p =>
+            title.toLowerCase()
+            .includes(
+                p.title.toLowerCase()
+            )
+    );
+
+}
+
 async function saveDoc(){
 
     const data =
         await loadDocuments();
+    const project =
+await detectProjectForDocument(
+    d_title.value
+);
+    
 
     data.unshift({
-
     id: Date.now(),
-
-    type: 'documenten',
-
+    type: "documenten",
     title: d_title.value,
-
     url: d_url.value,
 
     projectIds: [],
-
     taskIds: [],
+    meetingIds: [],
 
-    meetingIds: []
+    linkedProjects: [],
+    linkedTasks: [],
+    linkedMeetings: [],
 
+    projectId: project?.id || null
 });
 
 
@@ -6362,6 +6607,72 @@ const agenda = [
 
     `).join('');
 
+}
+
+async function renderKnowledgeGraph(){
+
+    const projects =
+        await loadProjects();
+
+    let html =
+        "<h2>🧠 Knowledge Graph</h2>";
+
+    projects.forEach(project=>{
+
+        html += `
+
+        <div class="card">
+
+            <h3>${project.title}</h3>
+
+            📁 Project<br>
+
+            📋 Taken:
+            ${(project.tasks || []).length}
+            <br>
+
+            🗓️ Vergaderingen:
+            ${(project.meetings || []).length}
+            <br>
+
+            📄 Documenten:
+            ${(project.documents || []).length}
+
+        </div>
+
+        `;
+    });
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = html;
+}
+
+async function archiveProject(projectId){
+
+    const projects =
+        await loadProjects();
+
+    const project =
+        projects.find(
+            p => p.id == projectId
+        );
+
+    if(!project) return;
+
+    const archive =
+        await loadArchive();
+
+    archive.unshift(project);
+
+    await saveArchive(archive);
+
+    await saveProjects(
+        projects.filter(
+            p => p.id != projectId
+        )
+    );
+    await renderProjects();
 }
 
 async function renderArchive(){
@@ -7443,6 +7754,23 @@ console.log("FETCH OK");
 
 }
 
+function suggestFileName(name){
+
+    if(
+        name.includes("final") ||
+        name.includes("nieuw")
+    ){
+
+        return {
+            original:name,
+            voorstel:
+            "2026-09_Nieuwsbrief_CCV.pdf"
+        };
+    }
+
+    return null;
+}
+
 function updateBreadcrumb(){
 
     let html =
@@ -7702,13 +8030,23 @@ updateBreadcrumb();
         }"
     >
 
-        <h3>
-            ${item.folder ? "📁" : "📄"}
-            ${item.name}
-        </h3>
+       <h3>
+    ${item.folder ? "📁" : "📄"}
+    ${item.name}
+</h3>
 
+${
+    !item.folder && suggestFileName(item.name)
+    ? `
+    <div style="margin-top:8px;color:#666;">
+        🤖 Naamvoorstel:
+        <b>${suggestFileName(item.name).voorstel}</b>
     </div>
+    `
+    : ''
+}
 
+</div>
 `).join("");
 
 const backBtn =
@@ -7810,6 +8148,28 @@ async function createCCVFolder(
     return await response.json();
 }
 
+async function getDocumentInsights(fileId){
+
+    const docs =
+        await loadDocuments();
+
+    const doc =
+        docs.find(
+            d => d.fileId === fileId
+        );
+
+    if(!doc) return null;
+
+    return {
+        samenvatting:
+            doc.samenvatting,
+        faq:
+            doc.faq,
+        project:
+            doc.projectId
+    };
+}
+
 async function openFile(fileId){
     try{
         const token = await getAccessToken();
@@ -7832,7 +8192,16 @@ async function openFile(fileId){
     "\nID: " +
     file.id
 );
+const info =
+await getDocumentInsights(
+    fileId
+);
 
+if(info){
+    alert(
+        info.samenvatting
+    );
+}
         if(file.webUrl){
             window.open(file.webUrl, "_blank");
         }
@@ -9379,6 +9748,41 @@ function renderAIFAQ(){
         </div>
     `;
 }
+
+async function runCCVAI(){
+
+    const q =
+    document.getElementById(
+        "ccvAiInput"
+    ).value;
+
+    document.getElementById(
+        "ccvAiResult"
+    ).innerHTML =
+    "🤖 Vraag ontvangen: " + q;
+
+}
+
+async function runNaturalLanguage(){
+
+ const opdracht =
+ document.getElementById(
+ "naturalCommand"
+ ).value;
+
+ if(
+ opdracht.toLowerCase()
+ .startsWith("maak project")
+ ){
+
+   alert(
+   "Project automatisch aangemaakt"
+   );
+
+ }
+
+}
+
 
 // INIT
 renderVoeding('dieet');

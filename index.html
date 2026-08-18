@@ -720,6 +720,7 @@ class="btn btn-primary"
       <button class="tab-btn" onclick="switchTab(event, 'backup')">💾 Backup</button>
       <button class="tab-btn" onclick="switchTab(event,'chatai')">🤖 CCV AI</button>
       <button class="tab-btn" onclick="switchTab(event,'aikennis')">🧠 AI Kenniscentrum</button>
+      <button class="tab-btn" onclick="switchTab(event,'aibibliotheek')">📚 AI Bibliotheek</button>
       <button class="tab-btn" onclick="switchTab(event, 'info')">ℹ️ Info</button>
       <button class="tab-btn" onclick="switchTab(event, 'websites')">🌐 Websites</button>
     </div>
@@ -886,6 +887,31 @@ Vraag stellen
 
 </div>
 
+<div id="aibibliotheek"
+class="tab-content">
+
+    <div class="admin-section">
+
+        <h2>
+            📚 AI Bibliotheek
+        </h2>
+
+        <p class="notice">
+
+            Overzicht van alle AI-opgeslagen kennis.
+
+        </p>
+
+        <div id="bibliotheekContent">
+
+            Bibliotheek wordt geladen...
+
+        </div>
+
+    </div>
+
+</div>
+
 <div id="info" class="tab-content">
 
     <div class="admin-section">
@@ -896,27 +922,7 @@ Vraag stellen
 
         <p>
             <b>IBD Kennisbank & CCV-VZW Werkruimte</b>
-            ...
-        </p>
-
-        ...
-        
-    </div>
-
-</div>
-
-    <div class="admin-section">
-
-        <div class="admin-title">
-            ℹ️ Over deze toepassing
-        </div>
-
-        <p>
-
-            <b>IBD Kennisbank & CCV-VZW Werkruimte</b>
-
-            <br><br>
-
+          
             Deze toepassing werd ontwikkeld om kennisbeheer,
             documentbeheer, projecten, taken, vergaderingen,
             werkgroepen en samenwerking binnen CCV-VZW te ondersteunen.
@@ -2948,8 +2954,10 @@ if (tabName === 'aiapproved') {
     console.log(
         "AI Kenniscentrum geopend"
     );
-    }
-
+        }
+if(tabName === 'aibibliotheek'){
+    renderAIBibliotheek();
+}
 }
     function getAllowedSections() {
       const map = {
@@ -9955,14 +9963,20 @@ function renderAIFAQ(){
 async function runAIKnowledgeSearch(){
 
     const zoekterm =
-    document.getElementById(
-        "aiKnowledgeSearch"
-    ).value;
+        document.getElementById(
+            "aiKnowledgeSearch"
+        ).value;
 
     const groep =
-    document.getElementById(
-        "aiKnowledgeTarget"
-    ).value;
+        document.getElementById(
+            "aiKnowledgeTarget"
+        ).value;
+
+    const zoekUrl =
+        "https://www.google.com/search?q=" +
+        encodeURIComponent(
+            zoekterm
+        );
 
     currentAIKnowledge = [{
 
@@ -9972,9 +9986,11 @@ async function runAIKnowledgeSearch(){
 
         groep: groep,
 
+        bron: zoekUrl,
+
         samenvatting:
-        "AI samenvatting van "
-        + zoekterm,
+            "Internetresultaat voor " +
+            zoekterm,
 
         faq:[
             {
@@ -9983,7 +9999,7 @@ async function runAIKnowledgeSearch(){
                 zoekterm + "?",
 
                 antwoord:
-                "Automatisch gegenereerd"
+                "Automatisch gevonden en opgeslagen."
             }
         ]
 
@@ -9991,28 +10007,28 @@ async function runAIKnowledgeSearch(){
 
     document.getElementById(
         "aiKnowledgeResults"
-    ).innerHTML =
+    ).innerHTML = `
 
-    `
-    <div class="card">
+        <div class="card">
 
-        <h3>
-        ${zoekterm}
-        </h3>
+            <h3>${zoekterm}</h3>
 
-        📂 ${groep}
+            📂 ${groep}
 
-        <br><br>
+            <br><br>
 
-        📝 AI samenvatting gemaakt
+            🌍 Internet zoekopdracht klaar
 
-        <br><br>
+            <br><br>
 
-        ❓ FAQ gegenereerd
+            <a href="${zoekUrl}"
+               target="_n
 
-    </div>
+            </a>
+
+        </div>
+
     `;
-
 }
 
 async function saveAIKnowledgeResult(){
@@ -10098,6 +10114,63 @@ async function saveAIKnowledgeResult(){
         "✅ AI item opgeslagen"
     );
 await renderKnowledgeGraph();
+}
+
+async function renderAIBibliotheek(){
+
+    const voeding =
+        await loadVoedingDB();
+
+    const mindfulness =
+        await loadMindfulnessDB();
+
+    const zorg =
+        await loadZorggidsDB();
+
+    const sociaal =
+        await loadSociaalDB();
+
+    const alles = [
+
+        ...voeding,
+        ...mindfulness,
+        ...zorg,
+        ...sociaal
+
+    ];
+
+    document.getElementById(
+        "bibliotheekContent"
+    ).innerHTML =
+
+        alles.length
+        ?
+
+        alles.map(item => `
+
+            <div class="card">
+
+                <h3>
+                    ${item.title}
+                </h3>
+
+                📂 ${item.groep}
+
+                <br><br>
+
+                ${item.samenvatting || ''}
+
+            </div>
+
+        `).join("")
+
+        :
+
+        `
+        <div class="card">
+            Nog geen AI kennis opgeslagen.
+        </div>
+        `;
 }
 
 async function runCCVAI(){

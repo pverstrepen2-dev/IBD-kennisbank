@@ -852,15 +852,47 @@ Vraag stellen
             id="aiKnowledgeSearch"
             placeholder="Zoekterm">
 
-        <select id="aiKnowledgeTarget">
+            <select id="aiKnowledgeTarget">
 
-            <option value="Voeding">🍎 Voeding</option>
-            <option value="Mindfulness">🧘 Mindfulness</option>
-            <option value="Zorggids">🏥 Zorggids</option>
-            <option value="SocialeGids">⚖️ Sociale Gids</option>
-            <option value="CCV">🤝 CCV-VZW</option>
+    <option value="Voeding">🍎 Voeding</option>
+    <option value="Mindfulness">🧘 Mindfulness</option>
+    <option value="Zorggids">🏥 Zorggids</option>
+    <option value="SocialeGids">⚖️ Sociale Gids</option>
+    <option value="CCV">🤝 CCV-VZW</option>
 
-        </select>
+</select>
+
+        <select id="aiKnowledgeCategory">
+
+    <option value="FODMAP">
+        FODMAP
+    </option>
+
+    <option value="Dieet">
+        Dieet
+    </option>
+
+    <option value="Recepten">
+        Recepten
+    </option>
+
+    <option value="Ademhaling">
+        Ademhaling
+    </option>
+
+    <option value="Meditatie">
+        Meditatie
+    </option>
+
+    <option value="IBD Centra">
+        IBD Centra
+    </option>
+
+    <option value="Invaliditeit">
+        Invaliditeit
+    </option>
+
+</select>
 
         <button
             class="btn btn-primary"
@@ -1731,6 +1763,9 @@ const ZORGGIDS_FILE_ID =
 const SOCIAAL_FILE_ID =
 "2B4CCFD79FF4714A!s09b56869ffc746f18ad85e4eb6281593";
 
+const AI_KNOWLEDGE_FILE_ID =
+"2B4CCFD79FF4714A!sfc2ae7add5d6421a90a0a97eca166b37";
+
 const GROUPS_FILE_ID =
 "2B4CCFD79FF4714A!s44957b6e7ec24c87aa0445d636d4e02c";
 
@@ -2157,7 +2192,32 @@ async function saveSociaalDB(data){
 
 }
 
+async function loadAIKnowledge(){
 
+    try{
+
+        return await loadCCVJson(
+            AI_KNOWLEDGE_FILE_ID
+        );
+
+    }
+
+    catch{
+
+        return [];
+
+    }
+
+}
+
+async function saveAIKnowledge(data){
+
+    await saveCCVJson(
+        AI_KNOWLEDGE_FILE_ID,
+        data
+    );
+
+}
 // =========================
 // GROUPS DATABASE
 // =========================
@@ -9978,14 +10038,20 @@ async function runAIKnowledgeSearch(){
             zoekterm
         );
 
-    currentAIKnowledge = [{
+   currentAIKnowledge = [{
 
-        id: Date.now(),
+    id: Date.now(),
 
-        title: zoekterm,
+   hoofdgroep: groep,
 
-        groep: groep,
+categorie:
+    document.getElementById(
+        "aiKnowledgeCategory"
+    ).value,
 
+    title: zoekterm,
+
+    groep: groep,
         bron: zoekUrl,
 
         samenvatting:
@@ -10022,7 +10088,7 @@ async function runAIKnowledgeSearch(){
             <br><br>
 
             <a href="${zoekUrl}"
-               target="_n
+               target="_blank"
 
             </a>
 
@@ -10039,138 +10105,114 @@ async function saveAIKnowledgeResult(){
         return;
     }
 
-    const item =
-    currentAIKnowledge[0];
+    const data =
+        await loadAIKnowledge();
 
-    switch(item.groep){
+    data.unshift(
+        currentAIKnowledge[0]
+    );
 
-        case "Voeding":
-
-            const voeding =
-            await loadVoedingDB();
-
-            voeding.unshift(item);
-
-            await saveVoedingDB(
-                voeding
-            );
-
-            break;
-
-        case "Mindfulness":
-
-            const mind =
-            await loadMindfulnessDB();
-
-            mind.unshift(item);
-
-            await saveMindfulnessDB(
-                mind
-            );
-
-            break;
-
-        case "Zorggids":
-
-            const zorg =
-            await loadZorggidsDB();
-
-            zorg.unshift(item);
-
-            await saveZorggidsDB(
-                zorg
-            );
-
-            break;
-
-        case "SocialeGids":
-
-            const sociaal =
-            await loadSociaalDB();
-
-            sociaal.unshift(item);
-
-            await saveSociaalDB(
-                sociaal
-            );
-
-            break;
-
-        case "CCV":
-
-            const docs =
-            await loadDocuments();
-
-            docs.unshift(item);
-
-            await saveDocuments(
-                docs
-            );
-
-            break;
-    }
+    await saveAIKnowledge(
+        data
+    );
 
     showNotification(
         "✅ AI item opgeslagen"
     );
-await renderKnowledgeGraph();
+
 }
 
 async function renderAIBibliotheek(){
 
-    const voeding =
-        await loadVoedingDB();
+    const alles =
+        await loadAIKnowledge();
 
-    const mindfulness =
-        await loadMindfulnessDB();
+    const groepen = {
 
-    const zorg =
-        await loadZorggidsDB();
+        Voeding: [],
+        Mindfulness: [],
+        Zorggids: [],
+        SocialeGids: [],
+        CCV: []
 
-    const sociaal =
-        await loadSociaalDB();
+    };
 
-    const alles = [
+    alles.forEach(item => {
 
-        ...voeding,
-        ...mindfulness,
-        ...zorg,
-        ...sociaal
+        if(
+            groepen[item.hoofdgroep]
+        ){
+            groepen[
+                item.hoofdgroep
+            ].push(item);
+        }
 
-    ];
+    });
 
-    document.getElementById(
-        "bibliotheekContent"
-    ).innerHTML =
+    let html =
+        "<h2>📚 AI Bibliotheek</h2>";
 
-        alles.length
-        ?
+    const icons = {
 
-        alles.map(item => `
+        Voeding: "🍎",
+        Mindfulness: "🧘",
+        Zorggids: "🏥",
+        SocialeGids: "⚖️",
+        CCV: "🤝"
+
+    };
+
+    Object.keys(groepen)
+    .forEach(groep => {
+
+        if(
+            groepen[groep].length === 0
+        ){
+            return;
+        }
+
+        html += `
 
             <div class="card">
 
                 <h3>
-                    ${item.title}
+
+                    ${icons[groep]}
+                    ${groep}
+
                 </h3>
-
-                📂 ${item.groep}
-
-                <br><br>
-
-                ${item.samenvatting || ''}
 
             </div>
 
-        `).join("")
-
-        :
-
-        `
-        <div class="card">
-            Nog geen AI kennis opgeslagen.
-        </div>
         `;
+
+        groepen[groep]
+        .forEach(item => {
+
+            html += `
+
+                <div class="card">
+
+                    <b>
+                        ${item.title}
+                    </b>
+
+                    <br>
+
+                    ${item.samenvatting || ""}
+
+                </div>
+
+            `;
+
+        });
+
+    });
+
+    document.getElementById(
+        "bibliotheekContent"
+    ).innerHTML = html;
+
 }
 
 async function runCCVAI(){

@@ -11501,6 +11501,45 @@ await loadTasks();
 
     ];
 
+    const alleBronnen = [
+
+    ...docs.map(d => ({
+        type:"Document",
+        title:d.title,
+        content:
+            d.samenvatting || ""
+    })),
+
+    ...taken.map(t => ({
+        type:"Taak",
+        title:t.title,
+        content:
+            JSON.stringify(t)
+    })),
+
+    ...projecten.map(p => ({
+        type:"Project",
+        title:p.title,
+        content:
+            p.notes || ""
+    })),
+
+    ...mailboxen.map(m => ({
+        type:"Mailbox",
+        title:m.naam,
+        content:
+            JSON.stringify(m)
+    })),
+
+    ...knowledge.map(f => ({
+        type:"FAQ",
+        title:f.title,
+        content:
+            f.content || ""
+    }))
+
+];
+
 if(intent === "medicatie"){
 
     const medicatieDocs =
@@ -11657,45 +11696,95 @@ if(intent === "project"){
 }
 
     const resultaten =
-        alles.filter(item =>
 
-            JSON.stringify(item)
-                .toLowerCase()
-                .includes(q)
+    alleBronnen.filter(item =>
 
-        );
+        (
+            item.title +
 
-    const html = resultaten.length
+            " " +
 
-        ? resultaten.map(item => `
+            item.content
 
-            <div class="card">
+        )
+        .toLowerCase()
+        .includes(q)
 
-                <h3>
-                    ${item.title || item.fileName}
-                </h3>
+    );
+const groepen = {};
+resultaten.forEach(r => {
 
-                <p>
-                    ${
-                        item.samenvatting ||
-                        item.content ||
-                        ""
-                    }
-                </p>
+    if(!groepen[r.type]){
+
+        groepen[r.type] = [];
+
+    }
+
+    groepen[r.type].push(r);
+
+});
+let html =
+
+`
+
+<h2>
+
+🧠 CCV AI Antwoord
+
+</h2>
+
+`;
+Object.keys(groepen)
+
+.forEach(type => {
+
+    html += `
+
+        <div class="card">
+
+            <h3>
+
+                ${type}
+
+            </h3>
+
+    `;
+
+    groepen[type]
+
+    .slice(0,5)
+
+    .forEach(item => {
+
+        html += `
+
+            <div>
+
+                ✅ ${item.title}
 
             </div>
 
-        `).join("")
+        `;
 
-        :
+    });
 
-        `<div class="card">
-            Geen informatie gevonden.
-        </div>`;
+    html +=
 
+        `
+
+        </div>
+
+        `;
+
+});
+    
     document.getElementById(
-        "ccvAiResult"
-    ).innerHTML = html;
+
+    "ccvAiResult"
+
+).innerHTML = html;
+
+return;
 
 }
 

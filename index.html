@@ -472,6 +472,37 @@ console.log("PDF TEST", window.pdfjsLib);
       font-size: 13px;
     }
 
+    .medlib-grid{
+    display:grid;
+    grid-template-columns:
+        repeat(auto-fit,minmax(300px,1fr));
+    gap:20px;
+}
+
+.medlib-column{
+    background:white;
+    border-radius:12px;
+    padding:15px;
+    box-shadow:0 2px 8px rgba(0,0,0,.08);
+}
+
+.medlib-column h3{
+    border-bottom:2px solid #eee;
+    padding-bottom:10px;
+    margin-bottom:10px;
+}
+
+.medlib-doc{
+    padding:10px;
+    margin-bottom:10px;
+    background:#f8f9fa;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+.medlib-doc:hover{
+    background:#eef2ff;
+}
     @media (max-width: 768px) {
       .language-selector {
         position: static;
@@ -1332,6 +1363,7 @@ onclick="switchCCVTab(event,'archief')">
       <button class="tab-btn" onclick="switchCCVTab(event,'documenten')">📄 Documenten</button>
       <button class="tab-btn" onclick="switchCCVTab(event,'werkdocumenten')">⭐ Werkdocumenten</button>
       <button class="tab-btn" onclick="switchCCVTab(event,'recentewerkdocs')">⚡ Recente Werkdocumenten</button>
+      <button class="tab-btn" onclick="switchCCVTab(event,'medbib')">📚 Medische Bibliotheek</button>
       <button class="tab-btn" onclick="switchCCVTab(event,'leden')">👤 Leden</button>
       <button class="tab-btn" onclick="switchCCVTab(event,'users')">⚙ Gebruikers</button>
     </div>
@@ -5446,6 +5478,9 @@ if(tab==='knowledge')
 if(tab==='recentewerkdocs')
     await renderRecentWerkdocumenten();
 
+    if(tab==='medbib')
+    await renderMedicalLibrary();
+
   if(tab==='leden')
     await renderMembers();
 
@@ -5541,6 +5576,39 @@ async function loadWerkdocumenten(){
 
 </div>
     `;
+}
+
+function classifyMedicalDocument(name){
+
+    const file =
+        name.toLowerCase();
+
+    if(
+        file.includes("woordenlijst") ||
+        file.includes("terminologie") ||
+        file.includes("afkortingen")
+    ){
+        return "woordenlijst";
+    }
+
+    if(
+        file.includes("medicatie") ||
+        file.includes("biologic") ||
+        file.includes("geneesmiddel")
+    ){
+        return "medicatie";
+    }
+
+    if(
+        file.includes("vertaling") ||
+        file.includes("engels") ||
+        file.includes("frans") ||
+        file.includes("nederlands")
+    ){
+        return "vertaling";
+    }
+
+    return "glossary";
 }
 
 async function renderRecentWerkdocumenten(){
@@ -5661,6 +5729,141 @@ async function renderRecentWerkdocumenten(){
         "ccvContent"
     ).innerHTML = html;
 
+}
+
+async function renderMedicalLibrary(){
+
+    const token =
+        await getAccessToken();
+
+    const MEDICAL_FOLDER_ID =
+        "HIER_JOUW_MAP_ID";
+
+    const response =
+        await fetch(
+            `https://graph.microsoft.com/v1.0/me/drive/items/${MEDICAL_FOLDER_ID}/children`,
+            {
+                headers:{
+                    Authorization:
+                        "Bearer " + token
+                }
+            }
+        );
+
+    const data =
+        await response.json();
+
+    const groepen = {
+
+        woordenlijst: [],
+        medicatie: [],
+        vertaling: [],
+        glossary: []
+
+    };
+
+    data.value.forEach(file=>{
+
+        if(file.folder)
+            return;
+
+        const categorie =
+            classifyMedicalDocument(
+                file.name
+            );
+
+        groepen[categorie]
+            .push(file);
+
+    });
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+    <h2>📚 Medische Bibliotheek</h2>
+
+    <div class="medlib-grid">
+
+        <div class="medlib-column">
+
+            <h3>📚 Woordenlijsten</h3>
+
+            ${
+                groepen.woordenlijst.map(file=>`
+
+                <div class="medlib-doc"
+                     onclick="openFile('${file.id}')">
+
+                    📄 ${file.name}
+
+                </div>
+
+                `).join("")
+            }
+
+        </div>
+
+        <div class="medlib-column">
+
+            <h3>💊 Medicatie</h3>
+
+            ${
+                groepen.medicatie.map(file=>`
+
+                <div class="medlib-doc"
+                     onclick="openFile('${file.id}')">
+
+                    📄 ${file.name}
+
+                </div>
+
+                `).join("")
+            }
+
+        </div>
+
+        <div class="medlib-column">
+
+            <h3>🌍 Vertalingen</h3>
+
+            ${
+                groepen.vertaling.map(file=>`
+
+                <div class="medlib-doc"
+                     onclick="openFile('${file.id}')">
+
+                    📄 ${file.name}
+
+                </div>
+
+                `).join("")
+            }
+
+        </div>
+
+        <div class="medlib-column">
+
+            <h3>📖 Glossary</h3>
+
+            ${
+                groepen.glossary.map(file=>`
+
+                <div class="medlib-doc"
+                     onclick="openFile('${file.id}')">
+
+                    📄 ${file.name}
+
+                </div>
+
+                `).join("")
+            }
+
+        </div>
+
+    </div>
+
+    `;
 }
 
 async function renderTaken(){

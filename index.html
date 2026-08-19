@@ -9065,17 +9065,35 @@ function renderDriveItems(items){
                 }"
             >
 
-                <h3>
+                <div style="
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+">
 
-                    ${
-                        item.folder
-                        ? '📁'
-                        : '📄'
-                    }
+    <h3 style="margin:0;">
+        ${item.folder ? "📁" : "📄"}
+        ${item.name}
+    </h3>
 
-                    ${item.name}
+    ${
+        item.folder
+        ?
+        `
+        <button
+            class="btn btn-warning btn-sm"
+            onclick="
+                event.stopPropagation();
+                scanFolderDocuments('${item.id}')
+            ">
+            🤖 AI
+        </button>
+        `
+        :
+        ''
+    }
 
-                </h3>
+</div>
 
             </div>
 

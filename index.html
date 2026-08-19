@@ -761,6 +761,7 @@ class="btn btn-primary"
       <button class="tab-btn" onclick="switchTab(event,'chatai')">🤖 CCV AI</button>
       <button class="tab-btn" onclick="switchTab(event,'aikennis')">🧠 AI Kenniscentrum</button>
       <button class="tab-btn" onclick="switchTab(event,'aibibliotheek')">📚 AI Bibliotheek</button>
+      <button class="tab-btn" onclick="switchTab(event,'aicheck')">🧠 AI Gezondheidscheck</button>
       <button class="tab-btn" onclick="switchTab(event, 'info')">ℹ️ Info</button>
       <button class="tab-btn" onclick="switchTab(event, 'websites')">🌐 Websites</button>
     </div>
@@ -1753,7 +1754,26 @@ Sociale Gids
       </div>
     </div>
   </div>
+<div id="aicheck"
+class="tab-content">
 
+    <div class="admin-section">
+
+        <div class="admin-title">
+
+            🧠 AI Gezondheidscheck
+
+        </div>
+
+        <div id="healthCheck">
+
+            Laden...
+
+        </div>
+
+    </div>
+
+</div>
   <div id="notification" class="notification"></div>
 
   <script>
@@ -3112,6 +3132,12 @@ if (tabName === 'aiapproved') {
 if(tabName === 'aibibliotheek'){
     renderAIBibliotheek();
 }
+
+if(tabName === 'aicheck'){
+    renderAIHealthCheck();
+}
+
+
 }
     function getAllowedSections() {
       const map = {
@@ -6295,10 +6321,28 @@ function analyseProject(project){
         };
     }
 
+    if(maandenInactief >= 6){
+
     return {
-        advies:"Actief",
-        reden:"Project loopt"
+        advies:"Risico",
+        reden:"180 dagen geen activiteit"
     };
+
+}
+
+if(maandenInactief >= 2){
+
+    return {
+        advies:"Opvolgen",
+        reden:"60 dagen geen activiteit"
+    };
+
+}
+
+return {
+    advies:"Gezond",
+    reden:"Project actief"
+};
 }
 
 async function renderProjects(){
@@ -7025,7 +7069,13 @@ function analyseMailboxRisk(mailbox){
 async function analyseMailboxWarnings(mailbox){
 
     const warnings = [];
-
+if(
+    mailbox.actief === false
+){
+    warnings.push(
+        "⚠️ Mailbox is inactief"
+    );
+}
     const users =
         await loadUsers();
 
@@ -10240,9 +10290,10 @@ console.log(
         "AI BUTTON GEKLIKT"
     );
 
-    alert(
-        "AI Analyse gestart"
-    );
+    document.getElementById(
+    "aiScanStatus"
+).innerHTML =
+"🤖 AI Analyse gestart...";
 
     const token =
         await getAccessToken();
@@ -10270,6 +10321,7 @@ console.log(
 );
 
     const results = [];
+    const duplicateWarnings = [];
 
     for(
     const file
@@ -10340,7 +10392,27 @@ catch(error){
         "RESULTAAT:",
         analyse
     );
+const duplicaat =
+    results.find(r =>
+        r.fileName
+        .replace("(1)","")
+        .trim()
+        ===
+        file.name
+        .replace("(1)","")
+        .trim()
+    );
 
+if(duplicaat){
+
+    duplicateWarnings.push({
+        origineel:
+            duplicaat.fileName,
+        duplicaat:
+            file.name
+    });
+
+}
        results.push({
 
     fileName:
@@ -10435,7 +10507,30 @@ container.innerHTML =
 
         </div>
     `).join("");
+if(
+    duplicateWarnings.length
+){
 
+    container.innerHTML +=
+        duplicateWarnings
+        .map(d => `
+            <div class="card">
+
+                ⚠ Mogelijk duplicaat
+
+                <br><br>
+
+                ${d.origineel}
+
+                <br>
+
+                ${d.duplicaat}
+
+            </div>
+        `)
+        .join("");
+
+}
 scanRunning = false;
 
 document.getElementById(
@@ -11319,12 +11414,38 @@ async function reanalyseKnowledge(id){
 
 }
 
+function detectAIIntent(vraag){
+
+    vraag = vraag.toLowerCase();
+
+    if(vraag.includes("medicatie")){
+        return "medicatie";
+    }
+
+    if(vraag.includes("werk")){
+        return "werk";
+    }
+
+    if(vraag.includes("mailbox")){
+        return "mailbox";
+    }
+
+    if(vraag.includes("project")){
+        return "project";
+    }
+
+    return "zoeken";
+}
+
 async function runCCVAI(){
 
     const q =
         document.getElementById(
             "ccvAiInput"
         ).value.toLowerCase();
+
+const intent =
+    detectAIIntent(q);
 
     const aiKnowledge =
         await loadAIKnowledge();
@@ -11335,6 +11456,15 @@ async function runCCVAI(){
     const docs =
         await loadDocuments();
 
+    const mailboxen =
+await loadMailboxes();
+
+const projecten =
+await loadProjects();
+
+const taken =
+await loadTasks();
+
     const alles = [
 
         ...aiKnowledge,
@@ -11342,6 +11472,32 @@ async function runCCVAI(){
         ...docs
 
     ];
+
+if(intent === "medicatie"){
+
+    const medicatieDocs =
+        docs.filter(d =>
+            (
+                d.categorie ||
+                ""
+            )
+            .toLowerCase()
+            .includes("medicatie")
+        );
+
+    document.getElementById(
+        "ccvAiResult"
+    ).innerHTML =
+        medicatieDocs
+        .map(d => `
+            <div class="card">
+                💊 ${d.title}
+            </div>
+        `)
+        .join("");
+
+    return;
+}
 
     const resultaten =
         alles.filter(item =>
@@ -11508,6 +11664,120 @@ async function runNaturalLanguage(){
 
 }
 
+async function renderAIHealthCheck(){
+
+    const docs =
+        await loadDocuments();
+
+    const mailboxen =
+        await loadMailboxes();
+
+    const projecten =
+        await loadProjects();
+
+    const zonderCategorie =
+        docs.filter(d =>
+            !d.categorie
+        );
+
+    const zonderEigenaar =
+    mailboxen.filter(m =>
+
+        !m.gebruikers ||
+
+        !m.gebruikers.find(g =>
+
+            g.rol === "Eigenaar"
+
+        )
+
+    );
+
+const zonderGebruikers =
+    mailboxen.filter(m =>
+
+        !m.gebruikers ||
+
+        m.gebruikers.length === 0
+
+    );
+
+const inactief =
+    mailboxen.filter(m =>
+
+        m.actief === false
+
+    );
+
+const onbekendeGebruikers = [];
+
+const users =
+    await loadUsers();
+
+    mailboxen.forEach(mailbox => {
+
+    (
+        mailbox.gebruikers || []
+    )
+    .forEach(g => {
+
+        const bestaat =
+            users.find(u =>
+
+                u.name === g.naam
+
+            );
+
+        if(!bestaat){
+
+            onbekendeGebruikers.push(
+                g.naam
+            );
+
+        }
+
+    });
+
+});
+
+   document.getElementById(
+    "healthCheck"
+).innerHTML = `
+
+<div class="card">
+
+    <h2>
+        🧠 AI Gezondheidscheck
+    </h2>
+
+    <br>
+        📦 Totaal mailboxen:
+    <b>${mailboxen.length}</b>
+
+    <br><br>
+
+    📬 Mailboxen zonder eigenaar:
+    <b>${zonderEigenaar.length}</b>
+
+    <br><br>
+
+    📬 Mailboxen zonder gebruikers:
+    <b>${zonderGebruikers.length}</b>
+
+    <br><br>
+
+    📬 Inactieve mailboxen:
+    <b>${inactief.length}</b>
+
+    <br><br>
+
+    📬 Onbekende gebruikers:
+    <b>${onbekendeGebruikers.length}</b>
+
+</div>
+
+`;
+}
 
 // INIT
 renderVoeding('dieet');

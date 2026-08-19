@@ -7099,11 +7099,15 @@ async function renderMailboxes(){
         data.length;
 
     const totaalGebruikers =
-        data.reduce(
-            (a,m) =>
-            a + m.gebruikers.length,
-            0
-        );
+    data.reduce(
+        (a,m) =>
+        a + (
+            m.gebruikers
+            ? m.gebruikers.length
+            : 0
+        ),
+        0
+    );
 
     let html = `
 

@@ -5753,14 +5753,7 @@ async function renderMedicalLibrary(){
     const data =
         await response.json();
 
-    const groepen = {
-
-        woordenlijst: [],
-        medicatie: [],
-        vertaling: [],
-        glossary: []
-
-    };
+    const groepen = {};
 
     data.value.forEach(file=>{
 
@@ -5772,8 +5765,13 @@ async function renderMedicalLibrary(){
                 file.name
             );
 
-        groepen[categorie]
-            .push(file);
+        if(!groepen[categorie]){
+
+    groepen[categorie] = [];
+
+}
+
+groepen[categorie].push(file);
 
     });
 
@@ -9135,20 +9133,88 @@ async function analyseDocumentContent(
     let categorie = "Onderzoek";
     let confidence = 90;
    const scores = {
-    "Medicatie": 0,
-    "Voeding": 0,
-    "FODMAP": 0,
-    "Diëten": 0,
-    "Recepten": 0,
-    "Supplementen": 0,
-    "Tekorten": 0,
-    "Gezonde keuzes": 0,
-    "Operatie": 0,
-    "Complicaties": 0,
-    "Dagelijks Leven": 0,
-    "Patiëntenrechten": 0,
-    "Onderzoek": 0
+
+    "Woordenlijsten":0,
+    "Medicatie":0,
+    "Vertalingen":0,
+    "Glossary":0,
+
+    "Medicatie IBD":0,
+    "Biologics":0,
+    "Immunosuppressiva":0,
+
+    "Onderzoek":0,
+    "Diagnostiek":0,
+    "Richtlijnen":0
+
 };
+
+if(lower.includes("verklarende woordenlijst"))
+    scores["Woordenlijsten"] += 25;
+
+if(lower.includes("woordenlijst"))
+    scores["Woordenlijsten"] += 15;
+
+if(lower.includes("afkortingen"))
+    scores["Woordenlijsten"] += 15;
+
+if(lower.includes("terminologie"))
+    scores["Woordenlijsten"] += 15;
+
+if(lower.includes("definitie"))
+    scores["Woordenlijsten"] += 10;
+
+if(lower.includes("infliximab"))
+    scores["Biologics"] += 25;
+
+if(lower.includes("adalimumab"))
+    scores["Biologics"] += 25;
+
+if(lower.includes("ustekinumab"))
+    scores["Biologics"] += 25;
+
+if(lower.includes("vedolizumab"))
+    scores["Biologics"] += 25;
+
+if(lower.includes("risankizumab"))
+    scores["Biologics"] += 25;
+
+if(lower.includes("geneesmiddel"))
+    scores["Medicatie"] += 15;
+
+if(lower.includes("medicatie"))
+    scores["Medicatie"] += 15;
+
+if(lower.includes("translation"))
+    scores["Vertalingen"] += 20;
+
+if(lower.includes("vertaling"))
+    scores["Vertalingen"] += 20;
+
+if(lower.includes("english"))
+    scores["Vertalingen"] += 10;
+
+if(lower.includes("engels"))
+    scores["Vertalingen"] += 10;
+
+if(lower.includes("nederlands"))
+    scores["Vertalingen"] += 10;
+
+if(lower.includes("frans"))
+    scores["Vertalingen"] += 10;
+
+if(lower.includes("glossary"))
+    scores["Glossary"] += 30;
+
+if(lower.includes("dictionary"))
+    scores["Glossary"] += 25;
+
+if(lower.includes("omschrijving"))
+    scores["Glossary"] += 10;
+
+if(lower.includes("term"))
+    scores["Glossary"] += 5;
+
     const tags = [];
 
     const zoekwoorden = [
@@ -9292,6 +9358,17 @@ categorie =
     Object.entries(scores)
         .sort((a,b) => b[1] - a[1])[0][0];
 
+const hoogste =
+    Math.max(
+        ...Object.values(scores)
+    );
+
+confidence =
+    Math.min(
+        hoogste * 3,
+        100
+    );
+
 console.log("SCORES", scores);
 
     const samenvatting =
@@ -9318,10 +9395,25 @@ console.log("SCORES", scores);
     colitisCount
 );
 
+let onderwerp = "";
+
+if(scores["Biologics"] > 20)
+    onderwerp = "Biologics";
+
+if(scores["Vertalingen"] > 20)
+    onderwerp = "ENG-NL";
+
+if(scores["Woordenlijsten"] > 20)
+    onderwerp = "IBD Terminologie";
+
+if(scores["Glossary"] > 20)
+    onderwerp = "ECCO";
+
     return {
 
     hoofdgroep,
     categorie,
+    onderwerp,
     tags,
     samenvatting,
     faq,

@@ -10216,7 +10216,16 @@ documenten verwerkt`;
 
 async function scanFolderDocuments(folderId){
 
-    scanRunning = true;
+        scanRunning = true;
+
+    document.getElementById(
+    "aiResultsContainer"
+).innerHTML = "";
+
+console.log(
+    "AI scan gestart voor map:",
+    folderId
+);
 
     document.getElementById(
         "aiScanStatus"

@@ -10105,7 +10105,18 @@ catch(error){
             file.name,
             analyse
         );
-       results.push({
+        
+      if(!analyse){
+
+    console.error(
+        "GEEN ANALYSE:",
+        file.name
+    );
+
+    continue;
+}
+
+results.push({
 
     fileName:
         file.name,

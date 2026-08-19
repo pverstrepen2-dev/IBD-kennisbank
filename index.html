@@ -11816,6 +11816,16 @@ async function renderAIHealthCheck(){
     const projecten =
         await loadProjects();
 
+    const taken =
+    await loadTasks();
+
+const meetings =
+    await loadMeetings();
+
+const members =
+    await loadMembers();
+
+
     const zonderCategorie =
         docs.filter(d =>
             !d.categorie
@@ -11849,6 +11859,21 @@ const inactief =
         m.actief === false
 
     );
+
+    const openTaken =
+    taken.filter(
+        t => t.status !== "Beëindigd"
+    ).length;
+
+const actieveProjecten =
+    projecten.filter(
+        p => p.status === "Actief"
+    ).length;
+
+const aankomendeVergaderingen =
+    meetings.filter(
+        m => new Date(m.date) >= new Date()
+    ).length;
 
 const onbekendeGebruikers = [];
 
@@ -11891,6 +11916,25 @@ const users =
         🧠 AI Gezondheidscheck
     </h2>
 
+    📋 Open taken:
+<b>${openTaken}</b>
+
+<br><br>
+
+📁 Actieve projecten:
+<b>${actieveProjecten}</b>
+
+<br><br>
+
+🗓️ Komende vergaderingen:
+<b>${aankomendeVergaderingen}</b>
+
+<br><br>
+
+👥 Leden:
+<b>${members.length}</b>
+
+<br><br>
     <br>
         📦 Totaal mailboxen:
     <b>${mailboxen.length}</b>

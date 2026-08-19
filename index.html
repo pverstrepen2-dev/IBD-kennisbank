@@ -589,7 +589,7 @@ class="btn btn-primary"
 
 <button
     class="btn btn-warning"
-    onclick="scanFolderDocuments()">
+    onclick="alert('Open eerst een map en gebruik daar AI Analyse')">
     🤖 AI Analyse
 </button>
 
@@ -8985,7 +8985,22 @@ updateBreadcrumb();
     ${item.folder ? "📁" : "📄"}
     ${item.name}
 </h3>
-
+${
+    item.folder
+    ?
+    `
+    <button
+        class="btn btn-warning"
+        onclick="
+            event.stopPropagation();
+            scanFolderDocuments('${item.id}')
+        ">
+        🤖 Analyseer map
+    </button>
+    `
+    :
+    ''
+}
 ${
     !item.folder && suggestFileName(item.name)
     ? `
@@ -10181,7 +10196,7 @@ documenten verwerkt`;
     }
 }
 
-async function scanFolderDocuments(){
+async function scanFolderDocuments(folderId){
 
     scanRunning = true;
 
@@ -10206,10 +10221,7 @@ async function scanFolderDocuments(){
         await getAccessToken();
         console.log("STAP 2 TOKEN OK");
 
-    const folderId =
-"2B4CCFD79FF4714A!s914e3bb09f4f437881e24d2b981aa540";
-
-    const response =
+      const response =
             await fetch(
             `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`,
             {

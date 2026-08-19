@@ -1366,6 +1366,7 @@ onclick="switchCCVTab(event,'archief')">
       <button class="tab-btn" onclick="switchCCVTab(event,'medbib')">📚 Medische Bibliotheek</button>
       <button class="tab-btn" onclick="switchCCVTab(event,'leden')">👤 Leden</button>
       <button class="tab-btn" onclick="switchCCVTab(event,'users')">⚙ Gebruikers</button>
+      <button class="tab-btn" onclick="switchCCVTab(event,'mailboxes')">📬 Mailboxen</button>
     </div>
 
     <!-- ✅ dropdown -->
@@ -1835,6 +1836,9 @@ const CCV_FILE_ID =
 
 const USERS_FILE_ID =
 "2B4CCFD79FF4714A!s020b00ce15934e67a3555487dc4048ec";
+
+const MAILBOXES_FILE_ID =
+"2B4CCFD79FF4714A!s44957b6e7ec24c87aa0445d636d4e02c";
 
 const WEBSITES_FILE_ID =
 "2B4CCFD79FF4714A!sd8b62adcd44343ca8e59b7578b20300b";
@@ -2339,6 +2343,22 @@ async function saveGroups(data){
 // =========================
 // USERS DATABASE
 // =========================
+
+async function loadMailboxes(){
+
+    try{
+
+        return await loadCCVJson(
+            MAILBOXES_FILE_ID
+        );
+
+    }
+    catch{
+
+        return [];
+
+    }
+}
 
 async function loadUsers(){
 

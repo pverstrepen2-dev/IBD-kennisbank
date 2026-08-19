@@ -3463,7 +3463,6 @@ if(currentHoofdgroep==='verenigingen'){
  'CCV Vereniging',
  'Crohn & Colitis Nederland',
  'IFCCA',
- 'EFCCA',
  'Overige Verenigingen',
  'FAQ Verenigingen'
 ],
@@ -4507,19 +4506,12 @@ if(
 <br>
 
 📌 Status:
-<span
-    style="
-        font-weight:bold;
-        color:
-            ${
-                item.status === 'Goedgekeurd'
-                ? 'green'
-                : 'orange'
-            };
-    "
->
-📌 Status:
-<span
+<span style="
+    font-weight:bold;
+    color:${item.status === 'Goedgekeurd'
+        ? 'green'
+        : 'orange'};
+">
     ${item.status || 'Concept'}
 </span>
 
@@ -4995,8 +4987,7 @@ if(toggleBtn){
         disease: diseases.join(', '),
         category: document.getElementById('newCategory').value,
         country: document.getElementById('newCountry').value,      
-        websiteGroup:document.getElementById('newWebsiteGroup')?.value || '',
-
+        
         websiteGroup: document.getElementById('newWebsiteGroup').value,
         type: document.getElementById('newType').value,
         language: document.getElementById('newLanguage').value,
@@ -5405,50 +5396,6 @@ async function saveDatabaseJson(){
         "database.json opgeslagen",
         response.status
     );
-}
-
-async function loadOneDriveFiles(){
-  console.log(
-    "ACTIVE ACCOUNT:",
-    msalInstance.getActiveAccount()
-);
-
-    try{
-
-        const token =
-            await getAccessToken();
-
-        const response =
-            await fetch(
-
-                "https://graph.microsoft.com/v1.0/me/drive/root/children",
-
-                {
-                    headers: {
-                        Authorization:
-                            "Bearer " + token
-                    }
-                }
-            );
-
-        const data =
-            await response.json();
-
-        console.log(
-            "OneDrive bestanden:",
-            data
-        );
-
-    }
-    catch(error){
-
-        console.error(
-            "OneDrive fout:",
-            error
-        );
-
-    }
-
 }
 
    populateFilters();
@@ -7677,30 +7624,22 @@ async function archiveProject(projectId){
 }
 
 async function renderArchive(){
-
     console.log("ARCHIEF GESTART");
 
-    const allData =
-        await loadCCV();
+    const allData = await loadArchive();
 
-    const data =
-        allData.filter(
-            x =>
-            x.status === 'Afgerond'
-            ||
+    const data = allData.filter(
+        x =>
+            x.status === 'Afgerond' ||
             x.status === 'Beëindigd'
-        );
+    );
 
-    document
-        .getElementById('ccvContent')
-        .innerHTML =
-
+    document.getElementById('ccvContent').innerHTML =
         data.map(item => `
             <div class="card">
                 <b>${item.title}</b>
                 <br>
-                📌 Status:
-                ${item.status}
+                📌 Status: ${item.status}
             </div>
         `).join('');
 }
@@ -7875,50 +7814,6 @@ Gebruik bij matige tot ernstige IBD`;
   }
 
 }
-
- function applyTemplate(category){
-
-  if(category === 'Oorzaken'){
-    f_title.value = 'Oorzaken van IBD';
-    f_content.value = `- Genetica
-- Immuunsysteem
-- Omgeving`;
-  }
-
-  if(category === 'Ziekteverloop'){
-    f_title.value = 'Ziekteverloop';
-    f_content.value = `Flare-ups en remissie wisselen elkaar af`;
-  }
-
-  if(category === 'Flare-ups'){
-    f_title.value = 'Flare-up';
-    f_content.value = `Symptomen: buikpijn, diarree`;
-  }
-
-  if(category === 'Remissie'){
-    f_title.value = 'Remissie';
-    f_content.value = `Rustfase zonder symptomen`;
-  }
-
-  if(category === 'Biologische therapie'){
-    f_title.value = 'Biologische therapie';
-    f_content.value = `Infliximab, Adalimumab`;
-  }
-
-  if(category === 'Ademhalingsoefeningen'){
-    f_title.value = '4-7-8 ademhaling';
-    f_content.value = `1. In 4
-2. Vasthouden 7
-3. Uit 8`;
-  }
-
-  if(category === 'BodyScan'){
-    f_title.value = 'Body Scan';
-    f_content.value = `Scan lichaam van hoofd naar voeten`;
-  }
-
-}
-
 
 async function saveCCVUniversal(type){
   let obj = {};

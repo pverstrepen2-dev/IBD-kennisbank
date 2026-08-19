@@ -605,6 +605,15 @@ class="btn btn-primary"
     📬 CCV-VZW Mail
 </button>
 
+<div
+    id="aiScanStatus"
+    class="card"
+    style="
+        margin-top:15px;
+        display:none;
+    ">
+</div>
+
 <div id="aiResultsContainer"
      style="
         margin-top:20px;
@@ -2495,6 +2504,8 @@ let oneDriveIndex = [];
 let currentAIResults = [];
 
 let aiProposals = [];
+
+let scanRunning = false;
 
 let currentAIKnowledge = [];
 
@@ -10162,14 +10173,34 @@ results.push({
         analyse.confidence || 90
 
 });
+document.getElementById(
+    "aiScanStatus"
+).innerHTML =
+`🤖 ${results.length}
+documenten verwerkt`;
     }
 }
 
 async function scanFolderDocuments(){
 
-    console.log("AI BUTTON GEKLIKT");
+    scanRunning = true;
 
-    alert("AI Analyse gestart");
+    document.getElementById(
+        "aiScanStatus"
+    ).style.display = "block";
+
+    document.getElementById(
+        "aiScanStatus"
+    ).innerHTML =
+    "🤖 AI analyse loopt...";
+
+    console.log(
+        "AI BUTTON GEKLIKT"
+    );
+
+    alert(
+        "AI Analyse gestart"
+    );
 
     const token =
         await getAccessToken();
@@ -10300,7 +10331,11 @@ catch(error){
     confidence:
         analyse.confidence || 90
 });
-
+document.getElementById(
+    "aiScanStatus"
+).innerHTML =
+`🤖 ${results.length}
+documenten verwerkt`;
 }
 console.log(
     "RESULTATEN:",
@@ -10362,7 +10397,15 @@ container.innerHTML =
         </div>
     `).join("");
 
+scanRunning = false;
 
+document.getElementById(
+    "aiScanStatus"
+).innerHTML =
+`✅ AI analyse voltooid
+
+${results.length}
+documenten verwerkt`;
     return results;
 }
 

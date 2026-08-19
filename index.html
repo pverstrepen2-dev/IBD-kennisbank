@@ -9145,7 +9145,22 @@ async function analyseDocumentContent(
 
     "Onderzoek":0,
     "Diagnostiek":0,
-    "Richtlijnen":0
+    "Richtlijnen":0,
+
+    "Voeding":0,
+    "Werk":0,
+    "Psychosociaal":0,
+    "Operaties":0,
+
+    "Operatie":0,
+"Complicaties":0,
+"Dagelijks Leven":0,
+"Patiëntenrechten":0,
+"FODMAP":0,
+"Recepten":0,
+"Supplementen":0,
+"Tekorten":0,
+"Gezonde keuzes":0
 
 };
 
@@ -9214,6 +9229,53 @@ if(lower.includes("omschrijving"))
 
 if(lower.includes("term"))
     scores["Glossary"] += 5;
+
+// VOEDING
+
+if(lower.includes("voeding"))
+    scores["Voeding"] += 30;
+
+if(lower.includes("dieet"))
+    scores["Voeding"] += 20;
+
+if(lower.includes("voedingstips"))
+    scores["Voeding"] += 30;
+
+if(lower.includes("gezonde voeding"))
+    scores["Voeding"] += 20;
+
+if(lower.includes("werk"))
+    scores["Werk"] += 30;
+
+if(lower.includes("werkgever"))
+    scores["Werk"] += 30;
+
+if(lower.includes("werknemer"))
+    scores["Werk"] += 30;
+
+if(lower.includes("arbeid"))
+    scores["Werk"] += 20;
+
+if(lower.includes("psychosocial"))
+    scores["Psychosociaal"] += 40;
+
+if(lower.includes("stress"))
+    scores["Psychosociaal"] += 20;
+
+if(lower.includes("somber"))
+    scores["Psychosociaal"] += 20;
+
+if(lower.includes("angstig"))
+    scores["Psychosociaal"] += 20;
+
+if(lower.includes("stoma"))
+    scores["Operaties"] += 40;
+
+if(lower.includes("operatie"))
+    scores["Operaties"] += 30;
+
+if(lower.includes("fistel"))
+    scores["Operaties"] += 30;
 
     const tags = [];
 
@@ -9370,6 +9432,13 @@ confidence =
     );
 
 console.log("SCORES", scores);
+console.table(scores);
+
+console.log(
+    "WINNAAR:",
+    categorie
+);
+
 
     const samenvatting =
         generateSummary(text);
@@ -9408,6 +9477,18 @@ if(scores["Woordenlijsten"] > 20)
 
 if(scores["Glossary"] > 20)
     onderwerp = "ECCO";
+
+if(scores["Voeding"] > 20)
+    onderwerp = "Voeding & Dieet";
+
+if(scores["Werk"] > 20)
+    onderwerp = "Arbeid & IBD";
+
+if(scores["Psychosociaal"] > 20)
+    onderwerp = "Mentale Ondersteuning";
+
+if(scores["Operaties"] > 20)
+    onderwerp = "Chirurgie & Stoma";
 
     return {
 

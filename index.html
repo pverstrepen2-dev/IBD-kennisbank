@@ -1838,7 +1838,7 @@ const USERS_FILE_ID =
 "2B4CCFD79FF4714A!s020b00ce15934e67a3555487dc4048ec";
 
 const MAILBOXES_FILE_ID =
-"2B4CCFD79FF4714A!s44957b6e7ec24c87aa0445d636d4e02c";
+"2B4CCFD79FF4714A!s4f54ff02aaa440adbbe749c2cdca4f63";
 
 const WEBSITES_FILE_ID =
 "2B4CCFD79FF4714A!sd8b62adcd44343ca8e59b7578b20300b";
@@ -5507,6 +5507,9 @@ if(tab==='recentewerkdocs')
      if(tab==='users')
     await renderUsers();
 
+     if(tab==='mailboxes')
+    await renderMailboxes();
+
   if(tab==='agenda')
     await renderAgenda();
 
@@ -6947,6 +6950,293 @@ ${d.role ? `🏷️ ${d.role}<br>` : ''}
 });
 
   document.getElementById('ccvContent').innerHTML = html;
+}
+
+function analyseUserPermission(user){
+
+    if(
+        user.rol ===
+        "Eigenaar"
+    ){
+        return "🤖 AI: volledige controle";
+    }
+
+    if(
+        user.rol ===
+        "Volledige toegang"
+    ){
+        return "🤖 AI: mailbox beheren";
+    }
+
+    if(
+        user.rol ===
+        "Verzenden namens"
+    ){
+        return "🤖 AI: kan mail versturen";
+    }
+
+    if(
+        user.rol ===
+        "Lezen"
+    ){
+        return "🤖 AI: enkel lezen";
+    }
+
+    return "🤖 AI: onbekende rol";
+
+}
+
+function analyseMailboxRisk(mailbox){
+
+    const volledigeToegang =
+        mailbox.gebruikers.filter(
+            g =>
+            g.rol ===
+            "Volledige toegang"
+        ).length;
+
+    if(
+        volledigeToegang >= 5
+    ){
+        return "🔴 Hoog";
+    }
+
+    if(
+        volledigeToegang >= 3
+    ){
+        return "🟠 Middel";
+    }
+
+    return "🟢 Laag";
+
+}
+
+async function analyseMailboxWarnings(mailbox){
+
+    const warnings = [];
+
+    const users =
+        await loadUsers();
+
+    // geen gebruikers
+
+    if(
+        !mailbox.gebruikers ||
+        mailbox.gebruikers.length === 0
+    ){
+
+        warnings.push(
+            "⚠️ Geen gebruikers gekoppeld"
+        );
+
+    }
+
+    // geen eigenaar
+
+    const eigenaar =
+        mailbox.gebruikers?.find(
+            g =>
+                g.rol === "Eigenaar"
+        );
+
+    if(!eigenaar){
+
+        warnings.push(
+            "⚠️ Geen eigenaar opgegeven"
+        );
+
+    }
+
+    // gebruiker niet gekend
+
+    mailbox.gebruikers?.forEach(g => {
+
+        const bestaat =
+            users.find(
+                u =>
+                    u.name === g.naam
+            );
+
+        if(!bestaat){
+
+            warnings.push(
+                "⚠️ " +
+                g.naam +
+                " staat niet in users.json"
+            );
+
+        }
+
+    });
+
+    // teveel volledige toegang
+
+    const fullAccess =
+        mailbox.gebruikers.filter(
+            g =>
+                g.rol ===
+                "Volledige toegang"
+        ).length;
+
+    if(fullAccess >= 5){
+
+        warnings.push(
+            "⚠️ Meer dan 5 gebruikers met volledige toegang"
+        );
+
+    }
+
+    return warnings;
+
+}
+  
+async function renderMailboxes(){
+
+    const data =
+        await loadMailboxes();
+
+    const totaalMailboxen =
+        data.length;
+
+    const totaalGebruikers =
+        data.reduce(
+            (a,m) =>
+            a + m.gebruikers.length,
+            0
+        );
+
+    let html = `
+
+    <h2>📬 Mailboxbeheer</h2>
+
+    <div class="card">
+
+        📦 Mailboxen:
+        <b>${totaalMailboxen}</b>
+
+        <br>
+
+        👥 Gebruikers:
+        <b>${totaalGebruikers}</b>
+
+    </div>
+
+    `;
+
+    for(const mailbox of data){
+
+    const risiconiveau =
+        analyseMailboxRisk(mailbox);
+
+    const warnings =
+        await analyseMailboxWarnings(
+            mailbox
+        );
+
+    html += `
+
+    <div class="card">
+
+        <h3>
+            ${mailbox.naam}
+        </h3>
+
+        📧 ${mailbox.mailbox}
+        <br>
+
+        📦 ${mailbox.type}
+
+        <br><br>
+
+        🤖 AI Risico:
+        <b>${risiconiveau}</b>
+${
+
+risiconiveau === "🔴 Hoog"
+
+?
+
+`
+<br>
+⚠️ Veel gebruikers met
+volledige toegang
+`
+
+:
+
+""
+
+}
+        <br><br>
+
+        ${
+            warnings.length
+
+            ?
+
+            `
+            <div
+            style="
+                background:#fff3cd;
+                padding:10px;
+                border-radius:8px;
+                margin-bottom:10px;
+            ">
+
+                ${warnings.join("<br>")}
+
+            </div>
+            `
+
+            :
+
+            `
+            <div
+            style="
+                background:#d4edda;
+                padding:10px;
+                border-radius:8px;
+                margin-bottom:10px;
+            ">
+                ✅ Geen problemen gevonden
+            </div>
+            `
+        }
+
+        ${
+            mailbox.gebruikers.map(user => `
+
+                <div
+                style="
+                    padding:10px;
+                    margin-bottom:8px;
+                    background:#f5f7fb;
+                    border-radius:8px;
+                ">
+
+                    <b>${user.naam}</b>
+
+                    <br>
+
+                    🛡️ ${user.rol}
+
+                    <br>
+
+                    ${analyseUserPermission(user)}
+
+                </div>
+
+            `).join("")
+        }
+
+    </div>
+
+    `;
+}
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = html;
 }
 
 async function renderUsers(){

@@ -9444,6 +9444,7 @@ async function analyseDocumentContent(
     let confidence = 90;
    const scores = {
 
+    "Algemene Informatie":0,
     "Woordenlijsten":0,
     "Medicatie":0,
     "Vertalingen":0,
@@ -9488,6 +9489,21 @@ if(lower.includes("terminologie"))
 
 if(lower.includes("definitie"))
     scores["Woordenlijsten"] += 10;
+
+if(lower.includes("colitis ulcerosa"))
+    scores["Algemene Informatie"] += 50;
+
+if(lower.includes("ziekte van crohn"))
+    scores["Algemene Informatie"] += 50;
+
+if(lower.includes("wat is ibd"))
+    scores["Algemene Informatie"] += 40;
+
+if(lower.includes("wat is colitis"))
+    scores["Algemene Informatie"] += 40;
+
+if(lower.includes("wat is crohn"))
+    scores["Algemene Informatie"] += 40;
 
 if(lower.includes("infliximab"))
     scores["Biologics"] += 25;
@@ -9543,28 +9559,28 @@ if(lower.includes("term"))
 // VOEDING
 
 if(lower.includes("voeding"))
-    scores["Voeding"] += 30;
+    scores["Voeding"] += 8;
 
 if(lower.includes("dieet"))
-    scores["Voeding"] += 20;
+    scores["Voeding"] += 8;
 
 if(lower.includes("voedingstips"))
-    scores["Voeding"] += 30;
+    scores["Voeding"] += 15;
 
 if(lower.includes("gezonde voeding"))
-    scores["Voeding"] += 20;
+    scores["Voeding"] += 10;
 
 if(lower.includes("werk"))
-    scores["Werk"] += 30;
+    scores["Werk"] += 5;
 
 if(lower.includes("werkgever"))
-    scores["Werk"] += 30;
+    scores["Werk"] += 10;
 
 if(lower.includes("werknemer"))
-    scores["Werk"] += 30;
+    scores["Werk"] += 10;
 
 if(lower.includes("arbeid"))
-    scores["Werk"] += 20;
+    scores["Werk"] += 10;
 
 if(lower.includes("psychosocial"))
     scores["Psychosociaal"] += 40;
@@ -9776,42 +9792,41 @@ console.log(
 
 let onderwerp = "";
 
-if(scores["Biologics"] > 20)
-    onderwerp = "Biologics";
+switch(categorie){
 
-if(scores["Vertalingen"] > 20)
-    onderwerp = "ENG-NL";
+    case "Biologics":
+        onderwerp = "Biologics";
+        break;
 
-if(scores["Woordenlijsten"] > 20)
-    onderwerp = "IBD Terminologie";
+    case "Operaties":
+        onderwerp = "Chirurgie & Stoma";
+        break;
 
-if(scores["Glossary"] > 20)
-    onderwerp = "ECCO";
+    case "Voeding":
+        onderwerp = "Voeding & Dieet";
+        break;
 
-if(scores["Voeding"] > 20)
-    onderwerp = "Voeding & Dieet";
+    case "Werk":
+        onderwerp = "Arbeid & IBD";
+        break;
 
-if(scores["Werk"] > 20)
-    onderwerp = "Arbeid & IBD";
+    case "Psychosociaal":
+        onderwerp = "Mentale Ondersteuning";
+        break;
 
-if(scores["Psychosociaal"] > 20)
-    onderwerp = "Mentale Ondersteuning";
+    case "Woordenlijsten":
+        onderwerp = "IBD Terminologie";
+        break;
 
-if(scores["Operaties"] > 20)
-    onderwerp = "Chirurgie & Stoma";
+    case "Glossary":
+        onderwerp = "ECCO";
+        break;
 
-    return {
+    case "Algemene Informatie":
+        onderwerp = "IBD Basisinformatie";
+        break;
 
-    hoofdgroep,
-    categorie,
-    onderwerp,
-    tags,
-    samenvatting,
-    faq,
-    zoekindex,
-    confidence
-
-};
+}
 }
 
 function generateSummary(text){

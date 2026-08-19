@@ -11426,13 +11426,41 @@ function detectAIIntent(vraag){
         return "werk";
     }
 
-    if(vraag.includes("mailbox")){
-        return "mailbox";
-    }
+    if(
 
-    if(vraag.includes("project")){
-        return "project";
-    }
+    vraag.includes("mailbox")
+
+    ||
+
+    vraag.includes("mailboxen")
+
+    ||
+
+    vraag.includes("eigenaar")
+
+){
+
+    return "mailbox";
+
+}
+
+    if(
+
+    vraag.includes("project")
+
+    ||
+
+    vraag.includes("projecten")
+
+    ||
+
+    vraag.includes("activiteit")
+
+){
+
+    return "project";
+
+}
 
     return "zoeken";
 }
@@ -11494,6 +11522,135 @@ if(intent === "medicatie"){
                 💊 ${d.title}
             </div>
         `)
+        .join("");
+
+    return;
+}
+if(intent === "werk"){
+
+    const werkDocs =
+        docs.filter(d =>
+
+            JSON.stringify(d)
+            .toLowerCase()
+            .includes("werk")
+
+        );
+
+    document.getElementById(
+        "ccvAiResult"
+    ).innerHTML =
+
+        `<h3>💼 Documenten over werk</h3>`
+
+        +
+
+        werkDocs
+        .map(d => `
+
+            <div class="card">
+
+                📄 ${d.title}
+
+            </div>
+
+        `)
+        .join("");
+
+    return;
+}
+if(intent === "mailbox"){
+
+    const probleemMailboxen =
+
+        mailboxen.filter(m =>
+
+            !m.gebruikers ||
+
+            !m.gebruikers.find(g =>
+
+                g.rol === "Eigenaar"
+
+            )
+
+        );
+
+    document.getElementById(
+        "ccvAiResult"
+    ).innerHTML =
+
+        `<h3>📬 Mailboxen zonder eigenaar</h3>`
+
+        +
+
+        probleemMailboxen
+        .map(m => `
+
+            <div class="card">
+
+                📬 ${m.naam}
+
+            </div>
+
+        `)
+        .join("");
+
+    return;
+}
+if(intent === "project"){
+
+    const risicoProjecten =
+
+        projecten.filter(p => {
+
+            const analyse =
+                analyseProject(p);
+
+            return(
+
+                analyse.advies === "Risico"
+
+                ||
+
+                analyse.advies === "Opvolgen"
+
+            );
+
+        });
+
+    document.getElementById(
+        "ccvAiResult"
+    ).innerHTML =
+
+        `<h3>📁 Projecten met aandachtspunten</h3>`
+
+        +
+
+        risicoProjecten
+        .map(p => {
+
+            const analyse =
+                analyseProject(p);
+
+            return `
+
+                <div class="card">
+
+                    📁 ${p.title}
+
+                    <br>
+
+                    🤖 ${analyse.advies}
+
+                    <br>
+
+                    ${analyse.reden}
+
+                </div>
+
+            `;
+
+        })
         .join("");
 
     return;

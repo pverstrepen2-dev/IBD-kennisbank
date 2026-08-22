@@ -708,7 +708,7 @@ class="btn btn-primary"
         📊 Dashboard
     </button>
 
-    <button class="tab-btn"
+        <button class="tab-btn"
             onclick="switchTab(event,'categories')">
         📂 Categorieën
     </button>
@@ -760,10 +760,15 @@ class="btn btn-primary"
       <button class="tab-btn" onclick="switchTab(event, 'backup')">💾 Backup</button>
       <button class="tab-btn" onclick="switchTab(event,'chatai')">🤖 CCV AI</button>
       <button class="tab-btn" onclick="switchTab(event,'aikennis')">🧠 AI Kenniscentrum</button>
+      <button class="tab-btn" onclick="switchTab(event,'governance')">🛡️ AI Governance</button>
       <button class="tab-btn" onclick="switchTab(event,'aibibliotheek')">📚 AI Bibliotheek</button>
       <button class="tab-btn" onclick="switchTab(event,'aicheck')">🧠 AI Gezondheidscheck</button>
       <button class="tab-btn" onclick="switchTab(event, 'info')">ℹ️ Info</button>
+      <button class="tab-btn" onclick="switchTab(event, 'totaalbeeld')">📈 Totaalbeeld</button>
+      <button class="tab-btn" onclick="switchTab(event,'projectdashboard')">📊 Projectdashboard</button>
       <button class="tab-btn" onclick="switchTab(event, 'websites')">🌐 Websites</button>
+      <button class="tab-btn" onclick="switchTab(event,'knowledge-map')">🧠 Kenniskaart</button>
+      <button class="tab-btn" onclick="showTab('relations')">🔗 Documentrelaties</button>
     </div>
 
     <!-- Dashboard -->
@@ -854,6 +859,27 @@ class="btn btn-primary"
 <input
  id="naturalCommand"
  placeholder="Maak project Ledendag 2027">
+ <select id="aiMode">
+
+<option value="assistant">
+Assistent
+</option>
+
+<option value="project">
+Projectbeheer
+</option>
+
+<option value="governance">
+Governance
+</option>
+
+<option value="knowledge">
+Kenniscentrum
+</option>
+
+</select>
+
+<br><br>
 
  <button
  onclick="runNaturalLanguage()">
@@ -877,7 +903,59 @@ Vraag stellen
 
 <div id="ccvAiResult"></div>
 
+<hr>
+
+<h3>Acties</h3>
+
+<div id="aiActionContainer"></div>
+
 </div>
+
+</div>
+
+<div id="relations"
+class="tab-content">
+
+    <div class="panel">
+        <h2>Documentrelaties</h2>
+
+<button
+    class="btn btn-primary"
+    onclick="buildDocumentRelations()">
+
+    Analyseer documenten
+
+</button>
+
+<br><br>
+
+<div id="relationsContainer"></div>
+    </div>
+
+</div>
+
+<div id="knowledge-map" class="tab-content">
+
+    <div class="panel">
+
+        <h2>🧠 Kenniskaart</h2>
+
+        <input
+            type="text"
+            id="knowledgeSearch"
+            placeholder="Zoek onderwerp">
+
+        <button
+            class="btn btn-primary"
+            onclick="buildKnowledgeMap()">
+
+            Kenniskaart genereren
+
+        </button>
+
+        <div id="knowledgeMapContainer"></div>
+
+    </div>
 
 </div>
 
@@ -987,6 +1065,48 @@ Vraag stellen
 
 </div>
 
+<div id="governance"
+class="tab-content">
+
+    <div class="admin-section">
+
+        <h2>
+            🛡️ AI Governance Dashboard
+        </h2>
+
+        <div id="governanceStats"></div>
+
+        <div id="governanceRisks"></div>
+
+        <div id="governanceCompliance"></div>
+
+    </div>
+
+</div>
+
+<div id="projectdashboard"
+class="tab-content">
+
+    <div class="admin-section">
+
+        <h2>
+            📊 Slim Projectdashboard
+        </h2>
+
+        <div id="projectOverview"></div>
+
+        <div id="projectTimeline"></div>
+
+        <div id="projectRisks"></div>
+
+        <div id="projectTasks"></div>
+
+        <div id="projectDocuments"></div>
+
+    </div>
+
+</div>
+
 <div id="aibibliotheek"
 class="tab-content">
 
@@ -1005,6 +1125,26 @@ class="tab-content">
         <div id="bibliotheekContent">
 
             Bibliotheek wordt geladen...
+
+        </div>
+
+    </div>
+
+</div>
+
+<div id="totaalbeeld" class="tab-content">
+
+    <div class="admin-section">
+
+        <h2>📈 Totaalbeeld</h2>
+
+        <p class="notice">
+            Overzicht van alle gegevens.
+        </p>
+
+        <div id="totaalbeeldContent">
+
+            <div id="totaalStats"></div>
 
         </div>
 
@@ -1593,6 +1733,15 @@ Sociale Gids
     ⚙️ Beheer alle items
 </div>
 
+<div id="knowledge-map"
+     class="tab-content">
+
+    <div id="knowledgeGraphContainer">
+
+    </div>
+
+</div>
+
 <input
     type="text"
     id="manageSearch"
@@ -1780,7 +1929,8 @@ class="tab-content">
     const STORAGE_KEY = 'ibd_kennisbank_multilang';
     const LANG_KEY = 'ibd_selected_language';
     const FAVORITES_KEY = 'ibd_favorites';
-const CCV_KEY = 'ccv_module_data';
+    const CCV_KEY = 'ccv_module_data';
+    let knowledgeGraph = {};
 
 async function loadCCVJson(fileId){
     const token = await getAccessToken();
@@ -2134,6 +2284,92 @@ async function saveMembers(data){
 // DOCUMENTS DATABASE
 // =========================
 
+function extractKeywords(text) {
+    return text
+        .toLowerCase()
+        .split(/\W+/)
+        .filter(w => w.length > 4);
+}
+
+function buildKnowledgeGraph(documents) {
+
+    knowledgeGraph = {};
+
+    documents.forEach(doc => {
+
+        const text = doc.content || "";
+
+        const keywords = extractKeywords(text);
+
+        keywords.forEach(keyword => {
+
+            if (!knowledgeGraph[keyword]) {
+
+                knowledgeGraph[keyword] = {
+                    documents: [],
+                    relations: []
+                };
+
+            }
+
+            knowledgeGraph[keyword].documents.push(doc.id);
+
+        });
+
+    });
+
+}
+
+function calculateSimilarity(a,b){
+
+    const wordsA =
+        new Set(a.toLowerCase().split(/\W+/));
+
+    const wordsB =
+        new Set(b.toLowerCase().split(/\W+/));
+
+    const overlap =
+        [...wordsA]
+        .filter(x => wordsB.has(x));
+
+    return overlap.length /
+           Math.max(wordsA.size, wordsB.size);
+}
+
+function buildDocumentRelations(documents){
+
+    const relations = [];
+
+    documents.forEach(docA => {
+
+        documents.forEach(docB => {
+
+            if(docA.id === docB.id) return;
+
+            const score =
+                calculateSimilarity(
+                    docA.content || "",
+                    docB.content || ""
+                );
+
+            if(score > 0.4){
+
+                relations.push({
+                    source: docA.id,
+                    target: docB.id,
+                    score
+                });
+
+            }
+
+        });
+
+    });
+
+    return relations;
+
+}
+
 async function loadDocuments(){
 
     try{
@@ -2164,9 +2400,16 @@ async function loadDocuments(){
 
 }
 
-async function saveDocuments(data){
+async function saveDocuments(data) {
+    
 
-    try{
+    try {
+
+        if(!data){
+            throw new Error(
+                "Geen data ontvangen"
+            );
+        }
 
         await saveCCVJson(
             DOCUMENTS_FILE_ID,
@@ -2174,7 +2417,7 @@ async function saveDocuments(data){
         );
 
     }
-    catch(error){
+    catch(error) {
 
         console.error(
             "DOCUMENTS save fout:",
@@ -2182,6 +2425,45 @@ async function saveDocuments(data){
         );
 
     }
+
+}
+
+function saveDocument(document) {
+    // opslaan
+    buildDocumentRelations();
+}
+
+function buildDocumentRelations() {
+
+    documentRelations = [];
+
+    documents.forEach(docA => {
+
+        documents.forEach(docB => {
+
+            if(docA.id === docB.id) return;
+
+            const wordsA = extractKeywords(docA.content);
+            const wordsB = extractKeywords(docB.content);
+
+            const overlap = wordsA.filter(
+                word => wordsB.includes(word)
+            );
+
+            if(overlap.length >= 3){
+
+                documentRelations.push({
+                    source: docA.id,
+                    target: docB.id,
+                    strength: overlap.length,
+                    keywords: overlap
+                });
+
+            }
+
+        });
+
+    });
 
 }
 
@@ -2529,6 +2811,11 @@ let scanRunning = false;
 
 let currentAIKnowledge = [];
 
+let documents = [];
+let faqData = [];
+let websites = [];
+let documentRelations = [];
+let knowledgeNodes = [];
 const WEBSITE_CATEGORIES = [
     { value:"Onderwijs", icon:"🎓" },
     { value:"Ziekenhuis", icon:"🏥" },
@@ -2997,6 +3284,16 @@ async function saveWebsites(data){
         );
     }
 }
+
+function loadTotaalbeeld() {
+
+    document.getElementById("totaalbeeldContent").innerHTML = `
+        <h3>Totaaloverzicht</h3>
+        <p>Hier komen alle statistieken.</p>
+    `;
+
+}
+
     function saveData(data) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     }
@@ -3108,6 +3405,9 @@ if(disease === 'ccv'){
     }, 200);
 }
 
+if (tabName === "totaalbeeld") {
+    loadTotaalbeeld();
+}
 if (tabName === 'aifaq') {
     renderAIFAQ();
 }
@@ -3231,6 +3531,18 @@ if(tabName === 'aicheck'){
     </div>
   `;
 }
+
+function loadTotaalbeeld() {
+
+    document.getElementById("totaalStats").innerHTML = `
+        <div class="stat-card">
+            <h3>Totaal Artikels</h3>
+            <p>${allData.length}</p>
+        </div>
+    `;
+
+}
+
     async function updateDashboard() {
       const data =
     await getFilteredData();
@@ -5455,6 +5767,33 @@ async function searchCCV(){
 // =========================
 // RENDER CORE
 // =========================
+
+function renderDocumentRelations(){
+
+    const container =
+        document.getElementById("relationsContainer");
+
+    container.innerHTML = "";
+
+    documentRelations.forEach(rel => {
+
+        const source =
+            documents.find(d => d.id === rel.source);
+
+        const target =
+            documents.find(d => d.id === rel.target);
+
+        container.innerHTML += `
+        <div class="result-item">
+            <h3>${source.title}</h3>
+            <p>↔ ${target.title}</p>
+            <p>Sterkte: ${rel.strength}</p>
+            <p>${rel.keywords.join(", ")}</p>
+        </div>
+        `;
+    });
+
+}
 
 async function renderCCV(tab){
 
@@ -9836,9 +10175,13 @@ return {
 
 function generateSummary(text){
 
-    return text
-        .substring(0,500)
-        .replace(/\n/g," ");
+    const sentences =
+        text.split('.');
+
+    return sentences
+        .slice(0,5)
+        .join('.');
+
 }
 
 function generateFAQ(text,title=""){

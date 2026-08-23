@@ -1786,16 +1786,39 @@ Sociale Gids
 
     <!-- Manage -->
     <div id="manage" class="tab-content">
-      <div class="admin-section">
-       <div class="admin-title">
-    ⚙️ Beheer alle items
-</div>
 
-<input
-    type="text"
-    id="manageSearch"
-    placeholder="Filter op titel..."
-/>
+    <div class="admin-section">
+
+        <div class="admin-title">
+            ⚙️ Beheer alle items
+        </div>
+
+        <input
+            type="text"
+            id="manageSearch"
+            placeholder="Filter op titel..."
+        />
+
+        <div id="manageCount"></div>
+
+        <select
+            id="manageCategory"
+            onchange="updateRecordsList()">
+        </select>
+
+        <hr>
+
+        <!-- OneDrive -->
+
+        <div id="driveExplorer"></div>
+
+        <div id="driveNavigation"></div>
+
+        <div id="recordsList"></div>
+
+    </div>
+
+</div>
 
 <div id="aiproposals"
      class="tab-content">
@@ -1920,14 +1943,15 @@ Sociale Gids
 
 <hr style="margin:15px 0;">
 
-<div
-    id="recordsList"
-    style="margin-top:16px;"
->
+<div id="recordsList"
+     style="margin-top:16px;">
 </div>
-      
-    <!-- Backup -->
-    <div id="backup" class="tab-content">
+
+</div>   <!-- admin-section -->
+</div>   <!-- manage -->
+
+<!-- Backup -->
+<div id="backup" class="tab-content">
       <div class="admin-section">
         <div class="admin-title">💾 Backup & Restore</div>
 
@@ -9050,9 +9074,16 @@ console.log("FETCH OK");
 }
 
 async function buildKnowledgeMap(){
-
+    
     const docs =
         await loadDocuments();
+    console.log(
+    "EERSTE DOC:",
+    docs[0]
+);
+console.table(
+    docs.slice(0,5)
+);
 
     const nodes = [];
     const edges = [];

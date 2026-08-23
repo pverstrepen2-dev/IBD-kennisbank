@@ -3499,6 +3499,21 @@ function showGraphTab(tabId){
     const docs =
         await loadDocuments();
 
+    console.log(
+        "KNOWLEDGE:",
+        knowledge
+    );
+
+    console.log(
+        "KNOWLEDGE ARRAY:",
+        Array.isArray(knowledge)
+    );
+
+    console.log(
+        "DOCS ARRAY:",
+        Array.isArray(docs)
+    );
+
     return [
 
         ...knowledge,
@@ -3607,9 +3622,10 @@ function loadTotaalbeeld() {
 `;
     }
     
-function openDashboardView(type){
+async function openDashboardView(type){
 
-  let data = getFilteredData();
+  let data =
+    await getFilteredData();
 
   if(type === 'items'){
     // alles tonen

@@ -8956,6 +8956,55 @@ console.log("FETCH OK");
 
 }
 
+async function buildKnowledgeMap(){
+
+    const zoekterm =
+        document.getElementById(
+            "knowledgeSearch"
+        ).value
+        .toLowerCase();
+
+    const docs =
+        await loadDocuments();
+
+    const resultaten =
+        docs.filter(doc =>
+
+            JSON.stringify(doc)
+                .toLowerCase()
+                .includes(zoekterm)
+
+        );
+
+    document.getElementById(
+        "knowledgeGraphContainer"
+    ).innerHTML =
+
+        `
+        <h3>
+            🧠 Kenniskaart
+        </h3>
+
+        ${
+            resultaten.map(doc => `
+                <div class="card">
+
+                    <b>${doc.title}</b>
+
+                    <br>
+
+                    📂 ${doc.categorie || "Onbekend"}
+
+                    <br>
+
+                    🎯 ${doc.confidence || 0}%
+
+                </div>
+            `).join("")
+        }
+        `;
+}
+
 function suggestFileName(name){
 
     if(

@@ -8978,6 +8978,8 @@ console.table(
 
     const nodes = [];
     const edges = [];
+const uniekeNodes =
+    new Set();
 
     let html =
         `<h2>🧠 Knowledge Graph</h2>`;
@@ -9000,12 +9002,136 @@ docs.forEach(doc => {
         structuur[hoofdgroep][categorie] = [];
     }
 
+if(
+    !uniekeNodes.has(
+        doc.hoofdgroep
+    )
+){
+
+    nodes.push({
+
+        id:
+            doc.hoofdgroep,
+
+        label:
+            doc.hoofdgroep,
+
+        group:
+            "hoofdgroep"
+
+    });
+
+    uniekeNodes.add(
+        doc.hoofdgroep
+    );
+
+}
+
+const categorieId =
+    doc.hoofdgroep +
+    "_" +
+    doc.categorie;
+
+if(
+    !uniekeNodes.has(
+        categorieId
+    )
+){
+
+    nodes.push({
+
+        id:
+            categorieId,
+
+        label:
+            doc.categorie,
+
+        group:
+            "categorie"
+
+    });
+
+    edges.push({
+
+        from:
+            doc.hoofdgroep,
+
+        to:
+            categorieId
+
+    });
+
+    uniekeNodes.add(
+        categorieId
+    );
+
+}
+
+nodes.push({
+
+    id:
+        doc.id,
+
+    label:
+        doc.title,
+
+    group:
+        "document"
+
+});
+
+edges.push({
+
+    from:
+        categorieId,
+
+    to:
+        doc.id
+
+});
+
+(doc.tags || [])
+.forEach(tag => {
+
+    const tagId =
+        "tag_" + tag;
+
+    if(
+        !uniekeNodes.has(tagId)
+    ){
+
+        nodes.push({
+
+            id: tagId,
+
+            label: tag,
+
+            group: "tag"
+
+        });
+
+        uniekeNodes.add(
+            tagId
+        );
+
+    }
+
+    edges.push({
+
+        from: doc.id,
+
+        to: tagId
+
+    });
+
+});
+
     structuur[hoofdgroep][categorie]
         .push(doc);
 
 });
 
-Object.keys(structuur)
+    Object.keys(structuur)
 .forEach(hoofdgroep => {
 
     html += `
@@ -9044,9 +9170,17 @@ Object.keys(structuur)
         .forEach(doc => {
 
             html += `
-                <li>
-                    ${doc.title}
-                </li>
+               <li>
+
+    #            return false;
+        "
+    >
+
+        ${doc.title}
+
+    </a>
+
+</li>
             `;
 
         });
@@ -9154,6 +9288,38 @@ function updateBreadcrumb(){
     document.getElementById(
         "breadcrumb"
     ).innerHTML = html;
+}
+
+async function openDocumentById(
+    fileId
+){
+
+    const token =
+        await getAccessToken();
+
+    const response =
+        await fetch(
+
+            `https://graph.microsoft.com/v1.0/me/drive/items/${fileId}`,
+
+            {
+                headers:{
+                    Authorization:
+                        "Bearer " +
+                        token
+                }
+            }
+
+        );
+
+    const file =
+        await response.json();
+
+    window.open(
+        file.webUrl,
+        "_blank"
+    );
+
 }
 
 function navigateBreadcrumb(index){

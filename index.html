@@ -8982,54 +8982,88 @@ console.table(
     let html =
         `<h2>🧠 Knowledge Graph</h2>`;
 
-    docs.forEach(doc => {
+    const structuur = {};
 
-        nodes.push({
+docs.forEach(doc => {
 
-            id: doc.id,
+    const hoofdgroep =
+        doc.hoofdgroep || "Onbekend";
 
-            label: doc.title,
+    const categorie =
+        doc.categorie || "Onbekend";
 
-            group:
-                doc.categorie ||
-                "Onbekend"
+    if(!structuur[hoofdgroep]){
+        structuur[hoofdgroep] = {};
+    }
 
-        });
+    if(!structuur[hoofdgroep][categorie]){
+        structuur[hoofdgroep][categorie] = [];
+    }
 
-        (doc.tags || [])
-        .forEach(tag => {
+    structuur[hoofdgroep][categorie]
+        .push(doc);
 
-            nodes.push({
+});
 
-                id:
-                    tag + "_" + doc.id,
+Object.keys(structuur)
+.forEach(hoofdgroep => {
 
-                label: tag,
+    html += `
+        <div class="card">
 
-                group: "tag"
+            <h3>
+                🧩 ${hoofdgroep}
+            </h3>
+    `;
 
-            });
+    Object.keys(
+        structuur[hoofdgroep]
+    )
+    .forEach(categorie => {
 
-            edges.push({
+        html += `
+            <div
+                style="
+                    margin-left:20px;
+                    margin-top:10px;
+                "
+            >
 
-                from: doc.id,
+                <b>
+                    📂 ${categorie}
+                </b>
 
-                to:
-                    tag + "_" + doc.id
+                <ul>
+        `;
 
-            });
+        structuur[
+            hoofdgroep
+        ][
+            categorie
+        ]
+        .forEach(doc => {
+
+            html += `
+                <li>
+                    ${doc.title}
+                </li>
+            `;
 
         });
 
         html += `
-            <div class="card">
-
-                <b>${doc.title}</b>
+                </ul>
 
             </div>
         `;
 
     });
+
+    html += `
+        </div>
+    `;
+
+});
 
     // EERST HTML TONEN
 

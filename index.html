@@ -14,7 +14,10 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
-https://unpkg.com/vis-network/standalone/umd/vis-network.min.js
+<script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+<script>
+console.log("VIS TEST", typeof vis);
+</script>
 
 <script>
 console.log("PDFJS =", window.pdfjsLib);
@@ -203,6 +206,20 @@ console.log("PDF TEST", window.pdfjsLib);
 
     .tab-content { display: none; }
     .tab-content.active { display: block; }
+    .graph-content{
+    display:none;
+}
+
+.graph-content.active{
+    display:block;
+}
+
+#knowledgeNetwork{
+    width:100%;
+    height:700px;
+    border:1px solid #ddd;
+    margin-top:20px;
+}
 
     .stats-grid, .category-grid, .card-grid, .form-grid {
       display: grid;
@@ -945,7 +962,10 @@ class="tab-content">
         <input
             type="text"
             id="knowledgeSearch"
-            placeholder="Zoek onderwerp">
+            placeholder="Zoekterm..."
+        >
+
+        <br><br>
 
         <button
             class="btn btn-primary"
@@ -955,7 +975,43 @@ class="tab-content">
 
         </button>
 
-        <div id="knowledgeMapContainer"></div>
+    </div>
+
+    <div class="graph-tabs">
+
+        <button
+            class="btn btn-primary"
+            onclick="showGraphTab('graph-overview')">
+
+            🧠 Kenniskaart
+
+        </button>
+
+        <button
+            class="btn btn-secondary"
+            onclick="showGraphTab('relations')">
+
+            🔗 Documentrelaties
+
+        </button>
+
+    </div>
+
+    <div
+        id="graph-overview"
+        class="graph-content active">
+
+        <div id="knowledgeGraphContainer">
+        </div>
+
+    </div>
+
+    <div
+        id="relations"
+        class="graph-content">
+
+        <div id="knowledgeNetwork">
+        </div>
 
     </div>
 
@@ -1734,21 +1790,6 @@ Sociale Gids
        <div class="admin-title">
     ⚙️ Beheer alle items
 </div>
-
-<div id="knowledge-map" class="tab-content">
-
-    <div id="knowledgeGraphContainer"></div>
-
-    <div
-        id="knowledgeNetwork"
-        style="
-            width:100%;
-            height:700px;
-            border:1px solid #ddd;
-            margin-top:20px;
-            background:white;
-        ">
-    </div>
 
 </div>
 
@@ -3456,6 +3497,65 @@ if(tabName === 'aicheck'){
 
 
 }
+
+function showTab(tabId){
+
+    document
+        .querySelectorAll(
+            ".tab-content"
+        )
+        .forEach(tab => {
+
+            tab.classList.remove(
+                "active"
+            );
+
+        });
+
+    const target =
+        document.getElementById(
+            tabId
+        );
+
+    if(target){
+
+        target.classList.add(
+            "active"
+        );
+
+    }
+
+}
+
+function showGraphTab(tabId){
+
+    document
+        .querySelectorAll(
+            ".graph-content"
+        )
+        .forEach(tab => {
+
+            tab.classList.remove(
+                "active"
+            );
+
+        });
+
+    const target =
+        document.getElementById(
+            tabId
+        );
+
+    if(target){
+
+        target.classList.add(
+            "active"
+        );
+
+    }
+
+}
+
     function getAllowedSections() {
       const map = {
         crohn: ['Crohn'],

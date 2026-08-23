@@ -9278,18 +9278,24 @@ edges.push({
         .forEach(doc => {
 
            html += `
-    <li>
+ <li>
 
-        #                return false;
-            "
-        >
+    <span
+        style="
+            color:#1565c0;
+            cursor:pointer;
+            text-decoration:underline;
+        "
+        onclick="openDocumentById('${doc.fileId}')"
+    >
 
-            ${doc.title}
+        ${doc.title}
 
-        </a>
+    </span>
 
-    </li>
+</li>
 `;
+
 
         });
 

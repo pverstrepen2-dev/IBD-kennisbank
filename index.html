@@ -2815,6 +2815,11 @@ let documents = [];
 let faqData = [];
 let websites = [];
 let documentRelations = [];
+let folderIndex = [];
+let fileIndex = [];
+let metadataIndex = [];
+let aiIndex = [];
+let indexReady = false;
 let knowledgeNodes = [];
 const WEBSITE_CATEGORIES = [
     { value:"Onderwijs", icon:"🎓" },
@@ -3865,142 +3870,87 @@ faqResults =
     );
 
 let ccvResults = [];
-const ccvData =
-    await loadCCV();
-    
-const meetingResults =
-
-    ccvData
-
-    .filter(x =>
-
-        x.type ===
-        'vergaderingen'
-
-    )
-
-    .filter(x =>
-
-        JSON.stringify(x)
-
-        .toLowerCase()
-
-        .includes(searchTerm)
-
-    )
-
-    .map(x => ({
-
-        title: x.title,
-
-        type: 'Vergadering',
-
-        category: 'CCV',
-
-        source: 'CCV-VZW',
-
-        content:
-            x.notes || ''
-
-    }));
-
-    const projectResults =
-
-    ccvData
-
-    .filter(x =>
-
-        x.type ===
-        'projecten'
-
-    )
-
-    .filter(x =>
-
-        JSON.stringify(x)
-
-        .toLowerCase()
-
-        .includes(searchTerm)
-
-    )
-
-    .map(x => ({
-
-        title: x.title,
-
-        type: 'Project',
-
-        category: 'CCV',
-
-        source: 'CCV-VZW',
-
-        content:
-            x.notes || ''
-
-    }));
-    const taskResults =
-
-    ccvData
-
-    .filter(x =>
-
-        x.type ===
-        'taken'
-
-    )
-
-    .filter(x =>
-
-        JSON.stringify(x)
-
-        .toLowerCase()
-
-        .includes(searchTerm)
-
-    )
-
-    .map(x => ({
-
-        title: x.title,
-
-        type: 'Taak',
-
-        category: 'CCV',
-
-        source: 'CCV-VZW',
-
-        content:
-            x.content || ''
-
-    }));
-
-    const oneDriveResults =
-
-    oneDriveIndex.filter(item =>
-
-        item.title
-            .toLowerCase()
-            .includes(searchTerm)
-
-    );
+let meetingResults = [];
+let projectResults = [];
+let taskResults = [];
+let oneDriveResults = [];
 
 try {
-    ccvResults = ccvData
-        .filter(item =>
-            JSON.stringify(item)
+
+    const ccvData =
+        await loadCCV();
+
+    meetingResults =
+        ccvData
+        .filter(x => x.type === 'vergaderingen')
+        .filter(x =>
+            JSON.stringify(x)
                 .toLowerCase()
-                .includes(searchTerm.toLowerCase())
+                .includes(searchTerm)
+        )
+        .map(x => ({
+            title: x.title,
+            type: 'Vergadering',
+            category: 'CCV',
+            source: 'CCV-VZW',
+            content: x.notes || ''
+        }));
+
+    projectResults =
+        ccvData
+        .filter(x => x.type === 'projecten')
+        .filter(x =>
+            JSON.stringify(x)
+                .toLowerCase()
+                .includes(searchTerm)
+        )
+        .map(x => ({
+            title: x.title,
+            type: 'Project',
+            category: 'CCV',
+            source: 'CCV-VZW',
+            content: x.notes || ''
+        }));
+
+    taskResults =
+        ccvData
+        .filter(x => x.type === 'taken')
+        .filter(x =>
+            JSON.stringify(x)
+                .toLowerCase()
+                .includes(searchTerm)
+        )
+        .map(x => ({
+            title: x.title,
+            type: 'Taak',
+            category: 'CCV',
+            source: 'CCV-VZW',
+            content: x.content || ''
+        }));
+
+    oneDriveResults =
+        (fileIndex || [])
+        .filter(item =>
+            item.name
+                .toLowerCase()
+                .includes(searchTerm)
         )
         .map(item => ({
-            title: item.title || item.name || 'CCV Item',
-            category: 'CCV',
-            type: item.type,
-            source: 'CCV-VZW',
-            content: JSON.stringify(item)
+            title: item.name,
+            category: 'OneDrive',
+            type: 'Bestand',
+            source: 'OneDrive',
+            id: item.id
         }));
-} catch (e) {
-    console.log("CCV nog niet geladen");
+
+}
+catch(error){
+
+    console.error(
+        "CCV nog niet geladen",
+        error
+    );
+
 }
        
     const voedingData =
@@ -5325,6 +5275,8 @@ await saveDatabaseJson();
 );
 
 e.target.reset();
+
+await buildIndexes();
 
 await updateDashboard();
 
@@ -12026,6 +11978,104 @@ return;
 
 }
 
+async function buildIndexes(){
+
+    const token =
+        await getAccessToken();
+
+    folderIndex = [];
+    fileIndex = [];
+    metadataIndex = [];
+
+    await buildFolderIndex(
+        ROOT_FOLDER_ID,
+        token
+    );
+
+    await buildFileIndex(
+        ROOT_FOLDER_ID,
+        token
+    );
+
+    console.log(
+        "Folders:",
+        folderIndex.length
+    );
+
+    console.log(
+        "Files:",
+        fileIndex.length
+    );
+}
+
+async function buildIndexRecursive(
+    folderId,
+    token
+){
+
+    const response =
+        await fetch(
+            `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`,
+            {
+                headers:{
+                    Authorization:
+                        "Bearer " + token
+                }
+            }
+        );
+
+    const data =
+        await response.json();
+
+    if(!data.value) return;
+
+    for(const item of data.value){
+
+        if(item.folder){
+
+            folderIndex.push({
+
+                id:item.id,
+                name:item.name,
+                parentId:folderId
+
+            });
+
+            await buildIndexRecursive(
+                item.id,
+                token
+            );
+
+        }
+
+        if(item.file){
+
+            fileIndex.push({
+
+                id:item.id,
+                name:item.name,
+                parentId:folderId
+
+            });
+
+            metadataIndex.push({
+
+                id:item.id,
+                name:item.name,
+                size:item.size,
+
+                modified:
+                    item.lastModifiedDateTime,
+
+                webUrl:
+                    item.webUrl
+
+            });
+
+        }
+    }
+}
+
 async function runAICapture(){
 
     const text =
@@ -12126,6 +12176,81 @@ async function runAICapture(){
     document.getElementById(
         "aiCaptureUrl"
     ).value = "";
+}
+
+async function buildFolderIndex(folderId, token){
+
+    const response = await fetch(
+        `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`,
+        {
+            headers:{
+                Authorization:"Bearer " + token
+            }
+        }
+    );
+
+    const data = await response.json();
+
+    for(const item of data.value){
+
+        if(item.folder){
+
+            folderIndex.push({
+                id:item.id,
+                name:item.name,
+                parentId:folderId
+            });
+
+            await buildFolderIndex(
+                item.id,
+                token
+            );
+        }
+    }
+}
+
+async function buildFileIndex(folderId, token){
+
+    const response = await fetch(
+        `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`,
+        {
+            headers:{
+                Authorization:"Bearer " + token
+            }
+        }
+    );
+
+    const data = await response.json();
+
+    for(const item of data.value){
+
+        if(item.file){
+
+            fileIndex.push({
+
+                id:item.id,
+                name:item.name,
+
+                parentId:folderId,
+
+                size:item.size,
+
+                modified:
+                    item.lastModifiedDateTime
+
+            });
+
+        }
+
+        if(item.folder){
+
+            await buildFileIndex(
+                item.id,
+                token
+            );
+
+        }
+    }
 }
 
 async function runNaturalLanguage(){

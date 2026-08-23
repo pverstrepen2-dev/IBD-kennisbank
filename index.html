@@ -989,7 +989,7 @@ class="tab-content">
 
         <button
             class="btn btn-secondary"
-            onclick="showGraphTab('relations')">
+            onclick="showGraphTab('graph-relations')"
 
             🔗 Documentrelaties
 
@@ -1007,8 +1007,8 @@ class="tab-content">
     </div>
 
     <div
-        id="relations"
-        class="graph-content">
+    id="graph-relations"
+    class="graph-content">
 
         <div id="knowledgeNetwork">
         </div>
@@ -1808,13 +1808,82 @@ Sociale Gids
 
         <hr>
 
-        <!-- OneDrive -->
+<div
+    class="admin-title"
+    style="cursor:pointer;"
+>
+    📁 OneDrive Verkenner
+</div>
 
-        <div id="driveExplorer"></div>
+<div class="notice">
+    Gebruik "🤝 Open CCV-VZW"
+    om door de OneDrive-structuur te bladeren.
+</div>
 
-        <div id="driveNavigation"></div>
+<button
+    class="btn btn-primary"
+    onclick="loadCCVSubFolders()"
+>
+    🤝 Open CCV-VZW
+</button>
 
-        <div id="recordsList"></div>
+<br><br>
+
+<div
+    id="driveNavigation"
+    style="
+        display:none;
+        margin-bottom:15px;
+    "
+>
+
+    <button
+        id="backBtn"
+        class="btn btn-secondary"
+        onclick="goBackFolder()"
+        style="display:none;"
+    >
+        ← Terug
+    </button>
+
+    <div
+        id="breadcrumb"
+        style="
+            margin-top:10px;
+            font-weight:bold;
+            color:#555;
+        "
+    >
+        🏠 Home
+    </div>
+
+    <div
+        id="currentFolder"
+        style="
+            margin-top:8px;
+            padding:10px;
+            background:#f4f6fa;
+            border-radius:8px;
+            display:none;
+        "
+    >
+        📂 Huidige map:
+    </div>
+
+</div>
+
+<div
+    id="driveExplorer"
+    style="margin-top:15px;"
+>
+</div>
+
+<div
+    id="recordsList"
+    style="margin-top:16px;"
+>
+</div>
+
 
     </div>
 
@@ -1822,24 +1891,21 @@ Sociale Gids
 
 <div id="aiproposals"
      class="tab-content">
+
     <h2>🤖 AI Voorstellen</h2>
+
     <div id="aiProposalList"></div>
+
+</div>
 
 <div id="aiapproved"
      class="tab-content">
 
-    <h2>
-        🤖 AI Goedgekeurde Documenten
-    </h2>
+    <h2>🤖 AI Goedgekeurde Documenten</h2>
 
-    <div id="aiApprovedList">
-
-    </div>
+    <div id="aiApprovedList"></div>
 
 </div>
-
-</div>   <!-- admin-section -->
-</div>   <!-- manage -->
 
 <!-- Backup -->
 <div id="backup" class="tab-content">
@@ -9327,9 +9393,21 @@ function updateBreadcrumb(){
         }
     );
 
-    document.getElementById(
-        "breadcrumb"
-    ).innerHTML = html;
+    const breadcrumb =
+        document.getElementById(
+            "breadcrumb"
+        );
+
+    if(!breadcrumb){
+
+        console.warn(
+            "breadcrumb niet gevonden"
+        );
+
+        return;
+    }
+
+    breadcrumb.innerHTML = html;
 }
 
 async function openDocumentById(

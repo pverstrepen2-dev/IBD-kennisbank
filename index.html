@@ -8958,51 +8958,36 @@ console.log("FETCH OK");
 
 async function buildKnowledgeMap(){
 
-    const zoekterm =
-        document.getElementById(
-            "knowledgeSearch"
-        ).value
-        .toLowerCase();
-
     const docs =
         await loadDocuments();
 
-    const resultaten =
-        docs.filter(doc =>
+    let html =
+        "<h2>🧠 Knowledge Map</h2>";
 
-            JSON.stringify(doc)
-                .toLowerCase()
-                .includes(zoekterm)
+    docs.slice(0,20).forEach(doc => {
 
-        );
+        html += `
+            <div class="card">
+
+                <b>${doc.title}</b>
+
+                <br>
+
+                📂 ${doc.categorie || "Onbekend"}
+
+                <br>
+
+                🎯 ${doc.confidence || 0}%
+
+            </div>
+        `;
+
+    });
 
     document.getElementById(
         "knowledgeGraphContainer"
-    ).innerHTML =
+    ).innerHTML = html;
 
-        `
-        <h3>
-            🧠 Kenniskaart
-        </h3>
-
-        ${
-            resultaten.map(doc => `
-                <div class="card">
-
-                    <b>${doc.title}</b>
-
-                    <br>
-
-                    📂 ${doc.categorie || "Onbekend"}
-
-                    <br>
-
-                    🎯 ${doc.confidence || 0}%
-
-                </div>
-            `).join("")
-        }
-        `;
 }
 
 function suggestFileName(name){

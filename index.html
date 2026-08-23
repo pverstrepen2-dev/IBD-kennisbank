@@ -1733,12 +1733,22 @@ Sociale Gids
     ⚙️ Beheer alle items
 </div>
 
-<div id="knowledge-map"
-     class="tab-content">
+<div id="knowledge-map" class="tab-content">
 
-    <div id="knowledgeGraphContainer">
+    <div id="knowledgeGraphContainer"></div>
 
+    <div
+        id="knowledgeNetwork"
+        style="
+            width:100%;
+            height:700px;
+            border:1px solid #ddd;
+            margin-top:20px;
+            background:white;
+        ">
     </div>
+
+</div>
 
 </div>
 
@@ -8961,32 +8971,93 @@ async function buildKnowledgeMap(){
     const docs =
         await loadDocuments();
 
+    const nodes = [];
+    const edges = [];
+
     let html =
-        "<h2>🧠 Kenniskaart</h2>";
+        `<h2>🧠 Knowledge Graph</h2>`;
 
     docs.forEach(doc => {
+
+        nodes.push({
+
+            id: doc.id,
+
+            label: doc.title,
+
+            group:
+                doc.categorie ||
+                "Onbekend"
+
+        });
+
+        (doc.tags || [])
+        .forEach(tag => {
+
+            nodes.push({
+
+                id:
+                    tag + "_" + doc.id,
+
+                label: tag,
+
+                group: "tag"
+
+            });
+
+            edges.push({
+
+                from: doc.id,
+
+                to:
+                    tag + "_" + doc.id
+
+            });
+
+        });
 
         html += `
             <div class="card">
 
                 <b>${doc.title}</b>
 
-                <br>
-
-                📂 ${doc.categorie || ""}
-
-                <br>
-
-                🎯 ${doc.confidence || 0}%
-
             </div>
         `;
 
     });
 
+    // EERST HTML TONEN
+
     document.getElementById(
         "knowledgeGraphContainer"
     ).innerHTML = html;
+
+    // DAARNA VIS.NETWORK
+
+    const container =
+        document.getElementById(
+            "knowledgeNetwork"
+        );
+
+    const data = {
+
+        nodes:
+            new vis.DataSet(nodes),
+
+        edges:
+            new vis.DataSet(edges)
+
+    };
+
+    new vis.Network(
+
+        container,
+
+        data,
+
+        {}
+
+    );
 
 }
 

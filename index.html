@@ -8962,9 +8962,9 @@ async function buildKnowledgeMap(){
         await loadDocuments();
 
     let html =
-        "<h2>🧠 Knowledge Map</h2>";
+        "<h2>🧠 Kenniskaart</h2>";
 
-    docs.slice(0,20).forEach(doc => {
+    docs.forEach(doc => {
 
         html += `
             <div class="card">
@@ -8973,7 +8973,7 @@ async function buildKnowledgeMap(){
 
                 <br>
 
-                📂 ${doc.categorie || "Onbekend"}
+                📂 ${doc.categorie || ""}
 
                 <br>
 

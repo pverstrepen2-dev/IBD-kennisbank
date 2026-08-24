@@ -5981,35 +5981,49 @@ async function renderWerkdocumenten(){
 
     <div class="card">
 
-        <h3>🗣️ Gesprekswijzer</h3>
+    <h3>🗣️ Gesprekswijzer</h3>
 
-        <input
-            type="file"
-            id="uploadGesprekswijzer"
-            accept=".pdf"
-        >
+    <input
+        type="file"
+        id="uploadGesprekswijzer"
+        accept=".pdf"
+    >
 
-        <button
-            class="btn btn-success"
-            onclick="
-                uploadWerkdocument(
-                    'Gesprekswijzer',
-                    'uploadGesprekswijzer'
-                )
-            "
-        >
-            Upload PDF
-        </button>
+    <button
+        class="btn btn-success"
+        onclick="
+            uploadWerkdocument(
+                'Gesprekswijzer',
+                'uploadGesprekswijzer'
+            )
+        "
+    >
+        Upload PDF
+    </button>
 
-    </div>
+</div>
 
-    <hr>
+<hr>
 
-    <div id="werkdocsList">
+<div
+    id="uploadStatus"
+    style="
+        display:none;
+        margin-top:10px;
+        padding:10px;
+        background:#eef4ff;
+        border-radius:8px;
+        font-weight:bold;
+    "
+>
+    ⏳ Document wordt opgeladen...
+</div>
 
-        Werkdocumenten worden geladen...
+<div id="werkdocsList">
 
-    </div>
+    Werkdocumenten worden geladen...
+
+</div>
 
 `;
 
@@ -8957,6 +8971,18 @@ async function uploadWerkdocument(
             folderKey
         ];
 
+const status =
+    document.getElementById(
+        "uploadStatus"
+    );
+
+status.style.display = "block";
+
+status.innerHTML =
+    "⏳ Upload naar " +
+    folderKey +
+    " bezig...";
+
     const token =
         await getAccessToken();
 
@@ -8984,12 +9010,21 @@ async function uploadWerkdocument(
         "Document succesvol opgeladen."
     );
 
-    document.getElementById(
+   document.getElementById(
     fileInputId
 ).value = "";
 
 await loadWerkdocumenten();
 
+status.innerHTML =
+    "✅ Upload voltooid";
+
+setTimeout(() => {
+
+    status.style.display =
+        "none";
+
+}, 2000);
 }
 
 async function loadCCVSubFolders(){

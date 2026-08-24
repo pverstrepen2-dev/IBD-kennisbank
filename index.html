@@ -8983,6 +8983,11 @@ async function uploadWerkdocument(
     alert(
         "Document succesvol opgeladen."
     );
+
+    document.getElementById(
+    fileInputId
+).value = "";
+
 await loadWerkdocumenten();
 
 }

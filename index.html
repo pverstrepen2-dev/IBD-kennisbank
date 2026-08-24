@@ -1568,7 +1568,31 @@ onclick="switchCCVTab(event,'archief')">
 📦 Archief
 </button>
 
+
       <button class="tab-btn" onclick="switchCCVTab(event,'documenten')">📄 Documenten</button>
+      <h3>
+📤 Verzendrugzak
+</h3>
+
+<input
+    type="file"
+    id="uploadVerzendrugzak"
+    accept=".pdf"
+/>
+
+<button
+    class="btn btn-success"
+    onclick="
+        uploadWerkdocument(
+            'Verzendrugzak',
+            'uploadVerzendrugzak'
+        )
+    "
+>
+    Upload PDF
+</button>
+
+<hr>
       <button class="tab-btn" onclick="switchCCVTab(event,'werkdocumenten')">⭐ Werkdocumenten</button>
       <button class="tab-btn" onclick="switchCCVTab(event,'recentewerkdocs')">⚡ Recente Werkdocumenten</button>
       <button class="tab-btn" onclick="switchCCVTab(event,'medbib')">📚 Medische Bibliotheek</button>
@@ -5925,17 +5949,69 @@ function openWerkdocument(folderName){
 
 async function renderWerkdocumenten(){
 
-    document.getElementById('ccvContent').innerHTML = `
+    ddocument.getElementById('ccvContent').innerHTML = `
 
-        <h2>⭐ Belangrijke Werkdocumenten</h2>
+    <h2>⭐ Belangrijke Werkdocumenten</h2>
 
-        <div id="werkdocsList">
+    <div class="card">
 
-            Werkdocumenten worden geladen...
+        <h3>📤 Verzendrugzak</h3>
 
-        </div>
+        <input
+            type="file"
+            id="uploadVerzendrugzak"
+            accept=".pdf"
+        >
 
-    `;
+        <button
+            class="btn btn-success"
+            onclick="
+                uploadWerkdocument(
+                    'Verzendrugzak',
+                    'uploadVerzendrugzak'
+                )
+            "
+        >
+            Upload PDF
+        </button>
+
+    </div>
+
+    <br>
+
+    <div class="card">
+
+        <h3>🗣️ Gesprekswijzer</h3>
+
+        <input
+            type="file"
+            id="uploadGesprekswijzer"
+            accept=".pdf"
+        >
+
+        <button
+            class="btn btn-success"
+            onclick="
+                uploadWerkdocument(
+                    'Gesprekswijzer',
+                    'uploadGesprekswijzer'
+                )
+            "
+        >
+            Upload PDF
+        </button>
+
+    </div>
+
+    <hr>
+
+    <div id="werkdocsList">
+
+        Werkdocumenten worden geladen...
+
+    </div>
+
+`;
 
     await loadWerkdocumenten();
 
@@ -8853,6 +8929,61 @@ document.getElementById(
         );
 
     }
+
+}
+
+async function uploadWerkdocument(
+    folderKey,
+    fileInputId
+){
+
+    const file =
+        document.getElementById(
+            fileInputId
+        ).files[0];
+
+    if(!file){
+
+        alert(
+            "Selecteer eerst een PDF."
+        );
+
+        return;
+
+    }
+
+    const folderId =
+        werkdocumentFolders[
+            folderKey
+        ];
+
+    const token =
+        await getAccessToken();
+
+    await fetch(
+
+        `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}:/${file.name}:/content`,
+
+        {
+
+            method:"PUT",
+
+            headers:{
+                Authorization:
+                    "Bearer " +
+                    token
+            },
+
+            body:file
+
+        }
+
+    );
+
+    alert(
+        "Document succesvol opgeladen."
+    );
+await loadWerkdocumenten();
 
 }
 

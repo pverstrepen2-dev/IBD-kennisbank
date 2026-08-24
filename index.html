@@ -4143,18 +4143,7 @@ console.log(
     "RESULT VOOR FAQ/CCV:",
     result.length
 );
-
-console.table(result);
-
-      if (sortBy === 'title') {
-        result.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
-      } else if (sortBy === 'category') {
-        result.sort((a, b) => (a.category || '').localeCompare(b.category || ''));
-      } else {
-        result.sort((a, b) => (b.id || 0) - (a.id || 0));
-      }
-
-      
+    
 if (searchTerm.trim() !== '') {
 
     result = [
@@ -4170,49 +4159,6 @@ if (searchTerm.trim() !== '') {
 
 }
 
-console.log(
-    "FAQ:",
-    faqResults.length
-);
-
-console.log(
-    "CCV:",
-    ccvResults.length
-);
-
-console.log(
-    "VOEDING:",
-    voedingResults.length
-);
-
-console.log(
-    "VERGADERINGEN:",
-    meetingResults.length
-);
-
-console.log(
-    "PROJECTEN:",
-    projectResults.length
-);
-
-console.log(
-    "TAKEN:",
-    taskResults.length
-);
-
-console.log(
-    "ONEDRIVE:",
-    oneDriveResults.length
-);
-
-console.log(
-    "TOTAAL:",
-    result.length
-);
-
-console.log("CATEGORIE:", category);
-console.log("RESULT:", result);
-console.log(result);
 displayResults(result);
     }
 
@@ -6359,7 +6305,6 @@ groepen[categorie].push(file);
 
 async function renderTaken(){
     console.trace("renderTaken wordt uitgevoerd");
-console.log("renderTaken gestart");
 
  const allData =
   await loadTasks();
@@ -8417,8 +8362,7 @@ function addVoeding(type,obj){
 
 // TAB SWITCH
 function switchVoedingTab(evt, tab){
-  console.log("Klik op:", tab); // ✅ TEST
-
+ 
   document.querySelectorAll('#voeding .tab-btn').forEach(b=>b.classList.remove('active'));
   evt.target.classList.add('active');
 
@@ -8815,20 +8759,10 @@ async function loadOneDriveFiles(){
                 }
             );
 
-        console.log(
-            "STATUS:",
-            response.status
-        );
-
-        const data =
+             const data =
             await response.json();
 
-        console.log(
-    "GRAPH RESPONSE:",
-    data
-);
-
-data.value.forEach(item => {
+       data.value.forEach(item => {
 
     console.log(
         item.name,
@@ -9250,9 +9184,6 @@ async function buildKnowledgeMap(){
     console.log(
     "EERSTE DOC:",
     docs[0]
-);
-console.table(
-    docs.slice(0,5)
 );
 
     const nodes = [];
@@ -9746,32 +9677,7 @@ async function openDriveFolder(
         const data =
             await response.json();
 
-            console.table(
-    data.value.map(x => ({
-        naam: x.name,
-        map: !!x.folder,
-        bestand: !!x.file,
-        id: x.id
-    }))
-);
-
-            console.log(
-    "===== INHOUD MAP ====="
-);
-
 data.value.forEach(item => {
-
-    console.log(
-        "BESTAND:",
-        item.name
-    );
-
-    console.log(
-        "ID:",
-        item.id
-    );
-
-    console.log(item);
 
 });
 
@@ -9807,14 +9713,6 @@ file: item.file
 
 }
         
-
-        console.log(
-            "MAP INHOUD:",
-            data
-        );
-
-        console.log("STATUS:", response.status);
-
 if (!response.ok) {
     console.error("GRAPH FOUT:", data);
     throw new Error(JSON.stringify(data));
@@ -10027,13 +9925,11 @@ async function openFile(fileId){
 
         const file = await response.json();
 
-        console.log("BESTAND:", file);
-        alert(
-    "Naam: " +
-    file.name +
-    "\nID: " +
-    file.id
+window.open(
+    file.webUrl,
+    "_blank"
 );
+
 const info =
 await getDocumentInsights(
     fileId
@@ -10086,12 +9982,7 @@ async function testDatabase(){
     const data =
         await loadDatabaseJson();
 
-    console.log(
-        "DATABASE:",
-        data
-    );
-
-    alert(
+        alert(
         "Knowledge items: " +
         (
             data.knowledgeData
@@ -10329,12 +10220,7 @@ async function extractPdfText(fileId){
 
         text += "\n";
     }
-    console.log(
-    "PDF TEKST:",
-    text.substring(0,200)
-);
-
-    return text;
+       return text;
 }
 
 async function analyseDocumentContent(
@@ -10663,15 +10549,6 @@ confidence =
         100
     );
 
-console.log("SCORES", scores);
-console.table(scores);
-
-console.log(
-    "WINNAAR:",
-    categorie
-);
-
-
     const samenvatting =
         generateSummary(text);
 
@@ -10688,15 +10565,7 @@ console.log(
             + samenvatting
         ).toLowerCase();
 
-        console.log(
-    "CLASSIFICATIE:",
-    hoofdgroep,
-    categorie,
-    crohnCount,
-    colitisCount
-);
-
-let onderwerp = "";
+       let onderwerp = "";
 
 switch(categorie){
 
@@ -11200,11 +11069,7 @@ catch(error){
         );
 }
 
-    console.log(
-        "RESULTAAT:",
-        analyse
-    );
-const duplicaat =
+    const duplicaat =
     results.find(r =>
         r.fileName
         .replace("(1)","")
@@ -11260,14 +11125,6 @@ document.getElementById(
 `🤖 ${results.length}
 documenten verwerkt`;
 }
-console.log(
-    "RESULTATEN:",
-    results.length
-);
-
-console.log(
-    results
-);
 currentAIResults =
     results;
 aiProposals = results;
@@ -11517,15 +11374,7 @@ function toggleExplorer(){
 
 async function createFAQFromAI(fileId){
 
-    console.log("================================");
-    console.log("FAQ CREATE START");
-    console.log("FILE ID:", fileId);
-    console.log("================================");
-
-    console.log("CURRENT AI RESULTS:");
-    console.log(currentAIResults);
-
-    let doc =
+     let doc =
     currentAIResults.find(
         x => x.fileId === fileId
     );
@@ -11581,25 +11430,10 @@ if(!doc){
     const data =
         await getKnowledgeData();
 
-    console.log(
-        "KNOWLEDGE RECORDS:",
-        data.length
-    );
-
-    console.log(
-        "DOC FAQ PROPERTY:"
-    );
-    console.log(doc.faq);
-
-    const faqList =
+       const faqList =
         doc.faq || [];
 
-    console.log(
-        "FAQ COUNT:",
-        faqList.length
-    );
-
-    if(faqList.length === 0){
+        if(faqList.length === 0){
 
         console.warn(
             "GEEN FAQ GEVONDEN - DEFAULT FAQ WORDT GEMAAKT"
@@ -11616,20 +11450,8 @@ if(!doc){
         });
     }
 
-    console.log(
-        "FAQ LIST NA OPBOUW:"
-    );
-
-    console.table(faqList);
-
-    faqList.forEach(faq => {
-
-        console.log(
-            "FAQ TOEVOEGEN:"
-        );
-
-        console.log(faq);
-
+            faqList.forEach(faq => {
+               
         data.unshift({
 
             id:
@@ -11662,44 +11484,14 @@ if(!doc){
         });
 
     });
-
-    console.log(
-        "AANTAL FAQ'S IN DATA:"
-    );
-
-    console.log(
-        data.filter(
-            x => x.type === "FAQ"
-        ).length
-    );
-
+ 
     databaseCache.knowledgeData =
         data;
 
-    console.log(
-        "VOOR SAVE DATABASE"
-    );
-
-    await saveDatabaseJson();
-
-    console.log(
-        "DATABASE OPGESLAGEN"
-    );
-
-    showNotification(
-        faqList.length +
-        " FAQ voorstellen aangemaakt"
-    );
-
-    console.log(
-        "FAQ BEHEER REFRESH"
-    );
-
+        await saveDatabaseJson();
+    
     renderFAQBeheer();
-
-    console.log(
-        "FAQ CREATE EINDE"
-    );
+   
 }
 
 function openMailbox(mailbox){

@@ -3604,14 +3604,16 @@ function showGraphTab(tabId){
 }
 
 function loadTotaalbeeld() {
+    const aantal = typeof allData !== 'undefined'
+        ? allData.length
+        : 0;
 
     document.getElementById("totaalStats").innerHTML = `
         <div class="stat-card">
             <h3>Totaal Artikels</h3>
-            <p>${allData.length}</p>
+            <p>${aantal}</p>
         </div>
     `;
-
 }
 
     async function updateDashboard() {

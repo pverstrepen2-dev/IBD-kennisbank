@@ -16,12 +16,18 @@
 
 <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
 <script>
+console.log("VIS TEST", typeof vis);
+</script>
+
+<script>
+console.log("PDFJS =", window.pdfjsLib);
 
 if (window.pdfjsLib) {
     pdfjsLib.GlobalWorkerOptions.workerSrc =
         "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 }
 
+console.log("PDF TEST", window.pdfjsLib);
 </script>
 
 <script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
@@ -2114,12 +2120,17 @@ async function saveArchive(data){
 }
 
 async function loadCCV(){
+console.log("loadCCV gestart");
     try{
 
         const data =
             await loadCCVJson(
                 CCV_FILE_ID
             );
+console.log(
+    "CCV DATA:",
+    data
+);
         return data || [];
 
     }
@@ -2168,7 +2179,12 @@ async function loadTasks(){
             await loadCCVJson(
                 TASKS_FILE_ID
             );
-        
+
+        console.log(
+            "TASKS DATA:",
+            data
+        );
+
         return data || [];
 
     }
@@ -2219,7 +2235,12 @@ async function loadMeetings(){
                 MEETINGS_FILE_ID
             );
 
-             return data || [];
+        console.log(
+            "MEETINGS DATA:",
+            data
+        );
+
+        return data || [];
 
     }
     catch(error){
@@ -2268,7 +2289,12 @@ async function loadMembers(){
             await loadCCVJson(
                 MEMBERS_FILE_ID
             );
-     
+
+        console.log(
+            "MEMBERS DATA:",
+            data
+        );
+
         return data || [];
 
     }
@@ -2406,7 +2432,12 @@ async function loadDocuments(){
             await loadCCVJson(
                 DOCUMENTS_FILE_ID
             );
-   
+
+        console.log(
+            "DOCUMENTS DATA:",
+            data
+        );
+
         return data || [];
 
     }
@@ -2631,7 +2662,12 @@ async function loadGroups(){
             await loadCCVJson(
                 GROUPS_FILE_ID
             );
-       
+
+        console.log(
+            "GROUPS DATA:",
+            data
+        );
+
         return data || [];
 
     }
@@ -2747,7 +2783,12 @@ async function loadProjects(){
             await loadCCVJson(
                 PROJECTS_FILE_ID
             );
-       
+
+        console.log(
+            "PROJECTS DATA:",
+            data
+        );
+
         return data || [];
 
     }
@@ -3264,7 +3305,10 @@ let breadcrumbPath = [
 async function loadWebsites(){
 
     if(!msalReady){
-                return [];
+        console.log(
+            "MSAL nog niet klaar"
+        );
+        return [];
     }
 
     try{
@@ -3440,7 +3484,10 @@ if (tabName === 'aiapproved') {
       if (tabName === 'websites') refreshWebsitesOverview();
       if (tabName === 'voeding') renderVoeding('dieet');
       if (tabName === 'aikennis'){
-            }
+    console.log(
+        "AI Kenniscentrum geopend"
+    );
+        }
 if(tabName === 'aibibliotheek'){
     renderAIBibliotheek();
 }
@@ -3541,7 +3588,22 @@ function showGraphTab(tabId){
 
     const docs =
         await loadDocuments();
-   
+
+    console.log(
+        "KNOWLEDGE:",
+        knowledge
+    );
+
+    console.log(
+        "KNOWLEDGE ARRAY:",
+        Array.isArray(knowledge)
+    );
+
+    console.log(
+        "DOCS ARRAY:",
+        Array.isArray(docs)
+    );
+
     return [
 
         ...knowledge,
@@ -3604,16 +3666,14 @@ function showGraphTab(tabId){
 }
 
 function loadTotaalbeeld() {
-    const aantal = typeof allData !== 'undefined'
-        ? allData.length
-        : 0;
 
     document.getElementById("totaalStats").innerHTML = `
         <div class="stat-card">
             <h3>Totaal Artikels</h3>
-            <p>${aantal}</p>
+            <p>${allData.length}</p>
         </div>
     `;
+
 }
 
     async function updateDashboard() {
@@ -3682,7 +3742,11 @@ async function openDashboardView(type){
 }
 
     async function updateCategoryGrid() {
-             if(
+        console.log(
+    "HOOFDGROEP:",
+    currentHoofdgroep
+);
+      if(
     currentHoofdgroep === 'voeding'
 ){
 
@@ -3707,7 +3771,10 @@ if(
 }
       const data =
     await getFilteredData();
-    
+    console.log(
+    "DATA IN CATEGORYGRID:",
+    data.length
+);
       const allowed = getAllowedSections();
 
       const counts = {};
@@ -3726,6 +3793,8 @@ data.forEach(item => {
     }
 
 });
+
+console.log("COUNTS:", counts);
 
       const cards = Object.entries(categoryInfo)
         .filter(([_, info]) => info.sections.some(s => allowed.includes(s)))
@@ -3862,7 +3931,10 @@ if(currentHoofdgroep==='verenigingen'){
     }
 
     async function performSearch() {
-     
+
+      console.log("SEARCH ACTIEF");
+      console.log("performSearch gestart");
+      
      const knowledgeData =
     await getFilteredData();
 
@@ -3874,7 +3946,10 @@ if(msalReady){
             await loadDocuments();
     }
     catch(error){
-            }
+        console.log(
+            "AI documenten nog niet beschikbaar"
+        );
+    }
 }
 
 const allData = knowledgeData;
@@ -3883,7 +3958,14 @@ const allData = knowledgeData;
       const category = document.getElementById('categoryFilter')?.value || '';
       const type = document.getElementById('typeFilter')?.value || '';
       const sortBy = document.getElementById('sortBy')?.value || 'recent';
-      
+      console.log("ZOEKTERM:", searchTerm);
+
+console.log(
+    "ALLDATA:",
+    allData.length
+);
+console.log(allData);
+
      if(!searchTerm && !category){
 
     document.getElementById(
@@ -4056,7 +4138,23 @@ const voedingResults =
 
     return true;
 });
-    
+
+console.log(
+    "RESULT VOOR FAQ/CCV:",
+    result.length
+);
+
+console.table(result);
+
+      if (sortBy === 'title') {
+        result.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
+      } else if (sortBy === 'category') {
+        result.sort((a, b) => (a.category || '').localeCompare(b.category || ''));
+      } else {
+        result.sort((a, b) => (b.id || 0) - (a.id || 0));
+      }
+
+      
 if (searchTerm.trim() !== '') {
 
     result = [
@@ -4072,6 +4170,49 @@ if (searchTerm.trim() !== '') {
 
 }
 
+console.log(
+    "FAQ:",
+    faqResults.length
+);
+
+console.log(
+    "CCV:",
+    ccvResults.length
+);
+
+console.log(
+    "VOEDING:",
+    voedingResults.length
+);
+
+console.log(
+    "VERGADERINGEN:",
+    meetingResults.length
+);
+
+console.log(
+    "PROJECTEN:",
+    projectResults.length
+);
+
+console.log(
+    "TAKEN:",
+    taskResults.length
+);
+
+console.log(
+    "ONEDRIVE:",
+    oneDriveResults.length
+);
+
+console.log(
+    "TOTAAL:",
+    result.length
+);
+
+console.log("CATEGORIE:", category);
+console.log("RESULT:", result);
+console.log(result);
 displayResults(result);
     }
 
@@ -4210,6 +4351,8 @@ const search =
 
   const filtered = all
     .filter(site => {
+console.log("ALLE WEBSITES", all);
+
       const txt = [
         site.title || '',
         site.category || '',
@@ -4352,6 +4495,7 @@ filtered.forEach(site => {
   `;
 
 });
+console.log("GEFILTERD", filtered);
   listEl.innerHTML =
     html ||
     `<div class="panel" style="padding:22px;text-align:center;">
@@ -5279,14 +5423,30 @@ await refreshWebsitesOverview();
     'Lezen';
 
 function updateUserInfo(){
-   
+
+    console.log(
+        "updateUserInfo uitgevoerd"
+    );
+
+    console.log(
+        "currentUser:",
+        currentUser
+    );
+
     const el =
         document.getElementById(
             "userInfo"
         );
-    
+
+    console.log(
+        "userInfo element:",
+        el
+    );
+
     if(!el){
-       
+        console.error(
+            "userInfo niet gevonden"
+        );
         return;
     }
 
@@ -5349,7 +5509,11 @@ msalReady = true;
         await loadCurrentRole();
 
         updateUserInfo();
-       
+
+        console.log(
+            "USERINFO BIJGEWERKT"
+        );
+
         msalInstance.setActiveAccount(
             response.account
         );
@@ -5365,7 +5529,11 @@ msalReady = true;
         document.getElementById(
             "logoutBtn"
         ).style.display = "inline-block";
-        
+
+        console.log(
+            "Aangemeld:",
+            response.account.username
+        );
     }
 
     // HIER TOEVOEGEN
@@ -5530,7 +5698,11 @@ async function getAccessToken(){
 let databaseFileId = null;
 async function loadDatabaseJson(){
 if(!msalReady){
-    
+
+    console.log(
+        "MSAL nog niet klaar"
+    );
+
     return null;
 }
 
@@ -5613,7 +5785,11 @@ async function saveDatabaseJson(){
             }
         );
 
-    }
+    console.log(
+        "database.json opgeslagen",
+        response.status
+    );
+}
 
    populateFilters();
   //  setLanguage(currentLang);
@@ -5623,8 +5799,11 @@ async function saveDatabaseJson(){
  //   updateCategoryGrid();
  //   performSearch();
     //updateRecordsList();
-    // renderFaqByGroup(currentHoofdgroep);
+    console.log("FAQ init");
 
+// renderFaqByGroup(currentHoofdgroep);
+
+console.log("FAQ klaar");
    setTimeout(() => {
     if(msalReady){
         refreshWebsitesOverview();
@@ -5653,7 +5832,8 @@ async function addCCV(type,obj){
 
 // TAB SWITCH
 async function switchCCVTab(evt,tab){
-   document.querySelectorAll('#ccvtab .tab-btn').forEach(b=>b.classList.remove('active'));
+  console.log("TAB:", tab);
+  document.querySelectorAll('#ccvtab .tab-btn').forEach(b=>b.classList.remove('active'));
   evt.target.classList.add('active');
   await renderCCV(tab);
 }
@@ -6179,6 +6359,7 @@ groepen[categorie].push(file);
 
 async function renderTaken(){
     console.trace("renderTaken wordt uitgevoerd");
+console.log("renderTaken gestart");
 
  const allData =
   await loadTasks();
@@ -7929,6 +8110,8 @@ async function archiveProject(projectId){
 }
 
 async function renderArchive(){
+    console.log("ARCHIEF GESTART");
+
     const allData = await loadArchive();
 
     const data = allData.filter(
@@ -8234,7 +8417,8 @@ function addVoeding(type,obj){
 
 // TAB SWITCH
 function switchVoedingTab(evt, tab){
- 
+  console.log("Klik op:", tab); // ✅ TEST
+
   document.querySelectorAll('#voeding .tab-btn').forEach(b=>b.classList.remove('active'));
   evt.target.classList.add('active');
 
@@ -8497,7 +8681,9 @@ function useAISuggestion(
 }
 
 async function saveWebsite(){
-    
+
+    console.log("SAVE WEBSITE START");
+
     const title =
         document.getElementById("w_title").value;
 
@@ -8510,7 +8696,9 @@ async function saveWebsite(){
     const tags =
         document.getElementById("w_tags").value;
 
-        try{
+    console.log(title, url);
+
+    try{
 
         let data =
             await loadWebsites();
@@ -8530,6 +8718,11 @@ async function saveWebsite(){
 const controle =
     await loadWebsites();
 
+console.log(
+    "NA OPSLAAN:",
+    controle
+);
+
         await refreshWebsitesOverview();
 
         showNotification(
@@ -8539,7 +8732,9 @@ document.getElementById("w_title").value = "";
 document.getElementById("w_url").value = "";
 document.getElementById("w_tags").value = "";
 document.getElementById("w_category").selectedIndex = 0;
-   
+
+        console.log("OPSLAAN GELUKT");
+
     }
     catch(error){
 
@@ -8597,9 +8792,18 @@ async function loadOneDriveFiles(){
 
     try{
 
-         const token =
+        console.log(
+            "ACTIVE ACCOUNT:",
+            msalInstance.getActiveAccount()
+        );
+
+        const token =
             await getAccessToken();
-       
+
+        console.log(
+            "TOKEN OK"
+        );
+
         const response =
             await fetch(
                 "https://graph.microsoft.com/v1.0/me/drive/root/children",
@@ -8611,11 +8815,26 @@ async function loadOneDriveFiles(){
                 }
             );
 
-             const data =
+        console.log(
+            "STATUS:",
+            response.status
+        );
+
+        const data =
             await response.json();
 
-       data.value.forEach(item => {
-    
+        console.log(
+    "GRAPH RESPONSE:",
+    data
+);
+
+data.value.forEach(item => {
+
+    console.log(
+        item.name,
+        item.id
+    );
+
 });
 document.getElementById(
     "resultsContainer"
@@ -8679,8 +8898,18 @@ async function loadCCVFolder(){
     id: item.id
 }));
 
+console.log(
+    "CCV MAP:",
+    data
+);
 data.value.forEach(item => {
-    
+
+    console.log(
+        "CCV ITEM:",
+        item.name,
+        item.id
+    );
+
 });
 
 document.getElementById(
@@ -8799,6 +9028,9 @@ setTimeout(() => {
 }
 
 async function loadCCVSubFolders(){
+  console.log("START loadCCVSubFolders");
+  console.log("CCV VERKENNER WORDT GELADEN");
+
     try{
 
     const folderId =
@@ -8809,6 +9041,8 @@ async function loadCCVSubFolders(){
 
    const token =
     await getAccessToken();
+
+console.log("FETCH START");
 
 const response =
     await fetch(
@@ -8821,6 +9055,8 @@ const response =
         }
     );
 
+console.log("FETCH OK");
+
 const data =
     await response.json();
 
@@ -8828,7 +9064,16 @@ const data =
  //   folderId,
  //   token
 //);
-       
+
+//console.log(
+ //   "ONEDRIVE INDEX:",
+  //  oneDriveIndex.length
+//);
+        console.log(
+            "CCV SUBFOLDERS:",
+            data
+        );
+
         breadcrumbPath = [
     {
         id: folderId,
@@ -8837,7 +9082,13 @@ const data =
 ];
 
 updateBreadcrumb();
-        
+
+        console.log(
+    "driveExplorer element:",
+    document.getElementById(
+        "driveExplorer"
+    )
+);
 document.getElementById(
     "driveExplorer"
 ).style.display = "block";
@@ -8849,7 +9100,14 @@ document.getElementById(
 
 data.value.forEach(item => {
 
-    });
+    console.log(
+        "CCV ITEM:",
+        item.name,
+        item.folder ? "MAP" : "BESTAND",
+        item.id
+    );
+
+});
 
         document.getElementById(
     "driveExplorer"
@@ -8895,11 +9153,22 @@ data.value.forEach(item => {
 ){
 
     if(visitedFolders.has(folderId)){
-                return;
+        console.log(
+            "AL GEZIEN:",
+            folderId
+        );
+        return;
     }
 
     visitedFolders.add(folderId);
-       
+
+    console.log(
+        "INDEX MAP:",
+        folderId
+    );
+
+    console.log("FETCH START");
+
 const response =
     await fetch(
         `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`,
@@ -8910,6 +9179,8 @@ const response =
             }
         }
     );
+
+console.log("FETCH OK");
 
     const data =
         await response.json();
@@ -8976,7 +9247,14 @@ async function buildKnowledgeMap(){
     
     const docs =
         await loadDocuments();
-    
+    console.log(
+    "EERSTE DOC:",
+    docs[0]
+);
+console.table(
+    docs.slice(0,5)
+);
+
     const nodes = [];
     const edges = [];
 const uniekeNodes =
@@ -9429,7 +9707,24 @@ async function openDriveFolder(
     folderName,
     addToBreadcrumb = true
 ){
-     
+
+    console.log(
+        "MAP ID:",
+        folderId
+    );
+
+    alert(
+    "Mapnaam: " +
+    folderName +
+    "\n\nMap ID:\n" +
+    folderId
+);
+
+    console.log(
+        "MAP NAAM:",
+        folderName
+    );
+
     try{
 
         const token =
@@ -9451,7 +9746,32 @@ async function openDriveFolder(
         const data =
             await response.json();
 
+            console.table(
+    data.value.map(x => ({
+        naam: x.name,
+        map: !!x.folder,
+        bestand: !!x.file,
+        id: x.id
+    }))
+);
+
+            console.log(
+    "===== INHOUD MAP ====="
+);
+
 data.value.forEach(item => {
+
+    console.log(
+        "BESTAND:",
+        item.name
+    );
+
+    console.log(
+        "ID:",
+        item.id
+    );
+
+    console.log(item);
 
 });
 
@@ -9487,6 +9807,14 @@ file: item.file
 
 }
         
+
+        console.log(
+            "MAP INHOUD:",
+            data
+        );
+
+        console.log("STATUS:", response.status);
+
 if (!response.ok) {
     console.error("GRAPH FOUT:", data);
     throw new Error(JSON.stringify(data));
@@ -9553,7 +9881,7 @@ if (breadcrumbPath.length > 1) {
 } else {
     backBtn.style.display = "none";
 }
-// alert("HTML WORDT GESCHREVEN");
+alert("HTML WORDT GESCHREVEN");
 let target = "driveExplorer";
 
 if(document.getElementById("werkdocsList")){
@@ -9699,11 +10027,13 @@ async function openFile(fileId){
 
         const file = await response.json();
 
-window.open(
-    file.webUrl,
-    "_blank"
+        console.log("BESTAND:", file);
+        alert(
+    "Naam: " +
+    file.name +
+    "\nID: " +
+    file.id
 );
-
 const info =
 await getDocumentInsights(
     fileId
@@ -9756,7 +10086,12 @@ async function testDatabase(){
     const data =
         await loadDatabaseJson();
 
-        alert(
+    console.log(
+        "DATABASE:",
+        data
+    );
+
+    alert(
         "Knowledge items: " +
         (
             data.knowledgeData
@@ -9771,7 +10106,12 @@ async function testKnowledge(){
     const data =
         await getKnowledgeData();
 
-        alert(
+    console.log(
+        "KNOWLEDGE:",
+        data
+    );
+
+    alert(
         "Knowledge records: " +
         data.length
     );
@@ -9949,7 +10289,11 @@ async function extractDocumentText(file){
 }
 
 async function extractPdfText(fileId){
-    
+    console.log(
+    "PDF FILE:",
+    fileId
+);
+
     const token = await getAccessToken();
 
     const response = await fetch(
@@ -9968,7 +10312,11 @@ async function extractPdfText(fileId){
     const pdf = await pdfjsLib.getDocument(pdfUrl).promise;
 
     let text = "";
-    
+    console.log(
+    "PDF PAGINA'S:",
+    pdf.numPages
+);
+
     for(let pageNum = 1; pageNum <= pdf.numPages; pageNum++){
 
         const page = await pdf.getPage(pageNum);
@@ -9981,7 +10329,12 @@ async function extractPdfText(fileId){
 
         text += "\n";
     }
-       return text;
+    console.log(
+    "PDF TEKST:",
+    text.substring(0,200)
+);
+
+    return text;
 }
 
 async function analyseDocumentContent(
@@ -10310,6 +10663,15 @@ confidence =
         100
     );
 
+console.log("SCORES", scores);
+console.table(scores);
+
+console.log(
+    "WINNAAR:",
+    categorie
+);
+
+
     const samenvatting =
         generateSummary(text);
 
@@ -10326,7 +10688,15 @@ confidence =
             + samenvatting
         ).toLowerCase();
 
-       let onderwerp = "";
+        console.log(
+    "CLASSIFICATIE:",
+    hoofdgroep,
+    categorie,
+    crohnCount,
+    colitisCount
+);
+
+let onderwerp = "";
 
 switch(categorie){
 
@@ -10597,6 +10967,11 @@ async function scanSubFolder(
         of data.value
     ){
 
+        console.log(
+            "SUBMAP ITEM:",
+            file.name
+        );
+
         if(file.folder){
 
             await scanSubFolder(
@@ -10645,7 +11020,14 @@ catch(error){
         await analyseDocumentAI(
             file
         );
-}              
+}
+
+        console.log(
+            "ANALYSE:",
+            file.name,
+            analyse
+        );
+        
       if(!analyse){
 
     console.error(
@@ -10702,6 +11084,11 @@ async function scanFolderDocuments(folderId){
     "aiResultsContainer"
 ).innerHTML = "";
 
+console.log(
+    "AI scan gestart voor map:",
+    folderId
+);
+
     document.getElementById(
         "aiScanStatus"
     ).style.display = "block";
@@ -10711,14 +11098,20 @@ async function scanFolderDocuments(folderId){
     ).innerHTML =
     "🤖 AI analyse loopt...";
 
-     document.getElementById(
+    console.log(
+        "AI BUTTON GEKLIKT"
+    );
+
+    document.getElementById(
     "aiScanStatus"
 ).innerHTML =
 "🤖 AI Analyse gestart...";
 
     const token =
         await getAccessToken();
-            const response =
+        console.log("STAP 2 TOKEN OK");
+
+      const response =
             await fetch(
             `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`,
             {
@@ -10729,9 +11122,16 @@ async function scanFolderDocuments(folderId){
             }
         );
 
-         const data =
+        console.log("STAP 3 FETCH OK");
+
+    const data =
            await response.json();
-           
+            console.log("STAP 4 DATA", data);
+            console.log(
+    "AANTAL ITEMS:",
+    data.value.length
+);
+
     const results = [];
     const duplicateWarnings = [];
 
@@ -10740,7 +11140,12 @@ async function scanFolderDocuments(folderId){
     of data.value
     ){
 
-    if(file.folder){
+    console.log(
+        "BESTAND:",
+        file.name
+    );
+
+   if(file.folder){
 
     await scanSubFolder(
     file.id,
@@ -10749,7 +11154,12 @@ async function scanFolderDocuments(folderId){
 
     continue;
 }
-  
+
+    console.log(
+        "ANALYSE:",
+        file.name
+    );
+
     let analyse;
 let text = "";
 
@@ -10790,7 +11200,11 @@ catch(error){
         );
 }
 
-    const duplicaat =
+    console.log(
+        "RESULTAAT:",
+        analyse
+    );
+const duplicaat =
     results.find(r =>
         r.fileName
         .replace("(1)","")
@@ -10846,6 +11260,14 @@ document.getElementById(
 `🤖 ${results.length}
 documenten verwerkt`;
 }
+console.log(
+    "RESULTATEN:",
+    results.length
+);
+
+console.log(
+    results
+);
 currentAIResults =
     results;
 aiProposals = results;
@@ -11095,7 +11517,15 @@ function toggleExplorer(){
 
 async function createFAQFromAI(fileId){
 
-     let doc =
+    console.log("================================");
+    console.log("FAQ CREATE START");
+    console.log("FILE ID:", fileId);
+    console.log("================================");
+
+    console.log("CURRENT AI RESULTS:");
+    console.log(currentAIResults);
+
+    let doc =
     currentAIResults.find(
         x => x.fileId === fileId
     );
@@ -11151,10 +11581,25 @@ if(!doc){
     const data =
         await getKnowledgeData();
 
-       const faqList =
+    console.log(
+        "KNOWLEDGE RECORDS:",
+        data.length
+    );
+
+    console.log(
+        "DOC FAQ PROPERTY:"
+    );
+    console.log(doc.faq);
+
+    const faqList =
         doc.faq || [];
 
-        if(faqList.length === 0){
+    console.log(
+        "FAQ COUNT:",
+        faqList.length
+    );
+
+    if(faqList.length === 0){
 
         console.warn(
             "GEEN FAQ GEVONDEN - DEFAULT FAQ WORDT GEMAAKT"
@@ -11171,8 +11616,20 @@ if(!doc){
         });
     }
 
-            faqList.forEach(faq => {
-               
+    console.log(
+        "FAQ LIST NA OPBOUW:"
+    );
+
+    console.table(faqList);
+
+    faqList.forEach(faq => {
+
+        console.log(
+            "FAQ TOEVOEGEN:"
+        );
+
+        console.log(faq);
+
         data.unshift({
 
             id:
@@ -11205,14 +11662,44 @@ if(!doc){
         });
 
     });
- 
+
+    console.log(
+        "AANTAL FAQ'S IN DATA:"
+    );
+
+    console.log(
+        data.filter(
+            x => x.type === "FAQ"
+        ).length
+    );
+
     databaseCache.knowledgeData =
         data;
 
-        await saveDatabaseJson();
-    
+    console.log(
+        "VOOR SAVE DATABASE"
+    );
+
+    await saveDatabaseJson();
+
+    console.log(
+        "DATABASE OPGESLAGEN"
+    );
+
+    showNotification(
+        faqList.length +
+        " FAQ voorstellen aangemaakt"
+    );
+
+    console.log(
+        "FAQ BEHEER REFRESH"
+    );
+
     renderFAQBeheer();
-   
+
+    console.log(
+        "FAQ CREATE EINDE"
+    );
 }
 
 function openMailbox(mailbox){
@@ -12132,7 +12619,16 @@ async function buildIndexes(){
         token
     );
 
-    }
+    console.log(
+        "Folders:",
+        folderIndex.length
+    );
+
+    console.log(
+        "Files:",
+        fileIndex.length
+    );
+}
 
 async function buildIndexRecursive(
     folderId,
@@ -12564,7 +13060,8 @@ initVoedingTabs();
 updateFavoritesButton();
 
 window.onerror = function(msg){
-  };
+  console.log("JS Fout:", msg);
+};
 
 </script>
 </body>

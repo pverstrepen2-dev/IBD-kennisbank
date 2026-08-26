@@ -220,6 +220,25 @@ console.log("PDF TEST", window.pdfjsLib);
     border:1px solid #ddd;
     margin-top:20px;
 }
+#detailPanel{
+    position:absolute;
+    right:20px;
+    top:100px;
+
+    width:300px;
+
+    max-height:700px;
+
+    overflow:auto;
+
+    background:white;
+
+    border:1px solid #ccc;
+
+    padding:15px;
+
+    border-radius:10px;
+}
 
     .stats-grid, .category-grid, .card-grid, .form-grid {
       display: grid;
@@ -531,6 +550,45 @@ console.log("PDF TEST", window.pdfjsLib);
     }
   </style>
 </head>
+
+<style>
+
+body{
+    margin:0;
+}
+
+#knowledgeNetwork{
+    height:700px;
+}
+
+#detailPanel{
+    position:absolute;
+    right:20px;
+    top:100px;
+    width:300px;
+    max-height:700px;
+    overflow:auto;
+    background:white;
+    border:1px solid #ccc;
+    padding:15px;
+    border-radius:10px;
+}
+
+/* HIER TOEVOEGEN */
+
+.pdfItem{
+    padding:10px;
+    margin:6px 0;
+    cursor:pointer;
+    border-bottom:1px solid #ddd;
+}
+
+.pdfItem:hover{
+    background:#f5f5f5;
+}
+
+</style>
+
 <body>
   <div class="language-selector">
     <button class="lang-btn active" data-lang="nl" onclick="setLanguage('nl')">🇳🇱 NL</button>
@@ -1088,7 +1146,11 @@ class="tab-content">
 
         <div id="knowledgeNetwork">
         </div>
+<div id="detailPanel">
 
+    <h3>Selecteer een categorie</h3>
+
+</div>
     </div>
 
 </div>
@@ -9458,6 +9520,7 @@ const uniekeNodes =
         `<h2>🧠 Knowledge Graph</h2>`;
 
     const structuur = {};
+    const categorieDocs = {};
 
 docs.forEach(doc => {
 
@@ -9505,24 +9568,29 @@ const categorieId =
     "_" +
     doc.categorie;
 
+if(!categorieDocs[categorieId]){
+    categorieDocs[categorieId] = [];
+}
+
+categorieDocs[categorieId].push({
+    title: doc.title,
+    fileId: doc.fileId
+});
+
 if(
     !uniekeNodes.has(
         categorieId
     )
 ){
 
+
     nodes.push({
-
-        id:
-            categorieId,
-
-        label:
-            doc.categorie,
-
-        group:
-            "categorie"
-
-    });
+    id: categorieId,
+    label: doc.categorie,
+    group: "categorie",
+    categorie: doc.categorie,
+    hoofdgroep: doc.hoofdgroep
+});
 
     edges.push({
 
@@ -9540,27 +9608,29 @@ if(
 
 }
 
+// DOCUMENT-NODES NIET TONEN
+
+/*
 nodes.push({
+    id: doc.id,
+    label: doc.title,
+    group: "document",
 
-    id:
-        doc.id,
-
-    label:
-        doc.title,
-
-    group:
-        "document"
-
+    fileId: doc.fileId,
+    title: doc.title,
+    categorie: doc.categorie,
+    hoofdgroep: doc.hoofdgroep
 });
 
 edges.push({
+    from: categorieId,
+    to: doc.id
+});
+*/
 
-    from:
-        categorieId,
-
-    to:
-        doc.id
-
+categorieDocs[categorieId].push({
+    title: doc.title,
+    fileId: doc.fileId
 });
 
 (doc.tags || [])
@@ -9701,16 +9771,105 @@ edges.push({
 
     };
 
+    const network =
     new vis.Network(
-
         container,
-
         data,
-
         {}
-
     );
+network.on(
+    "click",
+    function(params){
 
+        if(
+            !params.nodes.length
+        ){
+            return;
+        }
+
+        const nodeId =
+            params.nodes[0];
+
+        const node =
+            data.nodes.get(
+                nodeId
+            );
+
+        if(
+            node.group !==
+            "categorie"
+        ){
+            return;
+        }
+
+        showCategorie(
+            nodeId,
+            node.label
+        );
+
+    }
+);
+
+network.on("hoverNode", function(params){
+
+    const node =
+        data.nodes.get(
+            params.node
+        );
+
+    if(
+        node.group === "categorie"
+    ){
+
+        container.title =
+            "Categorie: " +
+            node.label;
+
+    }
+
+});
+}
+
+function showCategorie(
+    categorieId,
+    categorieNaam
+){
+
+    const panel =
+        document.getElementById(
+            "detailPanel"
+        );
+
+    let html = `
+        <h2>
+            ${categorieNaam}
+        </h2>
+    `;
+
+    const docs =
+        categorieDocs[
+            categorieId
+        ] || [];
+
+    docs.forEach(doc=>{
+
+        html += `
+            <div
+                class="pdfItem"
+                onclick="
+                    openDocumentById(
+                        '${doc.fileId}'
+                    )
+                "
+            >
+                📄 ${doc.title}
+            </div>
+        `;
+
+    });
+
+    panel.innerHTML =
+        html;
 }
 
 function suggestFileName(name){

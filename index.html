@@ -220,25 +220,6 @@ console.log("PDF TEST", window.pdfjsLib);
     border:1px solid #ddd;
     margin-top:20px;
 }
-#detailPanel{
-    position:absolute;
-    right:20px;
-    top:100px;
-
-    width:300px;
-
-    max-height:700px;
-
-    overflow:auto;
-
-    background:white;
-
-    border:1px solid #ccc;
-
-    padding:15px;
-
-    border-radius:10px;
-}
 
     .stats-grid, .category-grid, .card-grid, .form-grid {
       display: grid;
@@ -550,45 +531,6 @@ console.log("PDF TEST", window.pdfjsLib);
     }
   </style>
 </head>
-
-<style>
-
-body{
-    margin:0;
-}
-
-#knowledgeNetwork{
-    height:700px;
-}
-
-#detailPanel{
-    position:absolute;
-    right:20px;
-    top:100px;
-    width:300px;
-    max-height:700px;
-    overflow:auto;
-    background:white;
-    border:1px solid #ccc;
-    padding:15px;
-    border-radius:10px;
-}
-
-/* HIER TOEVOEGEN */
-
-.pdfItem{
-    padding:10px;
-    margin:6px 0;
-    cursor:pointer;
-    border-bottom:1px solid #ddd;
-}
-
-.pdfItem:hover{
-    background:#f5f5f5;
-}
-
-</style>
-
 <body>
   <div class="language-selector">
     <button class="lang-btn active" data-lang="nl" onclick="setLanguage('nl')">🇳🇱 NL</button>
@@ -845,7 +787,6 @@ class="btn btn-primary"
       <button class="tab-btn" onclick="switchTab(event,'projectdashboard')">📊 Projectdashboard</button>
       <button class="tab-btn" onclick="switchTab(event, 'websites')">🌐 Websites</button>
       <button class="tab-btn" onclick="switchTab(event,'knowledge-map')">🧠 Kenniskaart</button>
-      <button class="tab-btn" onclick="switchTab(event,'kennisbank')">📚 Kennisbank</button>
       <button class="tab-btn" onclick="showTab('relations')">🔗 Documentrelaties</button>
     </div>
 
@@ -858,81 +799,6 @@ class="btn btn-primary"
     <div id="categories" class="tab-content">
       <div class="category-grid" id="categoryGrid"></div>
     </div>
-
-<!-- Kennisbank -->
-
-<div id="kennisbank"
-     class="tab-content">
-
-<h2>📚 IBD Kennisbank</h2>
-
-<div class="category-grid">
-
-<div class="category-card"
-     onclick="loadKnowledgeCategory('Symptom')">
-
-    <div class="category-title">
-        Symptomen
-    </div>
-
-</div>
-
-<div class="category-card"
-     onclick="loadKnowledgeCategory('Diagnostic')">
-
-    <div class="category-title">
-        Diagnostiek
-    </div>
-
-</div>
-
-<div class="category-card"
-     onclick="loadKnowledgeCategory('Medication')">
-
-    <div class="category-title">
-        Medicatie
-    </div>
-
-</div>
-
-<div class="category-card"
-     onclick="loadKnowledgeCategory('Lab')">
-
-    <div class="category-title">
-        Labwaarden
-    </div>
-
-</div>
-
-<div class="category-card"
-     onclick="loadKnowledgeCategory('Nutrition')">
-
-    <div class="category-title">
-        Voeding
-    </div>
-
-</div>
-
-<div class="category-card"
-     onclick="loadKnowledgeCategory('Psychological')">
-
-    <div class="category-title">
-        Mentaal Welzijn
-    </div>
-
-</div>
-
-</div>
-
-<hr style="margin:20px 0;">
-
-<div id="knowledgeResults">
-
-Klik op een categorie.
-
-</div>
-
-</div>
 
     <!-- Search -->
     <div id="search" class="tab-content">
@@ -1146,11 +1012,7 @@ class="tab-content">
 
         <div id="knowledgeNetwork">
         </div>
-<div id="detailPanel">
 
-    <h3>Selecteer een categorie</h3>
-
-</div>
     </div>
 
 </div>
@@ -2115,42 +1977,9 @@ class="tab-content">
     </div>
 
 </div>
- <div id="notification" class="notification"></div>
+  <div id="notification" class="notification"></div>
 
-<script>
-let glossaryData = [
-    {
-        category: "Symptom",
-        title: "Vermoeidheid",
-        description: "Veelvoorkomend symptoom bij IBD."
-    },
-    {
-        category: "Symptom",
-        title: "Buikpijn",
-        description: "Kan optreden tijdens een opstoot."
-    },
-    {
-        category: "Diagnostic",
-        title: "Coloscopie",
-        description: "Onderzoek van de dikke darm."
-    },
-    {
-        category: "Lab",
-        title: "Calprotectine",
-        description: "Ontstekingsmarker in stoelgang."
-    },
-    {
-        category: "Medication",
-        title: "Vedolizumab",
-        description: "Biological voor de behandeling van IBD."
-    },
-    {
-        category: "Nutrition",
-        title: "Voedingsadvies",
-        description: "Voeding afgestemd op IBD."
-    }
-];
-
+  <script>
     const STORAGE_KEY = 'ibd_kennisbank_multilang';
     const LANG_KEY = 'ibd_selected_language';
     const FAVORITES_KEY = 'ibd_favorites';
@@ -3037,7 +2866,6 @@ let scanRunning = false;
 let currentAIKnowledge = [];
 
 let documents = [];
-let categorieDocs = {};
 let faqData = [];
 let websites = [];
 let documentRelations = [];
@@ -3474,42 +3302,6 @@ let breadcrumbPath = [
     return await getKnowledgeData();
 }
 
-async function loadGlossaryFromExcel() {
-
-    try {
-
-        const response =
-            await fetch(
-                "Medische-Documenten-Catalogus.xlsx"
-            );
-
-        const buffer =
-            await response.arrayBuffer();
-
-        const workbook =
-            XLSX.read(
-                buffer,
-                {
-                    type: "array"
-                }
-            );
-
-        console.log(
-            "Werkbladen:",
-            workbook.SheetNames
-        );
-
-    } catch(error){
-
-        console.error(
-            "Excel laden mislukt",
-            error
-        );
-
-    }
-
-}
-
 async function loadWebsites(){
 
     if(!msalReady){
@@ -3558,36 +3350,6 @@ function loadTotaalbeeld() {
         <h3>Totaaloverzicht</h3>
         <p>Hier komen alle statistieken.</p>
     `;
-
-}
-
-function loadKnowledgeCategory(category){
-
-    const items =
-        glossaryData.filter(
-            item =>
-                item.category === category
-        );
-
-    document.getElementById(
-        "knowledgeResults"
-    ).innerHTML =
-
-        items.map(item => `
-
-            <div class="result-item">
-
-                <div class="result-title">
-                    ${item.title}
-                </div>
-
-                <div class="result-content">
-                    ${item.description}
-                </div>
-
-            </div>
-
-        `).join("");
 
 }
 
@@ -3920,10 +3682,6 @@ function loadTotaalbeeld() {
       const categories = [...new Set(data.map(x => x.category).filter(Boolean))];
       const withLinks = data.filter(x => x.url).length;
       const withTips = data.filter(x => x.type === 'Tip').length;
-      const knowledgeItems =
-    Array.isArray(glossaryData)
-        ? glossaryData.length
-        : 0;
 
       document.getElementById('statsGrid').innerHTML = `
 
@@ -3951,21 +3709,6 @@ function loadTotaalbeeld() {
     <div class="stat-label">Tips</div>
   </div>
 
-  <div class="stat-card"
-     onclick="switchTab(event,'kennisbank')"
-     style="cursor:pointer;">
-
-    <div>📚</div>
-
-    <div class="stat-number">
-        ${knowledgeItems}
-    </div>
-
-    <div class="stat-label">
-        Kennisitems
-    </div>
-
-</div>
 `;
     }
     
@@ -9521,7 +9264,6 @@ const uniekeNodes =
         `<h2>🧠 Knowledge Graph</h2>`;
 
     const structuur = {};
-    categorieDocs = {};
 
 docs.forEach(doc => {
 
@@ -9569,29 +9311,24 @@ const categorieId =
     "_" +
     doc.categorie;
 
-if(!categorieDocs[categorieId]){
-    categorieDocs[categorieId] = [];
-}
-
-categorieDocs[categorieId].push({
-    title: doc.title,
-    fileId: doc.fileId
-});
-
 if(
     !uniekeNodes.has(
         categorieId
     )
 ){
 
-
     nodes.push({
-    id: categorieId,
-    label: doc.categorie,
-    group: "categorie",
-    categorie: doc.categorie,
-    hoofdgroep: doc.hoofdgroep
-});
+
+        id:
+            categorieId,
+
+        label:
+            doc.categorie,
+
+        group:
+            "categorie"
+
+    });
 
     edges.push({
 
@@ -9609,29 +9346,27 @@ if(
 
 }
 
-// DOCUMENT-NODES NIET TONEN
-
-/*
 nodes.push({
-    id: doc.id,
-    label: doc.title,
-    group: "document",
 
-    fileId: doc.fileId,
-    title: doc.title,
-    categorie: doc.categorie,
-    hoofdgroep: doc.hoofdgroep
+    id:
+        doc.id,
+
+    label:
+        doc.title,
+
+    group:
+        "document"
+
 });
 
 edges.push({
-    from: categorieId,
-    to: doc.id
-});
-*/
 
-categorieDocs[categorieId].push({
-    title: doc.title,
-    fileId: doc.fileId
+    from:
+        categorieId,
+
+    to:
+        doc.id
+
 });
 
 (doc.tags || [])
@@ -9772,105 +9507,16 @@ categorieDocs[categorieId].push({
 
     };
 
-    const network =
     new vis.Network(
+
         container,
+
         data,
+
         {}
+
     );
-network.on(
-    "click",
-    function(params){
 
-        if(
-            !params.nodes.length
-        ){
-            return;
-        }
-
-        const nodeId =
-            params.nodes[0];
-
-        const node =
-            data.nodes.get(
-                nodeId
-            );
-
-        if(
-            node.group !==
-            "categorie"
-        ){
-            return;
-        }
-
-        showCategorie(
-            nodeId,
-            node.label
-        );
-
-    }
-);
-
-network.on("hoverNode", function(params){
-
-    const node =
-        data.nodes.get(
-            params.node
-        );
-
-    if(
-        node.group === "categorie"
-    ){
-
-        container.title =
-            "Categorie: " +
-            node.label;
-
-    }
-
-});
-}
-
-function showCategorie(
-    categorieId,
-    categorieNaam
-){
-
-    const panel =
-        document.getElementById(
-            "detailPanel"
-        );
-
-    let html = `
-        <h2>
-            ${categorieNaam}
-        </h2>
-    `;
-
-    const docs =
-        categorieDocs[
-            categorieId
-        ] || [];
-
-    docs.forEach(doc=>{
-
-        html += `
-            <div
-                class="pdfItem"
-                onclick="
-                    openDocumentById(
-                        '${doc.fileId}'
-                    )
-                "
-            >
-                📄 ${doc.title}
-            </div>
-        `;
-
-    });
-
-    panel.innerHTML =
-        html;
 }
 
 function suggestFileName(name){
@@ -13409,25 +13055,14 @@ const users =
 }
 
 // INIT
-async function initializeApplication(){
-
-    await loadGlossaryFromExcel();
-
-    renderVoeding('dieet');
-
-    initVoedingTabs();
-
-    updateFavoritesButton();
-
-    updateDashboard();
-
-}
-
-initializeApplication();
+renderVoeding('dieet');
+initVoedingTabs();
+updateFavoritesButton();
 
 window.onerror = function(msg){
   console.log("JS Fout:", msg);
 };
+
 </script>
 </body>
 </html> 

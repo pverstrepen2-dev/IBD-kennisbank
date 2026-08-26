@@ -844,10 +844,7 @@ class="btn btn-primary"
       <button class="tab-btn" onclick="switchTab(event, 'totaalbeeld')">📈 Totaalbeeld</button>
       <button class="tab-btn" onclick="switchTab(event,'projectdashboard')">📊 Projectdashboard</button>
       <button class="tab-btn" onclick="switchTab(event, 'websites')">🌐 Websites</button>
-      <button class="tab-btn" onclick="switchTab(event,'knowledge-map')">🧠 Kenniskaart</button>
-      <button class="tab-btn" onclick="switchTab(event,'kennisbank')">📚 Kennisbank</button>
-      <button class="tab-btn" onclick="showTab('relations')">🔗 Documentrelaties</button>
-    </div>
+       </div>
 
     <!-- Dashboard -->
     <div id="dashboard" class="tab-content active">
@@ -1255,6 +1252,79 @@ class="tab-content">
 <div
     id="aiCaptureResult"
     style="margin-top:20px;">
+</div>
+
+<hr style="margin:30px 0;">
+
+<h3>📚 IBD Kenniscategorieën</h3>
+
+<div class="category-grid">
+
+<div class="category-card"
+     onclick="loadKnowledgeCategory('Symptom')">
+
+    <div class="category-title">
+        Symptomen
+    </div>
+
+</div>
+
+<div class="category-card"
+     onclick="loadKnowledgeCategory('Diagnostic')">
+
+    <div class="category-title">
+        Diagnostiek
+    </div>
+
+</div>
+
+<div class="category-card"
+     onclick="loadKnowledgeCategory('Medication')">
+
+    <div class="category-title">
+        Medicatie
+    </div>
+
+</div>
+
+<div class="category-card"
+     onclick="loadKnowledgeCategory('Nutrition')">
+
+    <div class="category-title">
+        Voeding
+    </div>
+
+</div>
+
+<div class="category-card"
+     onclick="loadKnowledgeCategory('Psychological')">
+
+    <div class="category-title">
+        Mentaal Welzijn
+    </div>
+
+</div>
+
+</div>
+</div>
+
+<h3>🧪 Labwaarden</h3>
+
+<div class="category-card"
+     onclick="loadKnowledgeCategory('Lab')">
+
+    <div class="category-title">
+        Labwaarden
+    </div>
+
+</div>
+
+<hr style="margin:20px 0;">
+
+<div id="knowledgeResults">
+
+    Klik op een categorie.
+
 </div>
 
     </div>
@@ -3951,17 +4021,17 @@ function loadTotaalbeeld() {
   </div>
 
   <div class="stat-card"
-     onclick="switchTab(event,'kennisbank')"
+     onclick="showTab('aikennis')"
      style="cursor:pointer;">
 
-    <div>📚</div>
+    <div>🧠</div>
 
     <div class="stat-number">
         ${knowledgeItems}
     </div>
 
     <div class="stat-label">
-        Kennisitems
+        AI Kenniscentrum
     </div>
 
 </div>

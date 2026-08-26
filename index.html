@@ -3037,6 +3037,7 @@ let scanRunning = false;
 let currentAIKnowledge = [];
 
 let documents = [];
+let categorieDocs = {};
 let faqData = [];
 let websites = [];
 let documentRelations = [];
@@ -9520,7 +9521,7 @@ const uniekeNodes =
         `<h2>🧠 Knowledge Graph</h2>`;
 
     const structuur = {};
-    const categorieDocs = {};
+    categorieDocs = {};
 
 docs.forEach(doc => {
 

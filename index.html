@@ -541,25 +541,37 @@ console.log("PDF TEST", window.pdfjsLib);
 .medlib-doc:hover{
     background:#eef2ff;
 }
-    @media (max-width: 768px) {
-      .language-selector {
+
+@media (max-width: 768px) {
+    .language-selector {
         position: static;
         margin-bottom: 12px;
         justify-content: flex-end;
-      }
     }
-  </style>
-</head>
+}
 
-<style>
+.graph-tabs{
+    display:flex;
+    gap:10px;
+    margin:15px 0;
+}
 
-body{
-    margin:0;
+.graph-content{
+    display:none;
+}
+
+.graph-content.active{
+    display:block;
 }
 
 #knowledgeNetwork{
+    width:100%;
     height:700px;
+    border:1px solid #ddd;
+    margin-top:20px;
 }
+
+<style>
 
 #detailPanel{
     position:absolute;
@@ -574,8 +586,6 @@ body{
     border-radius:10px;
 }
 
-/* HIER TOEVOEGEN */
-
 .pdfItem{
     padding:10px;
     margin:6px 0;
@@ -587,7 +597,22 @@ body{
     background:#f5f5f5;
 }
 
+.graph-tabs{
+    display:flex;
+    gap:10px;
+    margin:15px 0;
+}
+
+.graph-content{
+    display:none;
+}
+
+.graph-content.active{
+    display:block;
+}
+
 </style>
+
 
 <body>
   <div class="language-selector">
@@ -3630,42 +3655,90 @@ function loadTotaalbeeld() {
 
 }
 
-function loadKnowledgeCategory(category){
-console.log(
-"Categorie aangeklikt:",
-category
-);
-console.log(
-    "Items gevonden:",
-    items
-);
-    const items =
-        glossaryData.filter(
-            item =>
-                item.category === category
-        );
+async function loadKnowledgeCategory(category){
 
-console.log(
-    document.getElementById(
-        "knowledgeResults"
-    )
-);
+    const docs =
+        await loadDocuments();
+
+    const resultaten =
+        docs.filter(doc => {
+
+            const cat =
+                (doc.categorie || "")
+                .toLowerCase();
+
+            if(
+                category === "Symptom"
+            ){
+                return cat.includes(
+                    "sympt"
+                );
+            }
+
+            if(
+                category === "Diagnostic"
+            ){
+                return cat.includes(
+                    "diagn"
+                );
+            }
+
+            if(
+                category === "Medication"
+            ){
+                return cat.includes(
+                    "medic"
+                );
+            }
+
+            if(
+                category === "Nutrition"
+            ){
+                return cat.includes(
+                    "voeding"
+                );
+            }
+
+            if(
+                category === "Psychological"
+            ){
+                return cat.includes(
+                    "psych"
+                );
+            }
+
+            if(
+                category === "Lab"
+            ){
+                return cat.includes(
+                    "lab"
+                );
+            }
+
+            return false;
+
+        });
 
     document.getElementById(
         "knowledgeResults"
     ).innerHTML =
 
-        items.map(item => `
+        resultaten.map(doc => `
 
-            <div class="result-item">
+            <div class="card">
 
-                <div class="result-title">
-                    ${item.title}
-                </div>
+                <h4>
+                    ${doc.title}
+                </h4>
 
-                <div class="result-content">
-                    ${item.description}
-                </div>
+                <button
+                    onclick="
+                        openDocumentById(
+                            '${doc.fileId}'
+                        )
+                    ">
+                    Open document
+                </button>
 
             </div>
 

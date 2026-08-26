@@ -3635,11 +3635,21 @@ console.log(
 "Categorie aangeklikt:",
 category
 );
+console.log(
+    "Items gevonden:",
+    items
+);
     const items =
         glossaryData.filter(
             item =>
                 item.category === category
         );
+
+console.log(
+    document.getElementById(
+        "knowledgeResults"
+    )
+);
 
     document.getElementById(
         "knowledgeResults"

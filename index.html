@@ -541,37 +541,25 @@ console.log("PDF TEST", window.pdfjsLib);
 .medlib-doc:hover{
     background:#eef2ff;
 }
-
-@media (max-width: 768px) {
-    .language-selector {
+    @media (max-width: 768px) {
+      .language-selector {
         position: static;
         margin-bottom: 12px;
         justify-content: flex-end;
+      }
     }
-}
+  </style>
+</head>
 
-.graph-tabs{
-    display:flex;
-    gap:10px;
-    margin:15px 0;
-}
+<style>
 
-.graph-content{
-    display:none;
-}
-
-.graph-content.active{
-    display:block;
+body{
+    margin:0;
 }
 
 #knowledgeNetwork{
-    width:100%;
     height:700px;
-    border:1px solid #ddd;
-    margin-top:20px;
 }
-
-<style>
 
 #detailPanel{
     position:absolute;
@@ -586,6 +574,8 @@ console.log("PDF TEST", window.pdfjsLib);
     border-radius:10px;
 }
 
+/* HIER TOEVOEGEN */
+
 .pdfItem{
     padding:10px;
     margin:6px 0;
@@ -597,22 +587,7 @@ console.log("PDF TEST", window.pdfjsLib);
     background:#f5f5f5;
 }
 
-.graph-tabs{
-    display:flex;
-    gap:10px;
-    margin:15px 0;
-}
-
-.graph-content{
-    display:none;
-}
-
-.graph-content.active{
-    display:block;
-}
-
 </style>
-
 
 <body>
   <div class="language-selector">
@@ -869,7 +844,10 @@ class="btn btn-primary"
       <button class="tab-btn" onclick="switchTab(event, 'totaalbeeld')">📈 Totaalbeeld</button>
       <button class="tab-btn" onclick="switchTab(event,'projectdashboard')">📊 Projectdashboard</button>
       <button class="tab-btn" onclick="switchTab(event, 'websites')">🌐 Websites</button>
-       </div>
+      <button class="tab-btn" onclick="switchTab(event,'knowledge-map')">🧠 Kenniskaart</button>
+      <button class="tab-btn" onclick="switchTab(event,'kennisbank')">📚 Kennisbank</button>
+      <button class="tab-btn" onclick="showTab('relations')">🔗 Documentrelaties</button>
+    </div>
 
     <!-- Dashboard -->
     <div id="dashboard" class="tab-content active">
@@ -1135,23 +1113,23 @@ class="tab-content">
 
     <div class="graph-tabs">
 
-    <button
-        class="btn btn-primary"
-        onclick="showGraphTab('graph-overview')">
+        <button
+            class="btn btn-primary"
+            onclick="showGraphTab('graph-overview')">
 
-        🧠 Kenniskaart
+            🧠 Kenniskaart
 
-    </button>
+        </button>
 
-    <button
-        class="btn btn-secondary"
-        onclick="showGraphTab('graph-relations')">
+        <button
+            class="btn btn-secondary"
+            onclick="showGraphTab('graph-relations')"
 
-        🔗 Documentrelaties
+            🔗 Documentrelaties
 
-    </button>
+        </button>
 
-</div>
+    </div>
 
     <div
         id="graph-overview"
@@ -1277,79 +1255,6 @@ class="tab-content">
 <div
     id="aiCaptureResult"
     style="margin-top:20px;">
-</div>
-
-<hr style="margin:30px 0;">
-
-<h3>📚 IBD Kenniscategorieën</h3>
-
-<div class="category-grid">
-
-<div class="category-card"
-     onclick="loadKnowledgeCategory('Symptom')">
-
-    <div class="category-title">
-        Symptomen
-    </div>
-
-</div>
-
-<div class="category-card"
-     onclick="loadKnowledgeCategory('Diagnostic')">
-
-    <div class="category-title">
-        Diagnostiek
-    </div>
-
-</div>
-
-<div class="category-card"
-     onclick="loadKnowledgeCategory('Medication')">
-
-    <div class="category-title">
-        Medicatie
-    </div>
-
-</div>
-
-<div class="category-card"
-     onclick="loadKnowledgeCategory('Nutrition')">
-
-    <div class="category-title">
-        Voeding
-    </div>
-
-</div>
-
-<div class="category-card"
-     onclick="loadKnowledgeCategory('Psychological')">
-
-    <div class="category-title">
-        Mentaal Welzijn
-    </div>
-
-</div>
-
-</div>
-</div>
-
-<h3>🧪 Labwaarden</h3>
-
-<div class="category-card"
-     onclick="loadKnowledgeCategory('Lab')">
-
-    <div class="category-title">
-        Labwaarden
-    </div>
-
-</div>
-
-<hr style="margin:20px 0;">
-
-<div id="knowledgeResults">
-
-    Klik op een categorie.
-
 </div>
 
     </div>
@@ -3655,90 +3560,29 @@ function loadTotaalbeeld() {
 
 }
 
-async function loadKnowledgeCategory(category){
+function loadKnowledgeCategory(category){
 
-    const docs =
-        await loadDocuments();
-
-    const resultaten =
-        docs.filter(doc => {
-
-            const cat =
-                (doc.categorie || "")
-                .toLowerCase();
-
-            if(
-                category === "Symptom"
-            ){
-                return cat.includes(
-                    "sympt"
-                );
-            }
-
-            if(
-                category === "Diagnostic"
-            ){
-                return cat.includes(
-                    "diagn"
-                );
-            }
-
-            if(
-                category === "Medication"
-            ){
-                return cat.includes(
-                    "medic"
-                );
-            }
-
-            if(
-                category === "Nutrition"
-            ){
-                return cat.includes(
-                    "voeding"
-                );
-            }
-
-            if(
-                category === "Psychological"
-            ){
-                return cat.includes(
-                    "psych"
-                );
-            }
-
-            if(
-                category === "Lab"
-            ){
-                return cat.includes(
-                    "lab"
-                );
-            }
-
-            return false;
-
-        });
+    const items =
+        glossaryData.filter(
+            item =>
+                item.category === category
+        );
 
     document.getElementById(
         "knowledgeResults"
     ).innerHTML =
 
-        resultaten.map(doc => `
+        items.map(item => `
 
-            <div class="card">
+            <div class="result-item">
 
-                <h4>
-                    ${doc.title}
-                </h4>
+                <div class="result-title">
+                    ${item.title}
+                </div>
 
-                <button
-                    onclick="
-                        openDocumentById(
-                            '${doc.fileId}'
-                        )
-                    ">
-                    Open document
-                </button>
+                <div class="result-content">
+                    ${item.description}
+                </div>
 
             </div>
 
@@ -4107,17 +3951,17 @@ function loadTotaalbeeld() {
   </div>
 
   <div class="stat-card"
-     onclick="showTab('aikennis')"
+     onclick="switchTab(event,'kennisbank')"
      style="cursor:pointer;">
 
-    <div>🧠</div>
+    <div>📚</div>
 
     <div class="stat-number">
         ${knowledgeItems}
     </div>
 
     <div class="stat-label">
-        AI Kenniscentrum
+        Kennisitems
     </div>
 
 </div>

@@ -3406,7 +3406,7 @@ if(disease === 'ccv'){
   '📂 Actieve hoofdgroep: ' + disease;
     }
 
-    function switchTab(evt, tabName) {
+    async function switchTab(evt, tabName) {
 
       document.querySelectorAll('.tab-btn')
       .forEach(btn => btn.classList.remove('active'));
@@ -3430,7 +3430,7 @@ if(disease === 'ccv'){
 }
 
 if (tabName === "totaalbeeld") {
-    loadTotaalbeeld();
+    await loadTotaalbeeld();
 }
 if (tabName === 'aifaq') {
     renderAIFAQ();
@@ -3633,13 +3633,27 @@ function showGraphTab(tabId){
   `;
 }
 
-function loadTotaalbeeld() {
+async function loadTotaalbeeld(){
 
-    document.getElementById("totaalStats").innerHTML = `
+    const allData =
+        await getFilteredData();
+
+    document.getElementById(
+        "totaalStats"
+    ).innerHTML = `
+
         <div class="stat-card">
-            <h3>Totaal Artikels</h3>
-            <p>${allData.length}</p>
+
+            <h3>
+                📚 Totaal Artikels
+            </h3>
+
+            <p>
+                ${allData.length}
+            </p>
+
         </div>
+
     `;
 
 }

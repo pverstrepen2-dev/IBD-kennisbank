@@ -1114,6 +1114,8 @@ class="tab-content">
 
 </button>
 
+
+
 <div
     id="aiCaptureResult"
     style="margin-top:20px;">
@@ -3301,13 +3303,19 @@ async function saveWebsites(data){
     }
 }
 
-function loadTotaalbeeld() {
+async function loadTotaalbeeld(){
 
-    document.getElementById("totaalbeeldContent").innerHTML = `
-        <h3>Totaaloverzicht</h3>
-        <p>Hier komen alle statistieken.</p>
+    const allData =
+        await getFilteredData();
+
+    document.getElementById(
+        "totaalStats"
+    ).innerHTML = `
+        <div class="stat-card">
+            <h3>Totaal Artikels</h3>
+            <p>${allData.length}</p>
+        </div>
     `;
-
 }
 
     function saveData(data) {
@@ -3453,6 +3461,9 @@ if(tabName === 'aicheck'){
     renderAIHealthCheck();
 }
 
+if(tabName === 'governance'){
+    renderGovernanceDashboard();
+}
 
 }
 
@@ -3631,6 +3642,188 @@ function loadTotaalbeeld() {
         </div>
     `;
 
+}
+
+async function renderGovernanceDashboard(){
+
+    const knowledge =
+        await loadAIKnowledge();
+
+    const docs =
+        await loadDocuments();
+
+    const websites =
+        await loadWebsites();
+
+    const projects =
+        await loadProjects();
+
+    const governanceScore =
+        Math.min(
+            100,
+            (
+                knowledge.length * 2 +
+                docs.length +
+                websites.length +
+                projects.length
+            )
+        );
+
+    document.getElementById(
+        "governanceStats"
+    ).innerHTML = `
+
+        <div class="card">
+
+            <h2>
+                🛡️ Governance Score
+            </h2>
+
+            <div style="
+                font-size:48px;
+                font-weight:bold;
+                color:#2e7d32;
+            ">
+                ${governanceScore}/100
+            </div>
+
+        </div>
+
+        <div class="stats-grid">
+
+            <div class="stat-card">
+                <h3>📚 AI Kennis</h3>
+                <p>${knowledge.length}</p>
+            </div>
+
+            <div class="stat-card">
+                <h3>📄 Documenten</h3>
+                <p>${docs.length}</p>
+            </div>
+
+            <div class="stat-card">
+                <h3>🌐 Websites</h3>
+                <p>${websites.length}</p>
+            </div>
+
+            <div class="stat-card">
+                <h3>📁 Projecten</h3>
+                <p>${projects.length}</p>
+            </div>
+
+        </div>
+    `;
+
+    const risicoLijst = [];
+
+    if(knowledge.length < 10){
+
+        risicoLijst.push(
+            "⚠️ AI kenniscentrum bevat weinig kennis"
+        );
+
+    }
+
+    if(docs.length < 25){
+
+        risicoLijst.push(
+            "⚠️ Weinig documenten aanwezig"
+        );
+
+    }
+
+    if(websites.length < 10){
+
+        risicoLijst.push(
+            "⚠️ Weinig gevalideerde websites"
+        );
+
+    }
+
+    document.getElementById(
+        "governanceRisks"
+    ).innerHTML = `
+
+        <div class="card">
+
+            <h3>
+                ⚠️ Risicoanalyse
+            </h3>
+
+            ${
+                risicoLijst.length
+                ? risicoLijst.map(r =>
+                    `<div>${r}</div>`
+                  ).join("")
+                : `
+                    <div>
+                        ✅ Geen risico's vastgesteld
+                    </div>
+                `
+            }
+
+        </div>
+    `;
+
+    document.getElementById(
+        "governanceCompliance"
+    ).innerHTML = `
+
+        <div class="card">
+
+            <h3>
+                ✅ Compliance Status
+            </h3>
+
+            <table style="width:100%;">
+
+                <tr>
+                    <td>Microsoft 365</td>
+                    <td>✅ Actief</td>
+                </tr>
+
+                <tr>
+                    <td>OneDrive</td>
+                    <td>✅ Verbonden</td>
+                </tr>
+
+                <tr>
+                    <td>AI Kenniscentrum</td>
+                    <td>
+                        ${
+                            knowledge.length > 0
+                            ? "✅ Gevuld"
+                            : "⚠️ Leeg"
+                        }
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Documentbeheer</td>
+                    <td>
+                        ${
+                            docs.length > 0
+                            ? "✅ Actief"
+                            : "⚠️ Leeg"
+                        }
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Projectdatabase</td>
+                    <td>
+                        ${
+                            projects.length > 0
+                            ? "✅ Actief"
+                            : "⚠️ Leeg"
+                        }
+                    </td>
+                </tr>
+
+            </table>
+
+        </div>
+    `;
 }
 
     async function updateDashboard() {
@@ -5820,8 +6013,34 @@ async function switchCCVTab(evt,tab){
 // SEARCH (LOS VAN ANDERE SEARCH)
 async function searchCCV(){
 
-    return;
+    const term =
+        document
+        .getElementById(
+            "ccvSearchInput"
+        )
+        .value
+        .toLowerCase();
 
+    const data =
+        await loadCCV();
+
+    const result =
+        data.filter(item =>
+            JSON.stringify(item)
+            .toLowerCase()
+            .includes(term)
+        );
+
+    document
+        .getElementById(
+            "ccvContent"
+        )
+        .innerHTML =
+        result.map(x => `
+            <div class="card">
+                <b>${x.title}</b>
+            </div>
+        `).join("");
 }
 
 // =========================

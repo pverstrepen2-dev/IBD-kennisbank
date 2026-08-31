@@ -12035,55 +12035,108 @@ async function generateInternetTop10(){
 async function askKnowledgeAI(){
 
     const vraag =
-        document.getElementById("aiQuestion")
+        document
+        .getElementById("aiQuestion")
         .value
-        .toLowerCase();
+        .toLowerCase()
+        .trim();
 
-    const knowledge =
-        await getKnowledgeData();
+    const knowledgeData =
+        await getFilteredData();
 
-    const docs =
+    const documents =
         await loadDocuments();
 
+    const aiKnowledge =
+        await loadAIKnowledge();
+
     const alles = [
-        ...knowledge,
-        ...docs
+
+        ...knowledgeData,
+
+        ...documents,
+
+        ...aiKnowledge
+
     ];
 
     const resultaten =
-        alles.filter(item =>
-            JSON.stringify(item)
-            .toLowerCase()
-            .includes(vraag)
-        );
+        alles.filter(item => {
+
+            const tekst = [
+
+                item.title || "",
+                item.content || "",
+                item.inhoud || "",
+                item.samenvatting || "",
+                item.tags || "",
+                item.category || "",
+                item.categorie || "",
+                item.hoofdgroep || ""
+
+            ]
+            .join(" ")
+            .toLowerCase();
+
+            return tekst.includes(vraag);
+
+        });
 
     const antwoordDiv =
-        document.getElementById("aiAnswer");
+        document.getElementById(
+            "aiAnswer"
+        );
 
     if(resultaten.length === 0){
 
         antwoordDiv.innerHTML = `
-            <div class="card">
+            <div class="notice">
                 ❌ Geen antwoord gevonden.
             </div>
         `;
 
         return;
+
     }
 
-    antwoordDiv.innerHTML = `
-        <div class="card">
-            <h4>✅ Mogelijke antwoorden</h4>
+    antwoordDiv.innerHTML =
 
-            ${resultaten.slice(0,5).map(r => `
-                <div style="margin-bottom:15px;">
-                    <b>${r.title || r.fileName}</b>
-                    <br>
-                    ${r.content || r.samenvatting || ""}
+        resultaten
+        .slice(0,10)
+        .map(item => `
+
+            <div class="card">
+
+                <h4>
+                    ${item.title || "Geen titel"}
+                </h4>
+
+                <div class="notice">
+
+                    📁
+                    ${item.category ||
+                      item.categorie ||
+                      "Onbekend"}
+
                 </div>
-            `).join("")}
-        </div>
-    `;
+
+                <p>
+
+                    ${
+                        item.content ||
+                        item.inhoud ||
+                        item.samenvatting ||
+                        ""
+
+                    }
+
+                </p>
+
+            </div>
+
+        `)
+        .join("");
+
 }
 
 async function saveInternetTop10(){

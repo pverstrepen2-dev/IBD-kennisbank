@@ -1374,9 +1374,7 @@ class="tab-content">
     <div class="admin-section">
 
         <div class="admin-title">
-
             🤖 AI FAQ Generator
-
         </div>
 
         <input
@@ -1384,21 +1382,81 @@ class="tab-content">
             id="faqTopic"
             placeholder="Onderwerp">
 
+        <br><br>
+
+        <select id="faqTargetGroup">
+
+            <option value="Crohn">
+                🩺 Crohn
+            </option>
+
+            <option value="Colitis Ulcerosa">
+                🔬 Colitis
+            </option>
+
+            <option value="Microscopische Colitis">
+                🔍 Microscopische Colitis
+            </option>
+
+            <option value="Voeding">
+                🍎 Voeding
+            </option>
+
+            <option value="Mindfulness">
+                🧘 Mindfulness
+            </option>
+
+            <option value="Zorggids">
+                🏥 Zorggids
+            </option>
+
+            <option value="Sociale Gids">
+                ⚖️ Sociale Gids
+            </option>
+
+        </select>
+
+        <select id="faqCount">
+
+            <option value="5">
+                Top 5
+            </option>
+
+            <option value="10" selected>
+                Top 10
+            </option>
+
+            <option value="20">
+                Top 20
+            </option>
+
+        </select>
+
+        <br><br>
+
         <button
             class="btn btn-primary"
             onclick="generateInternetTop10()">
 
-            🌍 Maak Internet Top 10
+            🌍 Internet FAQ
 
         </button>
 
-<button
-    class="btn btn-success"
-    onclick="saveInternetTop10()">
+        <button
+            class="btn btn-warning"
+            onclick="generateKnowledgeFaq()">
 
-    💾 Opslaan
+            🧠 Uit Kennisbank
 
-</button>
+        </button>
+
+        <button
+            class="btn btn-success"
+            onclick="saveInternetTop10()">
+
+            💾 Opslaan
+
+        </button>
 
         <div
             id="internetTop10"
@@ -2893,7 +2951,32 @@ const FAQ_CATEGORIES = [
         key: "ccv",
         category: "FAQ CCV-VZW",
         title: "FAQ CCV-VZW"
-    }
+    },
+
+    {
+    title: "Wat zijn JAK-remmers?",
+    content: "...",
+
+    bronnen: [
+
+        {
+            naam: "ECCO",
+            url: "https://ecco-ibd.eu"
+        },
+
+        {
+            naam: "PubMed",
+            url: "https://pubmed.ncbi.nlm.nih.gov/..."
+        },
+
+        {
+            naam: "UEG",
+            url: "https://ueg.eu"
+        }
+
+    ]
+}
+
 ];
 
 function getFAQCategory(group){
@@ -12101,41 +12184,76 @@ async function askKnowledgeAI(){
 
     antwoordDiv.innerHTML =
 
-        resultaten
-        .slice(0,10)
-        .map(item => `
+    resultaten.map(item => `
 
-            <div class="card">
+        <div class="card">
 
-                <h4>
-                    ${item.title || "Geen titel"}
-                </h4>
+            <h4>
+                ${item.title}
+            </h4>
 
+            <p>
+                ${item.content || ""}
+            </p>
+
+            ${
+    item.bronnen?.length
+    ? `
+
+    <div class="notice">
+
+        <b>📚 Bronnen:</b>
+
+        <ul>
+
+            ${item.bronnen.map(bron => `
+
+                <li>
+
+                    <a
+                        href="${bron.url}"
+                         </a>
+
+                </li>
+
+            `).join("")}
+
+        </ul>
+
+    </div>
+
+    `
+    : ""
+}
+
+            ${
+                item.source
+                ? `
                 <div class="notice">
 
-                    📁
-                    ${item.category ||
-                      item.categorie ||
-                      "Onbekend"}
+                    📚 Bron:
+                    ${item.source}
 
                 </div>
+                `
+                : ""
+            }
 
-                <p>
+            ${
+                item.bronUrl
+                ? `
+                ${item.bronUrl}
 
-                    ${
-                        item.content ||
-                        item.inhoud ||
-                        item.samenvatting ||
-                        ""
+                    🌐 Open bron
 
-                    }
+                </a>
+                `
+                : ""
+            }
 
-                </p>
+        </div>
 
-            </div>
-
-        `)
-        .join("");
+    `).join("");
 
 }
 
@@ -12198,6 +12316,71 @@ function renderAIFAQ(){
 
         </div>
     `;
+}
+
+async function generateKnowledgeFaq(){
+
+    const zoekterm =
+        document
+        .getElementById(
+            "faqTopic"
+        )
+        .value
+        .toLowerCase();
+
+    const data =
+        await getFilteredData();
+
+    const matches =
+        data.filter(item => {
+
+            const text = [
+
+                item.title || "",
+                item.content || "",
+                item.tags || "",
+                item.category || ""
+
+            ]
+            .join(" ")
+            .toLowerCase();
+
+            return text.includes(
+                zoekterm
+            );
+
+        });
+
+    const top10 =
+        matches.slice(0,10);
+
+    document.getElementById(
+        "internetTop10"
+    ).innerHTML =
+
+        top10.map(item => `
+
+            <div class="card">
+
+                <h4>
+
+                    ❓ ${item.title}
+
+                </h4>
+
+                <div>
+
+                    ${
+                        (item.content || "")
+                        .substring(0,300)
+                    }
+
+                </div>
+
+            </div>
+
+        `).join("");
+
 }
 
 async function runAIKnowledgeSearch(){

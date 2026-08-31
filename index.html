@@ -12283,19 +12283,12 @@ async function renderAIBibliotheek(){
         }
 
         html += `
+<div class="card">
 
-            <div class="card">
-
-                <h3>
-
-                    ${icons[groep]}
-                    ${groep}
-
-                </h3>
-
-            </div>
-
-        `;
+    <h3>
+        ${icons[groep]} ${groep}
+    </h3>
+`;
 
         const categorien = {};
 
@@ -12315,13 +12308,15 @@ async function renderAIBibliotheek(){
 
             html += `
 
-                <div class="card">
+    <h4 style="
+        margin-top:15px;
+        border-bottom:1px solid #ddd;
+        padding-bottom:5px;
+    ">
+        📁 ${cat}
+    </h4>
 
-                    <h4>
-                        📁 ${cat}
-                    </h4>
-
-            `;
+`;
 
             categorien[cat].forEach(item => {
 
@@ -12333,21 +12328,18 @@ async function renderAIBibliotheek(){
                             margin-bottom:10px;
                         ">
 
-                        • ${item.title}
+                        ${item.title || "Geen titel"}
 
                         ${
-                            item.bronUrl
-                            ? `
-                                <br>
+    item.bronUrl
+    ? `
+        <br>
 
-                                ${item.bronUrl}
-
-                                    🌐 Bron openen
-
-                                </a>
-                              `
-                            : ""
-                        }
+        <a
+            href="${item.bronUrl}"
+            target      `
+    : ""
+}
 
                         <br><br>
 
@@ -12372,7 +12364,6 @@ async function renderAIBibliotheek(){
             `;
 
         });
-
     });
 
     document.getElementById(

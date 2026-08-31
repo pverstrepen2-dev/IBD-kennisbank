@@ -3840,6 +3840,43 @@ async function renderGovernanceDashboard(){
     `;
 }
 
+async function renderProjectDashboard(){
+
+    const projecten =
+        await loadProjects();
+
+    const taken =
+        await loadTasks();
+
+    const documenten =
+        await loadDocuments();
+
+    document.getElementById(
+        "projectOverview"
+    ).innerHTML = `
+
+        <div class="stats-grid">
+
+            <div class="stat-card">
+                <h3>📁 Projecten</h3>
+                <p>${projecten.length}</p>
+            </div>
+
+            <div class="stat-card">
+                <h3>📋 Taken</h3>
+                <p>${taken.length}</p>
+            </div>
+
+            <div class="stat-card">
+                <h3>📄 Documenten</h3>
+                <p>${documenten.length}</p>
+            </div>
+
+        </div>
+
+    `;
+}
+
     async function updateDashboard() {
       const data =
     await getFilteredData();

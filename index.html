@@ -3671,31 +3671,53 @@ function loadTotaalbeeld() {
     
 async function openDashboardView(type){
 
-  let data =
-    await getFilteredData();
+    let data =
+        await getFilteredData();
 
-  if(type === 'items'){
-    // alles tonen
-  }
+    if(type === 'items'){
 
-  if(type === 'categories'){
-    switchTab({target: document.querySelector('.tab-btn:nth-child(2)')}, 'categories');
-    updateCategoryGrid();
-    return;
-  }
+        switchTab(
+            {
+                target: document.querySelector('.tab-btn:nth-child(2)')
+            },
+            'categories'
+        );
 
-  if(type === 'links'){
-    data = data.filter(x => x.url);
-  }
+        updateCategoryGrid();
 
-  if(type === 'tips'){
-    data = data.filter(x => x.type === 'Tip');
-  }
+        return;
+    }
 
-  // naar search tab springen
-  switchTab({target: document.querySelector('.tab-btn:nth-child(3)')}, 'search');
+    if(type === 'categories'){
 
-  displayResults(data);
+        switchTab(
+            {
+                target: document.querySelector('.tab-btn:nth-child(2)')
+            },
+            'categories'
+        );
+
+        updateCategoryGrid();
+
+        return;
+    }
+
+    if(type === 'links'){
+        data = data.filter(x => x.url);
+    }
+
+    if(type === 'tips'){
+        data = data.filter(x => x.type === 'Tip');
+    }
+
+    switchTab(
+        {
+            target: document.querySelector('.tab-btn:nth-child(3)')
+        },
+        'search'
+    );
+
+    displayResults(data);
 }
 
     async function updateCategoryGrid() {

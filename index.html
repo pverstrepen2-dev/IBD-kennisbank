@@ -12144,12 +12144,10 @@ async function generateInternetTop10(){
 async function askKnowledgeAI(){
 
     const vraag =
-        document
-        .getElementById("aiQuestion")
-        .value
-        .toLowerCase()
-        .trim();
-
+    document.getElementById("kcAiQuestion")?.value ||
+    document.getElementById("aiQuestion")?.value ||
+    "";
+   
     const knowledgeData =
         await getFilteredData();
 
@@ -12191,10 +12189,9 @@ async function askKnowledgeAI(){
 
         });
 
-    const antwoordDiv =
-        document.getElementById(
-            "aiAnswer"
-        );
+    const answerContainer =
+    document.getElementById("kcAiAnswer") ||
+    document.getElementById("aiAnswer");
 
     if(resultaten.length === 0){
 

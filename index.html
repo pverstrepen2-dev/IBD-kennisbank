@@ -12136,9 +12136,9 @@ if(websiteGroupSelect){
 async function generateInternetTop10(){
 
     const onderwerp =
-        document.getElementById(
-            "faqTopic"
-        ).value;
+    document.getElementById(
+        "faqTop10Search"
+    )?.value || "";
 
     let vragen = [];
 
@@ -12613,10 +12613,10 @@ data.unshift(item);
 }
 
 async function renderAIBibliotheek(){
-
+console.log("renderAIBibliotheek gestart");
     const alles =
         await loadAIKnowledge();
-
+console.log("AI KNOWLEDGE:", alles);
     const groepen = {
 
         Voeding: [],
@@ -12758,6 +12758,14 @@ async function renderAIBibliotheek(){
 
         });
     });
+
+    console.log("HTML LENGTE:", html.length);
+
+console.log(
+    document.getElementById(
+        "bibliotheekContent"
+    )
+);
 
     document.getElementById(
         "bibliotheekContent"

@@ -5152,8 +5152,12 @@ const data = await getFilteredData();
                 </h3>
 
                 <p>
-                    ${item.content || item.inhoud || ''}
-                </p>
+    ${item.content}
+</p>
+
+${renderBronnen(
+    item.bronnen
+)}
 
             </div>
 
@@ -5521,6 +5525,39 @@ ${item.content || item.inhoud || ''}
             </div>
 
         `).join('');
+}
+
+function renderBronnen(bronnen = []){
+
+    if(!bronnen || bronnen.length === 0){
+        return `
+            <div class="notice">
+                📚 Geen bronvermelding beschikbaar
+            </div>
+        `;
+    }
+
+    return `
+        <div class="bronnen-blok">
+
+            <hr>
+
+            <h4>📚 Bronnen</h4>
+
+            ${bronnen.map(bron => `
+
+                <div>
+
+                    <a
+                        href="${bron.url}"
+                        target="_blank">
+
+         v>
+
+            `).join("")}
+
+        </div>
+    `;
 }
 
 async function editFAQ(id){
@@ -11795,6 +11832,10 @@ function renderAIProposals(){
                     🏷️ ${doc.categorie}
                 </p>
 
+                    ${renderBronnen(
+                doc.bronnen
+                )}
+
                 <p>
                     🎯 ${doc.confidence}%
                 </p>
@@ -12169,6 +12210,30 @@ async function askKnowledgeAI(){
 
     ];
 
+    const VALIDATED_SOURCES = [
+
+    {
+        naam: "ECCO",
+        url: "https://ecco-ibd.eu"
+    },
+
+    {
+        naam: "PubMed",
+        url: "https://pubmed.ncbi.nlm.nih.gov"
+    },
+
+    {
+        naam: "UEG",
+        url: "https://ueg.eu"
+    },
+
+    {
+        naam: "CCV",
+        url: "https://ccv-vzw.be"
+    }
+
+];
+
     const resultaten =
         alles.filter(item => {
 
@@ -12220,34 +12285,34 @@ async function askKnowledgeAI(){
                 ${item.content || ""}
             </p>
 
-            ${
-    item.bronnen?.length
-    ? `
+        ${
+(item.bronnen || VALIDATED_SOURCES).length
+? `
 
-    <div class="notice">
+<div class="notice">
 
-        <b>📚 Bronnen:</b>
+    <b>📚 Bronnen:</b>
 
-        <ul>
+    <ul>
 
-            ${item.bronnen.map(bron => `
+        ${(item.bronnen || VALIDATED_SOURCES)
+            .map(bron => `
 
                 <li>
 
                     <a
                         href="${bron.url}"
-                         </a>
+                        target="_blank">
 
-                </li>
+                        `).join("")
+        }
 
-            `).join("")}
+    </ul>
 
-        </ul>
+</div>
 
-    </div>
-
-    `
-    : ""
+`
+: ""
 }
 
             ${
@@ -12263,12 +12328,14 @@ async function askKnowledgeAI(){
                 : ""
             }
 
-            ${
-                item.bronUrl
-                ? `
-                ${item.bronUrl}
+           ${
+    item.bronUrl
+    ? `
+    <a
+        href="${item.bronUrl}"
+        target="_blank">
 
-                    🌐 Open bron
+        🌐 Open bron
 
                 </a>
                 `
@@ -12631,44 +12698,57 @@ async function renderAIBibliotheek(){
 
 `;
 
-            categorien[cat].forEach(item => {
+           categorien[cat].forEach(item => {
 
-                html += `
+    html += `
 
-                    <div
-                        style="
-                            margin-left:20px;
-                            margin-bottom:10px;
-                        ">
+        <div
+            class="card"
+            style="
+                margin-left:20px;
+                margin-bottom:10px;
+            ">
 
-                        ${item.title || "Geen titel"}
+            <b>
+                ${item.title || "Geen titel"}
+            </b>
 
-                        ${
-    item.bronUrl
-    ? `
-        <br>
+            <br>
 
-        <a
-            href="${item.bronUrl}"
-            target      `
-    : ""
-}
+            ${item.content || ""}
 
-                        <br><br>
+            ${renderBronnen(
+                item.bronnen
+            )}
 
-                        <button
-                            class="btn btn-warning btn-sm"
-                            onclick="reanalyseKnowledge('${item.id}')">
+            ${
+                item.bronUrl
+                ? `
+                <br>
 
-                            🔄 Heranalyse
+                ${item.bronUrl}
 
-                        </button>
+                    🌐 Open bron
 
-                    </div>
+                </a>
+                `
+                : ""
+            }
 
-                `;
+            <br><br>
 
-            });
+            <button
+                class="btn btn-warning btn-sm"
+                onclick="reanalyseKnowledge('${item.id}')">
+
+                🔄 Heranalyse
+
+            </button>
+
+        </div>
+
+    `;
+});
 
             html += `
 

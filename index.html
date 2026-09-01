@@ -731,8 +731,6 @@ class="btn btn-primary"
       <button class="tab-btn" onclick="switchTab(event, 'ccvtab')"style="display:none;">🤝 CCV-VZW</button>
       <button class="tab-btn" onclick="switchTab(event, 'add')">➕ Toevoegen</button>
       <button class="tab-btn" onclick="switchTab(event, 'manage')">⚙️ Beheer</button>
-      <button class="tab-btn" onclick="switchTab(event, 'aiproposals')">🤖 AI Voorstellen</button>
-      <button class="tab-btn" onclick="switchTab(event, 'aiapproved')">🤖 AI Goedgekeurd</button>
       <button class="tab-btn" onclick="switchTab(event, 'backup')">💾 Backup</button>
       <button class="tab-btn" onclick="switchTab(event,'chatai')">🤖 CCV AI</button>
       <button class="tab-btn" onclick="switchTab(event,'governance')">🛡️ AI Governance</button>
@@ -1287,33 +1285,7 @@ class="tab-content">
       ❓ Veelgestelde vragen
     </div>
 
-<div id="kc-faq"
-     class="knowledge-panel">
-
-</div>
-
-
     <!-- AI Vraag aan Kennisbank -->
-<div class="card" style="margin-bottom:20px;">
-    <h3>🤖 Stel een vraag aan de kennisbank</h3>
-
-    <input
-        type="text"
-        id="aiQuestion"
-        placeholder="Bijvoorbeeld: Welke medicatie wordt gebruikt bij Crohn?">
-
-    <button
-        class="btn btn-primary"
-        onclick="askKnowledgeAI()">
-        🤖 Vraag stellen
-    </button>
-
-    <div
-        id="aiAnswer"
-        style="margin-top:15px;">
-    </div>
-</div>
-
     <div id="faqTitle" class="admin-title"></div>
 
     <div style="margin-bottom:20px;">
@@ -1373,125 +1345,69 @@ class="tab-content">
 
             </button>
 
+            <button
+    onclick="showKnowledgeSection('kc-proposals')">
+
+    💡 AI Voorstellen
+
+</button>
+
+<button
+    onclick="showKnowledgeSection('kc-approved')">
+
+    ✅ AI Goedgekeurd
+
+</button>
+          
         </div>
 
         <div id="kc-search"
-             class="knowledge-panel">
-        </div>
+     class="knowledge-panel"
+     style="display:none;">
 
-        <div id="kc-faq"
-             class="knowledge-panel">
-        </div>
+    <div class="card">
 
-        <div id="kc-library"
-             class="knowledge-panel">
-        </div>
-
-        <div id="kc-generator"
-             class="knowledge-panel">
-        </div>
-
-    </div>
-
-</div>
-
-<div id="aifaq" class="tab-content">
-
-    <div class="admin-section">
-
-        <div class="admin-title">
-            🤖 AI FAQ Generator
-        </div>
+        <h3>
+            🤖 Vraag aan de kennisbank
+        </h3>
 
         <input
             type="text"
-            id="faqTopic"
-            placeholder="Onderwerp">
-
-        <br><br>
-
-        <select id="faqTargetGroup">
-
-            <option value="Crohn">
-                🩺 Crohn
-            </option>
-
-            <option value="Colitis Ulcerosa">
-                🔬 Colitis
-            </option>
-
-            <option value="Microscopische Colitis">
-                🔍 Microscopische Colitis
-            </option>
-
-            <option value="Voeding">
-                🍎 Voeding
-            </option>
-
-            <option value="Mindfulness">
-                🧘 Mindfulness
-            </option>
-
-            <option value="Zorggids">
-                🏥 Zorggids
-            </option>
-
-            <option value="Sociale Gids">
-                ⚖️ Sociale Gids
-            </option>
-
-        </select>
-
-        <select id="faqCount">
-
-            <option value="5">
-                Top 5
-            </option>
-
-            <option value="10" selected>
-                Top 10
-            </option>
-
-            <option value="20">
-                Top 20
-            </option>
-
-        </select>
-
-        <br><br>
+            id="kcAiQuestion">
 
         <button
             class="btn btn-primary"
-            onclick="generateInternetTop10()">
+            onclick="askKnowledgeAI()">
 
-            🌍 Internet FAQ
-
-        </button>
-
-        <button
-            class="btn btn-warning"
-            onclick="generateKnowledgeFaq()">
-
-            🧠 Uit Kennisbank
+            Vraag stellen
 
         </button>
 
-        <button
-            class="btn btn-success"
-            onclick="saveInternetTop10()">
-
-            💾 Opslaan
-
-        </button>
-
-        <div
-            id="internetTop10"
-            style="margin-top:20px;">
-        </div>
-
+        <div id="kcAiAnswer"></div>
     </div>
+</div>
+   
+        <div id="kc-faq"
+     class="knowledge-panel"
+     style="display:none;">
+
+    <h3>❓ FAQ</h3>
+
+    <div id="kcFaqContainer"></div>
 
 </div>
+
+        <div id="kc-library"
+     class="knowledge-panel"
+     style="display:none;">
+
+    <div id="bibliotheekContent"></div>
+
+</div>
+
+       <div id="kc-generator"
+     class="knowledge-panel"
+     style="display:none;">
 <!-- FAQ BEHEER -->
 <div id="faqbeheer" class="tab-content">
 
@@ -1956,8 +1872,9 @@ Sociale Gids
 
 </div>
 
-<div id="aiproposals"
-     class="tab-content">
+<div id="kc-proposals"
+     class="knowledge-panel"
+     style="display:none;">
 
     <h2>🤖 AI Voorstellen</h2>
 
@@ -1965,8 +1882,9 @@ Sociale Gids
 
 </div>
 
-<div id="aiapproved"
-     class="tab-content">
+<div id="kc-approved"
+     class="knowledge-panel"
+     style="display:none;">
 
     <h2>🤖 AI Goedgekeurde Documenten</h2>
 
@@ -3576,6 +3494,14 @@ if(tabName === 'governance'){
 if(tabName === 'projectdashboard'){
     renderProjectDashboard();
 }
+
+if(tabName === "kenniscentrum"){
+
+    showKnowledgeSection(
+        "kc-search"
+    );
+
+}
 }
 
 function showTab(tabId){
@@ -3637,7 +3563,7 @@ function showGraphTab(tabId){
 }
 
 function showKnowledgeSection(id){
-
+console.log("OPEN:", id);
     document
         .querySelectorAll(
             ".knowledge-panel"
@@ -3660,7 +3586,23 @@ function showKnowledgeSection(id){
             "block";
 
     }
+if(id === "kc-proposals"){
 
+    renderAIProposals();
+
+}
+
+if(id === "kc-approved"){
+
+    renderAIApproved();
+
+}
+
+if(id === "kc-library"){
+
+    renderAIBibliotheek();
+
+}
 }
 
     function getAllowedSections() {

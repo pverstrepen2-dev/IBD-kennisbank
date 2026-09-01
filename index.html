@@ -1387,13 +1387,21 @@ class="tab-content">
     </div>
 </div>
    
-        <div id="kc-faq"
+       <div id="kc-faq"
      class="knowledge-panel"
      style="display:none;">
 
-    <h3>❓ FAQ</h3>
+    <div style="margin-bottom:20px;">
+        <input
+            type="text"
+            id="faqSearch"
+            placeholder="🔍 Zoek binnen FAQ..."
+            oninput="filterFAQ()">
+    </div>
 
-    <div id="kcFaqContainer"></div>
+    <div class="card-grid"
+         id="kcFaqContainer">
+    </div>
 
 </div>
 
@@ -3588,19 +3596,37 @@ console.log("OPEN:", id);
     }
 if(id === "kc-proposals"){
 
-    renderAIProposals();
+    console.log("AI voorstellen laden");
+
+    document.getElementById(
+        "aiProposalList"
+    ).innerHTML =
+        "<h2>TEST VOORSTELLEN</h2>";
 
 }
 
 if(id === "kc-approved"){
 
-    renderAIApproved();
+    console.log("AI goedgekeurd laden");
+
+    document.getElementById(
+        "aiApprovedList"
+    ).innerHTML =
+        "<h2>TEST GOEDGEKEURD</h2>";
 
 }
 
 if(id === "kc-library"){
 
     renderAIBibliotheek();
+
+}
+
+if(id === "kc-faq"){
+
+    renderFaqByGroup(
+        currentHoofdgroep
+    );
 
 }
 }
@@ -5096,7 +5122,12 @@ const data = await getFilteredData();
 );
 
     const container =
-        document.getElementById('faqContainer');
+    document.getElementById(
+        'kcFaqContainer'
+    ) ||
+    document.getElementById(
+        'faqContainer'
+    );
 
     if(!container) return;
 

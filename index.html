@@ -722,65 +722,20 @@ class="btn btn-primary"
 
     <div class="tabs">
 
-    <button class="tab-btn active"
-            onclick="switchTab(event,'dashboard')">
-        📊 Dashboard
-    </button>
-
-        <button class="tab-btn"
-            onclick="switchTab(event,'categories')">
-        📂 Categorieën
-    </button>
-
-    <button class="tab-btn"
-            onclick="switchTab(event,'search')">
-        🔍 Zoeken
-    </button>
-
-    <button class="tab-btn"
-            onclick="switchTab(event,'faq')">
-        ❓ FAQ
-    </button>
-
-    <button class="tab-btn"
-            onclick="switchTab(event,'aifaq')">
-        🤖 AI FAQ
-    </button>
-
-    <button class="tab-btn"
-            onclick="switchTab(event,'faqbeheer')">
-        ❓ FAQ Beheer
-    </button>
-
-    <button class="tab-btn"
-            onclick="switchTab(event,'gutflix')"
-            style="display:none;">
-        🎬 GutFlix
-    </button>
-
-     <button
-    class="tab-btn"
-    onclick="switchTab(event, 'voeding')"
-    style="display:none;"
->
-🍎 Voeding
-</button>
-     <button
-    class="tab-btn"
-    onclick="switchTab(event, 'ccvtab')"
-    style="display:none;"
->
-🤝 CCV-VZW
-</button>
+      <button class="tab-btn active" onclick="switchTab(event,'dashboard')">📊 Dashboard</button>
+      <button class="tab-btn" onclick="switchTab(event,'categories')">📂 Categorieën</button>
+      <button class="tab-btn" onclick="switchTab(event,'search')">🔍 Zoeken</button>
+      <button class="tab-btn" onclick="switchTab(event,'kenniscentrum')">📚 Kenniscentrum</button>
+      <button class="tab-btn" onclick="switchTab(event,'gutflix')"style="display:none;">🎬 GutFlix</button>
+      <button class="tab-btn" onclick="switchTab(event, 'voeding')"style="display:none;">🍎 Voeding</button>
+      <button class="tab-btn" onclick="switchTab(event, 'ccvtab')"style="display:none;">🤝 CCV-VZW</button>
       <button class="tab-btn" onclick="switchTab(event, 'add')">➕ Toevoegen</button>
       <button class="tab-btn" onclick="switchTab(event, 'manage')">⚙️ Beheer</button>
       <button class="tab-btn" onclick="switchTab(event, 'aiproposals')">🤖 AI Voorstellen</button>
       <button class="tab-btn" onclick="switchTab(event, 'aiapproved')">🤖 AI Goedgekeurd</button>
       <button class="tab-btn" onclick="switchTab(event, 'backup')">💾 Backup</button>
       <button class="tab-btn" onclick="switchTab(event,'chatai')">🤖 CCV AI</button>
-      <button class="tab-btn" onclick="switchTab(event,'aikennis')">🧠 AI Kenniscentrum</button>
       <button class="tab-btn" onclick="switchTab(event,'governance')">🛡️ AI Governance</button>
-      <button class="tab-btn" onclick="switchTab(event,'aibibliotheek')">📚 AI Bibliotheek</button>
       <button class="tab-btn" onclick="switchTab(event,'aicheck')">🧠 AI Gezondheidscheck</button>
       <button class="tab-btn" onclick="switchTab(event, 'info')">ℹ️ Info</button>
       <button class="tab-btn" onclick="switchTab(event, 'totaalbeeld')">📈 Totaalbeeld</button>
@@ -1332,6 +1287,12 @@ class="tab-content">
       ❓ Veelgestelde vragen
     </div>
 
+<div id="kc-faq"
+     class="knowledge-panel">
+
+</div>
+
+
     <!-- AI Vraag aan Kennisbank -->
 <div class="card" style="margin-bottom:20px;">
     <h3>🤖 Stel een vraag aan de kennisbank</h3>
@@ -1366,6 +1327,71 @@ class="tab-content">
     <div class="card-grid" id="faqContainer"></div>
 
   </div>
+
+</div>
+
+<div id="kenniscentrum"
+     class="tab-content">
+
+    <div class="admin-section">
+
+        <h2>
+            📚 Kenniscentrum
+        </h2>
+
+        <div class="tabs">
+
+            <button
+                class="tab-btn"
+                onclick="showKnowledgeSection('kc-search')">
+
+                🤖 AI Zoeken
+
+            </button>
+
+            <button
+                class="tab-btn"
+                onclick="showKnowledgeSection('kc-faq')">
+
+                ❓ FAQ
+
+            </button>
+
+            <button
+                class="tab-btn"
+                onclick="showKnowledgeSection('kc-library')">
+
+                📚 Bibliotheek
+
+            </button>
+
+            <button
+                class="tab-btn"
+                onclick="showKnowledgeSection('kc-generator')">
+
+                🤖 FAQ Generator
+
+            </button>
+
+        </div>
+
+        <div id="kc-search"
+             class="knowledge-panel">
+        </div>
+
+        <div id="kc-faq"
+             class="knowledge-panel">
+        </div>
+
+        <div id="kc-library"
+             class="knowledge-panel">
+        </div>
+
+        <div id="kc-generator"
+             class="knowledge-panel">
+        </div>
+
+    </div>
 
 </div>
 
@@ -3605,6 +3631,33 @@ function showGraphTab(tabId){
         target.classList.add(
             "active"
         );
+
+    }
+
+}
+
+function showKnowledgeSection(id){
+
+    document
+        .querySelectorAll(
+            ".knowledge-panel"
+        )
+        .forEach(p => {
+
+            p.style.display =
+                "none";
+
+        });
+
+    const target =
+        document.getElementById(
+            id
+        );
+
+    if(target){
+
+        target.style.display =
+            "block";
 
     }
 

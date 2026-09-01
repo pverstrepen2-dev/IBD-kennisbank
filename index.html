@@ -1416,16 +1416,10 @@ class="tab-content">
        <div id="kc-generator"
      class="knowledge-panel"
      style="display:none;">
-<!-- FAQ BEHEER -->
-<div id="faqbeheer" class="tab-content">
 
-    <div class="admin-section">
+    <h2>FAQ GENERATOR TEST</h2>
 
-        <div class="admin-title">
-            ❓ FAQ Beheer
-        </div>
-
-<hr>
+    <hr>
 
 <h3>🏆 Top 10 FAQ Generator</h3>
 
@@ -1473,6 +1467,38 @@ class="tab-content">
 </div>
 
 <hr>
+
+</div>
+
+<div id="kc-proposals"
+     class="knowledge-panel"
+     style="display:none;">
+
+    <h2>🤖 AI Voorstellen</h2>
+
+    <div id="aiProposalList"></div>
+
+</div>
+
+<div id="kc-approved"
+     class="knowledge-panel"
+     style="display:none;">
+
+    <h2>✅ AI Goedgekeurde Documenten</h2>
+
+    <div id="aiApprovedList"></div>
+
+</div>
+</div> 
+</div>
+
+<div id="faqbeheer" class="tab-content">
+
+    <div class="admin-section">
+
+        <div class="admin-title">
+            ❓ FAQ Beheer
+        </div>
 
         <input
             type="text"
@@ -1877,26 +1903,6 @@ Sociale Gids
 
 
     </div>
-
-</div>
-
-<div id="kc-proposals"
-     class="knowledge-panel"
-     style="display:none;">
-
-    <h2>🤖 AI Voorstellen</h2>
-
-    <div id="aiProposalList"></div>
-
-</div>
-
-<div id="kc-approved"
-     class="knowledge-panel"
-     style="display:none;">
-
-    <h2>🤖 AI Goedgekeurde Documenten</h2>
-
-    <div id="aiApprovedList"></div>
 
 </div>
 
@@ -3571,64 +3577,60 @@ function showGraphTab(tabId){
 }
 
 function showKnowledgeSection(id){
-console.log("OPEN:", id);
+
+    console.log("OPEN:", id);
+
     document
-        .querySelectorAll(
-            ".knowledge-panel"
-        )
+        .querySelectorAll(".knowledge-panel")
         .forEach(p => {
-
-            p.style.display =
-                "none";
-
+            p.style.display = "none";
         });
 
     const target =
-        document.getElementById(
-            id
-        );
+        document.getElementById(id);
 
     if(target){
+        target.style.display = "block";
+    }
 
-        target.style.display =
-            "block";
+    if(id === "kc-library"){
+
+        console.log(
+            "Bibliotheek laden"
+        );
+
+        renderAIBibliotheek();
 
     }
-if(id === "kc-proposals"){
 
-    console.log("AI voorstellen laden");
+    if(id === "kc-proposals"){
 
-    document.getElementById(
-        "aiProposalList"
-    ).innerHTML =
-        "<h2>TEST VOORSTELLEN</h2>";
+        console.log(
+            "AI voorstellen laden"
+        );
 
-}
+        renderAIProposals();
 
-if(id === "kc-approved"){
+    }
 
-    console.log("AI goedgekeurd laden");
+    if(id === "kc-approved"){
 
-    document.getElementById(
-        "aiApprovedList"
-    ).innerHTML =
-        "<h2>TEST GOEDGEKEURD</h2>";
+        console.log(
+            "AI goedgekeurd laden"
+        );
 
-}
+        renderAIApproved();
 
-if(id === "kc-library"){
+    }
 
-    renderAIBibliotheek();
+    if(id === "kc-faq"){
 
-}
+        renderFaqByGroup(
+            currentHoofdgroep
+        );
 
-if(id === "kc-faq"){
+    }
 
-    renderFaqByGroup(
-        currentHoofdgroep
-    );
-
-}
 }
 
     function getAllowedSections() {
@@ -12195,11 +12197,10 @@ async function askKnowledgeAI(){
 
     if(resultaten.length === 0){
 
-        antwoordDiv.innerHTML = `
-            <div class="notice">
-                ❌ Geen antwoord gevonden.
-            </div>
-        `;
+        const antwoordDiv =
+    document.getElementById(
+        "kcAiAnswer"
+    );
 
         return;
 

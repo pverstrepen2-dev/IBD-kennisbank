@@ -2802,6 +2802,23 @@ function loadVoeding(){
   return JSON.parse(localStorage.getItem(VOEDING_KEY) || '[]');
 }
 
+function addVoeding(type, item){
+
+    const voeding =
+        loadVoeding();
+
+    voeding.push({
+        id: Date.now(),
+        ...item,
+        type
+    });
+
+    saveVoeding(voeding);
+
+    renderVoeding(type);
+
+}
+
 function saveVoeding(data){
     localStorage.setItem(
         VOEDING_KEY,

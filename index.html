@@ -522,6 +522,72 @@ console.log("PDF TEST", window.pdfjsLib);
 .medlib-doc:hover{
     background:#eef2ff;
 }
+
+/* =========================
+   VOEDING MODAL
+========================= */
+
+.voeding-modal{
+
+    display:none;
+    position:fixed;
+
+    top:5%;
+    left:50%;
+
+    transform:translateX(-50%);
+
+    width:750px;
+    max-width:95%;
+
+    background:white;
+
+    padding:25px;
+
+    border-radius:12px;
+
+    box-shadow:0 10px 30px rgba(0,0,0,.25);
+
+    z-index:9999;
+
+    overflow-y:auto;
+    max-height:90vh;
+}
+
+.voeding-modal input,
+.voeding-modal select,
+.voeding-modal textarea{
+
+    width:100%;
+    margin-bottom:12px;
+
+    padding:10px;
+
+    border:1px solid #ddd;
+
+    border-radius:6px;
+}
+
+.voeding-modal textarea{
+
+    min-height:150px;
+}
+
+.voeding-modal h3{
+
+    color:#4f46e5;
+
+    margin-bottom:20px;
+}
+
+.voeding-modal label{
+
+    display:block;
+
+    font-weight:600;
+
+    margin-bottom:5px;
+}
     @media (max-width: 768px) {
       .language-selector {
         position: static;
@@ -9182,16 +9248,31 @@ function saveNewVoeding(){
             '#voedingTabs .active'
         ).dataset.tab;
 
-    addVoeding(type,{
+    addVoeding(
+    document.getElementById('v_category').value,
+    {
         title:
             document.getElementById('v_title').value,
+
+        summary:
+            document.getElementById('v_summary').value,
 
         content:
             document.getElementById('v_content').value,
 
+        source:
+            document.getElementById('v_source').value,
+
+        url:
+            document.getElementById('v_url').value,
+
+        tags:
+            document.getElementById('v_tags').value,
+
         expert:
             document.getElementById('v_expert').checked
-    });
+    }
+);
 
     document
         .getElementById('voedingModal')
@@ -13935,51 +14016,100 @@ window.onerror = function(msg){
 };
 
 </script>
-<div id="voedingModal"
-     style="
-     display:none;
-     position:fixed;
-     top:10%;
-     left:50%;
-     transform:translateX(-50%);
-     width:600px;
-     z-index:9999;
-     background:white;
-     padding:20px;
-     border-radius:8px">
+<div id="voedingModal" class="voeding-modal">
 
-    <h3>Nieuw voedingsitem</h3>
+    <h3>🍎 Nieuw voedingsitem</h3>
+
+    <label>Titel</label>
 
     <input
         id="v_title"
-        placeholder="Titel"
-        style="width:100%;margin-bottom:10px">
+        placeholder="Titel van artikel">
+
+    <label>Categorie</label>
+
+    <select id="v_category">
+
+        <option value="dieet">
+            🥗 Dieetadvies
+        </option>
+
+        <option value="recepten">
+            🍲 Recepten
+        </option>
+
+        <option value="supplementen">
+            💊 Supplementen
+        </option>
+
+        <option value="vermijden">
+            🚫 Te vermijden
+        </option>
+
+        <option value="gezond">
+            ✅ Gezonde keuzes
+        </option>
+
+    </select>
+
+    <label>Korte samenvatting</label>
+
+    <input
+        id="v_summary"
+        placeholder="Samenvatting">
+
+    <label>Beschrijving</label>
 
     <textarea
         id="v_content"
-        placeholder="Beschrijving"
-        style="width:100%;height:120px">
+        placeholder="Volledige inhoud">
     </textarea>
 
+    <label>Bron</label>
+
+    <input
+        id="v_source"
+        placeholder="ECCO, EFCCA, Mayo Clinic">
+
+    <label>Website URL</label>
+
+    <input
+        id="v_url"
+        placeholder="https://">
+
+    <label>Tags</label>
+
+    <input
+        id="v_tags"
+        placeholder="Crohn, FODMAP, Vitamine B12">
+
     <label>
-        <input type="checkbox"
-               id="v_expert">
+        <input
+            type="checkbox"
+            id="v_expert">
 
         Aanbevolen door expert
     </label>
 
     <br><br>
 
-    <button onclick="saveNewVoeding()">
+    <button
+        class="btn btn-success"
+        onclick="saveNewVoeding()">
+
         Opslaan
+
     </button>
 
-    <button onclick="
-        document.getElementById(
-            'voedingModal'
-        ).style.display='none'">
+    <button
+        class="btn btn-secondary"
+        onclick="document.getElementById('voedingModal').style.display='none'">
+
         Sluiten
+
     </button>
+
+</div>
 </div>
 </body>
 </html> 

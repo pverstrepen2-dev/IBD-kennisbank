@@ -8900,25 +8900,6 @@ const recentItems =
         .slice(0,5);
 
 const popularItems =
-    voedingData
-        .slice()
-        .sort((a,b)=>
-            (b.views || 0)
-            -
-            (a.views || 0)
-        )
-        .slice(0,5);
-
-const recentItems =
-    data
-        .slice()
-        .sort((a,b)=>
-            new Date(b.created || 0) -
-            new Date(a.created || 0)
-        )
-        .slice(0,5);
-
-const popularItems =
     data
         .slice()
         .sort((a,b)=>

@@ -1548,9 +1548,20 @@ class="tab-content">
 <!-- VOEDING -->
 <div id="voeding" class="tab-content">
   <div class="admin-section">
-    <div class="admin-title">🍎 Voeding</div>
+    <div class="admin-title">
+    🍎 Voeding
 
-   <div class="tabs" id="voedingTabs">
+    <button
+        class="btn btn-success"
+        style="float:right"
+        onclick="openVoedingForm()">
+        ➕ Nieuw voedingsitem
+    </button>
+</div>
+
+<div id="voedingQuickActions"></div>
+
+<div class="tabs" id="voedingTabs">
   <button class="tab-btn active" data-tab="dieet">🥗 Dieetadvies</button>
   <button class="tab-btn" data-tab="recepten">🍲 Recepten</button>
   <button class="tab-btn" data-tab="supplementen">💊 Supplementen</button>
@@ -8817,12 +8828,26 @@ function initVoedingTabs(){
 }
 
 function addVoeding(type,obj){
-  const data = loadVoeding();
-  obj.id = Date.now();
-  obj.type = type;
-  data.unshift(obj);
-  saveVoeding(data);
-  renderVoeding(type);
+
+    const data = loadVoeding();
+
+    obj.id = Date.now();
+    obj.type = type;
+
+    obj.created =
+        new Date().toISOString();
+
+    obj.views =
+        obj.views || 0;
+
+    obj.expert =
+        obj.expert || false;
+
+    data.unshift(obj);
+
+    saveVoeding(data);
+
+    renderVoeding(type);
 }
 
 // TAB SWITCH
@@ -8857,6 +8882,29 @@ function renderVoeding(tab){
         vermijden: voedingData.filter(x => x.type === 'vermijden').length,
         gezond: voedingData.filter(x => x.type === 'gezond').length
     };
+const recentItems =
+    voedingData
+        .slice()
+        .sort((a,b)=>
+            new Date(b.created || 0)
+            -
+            new Date(a.created || 0)
+        )
+        .slice(0,5);
+
+const popularItems =
+    voedingData
+        .slice()
+        .sort((a,b)=>
+            (b.views || 0)
+            -
+            (a.views || 0)
+        )
+        .slice(0,5);
+
+const expertItems =
+    voedingData
+        .filter(x => x.expert);
 
     let html = `
 
@@ -8897,20 +8945,70 @@ function renderVoeding(tab){
 
         <h4>📂 Overzicht</h4>
 
-    `;
+<div class="card">
+    <h4>⭐ Recent toegevoegd</h4>
+
+    ${
+        recentItems.length
+        ?
+        recentItems.map(x =>
+            `<div>${x.title}</div>`
+        ).join('')
+        :
+        'Nog geen items'
+    }
+</div>
+
+<div class="card">
+    <h4>🔥 Meest bekeken</h4>
+
+    ${
+        popularItems.length
+        ?
+        popularItems.map(x =>
+            `<div>${x.title}</div>`
+        ).join('')
+        :
+        'Nog geen items'
+    }
+</div>
+
+<div class="card">
+    <h4>👨‍⚕️ Aanbevolen door experts</h4>
+
+    ${
+        expertItems.length
+        ?
+        expertItems.map(x =>
+            `<div>${x.title}</div>`
+        ).join('')
+        :
+        'Nog geen items'
+    }
+</div>
+`;
 
     data.forEach(d => {
 
-        html += `
-            <div class="card">
-                <b>${d.title}</b><br>
-                ${d.content}
+    d.views = d.views || 0;
+
+    html += `
+        <div class="card voeding-item"
+             onclick="increaseVoedingView(${d.id})">
+
+            <b>${d.title}</b><br>
+
+            ${d.content}
+
+            <div style="margin-top:10px">
+                👁 ${d.views}
             </div>
-        `;
 
-    });
+        </div>
+    `;
+});
 
-    document.getElementById('voedingContent').innerHTML = html;
+document.getElementById('voedingContent').innerHTML = html;
 }
 
 // OPSLAAN
@@ -8922,6 +9020,52 @@ function saveVoedingItem(type){
     title,
     content
   });
+}
+
+function increaseVoedingView(id){
+
+    const data = loadVoeding();
+
+    const item =
+        data.find(x => x.id === id);
+
+    if(item){
+
+        item.views =
+            (item.views || 0) + 1;
+
+        saveVoeding(data);
+    }
+}
+
+function openVoedingForm(){
+
+    document
+        .getElementById('voedingModal')
+        .style.display = 'block';
+}
+
+function saveNewVoeding(){
+
+    const type =
+        document.querySelector(
+            '#voedingTabs .active'
+        ).dataset.tab;
+
+    addVoeding(type,{
+        title:
+            document.getElementById('v_title').value,
+
+        content:
+            document.getElementById('v_content').value,
+
+        expert:
+            document.getElementById('v_expert').checked
+    });
+
+    document
+        .getElementById('voedingModal')
+        .style.display='none';
 }
 
 function buildSearchQuery(){
@@ -13660,5 +13804,51 @@ window.onerror = function(msg){
 };
 
 </script>
+<div id="voedingModal"
+     style="
+     display:none;
+     position:fixed;
+     top:10%;
+     left:50%;
+     transform:translateX(-50%);
+     width:600px;
+     z-index:9999;
+     background:white;
+     padding:20px;
+     border-radius:8px">
+
+    <h3>Nieuw voedingsitem</h3>
+
+    <input
+        id="v_title"
+        placeholder="Titel"
+        style="width:100%;margin-bottom:10px">
+
+    <textarea
+        id="v_content"
+        placeholder="Beschrijving"
+        style="width:100%;height:120px">
+    </textarea>
+
+    <label>
+        <input type="checkbox"
+               id="v_expert">
+
+        Aanbevolen door expert
+    </label>
+
+    <br><br>
+
+    <button onclick="saveNewVoeding()">
+        Opslaan
+    </button>
+
+    <button onclick="
+        document.getElementById(
+            'voedingModal'
+        ).style.display='none'">
+        Sluiten
+    </button>
+</div>
 </body>
 </html> 

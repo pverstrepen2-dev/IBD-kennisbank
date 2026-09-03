@@ -1548,15 +1548,23 @@ class="tab-content">
 <!-- VOEDING -->
 <div id="voeding" class="tab-content">
   <div class="admin-section">
-    <div class="admin-title">
+   <div class="admin-title">
     🍎 Voeding
 
     <button
         class="btn btn-success"
-        style="float:right"
+        style="float:right;margin-left:10px"
         onclick="openVoedingForm()">
         ➕ Nieuw voedingsitem
     </button>
+
+    <button
+        class="btn btn-primary"
+        style="float:right"
+        onclick="generateInternetTop20Voeding()">
+        🌍 Update Top 20
+    </button>
+
 </div>
 
 <div id="voedingQuickActions"></div>
@@ -8860,7 +8868,6 @@ function switchVoedingTab(evt, tab){
   renderVoeding(tab);
 }
 
-// HIER IS DE FUNCTIE DIE JIJ MISSEDE 👇
 function renderVoeding(tab){
 
     const titles = {
@@ -8902,9 +8909,38 @@ const popularItems =
         )
         .slice(0,5);
 
+const recentItems =
+    data
+        .slice()
+        .sort((a,b)=>
+            new Date(b.created || 0) -
+            new Date(a.created || 0)
+        )
+        .slice(0,5);
+
+const popularItems =
+    data
+        .slice()
+        .sort((a,b)=>
+            (b.views || 0) -
+            (a.views || 0)
+        )
+        .slice(0,5);
+
 const expertItems =
-    voedingData
-        .filter(x => x.expert);
+    data.filter(x => x.expert);
+
+const top20 =
+    JSON.parse(
+        localStorage.getItem(
+            'voeding_top20'
+        ) || '[]'
+    );
+
+const lastUpdate =
+    localStorage.getItem(
+        'voeding_top20_update'
+    );
 
     let html = `
 
@@ -8974,6 +9010,50 @@ const expertItems =
 </div>
 
 <div class="card">
+
+    <button
+    class="btn btn-primary"
+    onclick="generateInternetTop20Voeding()">
+
+    🔄 Update Internetbronnen
+
+</button>
+
+<h4>🌍 Top 20 Internetbronnen</h4>
+
+${
+    top20.length
+
+    ?
+
+    top20.map(x => `
+        <div>${x}</div>
+    `).join('')
+
+    :
+
+    'Nog geen internetgegevens'
+}
+
+${
+    lastUpdate
+
+    ?
+
+    `<small>
+        Laatste update:
+        ${new Date(lastUpdate)
+            .toLocaleDateString()}
+     </small>`
+
+    :
+
+    ''
+}
+
+</div>
+
+<div class="card">
     <h4>👨‍⚕️ Aanbevolen door experts</h4>
 
     ${
@@ -9009,6 +9089,75 @@ const expertItems =
 });
 
 document.getElementById('voedingContent').innerHTML = html;
+
+}
+
+function generateInternetTop20Voeding(){
+
+    const top20 = [
+
+        "Voeding bij Crohn",
+        "Voeding bij Colitis Ulcerosa",
+        "Dieet tijdens opflakkering",
+        "Dieet tijdens remissie",
+        "FODMAP dieet",
+        "Vitamine B12",
+        "Vitamine D",
+        "IJzertekort",
+        "Calcium",
+        "Hydratatie",
+        "Probiotica",
+        "Vezelarme voeding",
+        "Vezelrijke voeding",
+        "Omega 3",
+        "Gezonde snacks",
+        "IBD recepten",
+        "Ontbijt ideeën",
+        "Gewichtsverlies",
+        "Ondergewicht",
+        "Voedingssupplementen"
+    ];
+
+    localStorage.setItem(
+        'voeding_top20',
+        JSON.stringify(top20)
+    );
+
+    localStorage.setItem(
+        'voeding_top20_update',
+        new Date().toISOString()
+    );
+
+    renderVoeding(
+        document.querySelector(
+            '#voedingTabs .active'
+        ).dataset.tab
+    );
+}
+
+function checkTop20Update(){
+
+    const lastUpdate =
+        localStorage.getItem(
+            'voeding_top20_update'
+        );
+
+    if(!lastUpdate){
+
+        generateInternetTop20Voeding();
+        return;
+    }
+
+    const days =
+        (
+            Date.now() -
+            new Date(lastUpdate)
+        ) / 86400000;
+
+    if(days > 30){
+
+        generateInternetTop20Voeding();
+    }
 }
 
 // OPSLAAN
@@ -13797,6 +13946,7 @@ const users =
 // INIT
 renderVoeding('dieet');
 initVoedingTabs();
+checkTop20Update();
 updateFavoritesButton();
 
 window.onerror = function(msg){

@@ -9028,6 +9028,24 @@ const lastUpdate =
 
         <h4>📂 Overzicht</h4>
 
+        <div class="card">
+
+<h4>⭐ Aanbevolen Artikelen</h4>
+
+${
+    data.filter(x => x.featured)
+        .map(x =>
+            `<div>${x.title}</div>`
+        )
+        .join('')
+
+    ||
+
+    'Nog geen aanbevolen artikelen'
+}
+
+</div>
+
 <div class="card">
     <h4>⭐ Recent toegevoegd</h4>
 
@@ -9126,7 +9144,33 @@ ${
             <b>${d.title}</b><br>
 
             ${d.content}
+            ${d.image
 
+ ? `${d.image}`
+
+ : ''
+}
+${d.tags
+ ? `<div><b>🏷️ Tags:</b> ${d.tags}</div>`
+ : ''}
+
+${d.source
+ ? `<div><b>🌍 Bron:</b> ${d.source}</div>`
+ : ''}
+
+${d.url
+ ? `<div>
+      ${d.url}
+         Open bron
+      </a>
+    </div>`
+ : ''}
+
+${d.publicationDate
+ ? `<div><b>📅 Datum:</b>
+      ${d.publicationDate}
+    </div>`
+ : ''}
             <div style="margin-top:10px">
                 👁 ${d.views}
             </div>
@@ -9268,6 +9312,15 @@ function saveNewVoeding(){
 
         tags:
             document.getElementById('v_tags').value,
+
+        image:
+            document.getElementById('v_image').value,
+
+        publicationDate:
+            document.getElementById('v_date').value,
+
+        featured:
+            document.getElementById('v_featured').checked,
 
         expert:
             document.getElementById('v_expert').checked
@@ -14082,6 +14135,44 @@ window.onerror = function(msg){
     <input
         id="v_tags"
         placeholder="Crohn, FODMAP, Vitamine B12">
+
+<label>🌍 Internetbron</label>
+
+<input
+    id="v_source"
+    placeholder="ECCO, EFCCA, Mayo Clinic">
+
+<label>🔗 Website URL</label>
+
+<input
+    id="v_url"
+    placeholder="https://">
+
+<label>📅 Publicatiedatum</label>
+
+<input
+    type="date"
+    id="v_date">
+
+<label>📎 Bijlage</label>
+
+<input
+    type="file"
+    id="v_attachment">
+
+<label>🖼️ Afbeelding URL</label>
+
+<input
+    id="v_image"
+    placeholder="https://afbeelding.jpg">
+
+<label>
+    <input
+        type="checkbox"
+        id="v_featured">
+
+    ⭐ Aanbevolen artikel
+</label>
 
     <label>
         <input

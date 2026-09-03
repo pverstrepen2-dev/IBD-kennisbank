@@ -8977,12 +8977,15 @@ const popularItems =
 const expertItems =
     data.filter(x => x.expert);
 
-const top20 =
+const top20Data =
     JSON.parse(
         localStorage.getItem(
             'voeding_top20'
-        ) || '[]'
+        ) || '{}'
     );
+
+const top20 =
+    top20Data[tab] || [];
 
 const lastUpdate =
     localStorage.getItem(
@@ -9084,7 +9087,11 @@ ${
 
 </button>
 
-<h4>🌍 Top 20 Internetbronnen</h4>
+<h4>
+🌍 Top 20 ${
+    titles[tab]
+}
+</h4>
 
 ${
     top20.length
@@ -9185,34 +9192,53 @@ document.getElementById('voedingContent').innerHTML = html;
 
 function generateInternetTop20Voeding(){
 
-    const top20 = [
+    const top20Data = {
 
+    dieet: [
         "Voeding bij Crohn",
         "Voeding bij Colitis Ulcerosa",
         "Dieet tijdens opflakkering",
         "Dieet tijdens remissie",
-        "FODMAP dieet",
+        "FODMAP dieet"
+    ],
+
+    recepten: [
+        "IBD ontbijt",
+        "Vezelarme lunch",
+        "Lichte avondmaaltijden",
+        "Recepten tijdens opflakkering",
+        "Vegetarische recepten"
+    ],
+
+    supplementen: [
         "Vitamine B12",
         "Vitamine D",
-        "IJzertekort",
+        "Ijzertekort",
         "Calcium",
-        "Hydratatie",
-        "Probiotica",
-        "Vezelarme voeding",
-        "Vezelrijke voeding",
+        "Probiotica"
+    ],
+
+    vermijden: [
+        "Alcohol",
+        "Pittige voeding",
+        "Sterk bewerkte voeding",
+        "Overmatig cafeïnegebruik",
+        "Persoonlijke triggerfoods"
+    ],
+
+    gezond: [
         "Omega 3",
-        "Gezonde snacks",
-        "IBD recepten",
-        "Ontbijt ideeën",
-        "Gewichtsverlies",
-        "Ondergewicht",
-        "Voedingssupplementen"
-    ];
+        "Hydratatie",
+        "Magere eiwitten",
+        "Kleine frequente maaltijden",
+        "Gezonde vetten"
+    ]
+};
 
     localStorage.setItem(
-        'voeding_top20',
-        JSON.stringify(top20)
-    );
+   'voeding_top20',
+   JSON.stringify(top20Data)
+);
 
     localStorage.setItem(
         'voeding_top20_update',

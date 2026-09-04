@@ -1003,6 +1003,12 @@ class="tab-content">
 
 <br><br>
 
+<div id="relationsDashboard">
+
+</div>
+
+<br>
+
 <div id="relationsContainer"></div>
     </div>
 
@@ -2598,7 +2604,19 @@ function saveDocument(document) {
     buildDocumentRelations();
 }
 
-function buildDocumentRelations() {
+async function buildDocumentRelations(){
+
+    const projecten =
+    await loadProjects();
+
+const taken =
+    await loadTasks();
+
+const meetings =
+    await loadMeetings();
+
+const groups =
+    await loadGroups();
 
     documentRelations = [];
 
@@ -2629,7 +2647,47 @@ function buildDocumentRelations() {
         });
 
     });
+projecten.forEach(project => {
 
+    documents.forEach(doc => {
+
+        const txt = (
+            (doc.title || '') +
+            ' ' +
+            (doc.content || '')
+        ).toLowerCase();
+
+        if(
+            txt.includes(
+                (project.title || '')
+                .toLowerCase()
+            )
+        ){
+
+            documentRelations.push({
+
+                source: doc.id,
+
+                target:
+                    "project_" +
+                    project.id,
+
+                strength: 10,
+
+                keywords: [
+                    project.title
+                ],
+
+                relationType:
+                    "project"
+
+            });
+
+        }
+
+    });
+
+});
 }
 
 async function loadVoedingDB(){
@@ -6538,11 +6596,70 @@ ${
 // RENDER CORE
 // =========================
 
-function renderDocumentRelations(){
+async function renderDocumentRelations(){
 
+  const projecten =
+    await loadProjects();
+
+const taken =
+    await loadTasks();
+
+const meetings =
+    await loadMeetings();
+
+const groups =
+    await loadGroups();
     const container =
         document.getElementById("relationsContainer");
 
+    const dashboard =
+    document.getElementById(
+        "relationsDashboard"
+    );
+  
+    dashboard.innerHTML = `
+
+<div class="stats-grid">
+
+    <div class="card">
+
+        📄 Documenten
+
+        <div class="stat-number">
+            ${documents.length}
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        🔗 Relaties
+
+        <div class="stat-number">
+            ${documentRelations.length}
+        </div>
+
+    </div>
+
+</div>
+
+<div class="card">
+
+    <h3>
+        🧠 Documentanalyse
+    </h3>
+
+    <p>
+
+        Deze module toont relaties tussen
+        documenten, projecten,
+        vergaderingen en werkdocumenten.
+
+    </p>
+
+</div>
+
+`;
     container.innerHTML = "";
 
     documentRelations.forEach(rel => {
@@ -6550,17 +6667,49 @@ function renderDocumentRelations(){
         const source =
             documents.find(d => d.id === rel.source);
 
-        const target =
-            documents.find(d => d.id === rel.target);
+        let target;
+
+if(rel.relationType === "project"){
+
+    target =
+        projecten.find(
+            p =>
+                "project_" + p.id
+                ===
+                rel.target
+        );
+
+}
+else{
+
+    target =
+        documents.find(
+            d =>
+                d.id === rel.target
+        );
+
+}
 
         container.innerHTML += `
-        <div class="result-item">
-            <h3>${source.title}</h3>
-            <p>↔ ${target.title}</p>
-            <p>Sterkte: ${rel.strength}</p>
-            <p>${rel.keywords.join(", ")}</p>
-        </div>
-        `;
+    <div class="result-item">
+        <h3>${source.title}</h3>
+        <p>
+        ↔ ${
+            rel.relationType === "project"
+            ?
+            '📁 Project'
+            :
+            '📄 Document'
+        }
+
+        ↔
+
+        ${target?.title || 'Onbekend'}
+
+        <p>Sterkte: ${rel.strength}</p>
+        <p>${rel.keywords.join(", ")}</p>
+    </div>
+`;
     });
 
 }

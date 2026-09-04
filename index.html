@@ -306,6 +306,42 @@ console.log("PDF TEST", window.pdfjsLib);
       font-size: 15px;
     }
 
+    #ccvContent input,
+#ccvContent select,
+#ccvContent textarea{
+
+    width:100%;
+
+    padding:12px 14px;
+
+    border:2px solid #dde3ea;
+
+    border-radius:10px;
+
+    background:white;
+
+    font-size:14px;
+
+    margin-bottom:10px;
+
+    box-sizing:border-box;
+
+    transition:.2s;
+}
+
+#ccvContent input:focus,
+#ccvContent select:focus,
+#ccvContent textarea:focus{
+
+    border-color:#667eea;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(102,126,234,.15);
+
+    outline:none;
+}
+
     textarea { min-height: 110px; resize: vertical; }
 
     input:focus, select:focus, textarea:focus {
@@ -1673,36 +1709,27 @@ class="tab-content">
       <button class="tab-btn" onclick="switchCCVTab(event,'mailboxes')">📬 Mailboxen</button>
     </div>
 
-    <!-- ✅ dropdown -->
-    <select id="ccvQuickView" style="margin-bottom:10px;">
-      <option value="taken">📋 Taken</option>
-      <option value="werkgroepen">👥 Werkgroepen</option>
-      <option value="vergaderingen">🗓️ Vergaderingen</option>
-      <option value="projecten">📁 Projecten</option>
-      <option value="documenten">📄 Documenten</option>
-      <option value="leden">👤 Leden</option>
-    </select>
-
-    <!-- ✅ invoer -->
+       <!-- ✅ invoer -->
     <div class="card" style="margin-bottom:20px;">
       <div onclick="toggleCCVForm()" style="cursor:pointer; font-weight:700;">
         ➕ Nieuwe invoer ▼
       </div>
 
-      <div id="ccvFormWrapper" style="display:none; margin-top:15px;">
-        <select id="ccvTypeSelect" onchange="renderCCVForm()">
-          <option value="">Kies type...</option>
-          <option value="taken">📋 Taak</option>
-          <option value="werkgroepen">👥 Werkgroep</option>
-          <option value="vergaderingen">🗓️ Vergadering</option>
-          <option value="projecten">📁 Project</option>
-          <option value="documenten">📄 Document</option>
-          <option value="leden">👤 Lid</option>
-        </select>
+    <div id="ccvFormWrapper"
+     style="display:none; margin-top:15px;">
 
-        <div id="ccvDynamicForm" style="margin-top:15px;"></div>
-      </div>
+    <h3 id="ccvFormTitle">
+
+        Nieuwe invoer
+
+    </h3>
+
+    <div id="ccvDynamicForm"
+         style="margin-top:15px;">
+
     </div>
+
+</div>
 
     <!-- ✅ zoek -->
     <input 
@@ -1728,38 +1755,34 @@ class="tab-content">
         <form id="addItemForm">
           <div class="form-grid">
             <div>
-              <label>Sectie</label>
-              <div style="display:flex; flex-direction:column; gap:6px; margin-top:8px;">
-                <label><input type="checkbox" name="disease" value="Crohn" checked> Crohn</label>
-                <label><input type="checkbox" name="disease" value="Colitis Ulcerosa"> Colitis Ulcerosa</label>
-                <label>
-<input type="checkbox"
-       name="disease"
-       value="Microscopische Colitis">
-Microscopische Colitis
-</label>
-                <label><input type="checkbox" name="disease" value="Algemeen IBD"> Algemeen IBD</label>
-                <label><input type="checkbox" name="disease" value="Mindfulness"> Mindfulness</label>
-                <label><input type="checkbox" name="disease" value="Voeding"> Voeding</label>
-                <label>
-<input type="checkbox"
-       name="disease"
-       value="Zorggids">
-Zorggids
-</label>
+              <label>Hoofdgroep</label>
 
-<label>
-<input type="checkbox"
-       name="disease"
-       value="Sociale Gids">
-Sociale Gids
-</label>
-                <label><input type="checkbox" name="disease" value="GutFlix"> GutFlix</label>
-                <label><input type="checkbox" name="disease" value="Verenigingen">Verenigingen</label>
-                <label><input type="checkbox" name="disease" value="CCV-VZW"> CCV-VZW</label>
-              </div>
-            </div>
+<select id="mainGroup">
 
+    <option>Crohn</option>
+
+    <option>Colitis Ulcerosa</option>
+
+    <option>Microscopische Colitis</option>
+
+    <option>Algemeen IBD</option>
+
+    <option>Voeding</option>
+
+    <option>Mindfulness</option>
+
+    <option>Zorggids</option>
+
+    <option>Sociale Gids</option>
+
+    <option>GutFlix</option>
+
+    <option>Verenigingen</option>
+
+    <option>CCV-VZW</option>
+
+</select>
+</div>  
             <div>
               <label>Categorie</label>
               <select id="newCategory" required></select>
@@ -1869,9 +1892,43 @@ Sociale Gids
           </div>
 
           <div style="margin-top:16px;">
-            <label>Tags</label>
-            <input type="text" id="newTags" placeholder="crohn, behandeling, informatie" />
-          </div>
+
+    <label>Tags</label>
+
+    <input
+        type="text"
+        id="newTags"
+        placeholder="crohn, behandeling, informatie" />
+
+    <br><br>
+
+    <label>📅 Publicatiedatum</label>
+
+    <input
+        type="date"
+        id="newPublicationDate">
+
+    <br><br>
+
+    <label>
+        <input
+            type="checkbox"
+            id="newFeatured">
+
+        ⭐ Aanbevolen artikel
+    </label>
+
+    <br><br>
+
+    <label>
+        <input
+            type="checkbox"
+            id="newValidated">
+
+        ✅ Gevalideerd
+    </label>
+
+</div>
 
           <div style="margin-top:20px;">
             <button type="submit" class="btn btn-primary">💾 Opslaan</button>
@@ -6304,6 +6361,36 @@ async function switchCCVTab(evt,tab){
   console.log("TAB:", tab);
   document.querySelectorAll('#ccvtab .tab-btn').forEach(b=>b.classList.remove('active'));
   evt.target.classList.add('active');
+  const titles = {
+
+    taken:
+        "📋 Nieuwe taak",
+
+    werkgroepen:
+        "👥 Nieuwe werkgroep",
+
+    vergaderingen:
+        "🗓 Nieuwe vergadering",
+
+    projecten:
+        "📁 Nieuw project",
+
+    documenten:
+        "📄 Nieuw document",
+
+    leden:
+        "👤 Nieuw lid"
+
+};
+
+document.getElementById(
+    'ccvFormTitle'
+).innerText =
+    titles[tab]
+    ||
+    "Nieuwe invoer";
+
+renderCCVForm(tab);
   await renderCCV(tab);
 }
 
@@ -6318,8 +6405,39 @@ async function searchCCV(){
         .value
         .toLowerCase();
 
-    const data =
-        await loadCCV();
+    const taken =
+    await loadTasks();
+
+const meetings =
+    await loadMeetings();
+
+const projecten =
+    await loadProjects();
+
+const documenten =
+    await loadDocuments();
+
+const leden =
+    await loadMembers();
+
+const werkgroepen =
+    await loadGroups();
+
+const data = [
+
+    ...taken,
+
+    ...meetings,
+
+    ...projecten,
+
+    ...documenten,
+
+    ...leden,
+
+    ...werkgroepen
+
+];
 
     const result =
         data.filter(item =>
@@ -6328,16 +6446,92 @@ async function searchCCV(){
             .includes(term)
         );
 
+        if(!term){
+
+    await renderCCV(
+        document
+            .querySelector(
+                '#ccvtab .tab-btn.active'
+            )
+            ?.dataset?.tab
+        || 'taken'
+    );
+
+    return;
+}
+
     document
         .getElementById(
             "ccvContent"
         )
         .innerHTML =
-        result.map(x => `
-            <div class="card">
-                <b>${x.title}</b>
-            </div>
-        `).join("");
+       result.map(x => `
+
+    <div class="card">
+
+        <b>
+
+            ${x.title || x.name || 'Geen titel'}
+
+        </b>
+<br>
+
+${
+    x.date
+
+    ?
+
+    `📅 ${x.date}`
+
+    :
+
+    ''
+}
+        <br>
+
+        ${
+    x.type === 'taken'
+
+    ? '📋 Taak'
+
+    :
+
+    x.type === 'werkgroepen'
+
+    ? '👥 Werkgroep'
+
+    :
+
+    x.type === 'vergaderingen'
+
+    ? '🗓 Vergadering'
+
+    :
+
+    x.type === 'projecten'
+
+    ? '📁 Project'
+
+    :
+
+    x.type === 'leden'
+
+    ? '👤 Lid'
+
+    :
+
+    x.type === 'documenten'
+
+    ? '📄 Document'
+
+    :
+
+    '📦 Item'
+}
+
+    </div>
+
+`).join("");
 }
 
 // =========================
@@ -6872,7 +7066,23 @@ const memberOptions =
 const data =
   allData;
 
- const projecten = [];
+const openTaken =
+
+    data.filter(
+        x => x.status === 'Aan te maken'
+    );
+
+const dringend =
+
+    data.filter(
+        x =>
+            x.urgency === 'Dringend'
+            ||
+            x.urgency === 'Zeer dringend'
+    );
+
+ const projecten =
+    await loadProjects();
  
   const projectOptions =
     projecten.map(p=>`
@@ -6897,6 +7107,7 @@ const documentOptions =
 <button onclick="document.getElementById('voedingImport').click()">📥 Importeren</button>
   <input type="file" id="voedingImport" accept=".json" style="display:none" onchange="importVoeding(event)">
 
+  <label>📝 Titel</label>
   <input id="t_title" placeholder="Titel">
   <select id="t_owner">
 
@@ -6930,10 +7141,39 @@ const documentOptions =
 
 <br><br>
 
-<input id="t_topic" placeholder="Topic">
-  <input id="t_people" placeholder="Personen">
+<div class="form-grid">
 
-  <input type="date" id="t_date">
+    <div>
+
+        <label>📌 Topic</label>
+
+        <input
+            id="t_topic"
+            placeholder="Onderwerp van de taak">
+
+    </div>
+
+    <div>
+
+        <label>👥 Personen</label>
+
+        <input
+            id="t_people"
+            placeholder="Betrokken personen">
+
+    </div>
+
+    <div>
+
+        <label>📅 Deadline</label>
+
+        <input
+            type="date"
+            id="t_date">
+
+    </div>
+
+</div>
 
   <select id="t_urgency">
     <option>Normaal</option>
@@ -6948,10 +7188,43 @@ const documentOptions =
   </select>
 
   <button onclick="saveTask()">Opslaan</button>
-
+ 
   <h3>Overzicht</h3>
-  `;
+  
+<div class="stats-grid">
 
+    <div class="card">
+
+        <b>📋 Open taken</b>
+
+        <div class="stat-number">
+            ${openTaken.length}
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <b>⚠️ Dringende taken</b>
+
+        <div class="stat-number">
+            ${dringend.length}
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <b>✅ Totaal taken</b>
+
+        <div class="stat-number">
+            ${data.length}
+        </div>
+
+    </div>
+
+</div>
+`;
   data.forEach(d=>{
     let c='status-open';
     if(d.status==='In uitvoering') c='status-progress';
@@ -6967,7 +7240,11 @@ const documentOptions =
 }<br>
       👥 ${d.people}<br>
 
-📁 Geen project<br>
+📁 ${
+    projecten.find(
+        p => String(p.id) === String(d.projectId)
+    )?.title || 'Geen project'
+}<br>
 
 📅 ${d.date}<br>
      
@@ -6997,7 +7274,7 @@ async function saveTask(){
 
         title: t_title.value,
 
-        owner: t_owner.value,
+        ownerId: t_owner.value,
 
         group: t_group.value,
 
@@ -7034,6 +7311,9 @@ async function renderWG(){
 const data =
     await loadGroups();
 
+const totaalWG =
+    data.length;
+
 const members =
     await loadMembers();
 
@@ -7060,7 +7340,18 @@ const memberOptions =
   <button onclick="saveWG()">Opslaan</button>
 
   <h3>Overzicht</h3>
-  `;
+
+<div class="card">
+
+    👥 Actieve werkgroepen
+
+    <h2>
+        ${totaalWG}
+    </h2>
+
+</div>
+
+`;
 
   data.forEach(d=>{
    html += `
@@ -7117,6 +7408,24 @@ async function renderMeetings(){
   const data =
     await loadMeetings();
 
+const komendeVergaderingen =
+
+    data.filter(
+        x =>
+            new Date(x.date)
+            >=
+            new Date()
+    );
+
+const openActiepunten =
+
+    data.filter(
+        x =>
+            x.actions
+            &&
+            x.actions.length
+    );
+
     const members =
     await loadMembers();
 
@@ -7171,7 +7480,42 @@ ${memberCheckboxes}
   <button onclick="saveMeeting()">Opslaan</button>
 
   <h3>Overzicht</h3>
-  `;
+
+<div class="stats-grid">
+
+    <div class="card">
+
+        🗓 Komende vergaderingen
+
+        <h2>
+            ${komendeVergaderingen.length}
+        </h2>
+
+    </div>
+
+    <div class="card">
+
+        ✅ Open actiepunten
+
+        <h2>
+            ${openActiepunten.length}
+        </h2>
+
+    </div>
+
+    <div class="card">
+
+        📄 Totaal vergaderingen
+
+        <h2>
+            ${data.length}
+        </h2>
+
+    </div>
+
+</div>
+
+`;
 
   data.forEach(d=>{
     html+=`<div class="card">
@@ -8629,9 +8973,8 @@ function toggleCCVForm() {
   const el = document.getElementById('ccvFormWrapper');
   el.style.display = el.style.display === 'none' ? 'block' : 'none';
 }
-function renderCCVForm() {
-  const type = document.getElementById('ccvTypeSelect').value;
-  let html = '';
+function renderCCVForm(type) {
+   let html = '';
 
  if(type === 'taken'){
   html = `

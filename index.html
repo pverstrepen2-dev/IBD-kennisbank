@@ -11318,6 +11318,126 @@ function showKnowledgeNode(
 
     }
 
+    const zoekwaarde =
+
+    (
+        item.title
+        ||
+        item.name
+        ||
+        ''
+    ).toLowerCase();
+
+    const gerelateerdeDocumenten =
+
+    docs.filter(doc =>
+
+        JSON.stringify(doc)
+            .toLowerCase()
+
+            .includes(
+
+                (
+                    item.title
+                    ||
+                    item.name
+                    ||
+                    ''
+                )
+                .toLowerCase()
+
+            )
+
+    );
+
+    const gerelateerdeTaken =
+
+    tasks.filter(task =>
+
+        JSON.stringify(task)
+            .toLowerCase()
+
+            .includes(
+
+                (
+                    item.title
+                    ||
+                    item.name
+                    ||
+                    ''
+                )
+                .toLowerCase()
+
+            )
+
+    );
+
+    const gerelateerdeVergaderingen =
+
+    meetings.filter(meeting =>
+
+        JSON.stringify(meeting)
+            .toLowerCase()
+
+            .includes(
+
+                (
+                    item.title
+                    ||
+                    item.name
+                    ||
+                    ''
+                )
+                .toLowerCase()
+
+            )
+
+    );
+
+    const gerelateerdeWerkgroepen =
+
+    groups.filter(group =>
+
+        JSON.stringify(group)
+            .toLowerCase()
+
+            .includes(
+
+                (
+                    item.title
+                    ||
+                    item.name
+                    ||
+                    ''
+                )
+                .toLowerCase()
+
+            )
+
+    );
+
+    const gerelateerdeProjecten =
+
+    projecten.filter(project =>
+
+        JSON.stringify(project)
+            .toLowerCase()
+
+            .includes(
+
+                (
+                    item.title
+                    ||
+                    item.name
+                    ||
+                    ''
+                )
+                .toLowerCase()
+
+            )
+
+    );
+
     panel.innerHTML = `
 
         <h3>
@@ -11325,9 +11445,206 @@ function showKnowledgeNode(
             ${item.title || item.name}
 
         </h3>
+<p>
 
+    🧠 Centraal kennisobject
+
+</p>
         <hr>
 
+<div class="notice">
+
+    📄 ${
+        gerelateerdeDocumenten.length
+    } documenten
+
+    |
+
+    📋 ${
+        gerelateerdeTaken.length
+    } taken
+
+    |
+
+    🗓 ${
+        gerelateerdeVergaderingen.length
+    } vergaderingen
+
+    |
+
+    👥 ${
+        gerelateerdeWerkgroepen.length
+    } werkgroepen
+
+    |
+
+    📁 ${
+        gerelateerdeProjecten.length
+    } projecten
+
+</div>
+
+<br>
+
+<h4>📄 Documenten</h4>
+
+${
+    gerelateerdeDocumenten
+
+        .slice(0,5)
+
+        .map(d => `
+
+            <div>
+
+                <span
+
+                    onclick="openDocumentById('${d.fileId}')"
+
+                    style="
+                        color:#1565c0;
+                        cursor:pointer;
+                        text-decoration:underline;
+                    ">
+
+                    📄 ${d.title}
+
+                </span>
+
+            </div>
+
+        `)
+
+        .join('')
+}
+
+<h4>📋 Taken</h4>
+
+${
+    gerelateerdeTaken
+
+        .slice(0,5)
+
+        .map(t => `
+
+            <div>
+
+                <span
+
+                    onclick="openTask('${t.id}')"
+
+                    style="
+                        color:#1565c0;
+                        cursor:pointer;
+                        text-decoration:underline;
+                    ">
+
+                    📋 ${t.title}
+
+                </span>
+
+            </div>
+
+        `)
+
+        .join('')
+}
+
+<h4>🗓 Vergaderingen</h4>
+
+${
+    gerelateerdeVergaderingen
+
+        .slice(0,5)
+
+        .map(m => `
+
+            <div>
+
+                <span
+
+                    onclick="openMeeting('${m.id}')"
+
+                    style="
+                        color:#1565c0;
+                        cursor:pointer;
+                        text-decoration:underline;
+                    ">
+
+                    🗓 ${m.title}
+
+                </span>
+
+            </div>
+
+        `)
+
+        .join('')
+}
+
+<h4>👥 Werkgroepen</h4>
+
+${
+    gerelateerdeWerkgroepen
+
+        .slice(0,5)
+
+        .map(g => `
+
+            <div>
+
+                <span
+
+                    onclick="openGroup('${g.id}')"
+
+                    style="
+                        color:#1565c0;
+                        cursor:pointer;
+                        text-decoration:underline;
+                    ">
+
+                    👥 ${g.name}
+
+                </span>
+
+            </div>
+
+        `)
+
+        .join('')
+}
+
+<h4>📁 Projecten</h4>
+
+${
+    gerelateerdeProjecten
+
+        .slice(0,5)
+
+        .map(p => `
+
+            <div>
+
+                <span
+
+                    onclick="openProject('${p.id}')"
+
+                    style="
+                        color:#1565c0;
+                        cursor:pointer;
+                        text-decoration:underline;
+                    ">
+
+                    📁 ${p.title}
+
+                </span>
+
+            </div>
+
+        `)
+
+        .join('')
+}
         <p>
 
             📅
@@ -15079,6 +15396,58 @@ const users =
 </div>
 
 `;
+}
+
+function openTask(id){
+
+    switchCCVTab(
+        null,
+        "taken"
+    );
+
+    console.log(
+        "Open taak:",
+        id
+    );
+}
+
+function openMeeting(id){
+
+    switchCCVTab(
+        null,
+        "vergaderingen"
+    );
+
+    console.log(
+        "Open vergadering:",
+        id
+    );
+}
+
+function openGroup(id){
+
+    switchCCVTab(
+        null,
+        "werkgroepen"
+    );
+
+    console.log(
+        "Open werkgroep:",
+        id
+    );
+}
+
+function openProject(id){
+
+    switchCCVTab(
+        null,
+        "projecten"
+    );
+
+    console.log(
+        "Open project:",
+        id
+    );
 }
 
 // INIT

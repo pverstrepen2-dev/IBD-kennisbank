@@ -1094,6 +1094,12 @@ class="tab-content">
 
     </div>
 
+<div id="knowledgeSidePanel"
+     class="card"
+     style="display:none;
+            margin-top:15px;">
+
+</div>
 </div>
 
 <div id="aikennis" class="tab-content">
@@ -10696,8 +10702,9 @@ async function buildKnowledgeMap(){
     
     const docs =
         await loadDocuments();
-        const projecten =
-    await loadProjects();
+        
+    const projecten =
+        await loadProjects();
 
 const meetings =
     await loadMeetings();
@@ -11141,6 +11148,7 @@ tasks.forEach(task => {
 
     };
 
+    const network =
     new vis.Network(
 
         container,
@@ -11149,46 +11157,198 @@ tasks.forEach(task => {
 
         {
 
-    groups: {
+            groups: {
 
-        hoofdgroep: {
-            color: "#FFD600"
-        },
+                hoofdgroep: {
+                    color: "#FFD600"
+                },
 
-        categorie: {
-            color: "#4CAF50"
-        },
+                categorie: {
+                    color: "#4CAF50"
+                },
 
-        document: {
-            color: "#EF5350"
-        },
+                document: {
+                    color: "#EF5350"
+                },
 
-        tag: {
-            color: "#00BCD4"
-        },
+                tag: {
+                    color: "#00BCD4"
+                },
 
-        project: {
-            color: "#2196F3"
-        },
+                project: {
+                    color: "#2196F3"
+                },
 
-        meeting: {
-            color: "#9C27B0"
-        },
+                meeting: {
+                    color: "#9C27B0"
+                },
 
-        group: {
-            color: "#4CAF50"
-        },
+                group: {
+                    color: "#4CAF50"
+                },
 
-        task: {
-            color: "#FF9800"
+                task: {
+                    color: "#FF9800"
+                }
+
+            }
+
         }
+
+    );
+network.on(
+
+    "click",
+
+    function(params){
+
+        if(
+            !params.nodes.length
+        ){
+            return;
+        }
+
+        const nodeId =
+            params.nodes[0];
+
+        showKnowledgeNode(
+
+            nodeId,
+
+            docs,
+
+            projecten,
+
+            meetings,
+
+            groups,
+
+            tasks
+
+        );
 
     }
 
+);
 }
 
-    );
+function showKnowledgeNode(
 
+    nodeId,
+
+    docs,
+
+    projecten,
+
+    meetings,
+
+    groups,
+
+    tasks
+
+){
+
+    const panel =
+
+        document.getElementById(
+            "knowledgeSidePanel"
+        );
+
+    panel.style.display =
+        "block";
+
+    let item =
+
+        docs.find(
+            d =>
+                String(d.id)
+                ===
+                String(nodeId)
+        )
+
+        ||
+
+        projecten.find(
+            p =>
+                "project_" + p.id
+                ===
+                nodeId
+        )
+
+        ||
+
+        meetings.find(
+            m =>
+                "meeting_" + m.id
+                ===
+                nodeId
+        )
+
+        ||
+
+        groups.find(
+            g =>
+                "group_" + g.id
+                ===
+                nodeId
+        )
+
+        ||
+
+        tasks.find(
+            t =>
+                "task_" + t.id
+                ===
+                nodeId
+        );
+
+    if(!item){
+
+        panel.innerHTML = `
+
+            <h3>
+
+                ${nodeId}
+
+            </h3>
+
+        `;
+
+        return;
+
+    }
+
+    panel.innerHTML = `
+
+        <h3>
+
+            ${item.title || item.name}
+
+        </h3>
+
+        <hr>
+
+        <p>
+
+            📅
+            ${item.date || '-'}
+
+        </p>
+
+        <p>
+
+            🏷️
+            ${
+                item.tags
+                ?
+                item.tags.join(", ")
+                :
+                "-"
+            }
+
+        </p>
+
+    `;
 }
 
 function suggestFileName(name){

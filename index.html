@@ -1035,7 +1035,25 @@ class="tab-content">
             Kenniskaart genereren
 
         </button>
+<div id="knowledgeStats">
 
+</div>
+<div class="card">
+
+    <h3>🗺️ Legenda</h3>
+
+    🟡 Thema's<br>
+
+    🟢 Onderwerpen<br>
+
+    🔴 Documenten<br>
+
+    🔗 Relaties
+
+</div>
+
+<br>
+<br>
     </div>
 
     <div class="graph-tabs">
@@ -10678,6 +10696,27 @@ async function buildKnowledgeMap(){
     
     const docs =
         await loadDocuments();
+        const projecten =
+    await loadProjects();
+
+const meetings =
+    await loadMeetings();
+
+const groups =
+    await loadGroups();
+
+const tasks =
+    await loadTasks();
+
+const zoekterm =
+
+    document
+        .getElementById(
+            "knowledgeSearch"
+        )
+        .value
+        .toLowerCase();
+    
     console.log(
     "EERSTE DOC:",
     docs[0]
@@ -10696,14 +10735,70 @@ const uniekeNodes =
 
     const structuur = {};
 
+nodes.push({
+
+    id:"PROJECTEN",
+
+    label:"📁 Projecten",
+
+    group:"hoofdgroep"
+
+});
+
+nodes.push({
+
+    id:"VERGADERINGEN",
+
+    label:"🗓 Vergaderingen",
+
+    group:"hoofdgroep"
+
+});
+
+nodes.push({
+
+    id:"WERKGROEPEN",
+
+    label:"👥 Werkgroepen",
+
+    group:"hoofdgroep"
+
+});
+
+nodes.push({
+
+    id:"TAKEN",
+
+    label:"📋 Taken",
+
+    group:"hoofdgroep"
+
+});
+
 docs.forEach(doc => {
+
+    if(
+
+        zoekterm
+
+        &&
+
+        !JSON.stringify(doc)
+            .toLowerCase()
+            .includes(zoekterm)
+
+    ){
+
+        return;
+
+    }
 
     const hoofdgroep =
         doc.hoofdgroep || "Onbekend";
 
     const categorie =
         doc.categorie || "Onbekend";
-
+    
     if(!structuur[hoofdgroep]){
         structuur[hoofdgroep] = {};
     }
@@ -10839,6 +10934,114 @@ edges.push({
     structuur[hoofdgroep][categorie]
         .push(doc);
 
+});    // einde docs.forEach
+
+projecten.forEach(project => {
+
+    nodes.push({
+
+        id:
+            "project_" + project.id,
+
+        label:
+            project.title,
+
+        group:
+            "project"
+
+    });
+
+    edges.push({
+
+        from:
+            "PROJECTEN",
+
+        to:
+            "project_" + project.id
+
+    });
+
+});
+
+meetings.forEach(meeting => {
+
+    nodes.push({
+
+        id:
+            "meeting_" + meeting.id,
+
+        label:
+            meeting.title,
+
+        group:
+            "meeting"
+
+    });
+
+    edges.push({
+
+        from:
+            "VERGADERINGEN",
+
+        to:
+            "meeting_" + meeting.id
+
+    });
+
+});
+
+groups.forEach(group => {
+
+    nodes.push({
+
+        id:
+            "group_" + group.id,
+
+        label:
+            group.name,
+
+        group:
+            "group"
+
+    });
+
+    edges.push({
+
+        from:
+            "WERKGROEPEN",
+
+        to:
+            "group_" + group.id
+
+    });
+
+});
+
+tasks.forEach(task => {
+
+    nodes.push({
+
+        id:
+            "task_" + task.id,
+
+        label:
+            task.title,
+
+        group:
+            "task"
+
+    });
+
+    edges.push({
+
+        from:
+            "TAKEN",
+
+        to:
+            "task_" + task.id
+
+    });
+
 });
 
     Object.keys(structuur)
@@ -10944,7 +11147,45 @@ edges.push({
 
         data,
 
-        {}
+        {
+
+    groups: {
+
+        hoofdgroep: {
+            color: "#FFD600"
+        },
+
+        categorie: {
+            color: "#4CAF50"
+        },
+
+        document: {
+            color: "#EF5350"
+        },
+
+        tag: {
+            color: "#00BCD4"
+        },
+
+        project: {
+            color: "#2196F3"
+        },
+
+        meeting: {
+            color: "#9C27B0"
+        },
+
+        group: {
+            color: "#4CAF50"
+        },
+
+        task: {
+            color: "#FF9800"
+        }
+
+    }
+
+}
 
     );
 
@@ -11425,6 +11666,15 @@ async function getDocumentInsights(fileId){
 
     const docs =
         await loadDocuments();
+
+    const zoekterm =
+
+    document
+        .getElementById(
+            "knowledgeSearch"
+        )
+        .value
+        .toLowerCase();
 
     const doc =
         docs.find(

@@ -493,6 +493,24 @@ console.log("PDF TEST", window.pdfjsLib);
       margin-top: 6px;
     }
 
+    .badge{
+
+    display:inline-block;
+
+    padding:6px 10px;
+
+    border-radius:20px;
+
+    background:#e3f2fd;
+
+    color:#1565c0;
+
+    font-size:12px;
+
+    font-weight:600;
+
+}
+
     .hidden { display: none; }
 
     .notification {
@@ -11437,6 +11455,27 @@ function showKnowledgeNode(
             )
 
     );
+const gerelateerdeFaqs =
+
+    docs
+
+        .filter(
+            d =>
+                d.type === "FAQ"
+        )
+
+        .filter(faq =>
+
+            JSON.stringify(faq)
+                .toLowerCase()
+
+                .includes(
+
+                    zoekwaarde
+
+                )
+
+        );
 
     panel.innerHTML = `
 
@@ -11452,35 +11491,72 @@ function showKnowledgeNode(
 </p>
         <hr>
 
-<div class="notice">
+<div
+    style="
+        display:flex;
+        flex-wrap:wrap;
+        gap:10px;
+        margin-bottom:15px;
+    "
+>
 
-    📄 ${
-        gerelateerdeDocumenten.length
-    } documenten
+    <span
+    class="badge"
+    onclick="scrollToDocuments()"
+>
 
-    |
+    📄 12 documenten
 
-    📋 ${
-        gerelateerdeTaken.length
-    } taken
+</span>
 
-    |
+    <span class="badge">
 
-    🗓 ${
-        gerelateerdeVergaderingen.length
-    } vergaderingen
+        ❓ ${
+            gerelateerdeFaqs.length
+        }
 
-    |
+        FAQ's
 
-    👥 ${
-        gerelateerdeWerkgroepen.length
-    } werkgroepen
+    </span>
 
-    |
+    <span class="badge">
 
-    📁 ${
-        gerelateerdeProjecten.length
-    } projecten
+        📋 ${
+            gerelateerdeTaken.length
+        }
+
+        taken
+
+    </span>
+
+    <span
+    class="badge"
+    onclick="scrollToMeetings()"
+>
+
+    🗓 2 vergaderingen
+
+</span>
+
+    <span class="badge">
+
+        👥 ${
+            gerelateerdeWerkgroepen.length
+        }
+
+        werkgroepen
+
+    </span>
+
+    <span class="badge">
+
+        📁 ${
+            gerelateerdeProjecten.length
+        }
+
+        projecten
+
+    </span>
 
 </div>
 
@@ -11604,6 +11680,39 @@ ${
                     ">
 
                     👥 ${g.name}
+
+                </span>
+
+            </div>
+
+        `)
+
+        .join('')
+}
+<h4>❓ FAQ's</h4>
+
+${
+    gerelateerdeFaqs
+
+        .slice(0,5)
+
+        .map(f => `
+
+            <div>
+
+                <span
+
+                    onclick="openDocumentById('${f.fileId}')"
+
+                    style="
+                        color:#1565c0;
+                        cursor:pointer;
+                        text-decoration:underline;
+                    "
+
+                >
+
+                    ❓ ${f.title}
 
                 </span>
 

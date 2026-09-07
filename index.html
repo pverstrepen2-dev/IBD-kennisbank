@@ -667,13 +667,13 @@ console.log("PDF TEST", window.pdfjsLib);
 .number{
     font-size:22px;
     font-weight:bold;
-    color:#4f46e5;
+    color:#4f46e5 !important;
 }
 
 .label{
-    font-size:12px;
-    color:#666;
-    margin-top:4px;
+    font-size:14px;
+    font-weight:600;
+    color:#333 !important;
 }
 .knowledge-tabs{
     display:flex;
@@ -11650,34 +11650,52 @@ const gerelateerdeFaqs =
 
 <div class="knowledge-tabs">
 
-    <button class="tab active">
-        📄 Documenten
-    </button>
+    <button
+    class="tab active"
+    onclick="showTab('documenten')"
+>
+    📄 Documenten
+</button>
 
-    <button class="tab">
-        📋 Taken
-    </button>
+    <button
+    class="tab"
+    onclick="showTab('taken')"
+>
+    📋 Taken
+</button>
 
-    <button class="tab">
-        🗓 Vergaderingen
-    </button>
+   <button
+    class="tab"
+    onclick="showTab('vergaderingen')"
+>
+    🗓 Vergaderingen
+</button>
 
-    <button class="tab">
-        👥 Werkgroepen
-    </button>
+    <button
+    class="tab"
+    onclick="showTab('werkgroepen')"
+>
+    👥 Werkgroepen
+</button>
 
-    <button class="tab">
-        ❓ FAQ's
-    </button>
+    <button
+    class="tab"
+    onclick="showTab('faqs')"
+>
+    ❓ FAQ's
+</button>
 
-    <button class="tab">
-        📁 Projecten
-    </button>
+    <button
+    class="tab"
+    onclick="showTab('projecten')"
+>
+    📁 Projecten
+</button>
 
 </div>
 
 <br>
-
+<div id="tab-documenten">
 <h4>📄 Documenten</h4>
 
 ${
@@ -11709,9 +11727,11 @@ ${
 
         .join('')
 }
+</div>
+
+<div id="tab-taken" style="display:none;">
 
 <h4>📋 Taken</h4>
-
 ${
     gerelateerdeTaken
 
@@ -11741,7 +11761,8 @@ ${
 
         .join('')
 }
-
+</div>
+<div id="tab-vergaderingen" style="display:none;">
 <h4>🗓 Vergaderingen</h4>
 
 ${
@@ -11773,7 +11794,8 @@ ${
 
         .join('')
 }
-
+</div>
+<div id="tab-werkgroepen" style="display:none;">
 <h4>👥 Werkgroepen</h4>
 
 ${
@@ -11805,6 +11827,8 @@ ${
 
         .join('')
 }
+        </div>
+<div id="tab-faqs" style="display:none;">        
 <h4>❓ FAQ's</h4>
 
 ${
@@ -11838,7 +11862,8 @@ ${
 
         .join('')
 }
-
+</div>
+<div id="tab-projecten" style="display:none;">
 <h4>📁 Projecten</h4>
 
 ${
@@ -11870,6 +11895,7 @@ ${
 
         .join('')
 }
+</div>
         <p>
 
             📅
@@ -12016,6 +12042,47 @@ function navigateBreadcrumb(index){
         target.name,
         false
     );
+}
+
+function showTab(tabName){
+
+    const tabs = [
+        "documenten",
+        "taken",
+        "vergaderingen",
+        "werkgroepen",
+        "faqs",
+        "projecten"
+    ];
+
+    tabs.forEach(tab => {
+
+        const element =
+            document.getElementById(
+                "tab-" + tab
+            );
+
+        if(element){
+
+            element.style.display =
+                "none";
+
+        }
+
+    });
+
+    const actief =
+        document.getElementById(
+            "tab-" + tabName
+        );
+
+    if(actief){
+
+        actief.style.display =
+            "block";
+
+    }
+
 }
 
 async function goBackFolder() {

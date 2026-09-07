@@ -15746,15 +15746,24 @@ async function buildIndexes(){
     fileIndex = [];
     metadataIndex = [];
 
-    await buildFolderIndex(
-        ROOT_FOLDER_ID,
-        token
+   if(typeof ROOT_FOLDER_ID === "undefined"){
+
+    console.warn(
+        "ROOT_FOLDER_ID niet ingesteld"
     );
 
-    await buildFileIndex(
-        ROOT_FOLDER_ID,
-        token
-    );
+    return;
+}
+
+await buildFolderIndex(
+    ROOT_FOLDER_ID,
+    token
+);
+
+await buildFileIndex(
+    ROOT_FOLDER_ID,
+    token
+);
 
     console.log(
         "Folders:",

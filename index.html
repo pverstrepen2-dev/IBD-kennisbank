@@ -446,7 +446,7 @@ console.log("PDF TEST", window.pdfjsLib);
     }
 
 .form-section{
-    background:#fff;
+    background:#ffffff;
     border:1px solid #e5e7eb;
     border-radius:12px;
     padding:15px;
@@ -470,6 +470,10 @@ console.log("PDF TEST", window.pdfjsLib);
     width:100%;
     margin-top:5px;
     margin-bottom:10px;
+}
+
+.form-section textarea{
+    min-height:120px;
 }
 
     .btn {
@@ -7464,6 +7468,7 @@ const documentOptions =
   <input id="t_title" placeholder="Titel">
   <textarea
     id="t_description"
+    rows="5"
     placeholder="Beschrijving van de taak">
 </textarea>
 
@@ -7507,6 +7512,12 @@ const documentOptions =
 <div class="form-section">
 
 <h4>📂 Koppelingen</h4>
+<div class="form-grid-2">
+
+<div>
+
+<label>📁 Project</label>
+
 <select id="t_project">
 
   <option value="">
@@ -7517,14 +7528,25 @@ const documentOptions =
 
 </select>
 
-<br><br>
+</div>
+
+<div>
+
+<label>📄 Document</label>
 
 <select id="t_document">
+
     <option value="">
         Geen document
     </option>
+
     ${documentOptions}
+
 </select>
+
+</div>
+
+</div>
 
 <br><br>
 
@@ -7556,15 +7578,31 @@ const documentOptions =
 
     </div>
 
-    <div>
+   <div>
 
-        <label>📅 Deadline</label>
+    <label>📅 Deadline</label>
 
-        <input
-            type="date"
-            id="t_date">
+    <input
+        type="date"
+        id="t_date">
 
-    </div>
+</div>
+
+<div>
+
+    <label>🚦 Prioriteit</label>
+
+    <select id="t_urgency">
+
+        <option>Normaal</option>
+
+        <option>Dringend</option>
+
+        <option>Zeer dringend</option>
+
+    </select>
+
+</div>
 
 </div>
 
@@ -7573,15 +7611,6 @@ const documentOptions =
 <div class="form-section">
 
 <h4>🚦 Opvolging</h4>
-
-<label>Prioriteit</label>
-
-<select id="t_urgency">
-
-    <option>Normaal</option>
-    <option>Dringend</option>
-    <option>Zeer dringend</option>
-  </select>
 
   <select id="t_status">
     <option>Aan te maken</option>

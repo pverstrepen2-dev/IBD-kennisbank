@@ -2641,11 +2641,17 @@ async function saveMembers(data){
 // DOCUMENTS DATABASE
 // =========================
 
-function extractKeywords(text) {
+function extractKeywords(text){
+
+    text = text || "";
+
     return text
         .toLowerCase()
         .split(/\W+/)
-        .filter(w => w.length > 4);
+        .filter(word =>
+            word.length > 3
+        );
+
 }
 
 function buildKnowledgeGraph(documents) {
@@ -2815,8 +2821,31 @@ const documents =
 
             if(docA.id === docB.id) return;
 
-            const wordsA = extractKeywords(docA.content);
-            const wordsB = extractKeywords(docB.content);
+            const wordsA =
+    extractKeywords(
+
+        docA.content
+        ||
+        docA.description
+        ||
+        docA.title
+        ||
+        ""
+
+    );
+
+const wordsB =
+    extractKeywords(
+
+        docB.content
+        ||
+        docB.description
+        ||
+        docB.title
+        ||
+        ""
+
+    );
 
             const overlap = wordsA.filter(
                 word => wordsB.includes(word)

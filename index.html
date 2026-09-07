@@ -214,6 +214,40 @@ console.log("PDF TEST", window.pdfjsLib);
     display:block;
 }
 
+.knowledge-layout{
+
+    display:flex;
+
+    gap:15px;
+
+    align-items:flex-start;
+
+}
+
+#knowledgeNetwork{
+
+    flex:2;
+
+    height:700px;
+
+    border:1px solid #ddd;
+
+    background:white;
+
+}
+
+#knowledgeSidePanel{
+
+    flex:1;
+
+    overflow-y:auto;
+
+    max-height:700px;
+
+    background:white;
+
+}
+
 #knowledgeNetwork{
     width:100%;
     height:700px;
@@ -1171,14 +1205,24 @@ class="tab-content">
 
     <div
     id="graph-relations"
-    class="graph-content">
+    class="graph-content"
+>
+
+    <div class="knowledge-layout">
 
         <div id="knowledgeNetwork">
         </div>
 
+        <div
+            id="knowledgeSidePanel"
+            class="card"
+            style="display:none;"
+        >
+        </div>
+
     </div>
 
-<div id="knowledgeSidePanel"
+</div>
      class="card"
      style="display:none;
             margin-top:15px;">
@@ -10782,23 +10826,19 @@ async function openDocumentById(fileId){
 
 }
 
+let knowledgeNetwork = null;
 async function buildKnowledgeMap(){
     
     const docs =
-        await loadDocuments();
-        
+        await loadDocuments();   
     const projecten =
         await loadProjects();
-
 const meetings =
     await loadMeetings();
-
 const groups =
     await loadGroups();
-
 const tasks =
     await loadTasks();
-
 const zoekterm =
 
     document
@@ -11280,6 +11320,8 @@ tasks.forEach(task => {
         }
 
     );
+    knowledgeNetwork = network;
+knowledgeNodes = nodes;
 network.on(
 
     "click",
@@ -11673,21 +11715,31 @@ const gerelateerdeFaqs =
 
     <button
     class="tab active"
-    onclick="showTab('documenten')"
+    onclick="
+        showTab('documenten');
+        focusNodeGroup('document')
+    "
 >
     📄 Documenten
 </button>
 
+
     <button
     class="tab"
-    onclick="showTab('taken')"
+    onclick="
+        showTab('taken');
+        focusNodeGroup('task')
+    "
 >
     📋 Taken
 </button>
 
    <button
     class="tab"
-    onclick="showTab('vergaderingen')"
+    onclick="
+        showTab('vergaderingen');
+        focusNodeGroup('meeting')
+    "
 >
     🗓 Vergaderingen
 </button>
@@ -12105,6 +12157,54 @@ function showTab(tabName){
     }
 
 }
+
+function focusNodeGroup(groupName){
+
+    if(!knowledgeNetwork){
+        return;
+    }
+
+    const ids = [];
+
+    knowledgeNodes.forEach(node => {
+
+        if(node.group === groupName){
+
+            ids.push(node.id);
+
+        }
+
+    });
+
+    console.log(
+        "gevonden:",
+        ids.length,
+        groupName
+    );
+
+    if(ids.length){
+
+        knowledgeNetwork.fit({
+
+            nodes: ids,
+
+            animation:true
+
+        });
+
+    }
+
+}
+
+function focusNodeType(type){
+
+    console.log(
+        "Focus op:",
+        type
+    );
+
+}
+
 
 async function goBackFolder() {
 

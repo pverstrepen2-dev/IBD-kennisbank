@@ -7771,8 +7771,32 @@ const openActiepunten =
   let html=`
   <h3>Nieuwe vergadering</h3>
   <input id="m_title" placeholder="Titel">
-  <input type="date" id="m_date">
-  <input
+
+<input type="date" id="m_date">
+
+<label>
+
+    <input
+        type="checkbox"
+        id="m_allDay">
+
+    Hele dag
+
+</label>
+
+<label>🕒 Van uur</label>
+
+<input
+    type="time"
+    id="m_startTime">
+
+<label>🕒 Tot uur</label>
+
+<input
+    type="time"
+    id="m_endTime">
+
+<input
     id="m_location"
     placeholder="Locatie">
   <textarea id="m_agenda" placeholder="Agendapunten"></textarea>
@@ -7841,11 +7865,51 @@ ${memberCheckboxes}
   data.forEach(d=>{
     html+=`<div class="card">
       <b>${d.title}</b><br>
-      📅 ${d.date}<br>
-      📍 ${d.location}<br>
+
+📅 ${d.date}<br>
+
+${
+    d.allDay
+
+    ?
+
+    `🌞 Hele dag<br>`
+
+    :
+
+    `
+
+    🕒 ${
+        d.startTime || "--:--"
+    }
+
+    -
+
+    ${
+        d.endTime || "--:--"
+    }
+
+    <br>
+
+    `
+}
+
+⏱️ ${
+    calculateDuration(
+        d.startTime,
+        d.endTime
+    )
+}
+<br>
+
+📍 ${d.location}<br>
+
 📌 ${d.agenda}<br>
+
 📝 ${d.notes}<br>
+
 ✅ ${d.decisions}<br>
+
 📋 ${d.actions}
       ${
 d.attachments
@@ -7860,6 +7924,40 @@ d.attachments.join('<br>📎 ')
   });
 
   document.getElementById('ccvContent').innerHTML = html;
+}
+
+function calculateDuration(
+    start,
+    end
+){
+
+    if(!start || !end){
+        return "-";
+    }
+
+    const s =
+        new Date(
+            "2000-01-01 " + start
+        );
+
+    const e =
+        new Date(
+            "2000-01-01 " + end
+        );
+
+    const diff =
+        (e - s) / 60000;
+
+    const uren =
+        Math.floor(
+            diff / 60
+        );
+
+    const minuten =
+        diff % 60;
+
+    return uren + "u " + minuten + "m";
+
 }
 
 function calculateProjectScore(project){
@@ -8257,9 +8355,21 @@ async function saveMeeting(){
 
     title: m_title.value,
 
-    date: m_date.value,
+date: m_date.value,
+allDay:
+    m_allDay.checked,
 
-    location: m_location.value,
+startTime:
+    document.getElementById(
+        "m_startTime"
+    ).value,
+
+endTime:
+    document.getElementById(
+        "m_endTime"
+    ).value,
+
+location: m_location.value,
 
     agenda: m_agenda.value,
 

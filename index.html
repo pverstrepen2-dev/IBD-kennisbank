@@ -279,11 +279,11 @@ console.log("PDF TEST", window.pdfjsLib);
     word-break: break-word;
 }
 
-   .stat-number {
-  font-size: 42px;
-  font-weight: 800;
-  color: white;
-  margin: 8px 0;
+  .stat-number{
+    font-size:32px;
+    font-weight:bold;
+    color:#4f46e5 !important;
+    display:block;
 }
 
 .stat-label {
@@ -702,6 +702,13 @@ console.log("PDF TEST", window.pdfjsLib);
     font-size:22px;
     font-weight:bold;
     color:#4f46e5 !important;
+}
+
+.stat-number{
+    display:block !important;
+    font-size:32px !important;
+    color:red !important;
+    font-weight:bold !important;
 }
 
 .label{
@@ -4351,9 +4358,22 @@ async function renderProjectDashboard(){
     async function updateDashboard() {
       const data =
     await getFilteredData();
+    console.log(
+    "Dashboard data:",
+    data
+);
+
+console.log(
+    "Aantal records:",
+    data.length
+);
       const categories = [...new Set(data.map(x => x.category).filter(Boolean))];
       const withLinks = data.filter(x => x.url).length;
       const withTips = data.filter(x => x.type === 'Tip').length;
+      console.log("DATA:", data.length);
+console.log("CATEGORIEEN:", categories.length);
+console.log("LINKS:", withLinks);
+console.log("TIPS:", withTips);
 
       document.getElementById('statsGrid').innerHTML = `
 
@@ -11471,15 +11491,28 @@ console.log(
     return;
 }
 
-    const zoekwaarde =
+    const zoekwoorden =
 
-    (
-        item.title
-        ||
-        item.name
-        ||
-        ''
-    ).toLowerCase();
+    item.tags
+    &&
+
+    item.tags.length
+
+        ?
+
+    item.tags
+
+        :
+
+    [
+        (
+            item.title
+            ||
+            item.name
+            ||
+            ''
+        ).toLowerCase()
+    ];
 
     const gerelateerdeDocumenten =
 
@@ -11503,93 +11536,90 @@ console.log(
 
     );
 
-    const gerelateerdeTaken =
+   const gerelateerdeTaken =
 
-    tasks.filter(task =>
+    tasks.filter(task => {
 
-        JSON.stringify(task)
-            .toLowerCase()
+        const tekst =
 
-            .includes(
+            JSON.stringify(task)
+                .toLowerCase();
 
-                (
-                    item.title
-                    ||
-                    item.name
-                    ||
-                    ''
-                )
-                .toLowerCase()
+        return zoekwoorden.some(tag =>
 
+            tekst.includes(
+                tag.toLowerCase()
             )
 
-    );
+        );
+
+    });
 
     const gerelateerdeVergaderingen =
 
-    meetings.filter(meeting =>
+    meetings.filter(meeting => {
 
-        JSON.stringify(meeting)
-            .toLowerCase()
+        const tekst =
 
-            .includes(
+            JSON.stringify(meeting)
+                .toLowerCase();
 
-                (
-                    item.title
-                    ||
-                    item.name
-                    ||
-                    ''
-                )
-                .toLowerCase()
+        return zoekwoorden.some(tag =>
 
+            tekst.includes(
+                tag.toLowerCase()
             )
 
-    );
+        );
 
+    });
+
+console.log(
+    "Item:",
+    item.title || item.name
+);
+
+console.log(
+    "Vergaderingen:",
+    gerelateerdeVergaderingen
+);
     const gerelateerdeWerkgroepen =
 
-    groups.filter(group =>
+    groups.filter(group => {
 
-        JSON.stringify(group)
-            .toLowerCase()
+        const tekst =
 
-            .includes(
+            JSON.stringify(group)
+                .toLowerCase();
 
-                (
-                    item.title
-                    ||
-                    item.name
-                    ||
-                    ''
-                )
-                .toLowerCase()
+        return zoekwoorden.some(tag =>
 
+            tekst.includes(
+                tag.toLowerCase()
             )
 
-    );
+        );
+
+    });
 
     const gerelateerdeProjecten =
 
-    projecten.filter(project =>
+    projecten.filter(project => {
 
-        JSON.stringify(project)
-            .toLowerCase()
+        const tekst =
 
-            .includes(
+            JSON.stringify(project)
+                .toLowerCase();
 
-                (
-                    item.title
-                    ||
-                    item.name
-                    ||
-                    ''
-                )
-                .toLowerCase()
+        return zoekwoorden.some(tag =>
 
+            tekst.includes(
+                tag.toLowerCase()
             )
 
-    );
+        );
+
+    });
 const gerelateerdeFaqs =
 
     docs

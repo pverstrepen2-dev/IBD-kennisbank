@@ -998,7 +998,7 @@ class="btn btn-primary"
       <button class="tab-btn" onclick="switchTab(event,'projectdashboard')">📊 Projectdashboard</button>
       <button class="tab-btn" onclick="switchTab(event, 'websites')">🌐 Websites</button>
       <button class="tab-btn" onclick="switchTab(event,'knowledge-map')">🧠 Kenniskaart</button>
-      <button class="tab-btn" onclick="showTab('relations')">🔗 Documentrelaties</button>
+      <button class="tab-btn" onclick="switchTab(event,'relations')">🔗 Documentrelaties</button>
     </div>
 
     <!-- Dashboard -->
@@ -2804,6 +2804,9 @@ const meetings =
 const groups =
     await loadGroups();
 
+const documents =
+    await loadDocuments();
+
     documentRelations = [];
 
     documents.forEach(docA => {
@@ -2911,11 +2914,19 @@ documentRelations
 
 <div class="card">
 
-    <b>${r.source}</b>
+    <b>${
+    documents.find(
+        d => String(d.id) === String(r.source)
+    )?.title || r.source
+}</b>
 
-    ↔
+↔
 
-    <b>${r.target}</b>
+<b>${
+    documents.find(
+        d => String(d.id) === String(r.target)
+    )?.title || r.target
+}</b>
 
     <br>
 

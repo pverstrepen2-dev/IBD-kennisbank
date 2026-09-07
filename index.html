@@ -445,6 +445,33 @@ console.log("PDF TEST", window.pdfjsLib);
       color: var(--text);
     }
 
+.form-section{
+    background:#fff;
+    border:1px solid #e5e7eb;
+    border-radius:12px;
+    padding:15px;
+    margin-bottom:15px;
+}
+
+.form-section h4{
+    margin-bottom:12px;
+    color:#4f46e5;
+}
+
+.form-grid-2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+}
+
+.form-section input,
+.form-section select,
+.form-section textarea{
+    width:100%;
+    margin-top:5px;
+    margin-bottom:10px;
+}
+
     .btn {
       padding: 12px 18px;
       border: none;
@@ -7419,14 +7446,39 @@ const documentOptions =
     `).join('');
 
   let html = `
-  <h3>Nieuwe taak</h3>
+
+<h3>📋 Nieuwe taak</h3>
+<div class="notice">
+
+📌 Maak een taak aan en koppel deze aan een project, document en betrokken personen.
+
+</div>
+<div class="form-section">
+
+<h4>📋 Basisinformatie</h4>
   
 <button onclick="document.getElementById('voedingImport').click()">📥 Importeren</button>
   <input type="file" id="voedingImport" accept=".json" style="display:none" onchange="importVoeding(event)">
 
   <label>📝 Titel</label>
   <input id="t_title" placeholder="Titel">
-  <select id="t_owner">
+  <textarea
+    id="t_description"
+    placeholder="Beschrijving van de taak">
+</textarea>
+
+</div>
+
+<div class="form-section">
+
+<h4>👥 Verantwoordelijkheid</h4>
+  <div class="form-grid-2">
+
+<div>
+
+<label>👤 Inbrenger</label>
+
+<select id="t_owner">
 
     <option value="">
         Kies eigenaar
@@ -7435,8 +7487,26 @@ const documentOptions =
     ${memberOptions}
 
 </select>
-  <input id="t_group" placeholder="Werkgroep">
 
+</div>
+
+<div>
+
+<label>👥 Werkgroep</label>
+
+<input
+    id="t_group"
+    placeholder="Werkgroep">
+
+</div>
+
+</div>
+
+</div>
+
+<div class="form-section">
+
+<h4>📂 Koppelingen</h4>
 <select id="t_project">
 
   <option value="">
@@ -7458,7 +7528,13 @@ const documentOptions =
 
 <br><br>
 
-<div class="form-grid">
+</div>
+
+<div class="form-section">
+
+<h4>📅 Planning</h4>
+
+<div class="form-grid-2">
 
     <div>
 
@@ -7492,7 +7568,16 @@ const documentOptions =
 
 </div>
 
-  <select id="t_urgency">
+ </div>
+
+<div class="form-section">
+
+<h4>🚦 Opvolging</h4>
+
+<label>Prioriteit</label>
+
+<select id="t_urgency">
+
     <option>Normaal</option>
     <option>Dringend</option>
     <option>Zeer dringend</option>
@@ -7504,7 +7589,24 @@ const documentOptions =
     <option>Beëindigd</option>
   </select>
 
-  <button onclick="saveTask()">Opslaan</button>
+  <div style="text-align:right; margin-top:15px;">
+
+<button
+    class="btn btn-success"
+    style="
+        width:100%;
+        font-size:16px;
+        padding:12px;
+    "
+    onclick="saveTask()">
+
+    💾 Taak opslaan
+
+</button>
+
+</div>
+
+</div>
  
   <h3>Overzicht</h3>
   

@@ -11343,6 +11343,7 @@ function showKnowledgeNode(
 
     let item =
 
+
         docs.find(
             d =>
                 String(d.id)
@@ -11386,27 +11387,47 @@ function showKnowledgeNode(
                 nodeId
         );
 
+console.log(
+    "Node geselecteerd:",
+    nodeId
+);
+
+console.log(
+    "Object gevonden:",
+    item
+);
+
     if(!item){
 
-        panel.innerHTML = `
+    console.error(
+        "Geen item gevonden voor node:",
+        nodeId
+    );
+
+    panel.innerHTML = `
 
 <div class="knowledge-breadcrumbs">
 
-    IBD > Onderzoek > Stoma
+    IBD > Onbekend item
 
 </div>
 
 <h3>
 
-    ${item.title || item.name}
+    Item niet gevonden
 
 </h3>
 
-        `;
+<p>
 
-        return;
+    Node ID: ${nodeId}
 
-    }
+</p>
+
+`;
+
+    return;
+}
 
     const zoekwaarde =
 

@@ -2874,6 +2874,65 @@ projecten.forEach(project => {
     });
 
 });
+document.getElementById(
+    "relationsDashboard"
+).innerHTML = `
+
+<div class="stats-grid">
+
+    <div class="card">
+
+        <h3>📄 Documenten</h3>
+
+        <p>${documents.length}</p>
+
+    </div>
+
+    <div class="card">
+
+        <h3>🔗 Relaties</h3>
+
+        <p>${documentRelations.length}</p>
+
+    </div>
+
+</div>
+
+`;
+document.getElementById(
+    "relationsContainer"
+).innerHTML =
+
+documentRelations
+
+.slice(0,100)
+
+.map(r => `
+
+<div class="card">
+
+    <b>${r.source}</b>
+
+    ↔
+
+    <b>${r.target}</b>
+
+    <br>
+
+    Matchscore:
+    ${r.strength}
+
+    <br>
+
+    Trefwoorden:
+
+    ${r.keywords.join(", ")}
+
+</div>
+
+`)
+
+.join("");
 }
 
 async function loadVoedingDB(){

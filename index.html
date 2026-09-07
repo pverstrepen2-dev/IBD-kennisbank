@@ -1950,7 +1950,9 @@ class="tab-content">
             <div>
               <label>Hoofdgroep</label>
 
-<select id="mainGroup">
+<select
+    id="mainGroup"
+    onchange="updateCategoryOptions()">
 
     <option>Crohn</option>
 
@@ -4693,8 +4695,13 @@ if(currentHoofdgroep==='verenigingen'){
     }
 
     function updateCategoryOptions() {
-      const selectedDiseases = Array.from(document.querySelectorAll('#addItemForm input[name="disease"]:checked'))
-        .map(cb => cb.value);
+      const selectedDiseases = [
+
+    document.getElementById(
+        "mainGroup"
+    ).value
+
+];
 
       const categoryMap = {
         'Crohn': ['Symptomen','Diagnose','Behandeling','Medicatie','Complicaties','Operatie','Dagelijks Leven','Onderzoek','Patiëntenrechten', 'Oorzaken','Ziekteverloop','Flare-ups','Remissie','Biologische therapie','FAQ Crohn'

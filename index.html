@@ -5104,61 +5104,22 @@ data.sort(
             a.createdAt || 0
         )
 );
-
-const grouped = {};
-
 data.forEach(item => {
 
-    const maand = new Date(
-        item.createdAt
-    ).toLocaleDateString(
-        "nl-BE",
-        {
-            month:"long",
-            year:"numeric"
-        }
-    );
+    const key =
+        item.category ||
+        item.type ||
+        "Overig";
 
-    if(!grouped[maand]){
+    if(!groups[key]){
 
-        grouped[maand] = [];
+        groups[key] = [];
 
     }
 
-    grouped[maand].push(item);
+    groups[key].push(item);
 
 });
-let html = "";
-Object.keys(grouped)
-
-.forEach(maand => {
-
-    html += `
-
-    <h2>
-        📅 ${maand}
-    </h2>
-
-    `;
-
-    grouped[maand]
-
-    .forEach(item => {
-
-        html += `
-
-        <div class="card">
-
-            ${item.title}
-
-        </div>
-
-        `;
-
-    });
-
-});
-
       container.innerHTML =
 
 Object.entries(groups)
@@ -5196,10 +5157,29 @@ Object.entries(groups)
 
                 <div class="result-meta">
 
-                    ${item.category || ''}
-                    Naam: ${item.title}
-                    FileID: ${item.fileId}
-                </div>
+    📂 ${item.category || 'Geen categorie'}
+
+    <br>
+
+    🏷️ ${item.type || 'Onbekend'}
+
+    ${
+        item.createdAt
+
+        ?
+
+        `<br>
+         🕒 ${new Date(
+            item.createdAt
+         ).toLocaleString("nl-BE")}`
+
+        :
+
+        ''
+    }
+
+</div>
+
 
                 <div>
 
@@ -5211,9 +5191,11 @@ ${(item.source === 'OneDrive' || item.source === 'AI')
  <br><br>
  <button
      class="btn btn-primary"
-     onclick="event.stopPropagation(); openFile('${item.fileId || item.id}')"
+     onclick="event.stopPropagation(); openFile('${item.fileId || item.id}')">
+
      📂 Open bestand
- </button>
+
+</button>
  `
  : ''
 }
@@ -16355,48 +16337,72 @@ const laatsteGroep =
 const laatsteDocument =
     documenten[0];
 
+const formatDate = value =>
+
+    value
+
+    ?
+
+    new Date(value)
+        .toLocaleString(
+            "nl-BE"
+        )
+
+    :
+
+    "Geen datum";
+
     document.getElementById(
         "nieuwContent"
     ).innerHTML = `
 
         <div class="card">
 
-            <h2>
-                📢 Wat is nieuw?
-            </h2>
+📄 ${laatsteDocument?.title || 'Geen document'}
 
-            <hr>
+<br>
 
-            <h3>
-                🔥 Vandaag
-            </h3>
+🕒 ${
+    laatsteDocument?.createdAt
+    ? new Date(
+        laatsteDocument.createdAt
+      ).toLocaleString("nl-BE")
+    : "-"
+}
 
-           📄 ${laatsteDocument?.title || 'Geen nieuw document'}<br>
+</div>
 
-📋 ${laatsteTaak?.title || 'Geen nieuwe taak'}<br>
+<div class="card">
 
-🗓 ${laatsteVergadering?.title || 'Geen nieuwe vergadering'}
+📋 ${laatsteTaak?.title || 'Geen taak'}
 
-            <hr>
+<br>
 
-            <h3>
-                📅 Deze week
-            </h3>
+🕒 ${
+    laatsteTaak?.createdAt
+    ? new Date(
+        laatsteTaak.createdAt
+      ).toLocaleString("nl-BE")
+    : "-"
+}
 
-            📁 ${laatsteProject?.title || 'Geen project'}<br>
+</div>
 
-🤝 ${laatsteGroep?.title || 'Geen werkgroep'}
+<div class="card">
 
-            <hr>
+🗓 ${laatsteVergadering?.title || 'Geen vergadering'}
 
-            <h3>
-                📅 Deze maand
-            </h3>
+<br>
 
-            📄 Totaal documenten:
-${documenten.length}
+🕒 ${
+    laatsteVergadering?.createdAt
+    ? new Date(
+        laatsteVergadering.createdAt
+      ).toLocaleString("nl-BE")
+    : "-"
+}
 
-        </div>
+</div>
 
     `;
 

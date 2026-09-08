@@ -16402,6 +16402,52 @@ const laatsteGroep =
 const laatsteDocument =
     documenten[0];
 
+const recenteActiviteiten = [];
+
+if(laatsteDocument){
+
+    recenteActiviteiten.push({
+
+        icoon:"📄",
+
+        tekst:
+            laatsteDocument.title +
+            " toegevoegd"
+
+    });
+
+}
+
+if(laatsteTaak){
+
+    recenteActiviteiten.push({
+
+        icoon:"📋",
+
+        tekst:
+            'Taak "' +
+            laatsteTaak.title +
+            '" aangemaakt'
+
+    });
+
+}
+
+if(laatsteVergadering){
+
+    recenteActiviteiten.push({
+
+        icoon:"🗓",
+
+        tekst:
+            'Vergadering "' +
+            laatsteVergadering.title +
+            '" gepland'
+
+    });
+
+}
+
 const formatDate = value =>
 
     value
@@ -16410,7 +16456,20 @@ const formatDate = value =>
 
     new Date(value)
         .toLocaleString(
-            "nl-BE"
+            "nl-BE",
+            {
+
+                day:"2-digit",
+
+                month:"2-digit",
+
+                year:"numeric",
+
+                hour:"2-digit",
+
+                minute:"2-digit"
+
+            }
         )
 
     :
@@ -16435,8 +16494,24 @@ const formatDate = value =>
 <div class="card">
 
     <h3>
-        🔥 Recent toegevoegd
+        🔥 Activiteiten
     </h3>
+
+    ${recenteActiviteiten.map(a => `
+
+        <div
+            style="
+                padding:8px 0;
+                border-bottom:1px solid #ddd;
+            ">
+
+            ${a.icoon}
+
+            ${a.tekst}
+
+        </div>
+
+    `).join('')}
 
 </div>
 

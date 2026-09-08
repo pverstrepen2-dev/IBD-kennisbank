@@ -13025,7 +13025,10 @@ async function openFile(fileId){
                 }
             }
         );
-
+console.log(
+    "FILE ID:",
+    fileId
+);
         const file = await response.json();
 
         console.log("BESTAND:", file);

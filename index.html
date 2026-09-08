@@ -981,6 +981,12 @@ class="btn btn-primary"
     <div class="tabs">
 
       <button class="tab-btn active" onclick="switchTab(event,'dashboard')">📊 Dashboard</button>
+      <button
+onclick="switchTab(event,'nieuw')">
+
+📢 Wat is nieuw?
+
+</button>
       <button class="tab-btn" onclick="switchTab(event,'categories')">📂 Categorieën</button>
       <button class="tab-btn" onclick="switchTab(event,'search')">🔍 Zoeken</button>
       <button class="tab-btn" onclick="switchTab(event,'kenniscentrum')">📚 Kenniscentrum</button>
@@ -1005,6 +1011,17 @@ class="btn btn-primary"
     <div id="dashboard" class="tab-content active">
       <div class="stats-grid" id="statsGrid"></div>
     </div>
+
+    <div
+id="nieuw"
+class="tab-content">
+
+<div
+id="nieuwContent">
+
+</div>
+
+</div>
 
     <!-- Categories -->
     <div id="categories" class="tab-content">
@@ -3957,6 +3974,7 @@ if(disease === 'ccv'){
       if (tab) tab.classList.add('active');
 
       if (tabName === 'dashboard') updateDashboard();
+      if (tabName === 'nieuw') renderNieuw();
       if (tabName === 'categories') updateCategoryGrid();
       if (tabName === 'search') performSearch();
            if (tabName === 'manage') {
@@ -5076,18 +5094,68 @@ displayResults(result);
       }
 const groups = {};
 
+data.sort(
+    (a,b) =>
+        new Date(
+            b.createdAt || 0
+        )
+        -
+        new Date(
+            a.createdAt || 0
+        )
+);
+
+const grouped = {};
+
 data.forEach(item => {
 
-    const key =
-        item.type || "Overig";
+    const maand = new Date(
+        item.createdAt
+    ).toLocaleDateString(
+        "nl-BE",
+        {
+            month:"long",
+            year:"numeric"
+        }
+    );
 
-    if(!groups[key]){
+    if(!grouped[maand]){
 
-        groups[key] = [];
+        grouped[maand] = [];
 
     }
 
-    groups[key].push(item);
+    grouped[maand].push(item);
+
+});
+let html = "";
+Object.keys(grouped)
+
+.forEach(maand => {
+
+    html += `
+
+    <h2>
+        📅 ${maand}
+    </h2>
+
+    `;
+
+    grouped[maand]
+
+    .forEach(item => {
+
+        html += `
+
+        <div class="card">
+
+            ${item.title}
+
+        </div>
+
+        `;
+
+    });
 
 });
 
@@ -7824,7 +7892,8 @@ async function saveTask(){
     data.unshift({
 
         id: Date.now(),
-
+createdAt:
+    new Date().toISOString(),
         type: 'taken',
 
         title: t_title.value,
@@ -7936,7 +8005,8 @@ async function saveWG(){
     data.unshift({
 
         id: Date.now(),
-
+createdAt:
+    new Date().toISOString(),
         type: 'werkgroepen',
 
         name: wg_name.value,
@@ -8486,7 +8556,8 @@ async function saveProject(){
 data.unshift({
 
     id: Date.now(),
-
+createdAt:
+    new Date().toISOString(),
     type: 'projecten',
 
     title: p_title.value,
@@ -8584,7 +8655,8 @@ async function saveMeeting(){
   data.unshift({
 
     id: Date.now(),
-
+createdAt:
+    new Date().toISOString(),
     type: 'vergaderingen',
 
     title: m_title.value,
@@ -15876,6 +15948,9 @@ async function runAICapture(){
         categorie:
             analyse.categorie,
 
+createdAt:
+    new Date().toISOString(),
+
         title:
             text
             .split(".")[0]
@@ -16246,6 +16321,85 @@ function openProject(id){
         "Open project:",
         id
     );
+}
+
+async function renderNieuw(){
+
+const taken =
+    await loadTasks();
+
+const projecten =
+    await loadProjects();
+
+const vergaderingen =
+    await loadMeetings();
+
+const groepen =
+    await loadGroups();
+
+const documenten =
+    await loadDocuments();
+
+const laatsteTaak =
+    taken[0];
+
+const laatsteVergadering =
+    vergaderingen[0];
+
+const laatsteProject =
+    projecten[0];
+
+const laatsteGroep =
+    groepen[0];
+
+const laatsteDocument =
+    documenten[0];
+
+    document.getElementById(
+        "nieuwContent"
+    ).innerHTML = `
+
+        <div class="card">
+
+            <h2>
+                📢 Wat is nieuw?
+            </h2>
+
+            <hr>
+
+            <h3>
+                🔥 Vandaag
+            </h3>
+
+           📄 ${laatsteDocument?.title || 'Geen nieuw document'}<br>
+
+📋 ${laatsteTaak?.title || 'Geen nieuwe taak'}<br>
+
+🗓 ${laatsteVergadering?.title || 'Geen nieuwe vergadering'}
+
+            <hr>
+
+            <h3>
+                📅 Deze week
+            </h3>
+
+            📁 ${laatsteProject?.title || 'Geen project'}<br>
+
+🤝 ${laatsteGroep?.title || 'Geen werkgroep'}
+
+            <hr>
+
+            <h3>
+                📅 Deze maand
+            </h3>
+
+            📄 Totaal documenten:
+${documenten.length}
+
+        </div>
+
+    `;
+
 }
 
 // INIT

@@ -10138,14 +10138,130 @@ ${
 </div>
 
 <div class="card">
-    <h4>⭐ Recent toegevoegd</h4>
+    <h4>
+
+🔥 Activiteitenfeed
+
+</h4>
+<div
+    style="
+        margin-bottom:15px;
+        padding:10px;
+        background:#f8fafc;
+        border-radius:8px;
+    ">
+
+    🤖 AI Highlight:
 
     ${
         recentItems.length
         ?
-        recentItems.map(x =>
-            `<div>${x.title}</div>`
-        ).join('')
+        recentItems[0].title
+        :
+        'Nog geen recente activiteit'
+    }
+
+</div>
+<div
+    style="
+        display:flex;
+        gap:10px;
+        flex-wrap:wrap;
+        margin-bottom:15px;
+    ">
+
+    <span class="badge">
+
+        📄 ${documents.length}
+        documenten
+
+    </span>
+
+    <span class="badge">
+
+        📋 ${tasks.length}
+        taken
+
+    </span>
+
+    <span class="badge">
+
+        🗓 ${meetings.length}
+        vergaderingen
+
+    </span>
+
+    <span class="badge">
+
+        📁 ${projects.length}
+        projecten
+
+    </span>
+
+</div>
+    ${
+        recentItems.length
+        ?
+        recentItems.map(x => `
+
+    <div
+        style="
+            padding:10px;
+            border-bottom:1px solid #e5e7eb;
+        ">
+
+        ${
+            x.type === 'taken'
+            ? '📋'
+            :
+            x.type === 'vergaderingen'
+            ? '🗓'
+            :
+            x.type === 'projecten'
+            ? '📁'
+            :
+            x.type === 'werkgroepen'
+            ? '🤝'
+            :
+            '📄'
+        }
+
+        <b>
+
+            ${x.title}
+
+        </b>
+
+        <br>
+
+        🕒
+
+        ${
+            x.createdAt
+
+            ?
+
+            new Date(
+                x.createdAt
+            ).toLocaleString(
+                "nl-BE",
+                {
+                    day:"2-digit",
+                    month:"2-digit",
+                    year:"numeric",
+                    hour:"2-digit",
+                    minute:"2-digit"
+                }
+            )
+
+            :
+
+            'Geen datum'
+        }
+
+    </div>
+
+`).join('')
         :
         'Nog geen items'
     }
@@ -16401,7 +16517,55 @@ const laatsteGroep =
 
 const laatsteDocument =
     documenten[0];
+const activiteiten = [];
 
+if(laatsteDocument){
+
+    activiteiten.push({
+
+        icoon:"📄",
+
+        titel:
+            laatsteDocument.title,
+
+        datum:
+            laatsteDocument.createdAt
+
+    });
+
+}
+
+if(laatsteTaak){
+
+    activiteiten.push({
+
+        icoon:"📋",
+
+        titel:
+            laatsteTaak.title,
+
+        datum:
+            laatsteTaak.createdAt
+
+    });
+
+}
+
+if(laatsteVergadering){
+
+    activiteiten.push({
+
+        icoon:"🗓",
+
+        titel:
+            laatsteVergadering.title,
+
+        datum:
+            laatsteVergadering.createdAt
+
+    });
+
+}
 const recenteActiviteiten = [];
 
 if(laatsteDocument){
@@ -16484,7 +16648,81 @@ const formatDate = value =>
     <h2>
         📢 Activiteitenfeed
     </h2>
+    <div class="stats-grid">
 
+    <div class="card">
+
+        📄 ${documenten.length}
+
+        documenten
+
+    </div>
+
+    <div class="card">
+
+        📋 ${taken.length}
+
+        taken
+
+    </div>
+
+    <div class="card">
+
+        🗓 ${vergaderingen.length}
+
+        vergaderingen
+
+    </div>
+
+    <div class="card">
+
+        📁 ${projecten.length}
+
+        projecten
+
+    </div>
+
+</div>
+
+<hr>
+<div
+    style="
+        display:flex;
+        gap:15px;
+        flex-wrap:wrap;
+    ">
+
+    <div class="stat-card">
+
+        📄 ${documenten.length}
+        documenten
+
+    </div>
+
+    <div class="stat-card">
+
+        📋 ${taken.length}
+        taken
+
+    </div>
+
+    <div class="stat-card">
+
+        🗓 ${vergaderingen.length}
+        vergaderingen
+
+    </div>
+
+    <div class="stat-card">
+
+        📁 ${projecten.length}
+        projecten
+
+    </div>
+
+</div>
+
+<br>
     <p>
         Laatste activiteiten binnen CCV.
     </p>

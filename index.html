@@ -1093,6 +1093,17 @@ id="nieuwContent">
     </div>
   </div>
 
+  <div
+    id="documentSidePanel"
+    class="card"
+    style="
+        display:none;
+        margin-bottom:20px;
+        padding:15px;
+    ">
+
+</div>
+
   <div id="resultsContainer"></div>
   >
 </div>
@@ -13032,22 +13043,58 @@ console.log(
         const file = await response.json();
 
         console.log("BESTAND:", file);
-        alert(
-    "Naam: " +
-    file.name +
-    "\nID: " +
-    file.id
-);
+       
 const info =
-await getDocumentInsights(
-    fileId
-);
-
-if(info){
-    alert(
-        info.samenvatting
+    await getDocumentInsights(
+        fileId
     );
+
+console.log(
+    "DOCUMENT INFO:",
+    info
+);
+if(
+    info &&
+    info.samenvatting
+){
+
+    document.getElementById(
+        "documentSidePanel"
+    ).style.display =
+        "block";
+
+    document.getElementById(
+        "documentSidePanel"
+    ).innerHTML = `
+
+        <h3>
+            🤖 AI Samenvatting
+        </h3>
+
+        <hr>
+
+        <b>
+            ${file.name}
+        </b>
+
+        <br><br>
+
+        <div
+    style="
+        background:#f8fafc;
+        padding:12px;
+        border-radius:8px;
+        line-height:1.6;
+    ">
+
+    ${info.samenvatting}
+
+</div>
+
+    `;
+
 }
+
         if(file.webUrl){
             window.open(file.webUrl, "_blank");
         }

@@ -1001,7 +1001,7 @@ class="btn btn-primary"
     <div class="tabs">
 
       <button class="tab-btn active" onclick="switchTab(event,'dashboard')">📊 Dashboard</button>
-      <button class="tab-btn" onclick="switchTab(event,'nieuw')">📢 Activiteitenfeed</button>
+      <button class="tab-btn" onclick="switchTab(event,'nieuw')">🏠 Cockpit</button>
       <button class="tab-btn" onclick="switchTab(event,'categories')">📂 Categorieën</button>
       <button class="tab-btn" onclick="switchTab(event,'search')">🔍 Zoeken</button>
       <button class="tab-btn" onclick="switchTab(event,'kenniscentrum')">📚 Kenniscentrum</button>
@@ -16517,101 +16517,20 @@ const laatsteGroep =
 
 const laatsteDocument =
     documenten[0];
-const activiteiten = [];
 
-if(laatsteDocument){
+const documentenRecent =
+    documenten.slice(0,5);
 
-    activiteiten.push({
+const takenOpen =
+    taken.filter(
+        t =>
+            t.status !==
+            "Voltooid"
+    );
 
-        icoon:"📄",
+const vergaderingenRecent =
+    vergaderingen.slice(0,5);
 
-        titel:
-            laatsteDocument.title,
-
-        datum:
-            laatsteDocument.createdAt
-
-    });
-
-}
-
-if(laatsteTaak){
-
-    activiteiten.push({
-
-        icoon:"📋",
-
-        titel:
-            laatsteTaak.title,
-
-        datum:
-            laatsteTaak.createdAt
-
-    });
-
-}
-
-if(laatsteVergadering){
-
-    activiteiten.push({
-
-        icoon:"🗓",
-
-        titel:
-            laatsteVergadering.title,
-
-        datum:
-            laatsteVergadering.createdAt
-
-    });
-
-}
-if(laatsteProject){
-
-    activiteiten.push({
-
-        icoon:"📁",
-
-        titel:
-            laatsteProject.title,
-
-        datum:
-            laatsteProject.createdAt
-
-    });
-
-}
-
-if(laatsteGroep){
-
-    activiteiten.push({
-
-        icoon:"🤝",
-
-        titel:
-            laatsteGroep.title,
-
-        datum:
-            laatsteGroep.createdAt
-
-    });
-
-}
-activiteiten.sort(
-
-    (a,b) =>
-
-        new Date(
-            b.datum || 0
-        )
-
-        -
-
-        new Date(
-            a.datum || 0
-        )
-
-);
 const formatDate = value =>
 
     value
@@ -16646,7 +16565,7 @@ const formatDate = value =>
     <div class="card">
 
     <h2>
-        📢 Activiteitenfeed
+        🏠 Cockpit
     </h2>
    
 <hr>
@@ -16689,64 +16608,144 @@ const formatDate = value =>
 
 <br>
     <p>
-        Laatste activiteiten binnen CCV.
-    </p>
+
+Welkom in de CCV Cockpit.
+
+Hier zie je de recentste documenten,
+open taken, vergaderingen en AI-inzichten.
+
+</p>
+</div>
 <div class="card">
 
     <h3>
-        🔥 Activiteitentijdlijn
+
+        📄 Laatste documenten
+
     </h3>
 
-    ${activiteiten.length
+    ${documentenRecent.map(d => `
+
+        <div
+style="
+padding:8px;
+border-bottom:1px solid #ddd;
+">
+
+📄 ${d.title}
+
+<br>
+
+🏷️ ${d.category || "-"}
+
+</div>
+
+
+    `).join("")}
+
+</div>
+<div class="card">
+
+    <h3>
+
+        📋 Open taken
+
+    </h3>
+
+    ${takenOpen.length
 
         ?
 
-        activiteiten.map(a => `
+        takenOpen.map(t => `
 
-            <div
-                style="
-                    padding:12px;
-                    margin-bottom:10px;
-                    border-left:4px solid #6366f1;
-                    background:#f8fafc;
-                    border-radius:8px;
-                ">
+            <div>
 
-                <b>
+                📋 ${t.title}
 
-                    ${a.icoon}
+<br>
 
-                    ${a.titel}
-
-                </b>
-
-                <br>
-
-                <span
-                    style="
-                        color:gray;
-                        font-size:12px;
-                    ">
-
-                    🕒
-
-                    ${
-                        formatDate(
-                            a.datum
-                        )
-                    }
-
-                </span>
+🚦 ${t.status || "Open"}
 
             </div>
 
-        `).join('')
+        `).join("")
 
         :
 
-        'Nog geen activiteiten'
+        "Geen open taken"
 
     }
+
+</div>
+<div class="card">
+
+    <h3>
+
+        🗓 Vergaderingen
+
+    </h3>
+
+    ${vergaderingenRecent.map(v => `
+
+        <div>
+
+            🗓 ${v.title}
+
+<br>
+
+📅 ${v.date || "-"}
+
+
+        </div>
+
+    `).join("")}
+
+</div>
+<div class="card">
+
+    <h3>
+
+        🤖 AI Inzichten
+
+    </h3>
+
+    📄 Laatste document:
+
+    <b>
+
+        ${laatsteDocument?.title || "-"}
+
+    </b>
+
+    <br><br>
+
+    📋 Open taken:
+
+    <b>
+
+        ${takenOpen.length}
+
+    </b>
+
+    <br><br>
+
+    🗓 Vergaderingen:
+
+    <b>
+
+        ${vergaderingen.length}
+
+    </b>
+
+    <br><br>
+
+    📁 Projecten:
+
+    <b>
+
+        ${projecten.length}
+
+    </b>
 
 </div>
     `;

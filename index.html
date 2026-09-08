@@ -12364,8 +12364,24 @@ ${
 
                     📄 ${d.title}
 
-                </span>
+<br>
 
+🏷️ ${d.category || 'Geen categorie'}
+
+<br>
+
+📅 ${d.publicationDate || '-'}
+
+                </span>
+<br><br>
+
+<button
+    class="btn btn-primary"
+    onclick="openFile('${d.fileId || d.id}')">
+
+    📂 Open document
+
+</button>
             </div>
 
         `)
@@ -16568,7 +16584,12 @@ const formatDate = value =>
         🏠 Cockpit
     </h2>
    
-<hr>
+</div>
+<div class="card">
+
+    <h3>
+        📊 Overzicht
+    </h3>
 <div
     style="
         display:flex;
@@ -16582,6 +16603,7 @@ const formatDate = value =>
         documenten
 
     </div>
+</div>
 
     <div class="stat-card">
 
@@ -16607,14 +16629,6 @@ const formatDate = value =>
 </div>
 
 <br>
-    <p>
-
-Welkom in de CCV Cockpit.
-
-Hier zie je de recentste documenten,
-open taken, vergaderingen en AI-inzichten.
-
-</p>
 </div>
 <div class="card">
 
@@ -16637,7 +16651,25 @@ border-bottom:1px solid #ddd;
 <br>
 
 🏷️ ${d.category || "-"}
+${
+    d.fileId || d.id
 
+    ?
+
+    `<br><br>
+
+    <button
+        class="btn btn-primary"
+        onclick="openFile('${d.fileId || d.id}')">
+
+        📂 Open document
+
+    </button>`
+
+    :
+
+    ''
+}
 </div>
 
 
@@ -16695,7 +16727,12 @@ border-bottom:1px solid #ddd;
 
 📅 ${v.date || "-"}
 
-
+${v.location
+    ?
+    `<br>📍 ${v.location}`
+    :
+    ''
+}
         </div>
 
     `).join("")}
@@ -16712,9 +16749,7 @@ border-bottom:1px solid #ddd;
     📄 Laatste document:
 
     <b>
-
         ${laatsteDocument?.title || "-"}
-
     </b>
 
     <br><br>
@@ -16722,9 +16757,7 @@ border-bottom:1px solid #ddd;
     📋 Open taken:
 
     <b>
-
         ${takenOpen.length}
-
     </b>
 
     <br><br>
@@ -16732,9 +16765,7 @@ border-bottom:1px solid #ddd;
     🗓 Vergaderingen:
 
     <b>
-
         ${vergaderingen.length}
-
     </b>
 
     <br><br>
@@ -16742,10 +16773,22 @@ border-bottom:1px solid #ddd;
     📁 Projecten:
 
     <b>
-
         ${projecten.length}
-
     </b>
+
+    <br><br>
+
+    ${
+        takenOpen.length > 0
+
+        ?
+
+        '⚠ Er zijn open taken die opvolging vragen.'
+
+        :
+
+        '✅ Geen open taken.'
+    }
 
 </div>
     `;

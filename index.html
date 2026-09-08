@@ -16566,52 +16566,52 @@ if(laatsteVergadering){
     });
 
 }
-const recenteActiviteiten = [];
+if(laatsteProject){
 
-if(laatsteDocument){
+    activiteiten.push({
 
-    recenteActiviteiten.push({
+        icoon:"📁",
 
-        icoon:"📄",
+        titel:
+            laatsteProject.title,
 
-        tekst:
-            laatsteDocument.title +
-            " toegevoegd"
-
-    });
-
-}
-
-if(laatsteTaak){
-
-    recenteActiviteiten.push({
-
-        icoon:"📋",
-
-        tekst:
-            'Taak "' +
-            laatsteTaak.title +
-            '" aangemaakt'
+        datum:
+            laatsteProject.createdAt
 
     });
 
 }
 
-if(laatsteVergadering){
+if(laatsteGroep){
 
-    recenteActiviteiten.push({
+    activiteiten.push({
 
-        icoon:"🗓",
+        icoon:"🤝",
 
-        tekst:
-            'Vergadering "' +
-            laatsteVergadering.title +
-            '" gepland'
+        titel:
+            laatsteGroep.title,
+
+        datum:
+            laatsteGroep.createdAt
 
     });
 
 }
+activiteiten.sort(
 
+    (a,b) =>
+
+        new Date(
+            b.datum || 0
+        )
+
+        -
+
+        new Date(
+            a.datum || 0
+        )
+
+);
 const formatDate = value =>
 
     value
@@ -16648,42 +16648,7 @@ const formatDate = value =>
     <h2>
         📢 Activiteitenfeed
     </h2>
-    <div class="stats-grid">
-
-    <div class="card">
-
-        📄 ${documenten.length}
-
-        documenten
-
-    </div>
-
-    <div class="card">
-
-        📋 ${taken.length}
-
-        taken
-
-    </div>
-
-    <div class="card">
-
-        🗓 ${vergaderingen.length}
-
-        vergaderingen
-
-    </div>
-
-    <div class="card">
-
-        📁 ${projecten.length}
-
-        projecten
-
-    </div>
-
-</div>
-
+   
 <hr>
 <div
     style="
@@ -16726,129 +16691,64 @@ const formatDate = value =>
     <p>
         Laatste activiteiten binnen CCV.
     </p>
-
-</div>
-
 <div class="card">
 
     <h3>
-        🔥 Activiteiten
+        🔥 Activiteitentijdlijn
     </h3>
 
-    ${recenteActiviteiten.map(a => `
+    ${activiteiten.length
 
-        <div
-            style="
-                padding:8px 0;
-                border-bottom:1px solid #ddd;
-            ">
+        ?
 
-            ${a.icoon}
+        activiteiten.map(a => `
 
-            ${a.tekst}
+            <div
+                style="
+                    padding:12px;
+                    margin-bottom:10px;
+                    border-left:4px solid #6366f1;
+                    background:#f8fafc;
+                    border-radius:8px;
+                ">
 
-        </div>
+                <b>
 
-    `).join('')}
+                    ${a.icoon}
 
-</div>
+                    ${a.titel}
 
-<div class="card">
+                </b>
 
-    <h4>
-        📄 Nieuw document
-    </h4>
+                <br>
 
-    <b>
-        ${laatsteDocument?.title || 'Geen document'}
-    </b>
+                <span
+                    style="
+                        color:gray;
+                        font-size:12px;
+                    ">
 
-    <br><br>
+                    🕒
 
-    📂
-    ${laatsteDocument?.category || '-'}
+                    ${
+                        formatDate(
+                            a.datum
+                        )
+                    }
 
-    <br>
+                </span>
 
-    🕒
-    ${formatDate(
-        laatsteDocument?.createdAt
-    )}
+            </div>
 
-</div>
+        `).join('')
 
-<div class="card">
+        :
 
-    <h4>
-        📋 Nieuwe taak
-    </h4>
+        'Nog geen activiteiten'
 
-    <b>
-        ${laatsteTaak?.title || 'Geen taak'}
-    </b>
-
-    <br><br>
-
-    🚦
-    ${laatsteTaak?.status || '-'}
-
-    <br>
-
-    🕒
-    ${formatDate(
-        laatsteTaak?.createdAt
-    )}
+    }
 
 </div>
-
-<div class="card">
-
-    <h4>
-        🗓 Nieuwe vergadering
-    </h4>
-
-    <b>
-        ${laatsteVergadering?.title || 'Geen vergadering'}
-    </b>
-
-    <br><br>
-
-    📅
-    ${laatsteVergadering?.date || '-'}
-
-    <br>
-
-    🕒
-    ${formatDate(
-        laatsteVergadering?.createdAt
-    )}
-
-</div>
-
-<div class="card">
-
-    <h4>
-        📁 Nieuw project
-    </h4>
-
-    <b>
-        ${laatsteProject?.title || 'Geen project'}
-    </b>
-
-</div>
-
-<div class="card">
-
-    <h4>
-        🤝 Nieuwe werkgroep
-    </h4>
-
-    <b>
-        ${laatsteGroep?.title || 'Geen werkgroep'}
-    </b>
-
-</div>
-
     `;
 
 }

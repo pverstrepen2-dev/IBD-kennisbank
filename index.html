@@ -787,6 +787,26 @@ console.log("PDF TEST", window.pdfjsLib);
 #knowledgeSidePanel span{
     color:#1565c0;
 }
+
+#nieuwContent{
+
+    display:grid;
+
+    grid-template-columns:
+        repeat(
+            auto-fit,
+            minmax(300px,1fr)
+        );
+
+    gap:15px;
+
+}
+
+#nieuwContent .card{
+
+    border-left:4px solid #6366f1;
+
+}
   </style>
 </head>
 <body>
@@ -981,12 +1001,7 @@ class="btn btn-primary"
     <div class="tabs">
 
       <button class="tab-btn active" onclick="switchTab(event,'dashboard')">📊 Dashboard</button>
-      <button
-onclick="switchTab(event,'nieuw')">
-
-📢 Wat is nieuw?
-
-</button>
+      <button class="tab-btn" onclick="switchTab(event,'nieuw')">📢 Activiteitenfeed</button>
       <button class="tab-btn" onclick="switchTab(event,'categories')">📂 Categorieën</button>
       <button class="tab-btn" onclick="switchTab(event,'search')">🔍 Zoeken</button>
       <button class="tab-btn" onclick="switchTab(event,'kenniscentrum')">📚 Kenniscentrum</button>
@@ -16401,56 +16416,123 @@ const formatDate = value =>
     :
 
     "Geen datum";
-
     document.getElementById(
-        "nieuwContent"
-    ).innerHTML = `
+    "nieuwContent"
+).innerHTML = `
 
-        <div class="card">
+    <div class="card">
 
-📄 ${laatsteDocument?.title || 'Geen document'}
+    <h2>
+        📢 Activiteitenfeed
+    </h2>
 
-<br>
-
-🕒 ${
-    laatsteDocument?.createdAt
-    ? new Date(
-        laatsteDocument.createdAt
-      ).toLocaleString("nl-BE")
-    : "-"
-}
+    <p>
+        Laatste activiteiten binnen CCV.
+    </p>
 
 </div>
 
 <div class="card">
 
-📋 ${laatsteTaak?.title || 'Geen taak'}
-
-<br>
-
-🕒 ${
-    laatsteTaak?.createdAt
-    ? new Date(
-        laatsteTaak.createdAt
-      ).toLocaleString("nl-BE")
-    : "-"
-}
+    <h3>
+        🔥 Recent toegevoegd
+    </h3>
 
 </div>
 
 <div class="card">
 
-🗓 ${laatsteVergadering?.title || 'Geen vergadering'}
+    <h4>
+        📄 Nieuw document
+    </h4>
 
-<br>
+    <b>
+        ${laatsteDocument?.title || 'Geen document'}
+    </b>
 
-🕒 ${
-    laatsteVergadering?.createdAt
-    ? new Date(
-        laatsteVergadering.createdAt
-      ).toLocaleString("nl-BE")
-    : "-"
-}
+    <br><br>
+
+    📂
+    ${laatsteDocument?.category || '-'}
+
+    <br>
+
+    🕒
+    ${formatDate(
+        laatsteDocument?.createdAt
+    )}
+
+</div>
+
+<div class="card">
+
+    <h4>
+        📋 Nieuwe taak
+    </h4>
+
+    <b>
+        ${laatsteTaak?.title || 'Geen taak'}
+    </b>
+
+    <br><br>
+
+    🚦
+    ${laatsteTaak?.status || '-'}
+
+    <br>
+
+    🕒
+    ${formatDate(
+        laatsteTaak?.createdAt
+    )}
+
+</div>
+
+<div class="card">
+
+    <h4>
+        🗓 Nieuwe vergadering
+    </h4>
+
+    <b>
+        ${laatsteVergadering?.title || 'Geen vergadering'}
+    </b>
+
+    <br><br>
+
+    📅
+    ${laatsteVergadering?.date || '-'}
+
+    <br>
+
+    🕒
+    ${formatDate(
+        laatsteVergadering?.createdAt
+    )}
+
+</div>
+
+<div class="card">
+
+    <h4>
+        📁 Nieuw project
+    </h4>
+
+    <b>
+        ${laatsteProject?.title || 'Geen project'}
+    </b>
+
+</div>
+
+<div class="card">
+
+    <h4>
+        🤝 Nieuwe werkgroep
+    </h4>
+
+    <b>
+        ${laatsteGroep?.title || 'Geen werkgroep'}
+    </b>
 
 </div>
 

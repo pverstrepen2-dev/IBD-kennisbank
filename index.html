@@ -8911,6 +8911,8 @@ await detectProjectForDocument(
 
     data.unshift({
     id: Date.now(),
+    createdAt:
+    new Date().toISOString(),
     type: "documenten",
     title: d_title.value,
     url: d_url.value,
@@ -16605,7 +16607,26 @@ const laatsteDocument =
     documenten[0];
 
 const documentenRecent =
-    documenten.slice(0,5);
+
+    [...documenten]
+
+    .sort(
+
+        (a,b) =>
+
+            new Date(
+                b.createdAt || b.date || 0
+            )
+
+            -
+
+            new Date(
+                a.createdAt || a.date || 0
+            )
+
+    )
+
+    .slice(0,3);
 
 const takenOpen =
     taken.filter(
@@ -16625,7 +16646,9 @@ const recentItems = [
 
         title:d.title,
 
-        date:d.createdAt
+        date:
+    d.createdAt ||
+    d.date
 
     })),
 
@@ -16635,7 +16658,9 @@ const recentItems = [
 
         title:t.title,
 
-        date:t.createdAt
+        date:
+    t.createdAt ||
+    t.date
 
     })),
 
@@ -16645,7 +16670,9 @@ const recentItems = [
 
         title:v.title,
 
-        date:v.createdAt
+        date:
+    v.createdAt ||
+    v.date
 
     })),
 
@@ -16655,14 +16682,18 @@ const recentItems = [
 
         title:p.title,
 
-        date:p.createdAt
+        date:
+    p.createdAt ||
+    p.date
 
     })),
 
     ...groepen.map(g => ({
     type:"🤝",
     title:g.name,
-    date:g.createdAt
+    date:
+    g.createdAt ||
+    g.date
 })),
 
 ...faqs.map(f => ({
@@ -16801,27 +16832,22 @@ const formatDate = value =>
 
         <br>
 
-        <span
-            style="
-                color:#666;
-                font-size:12px;
-            ">
+       <span
+    style="
+        color:#ddd;
+        font-size:11px;
+    ">
 
-            🕒
+    ${
+        r.date
+        ?
+        formatDate(r.date)
+        :
+        ""
+    }
 
-            ${
-                r.date
+</span>
 
-                ?
-
-                formatDate(r.date)
-
-                :
-
-                "Datum onbekend"
-            }
-
-        </span>
 
     </div>
 
@@ -16931,11 +16957,11 @@ const formatDate = value =>
                 border-bottom:1px solid #ddd;
             ">
 
-            🗓 ${v.title}
+            🗓 ${v.title || "Geen titel"}
 
             <br>
 
-            📅 ${v.date || "-"}
+            📅 ${v.date || "Geen datum"}
 
             ${
                 v.location
@@ -16957,50 +16983,63 @@ const formatDate = value =>
         🤖 AI Inzichten
     </h3>
 
-    📄 Laatste document:
+    ⚠️ ${
+    takenOpen.length > 0
 
-    <b>
-        ${laatsteDocument?.title || "-"}
-    </b>
+    ?
 
-    <br><br>
+    `${takenOpen.length} taak/taken vragen opvolging`
 
-    📋 Open taken:
+    :
 
-    <b>
-        ${takenOpen.length}
-    </b>
+    `Geen open taken`
+}
 
-    <br><br>
+<br><br>
 
-    🗓 Vergaderingen:
+📄 Laatste document toegevoegd:
 
-    <b>
-        ${vergaderingen.length}
-    </b>
+<b>
 
-    <br><br>
+    ${laatsteDocument?.title || "-"}
 
-    📁 Projecten:
+</b>
 
-    <b>
-        ${projecten.length}
-    </b>
+<br><br>
 
-    <br><br>
+🗓 Laatste vergadering:
 
-    ${
-        takenOpen.length > 0
+<b>
 
-        ?
+    ${laatsteVergadering?.title || "-"}
 
-        `⚠ ${takenOpen.length} taak/taken vragen opvolging.`
+</b>
 
-        :
+<br>
 
-        `✅ Geen open taken.`
+📅
 
-    }
+${laatsteVergadering?.date || "-"}
+
+<br><br>
+
+📁 Actieve projecten:
+
+<b>
+
+    ${projecten.length}
+
+</b>
+
+<br><br>
+
+📄 Documenten in bibliotheek:
+
+<b>
+
+    ${documenten.length}
+
+</b>
 
 </div>
 

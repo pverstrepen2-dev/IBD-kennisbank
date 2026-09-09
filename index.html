@@ -5852,6 +5852,15 @@ if(countEl){
         min-width:130px;
     ">
 
+   ${
+    item.fileId ||
+    item.url ||
+    item.bestand
+
+    ?
+
+    `
+
     <button
         class="btn btn-sm btn-success"
         onclick="openKnowledgeFile('${item.id}')">
@@ -5859,6 +5868,13 @@ if(countEl){
         📂 Open
 
     </button>
+
+    `
+
+    :
+
+    ''
+}
 
     <button
         class="btn btn-sm btn-primary"
@@ -14897,7 +14913,6 @@ documenten verwerkt`;
 }
 
 async function openKnowledgeFile(id){
-    alert("OPEN GEKLIKT");
 
     const data =
         await getKnowledgeData();
@@ -14907,33 +14922,51 @@ async function openKnowledgeFile(id){
             x =>
                 String(x.id) === String(id)
         );
-        console.log("ID:", id);
-console.log("ITEM:", item);
-console.log(item);
 
-alert(
-    JSON.stringify(
-        item,
-        null,
-        2
-    )
-);
+    if(!item){
+
+        alert(
+            "Document niet gevonden"
+        );
+
+        return;
+    }
+
+    if(item.fileId){
+
+        openFile(
+            item.fileId
+        );
+
+        return;
+
+    }
+
+    if(item.url){
+
+        window.open(
+            item.url,
+            "_blank"
+        );
+
+        return;
+
+    }
 
     if(item.bestand){
 
-    window.open(
-        item.bestand,
-        "_blank"
-    );
+        window.open(
+            item.bestand,
+            "_blank"
+        );
 
-}
-else{
+        return;
+
+    }
 
     alert(
-        "Geen bestand gekoppeld aan dit document"
+        "Dit item is een kennisrecord en heeft geen gekoppeld bestand."
     );
-
-}
 }
 
 async function acceptAIProposal(

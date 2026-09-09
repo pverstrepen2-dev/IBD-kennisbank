@@ -2439,7 +2439,34 @@ class="tab-content">
 >
     📁 OneDrive Verkenner
 </div>
+<hr
+    style="
+        margin:20px 0;
+        opacity:.3;
+    ">
 
+<div
+    style="
+        padding:10px 0;
+    ">
+
+    <h3>
+
+        📚 Kennisitems
+
+    </h3>
+
+    <div
+        style="
+            opacity:.8;
+            font-size:13px;
+        ">
+
+        FAQ's, tips en kennisdocumenten uit de databank
+
+    </div>
+
+</div>
 <div class="notice">
     Gebruik "🤝 Open CCV-VZW"
     om door de OneDrive-structuur te bladeren.
@@ -5396,7 +5423,22 @@ Object.entries(groups)
             (${items.length})
 
         </h2>
+<hr
+    style="
+        margin:15px 0;
+        opacity:.3;
+    ">
 
+<div
+    style="
+        font-size:13px;
+        opacity:.75;
+        margin-bottom:12px;
+    ">
+
+    📚 FAQ's, tips en kennisdocumenten
+
+</div>
         ${items.map(item => `
 
             <div
@@ -5411,9 +5453,9 @@ Object.entries(groups)
 
                 <div class="result-title">
 
-                    ${item.title || 'Geen titel'}
+    📄 ${item.title || 'Geen titel'}
 
-                </div>
+</div>
 
                 <div class="result-meta">
 
@@ -15787,6 +15829,17 @@ console.log("AI KNOWLEDGE:", alles);
         📁 ${cat}
     </h4>
 
+    <div
+        style="
+            font-size:12px;
+            opacity:.75;
+            margin:8px 0 15px 0;
+        ">
+
+        📚 Kennisitems in deze categorie
+
+    </div>
+
 `;
 
            categorien[cat].forEach(item => {
@@ -15794,15 +15847,19 @@ console.log("AI KNOWLEDGE:", alles);
     html += `
 
         <div
-            class="card"
-            style="
-                margin-left:20px;
-                margin-bottom:10px;
-            ">
+    class="card"
+    style="
+        margin-left:20px;
+        margin-top:10px;
+        margin-bottom:10px;
+        border-left:4px solid #6366f1;
+    ">
 
             <b>
-                ${item.title || "Geen titel"}
-            </b>
+
+    📄 ${item.title || "Geen titel"}
+
+</b>
 
             <br>
 

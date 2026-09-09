@@ -801,16 +801,18 @@ console.log("PDF TEST", window.pdfjsLib);
 
 #knowledgeSidePanel h3,
 #knowledgeSidePanel h4{
-    color:#333;
+
+    color:#FFD54F;
+
 }
 
 #knowledgeSidePanel a{
 
-    color:#ffffff;
+    color:#FFD54F !important;
 
     text-decoration:none;
 
-    font-weight:500;
+    font-weight:600;
 
 }
 
@@ -824,7 +826,7 @@ console.log("PDF TEST", window.pdfjsLib);
 
 #knowledgeSidePanel span{
 
-    color:#f3f4f6;
+    color:#ffffff !important;
 
 }
 
@@ -16906,11 +16908,14 @@ const vergaderingenRecent =
 
 const recentItems = [
 
-    ...documenten.map(d => ({
+   ...documenten.map(d => ({
 
     type:"📄",
 
     title:d.title,
+
+    category:
+        d.category,
 
     date:
         d.createdAt ||
@@ -17218,15 +17223,43 @@ class="activity-item"
 
         <div>
 
-            <b>
+    <b>
 
-                ${r.type}
+        ${r.type}
 
-                ${r.title || "-"}
+        ${r.title || "-"}
 
-            </b>
+    </b>
 
-        </div>
+    ${
+
+        r.type === "📄"
+
+        ?
+
+        `
+
+        <br>
+
+        <span
+            style="
+                font-size:12px;
+                opacity:.8;
+            ">
+
+            📂 ${r.category || "Geen categorie"}
+
+        </span>
+
+        `
+
+        :
+
+        ""
+
+    }
+
+</div>
 
         <div
             style="
@@ -17310,75 +17343,6 @@ ${
     `✅ Alle documenten hebben een categorie`
 
 }
-</div>
-
-<div class="card">
-
-    <h3>
-        📄 Laatste documenten
-    </h3>
-
-    ${documentenRecent.map(d => `
-
-        <div
-            style="
-                padding:8px;
-                border-bottom:1px solid #ddd;
-            ">
-
-            📄 ${d.title}
-
-            <br>
-
-            🏷️ ${d.category || "-"}
-<br>
-
-🕒
-
-${
-
-    d.createdAt
-
-    ?
-
-    formatDate(
-        d.createdAt
-    )
-
-    :
-
-    ""
-
-}
-            ${
-                d.fileId || d.id
-
-                ?
-
-                `
-
-                <br><br>
-
-                <button
-                    class="btn btn-primary"
-                    onclick="openFile('${d.fileId || d.id}')">
-
-                    📂 Open document
-
-                </button>
-
-                `
-
-                :
-
-                ''
-
-            }
-
-        </div>
-
-    `).join("")}
-
 </div>
 
 <div class="card">

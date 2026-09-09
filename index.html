@@ -16828,14 +16828,18 @@ const formatDate = value =>
     </h3>
 
     <div
-        style="
-            display:flex;
-            gap:10px;
-            flex-wrap:wrap;
-        ">
+    style="
+        display:grid;
+        grid-template-columns:
+            repeat(3,1fr);
+        gap:10px;
+    ">
 
         <button
             class="btn btn-primary"
+            style="
+    width:100%;
+"
             onclick="renderTaken()">
 
             ➕ Taak
@@ -16844,6 +16848,9 @@ const formatDate = value =>
 
         <button
             class="btn btn-success"
+            style="
+    width:100%;
+"
             onclick="renderDocumenten()">
 
             📄 Document
@@ -16852,6 +16859,9 @@ const formatDate = value =>
 
         <button
             class="btn btn-secondary"
+            style="
+    width:100%;
+"
             onclick="renderVergaderingen()">
 
             🗓 Vergadering
@@ -16860,6 +16870,9 @@ const formatDate = value =>
 
         <button
             class="btn btn-warning"
+            style="
+    width:100%;
+"
             onclick="renderProjecten()">
 
             📁 Project
@@ -16871,6 +16884,9 @@ const formatDate = value =>
 </div>
 <button
     class="btn btn-warning"
+    style="
+    width:100%;
+"
     onclick="renderProjecten()">
 
     📁 Project
@@ -16878,7 +16894,12 @@ const formatDate = value =>
 </button>
 
 <button
-    class="btn btn-primary"
+    class="btn"
+    style="
+        background:#6366f1;
+        color:white;
+        width:100%;
+    "
     onclick="renderWG()">
 
     🤝 Werkgroep
@@ -16918,7 +16939,7 @@ const formatDate = value =>
 <div
     class="card"
     style="
-        grid-column:span 2;
+        grid-column:1/-1;
     ">
 
     <h3>

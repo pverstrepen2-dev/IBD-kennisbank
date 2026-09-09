@@ -860,10 +860,8 @@ console.log("PDF TEST", window.pdfjsLib);
 
 }
 
-#nieuwContent .card{
-
-    border-left:4px solid #6366f1;
-
+#nieuwContent .card *{
+    color:white !important;
 }
 
 #knowledgeGraph{
@@ -916,6 +914,50 @@ console.log("PDF TEST", window.pdfjsLib);
 
     background:
         rgba(255,255,255,.08);
+
+}
+
+/* =========================
+   KNOWLEDGE GRAPH
+========================= */
+
+#knowledgeContent,
+#knowledgeContent *{
+
+    color:white !important;
+
+}
+
+#knowledgeContent a{
+
+    color:white !important;
+
+    text-decoration:none;
+
+}
+
+#knowledgeContent a:hover{
+
+    color:#FFD700 !important;
+
+    text-decoration:underline;
+
+}
+
+#knowledgeContent h1,
+#knowledgeContent h2,
+#knowledgeContent h3,
+#knowledgeContent h4{
+
+    color:#FFD54F !important;
+
+    font-weight:700;
+
+}
+
+.card{
+
+    color:white;
 
 }
 

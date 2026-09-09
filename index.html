@@ -16877,7 +16877,7 @@ const formatDate = value =>
             style="
     width:100%;
 "
-            onclick="renderDocumenten()">
+            onclick="renderDoc()"
 
             📄 Document
 
@@ -16888,7 +16888,7 @@ const formatDate = value =>
             style="
     width:100%;
 "
-            onclick="renderVergaderingen()">
+            onclick="renderMeetings()"
 
             🗓 Vergadering
 
@@ -16899,38 +16899,78 @@ const formatDate = value =>
             style="
     width:100%;
 "
-            onclick="renderProjecten()">
+            onclick="renderProjectDashboard()"
 
             📁 Project
 
         </button>
 
-    </div>
+    <div
+    style="
+        display:grid;
+        grid-template-columns:
+            repeat(3,1fr);
+        gap:10px;
+    ">
+
+    <button
+        class="btn btn-primary"
+        style="
+            width:100%;
+        "
+        onclick="renderTaken()">
+
+        📋 Taken
+
+    </button>
+
+    <button
+        class="btn btn-success"
+        style="
+            width:100%;
+        "
+        onclick="renderDoc()">
+
+        📄 Documenten
+
+    </button>
+
+    <button
+        class="btn btn-secondary"
+        style="
+            width:100%;
+        "
+        onclick="renderMeetings()">
+
+        🗓 Vergaderingen
+
+    </button>
+
+    <button
+        class="btn btn-warning"
+        style="
+            width:100%;
+        "
+        onclick="renderProjectDashboard()">
+
+        📁 Projecten
+
+    </button>
+
+    <button
+        class="btn"
+        style="
+            background:#6366f1;
+            color:white;
+            width:100%;
+        "
+        onclick="renderWG()">
+
+        🤝 Werkgroepen
+
+    </button>
 
 </div>
-<button
-    class="btn btn-warning"
-    style="
-    width:100%;
-"
-    onclick="renderProjecten()">
-
-    📁 Project
-
-</button>
-
-<button
-    class="btn"
-    style="
-        background:#6366f1;
-        color:white;
-        width:100%;
-    "
-    onclick="renderWG()">
-
-    🤝 Werkgroep
-
-</button>
 
 <div class="card">
 

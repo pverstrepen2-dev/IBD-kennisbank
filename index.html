@@ -860,10 +860,6 @@ console.log("PDF TEST", window.pdfjsLib);
 
 }
 
-#nieuwContent .card *{
-    color:white !important;
-}
-
 #knowledgeGraph{
 
     color:white;
@@ -955,7 +951,7 @@ console.log("PDF TEST", window.pdfjsLib);
 
 }
 
-.card{
+#nieuwContent .card{
 
     color:white;
 
@@ -1391,17 +1387,99 @@ class="tab-content">
 <div id="knowledgeStats">
 
 </div>
-<div class="card">
+<div
+    class="card"
+    style="
+        max-width:300px;
+        line-height:2;
+        padding:15px;
+    ">
 
-    <h3>🗺️ Legenda</h3>
+    <h3>
 
-    🟡 Thema's<br>
+        🗺️ Legenda
 
-    🟢 Onderwerpen<br>
+    </h3>
 
-    🔴 Documenten<br>
+    <div>
 
-    🔗 Relaties
+        <span
+            style="
+                color:#4ade80;
+                font-size:20px;
+            ">
+
+            ●
+
+        </span>
+
+        Categorie
+
+    </div>
+
+    <div>
+
+        <span
+            style="
+                color:#facc15;
+                font-size:20px;
+            ">
+
+            ●
+
+        </span>
+
+        Document
+
+    </div>
+
+    <div>
+
+        <span
+            style="
+                color:#ef4444;
+                font-size:20px;
+            ">
+
+            ●
+
+        </span>
+
+        Externe bron
+
+    </div>
+
+    <div>
+
+        <span
+            style="
+                color:#3b82f6;
+                font-size:20px;
+            ">
+
+            ●
+
+        </span>
+
+        Werkgroep
+
+    </div>
+
+    <div>
+
+        <span
+            style="
+                color:#8b5cf6;
+                font-size:20px;
+            ">
+
+            ●
+
+        </span>
+
+        Kennisitem
+
+    </div>
 
 </div>
 
@@ -1419,13 +1497,13 @@ class="tab-content">
 
         </button>
 
-        <button
-            class="btn btn-secondary"
-            onclick="showGraphTab('graph-relations')"
+       <button
+    class="btn btn-secondary"
+    onclick="showGraphTab('graph-relations')">
 
-            🔗 Documentrelaties
+    🔗 Documentrelaties
 
-        </button>
+</button>
 
     </div>
 
@@ -9791,8 +9869,61 @@ async function renderKnowledgeGraph(){
     const projects =
         await loadProjects();
 
-    let html =
-        "<h2>🧠 Knowledge Graph</h2>";
+    let html = `
+
+<h2>
+
+    🧠 Knowledge Graph
+
+</h2>
+
+<div
+    class="card"
+    style="
+        margin-bottom:15px;
+        max-width:320px;
+        line-height:2;
+    ">
+
+    <h4>
+
+        📖 Legenda
+
+    </h4>
+
+    <div>
+
+        🟢 Categorie
+
+    </div>
+
+    <div>
+
+        🟡 Document
+
+    </div>
+
+    <div>
+
+        🔴 Externe bron
+
+    </div>
+
+    <div>
+
+        🔵 Werkgroep
+
+    </div>
+
+    <div>
+
+        🟣 Kennisitem
+
+    </div>
+
+</div>
+
+`;
 
     projects.forEach(project=>{
 

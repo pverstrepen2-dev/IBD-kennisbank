@@ -861,6 +861,13 @@ console.log("PDF TEST", window.pdfjsLib);
 
 }
 
+.activity-item:hover{
+
+    background:
+        rgba(255,255,255,.08);
+
+}
+
   </style>
 </head>
 <body>
@@ -16677,58 +16684,77 @@ const recentItems = [
 
     ...documenten.map(d => ({
 
-        type:"📄",
+    type:"📄",
 
-        title:d.title,
+    title:d.title,
 
-        date:
-    d.createdAt ||
-    d.date
+    date:
+        d.createdAt ||
+        d.date,
 
-    })),
+    action:
+        `openFile('${d.fileId || d.id}')`
+
+})),
 
     ...taken.map(t => ({
 
-        type:"📋",
+    type:"📋",
 
-        title:t.title,
+    title:t.title,
 
-        date:
-    t.createdAt ||
-    t.date
+    date:
+        t.createdAt ||
+        t.date,
 
-    })),
+    action:
+        `renderTaken()`
+
+})),
 
     ...vergaderingen.map(v => ({
 
-        type:"🗓",
+    type:"🗓",
 
-        title:v.title,
+    title:v.title,
 
-        date:
-    v.createdAt ||
-    v.date
+    date:
+        v.createdAt ||
+        v.date,
 
-    })),
+    action:
+        `renderVergaderingen()`
 
-    ...projecten.map(p => ({
+})),
 
-        type:"📁",
+   ...projecten.map(p => ({
 
-        title:p.title,
+    type:"📁",
 
-        date:
-    p.createdAt ||
-    p.date
+    title:p.title,
 
-    })),
+    date:
+        p.createdAt ||
+        p.date,
+
+    action:
+        `renderProjecten()`
+
+})),
 
     ...groepen.map(g => ({
+
     type:"🤝",
+
     title:g.name,
+
     date:
-    g.createdAt ||
-    g.date
+        g.createdAt ||
+        g.date,
+
+    action:
+        `renderWG()`
+
 })),
 
 ...faqs.map(f => ({
@@ -16962,13 +16988,20 @@ const formatDate = value =>
     ${recent10.map(r => `
 
     <div
-        style="
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-            padding:10px;
-            border-bottom:1px solid rgba(255,255,255,.2);
-        ">
+
+class="activity-item"
+
+    onclick="${r.action}"
+
+    style="
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        padding:10px;
+        border-bottom:1px solid rgba(255,255,255,.2);
+        cursor:pointer;
+        transition:.2s;
+    ">
 
         <div>
 

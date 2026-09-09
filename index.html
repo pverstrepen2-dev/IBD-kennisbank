@@ -5858,18 +5858,43 @@ if(countEl){
     </span>
 
 </div>
-<button
-    class="btn btn-sm btn-success"
-    onclick="openKnowledgeFile('${item.id}')">
-    📂 Open
-</button>
-          <button
-    class="btn btn-sm btn-primary"
-    onclick="generateFaqFromItem('${item.id}')">
-    🤖 FAQ
-</button>
-          <button class="btn btn-sm btn-danger" onclick="deleteRecord('${item.id}')">🗑️</button>
-        </div>
+
+<div
+    style="
+        display:flex;
+        flex-direction:column;
+        gap:6px;
+        align-items:flex-end;
+        min-width:130px;
+    ">
+
+    <button
+        class="btn btn-sm btn-success"
+        onclick="openKnowledgeFile('${item.id}')">
+
+        📂 Open
+
+    </button>
+
+    <button
+        class="btn btn-sm btn-primary"
+        onclick="generateFaqFromItem('${item.id}')">
+
+        🤖 FAQ
+
+    </button>
+
+    <button
+        class="btn btn-sm btn-danger"
+        onclick="deleteRecord('${item.id}')">
+
+        🗑️
+
+    </button>
+
+</div>
+
+</div>
       `).join('') : `<div class="panel" style="padding:20px;">Geen items gevonden.</div>`;
     }
 

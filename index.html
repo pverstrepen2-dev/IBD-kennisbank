@@ -5869,12 +5869,12 @@ if(countEl){
     </button>
 
     <button
-        class="btn btn-sm btn-danger"
-        onclick="deleteRecord('${item.id}')">
+    class="btn btn-sm btn-danger"
+    onclick="deleteFAQ('${item.id}')">
 
-        🗑️
+    🗑️
 
-    </button>
+</button>
 
 </div>
 
@@ -13729,7 +13729,7 @@ await saveDatabaseJson();
 
 await renderFAQBeheer();
 
-showNotification(
+alert(
     "FAQ opgeslagen"
 );
 }
@@ -14897,6 +14897,7 @@ documenten verwerkt`;
 }
 
 async function openKnowledgeFile(id){
+    alert("OPEN GEKLIKT");
 
     const data =
         await getKnowledgeData();
@@ -14906,18 +14907,29 @@ async function openKnowledgeFile(id){
             x =>
                 String(x.id) === String(id)
         );
-
+        console.log("ID:", id);
+console.log("ITEM:", item);
+console.log(item);
     if(!item){
         alert("Document niet gevonden");
         return;
     }
 
     if(item.bestand){
-        window.open(
-            item.bestand,
-            "_blank"
-        );
-    }
+
+    window.open(
+        item.bestand,
+        "_blank"
+    );
+
+}
+else{
+
+    alert(
+        "Geen bestand gekoppeld aan dit document"
+    );
+
+}
 }
 
 async function acceptAIProposal(

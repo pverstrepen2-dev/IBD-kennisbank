@@ -10383,17 +10383,37 @@ function switchVoedingTab(evt, tab){
 
 async function renderVoeding(tab){
 
-    const tasks =
-    await loadTasks();
+    let tasks = [];
+    let meetings = [];
+    let projects = [];
+    let documents = [];
 
-const meetings =
-    await loadMeetings();
+    if(msalReady){
 
-const projects =
-    await loadProjects();
+        try{
 
-const documents =
-    await loadDocuments();
+            tasks =
+                await loadTasks();
+
+            meetings =
+                await loadMeetings();
+
+            projects =
+                await loadProjects();
+
+            documents =
+                await loadDocuments();
+
+        }
+        catch(error){
+
+            console.log(
+                "CCV data nog niet beschikbaar"
+            );
+
+        }
+
+    }
 
     const titles = {
         dieet: '🥗 Dieetadvies',

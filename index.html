@@ -16723,7 +16723,7 @@ const recentItems = [
         v.date,
 
     action:
-        `renderVergaderingen()`
+        `renderMeetings()`
 
 })),
 
@@ -16738,7 +16738,7 @@ const recentItems = [
         p.date,
 
     action:
-        `renderProjecten()`
+        `renderProjectDashboard()`
 
 })),
 
@@ -16759,8 +16759,9 @@ const recentItems = [
 
 ...faqs.map(f => ({
     type:"❓",
-    title:f.title,
-    date:f.createdAt
+    title:f.title || "FAQ",
+    date:f.createdAt,
+    action:`renderFAQBeheer()`
 }))
 
 ];
@@ -16852,58 +16853,6 @@ const formatDate = value =>
         ⚡ Snelle acties
 
     </h3>
-
-    <div
-    style="
-        display:grid;
-        grid-template-columns:
-            repeat(3,1fr);
-        gap:10px;
-    ">
-
-        <button
-            class="btn btn-primary"
-            style="
-    width:100%;
-"
-            onclick="renderTaken()">
-
-            ➕ Taak
-
-        </button>
-
-        <button
-            class="btn btn-success"
-            style="
-    width:100%;
-"
-            onclick="renderDoc()"
-
-            📄 Document
-
-        </button>
-
-        <button
-            class="btn btn-secondary"
-            style="
-    width:100%;
-"
-            onclick="renderMeetings()"
-
-            🗓 Vergadering
-
-        </button>
-
-        <button
-            class="btn btn-warning"
-            style="
-    width:100%;
-"
-            onclick="renderProjectDashboard()"
-
-            📁 Project
-
-        </button>
 
     <div
     style="

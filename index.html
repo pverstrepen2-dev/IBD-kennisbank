@@ -16628,6 +16628,22 @@ const documentenRecent =
 
     .slice(0,3);
 
+const documentenZonderCategorie =
+
+    documenten.filter(
+
+        d => !d.category
+
+    );
+
+const vergaderingenZonderLocatie =
+
+    vergaderingen.filter(
+
+        v => !v.location
+
+    );
+
 const takenOpen =
     taken.filter(
         t =>
@@ -16636,7 +16652,26 @@ const takenOpen =
     );
 
 const vergaderingenRecent =
-    vergaderingen.slice(0,5);
+
+    [...vergaderingen]
+
+    .sort(
+
+        (a,b) =>
+
+            new Date(
+                b.date || 0
+            )
+
+            -
+
+            new Date(
+                a.date || 0
+            )
+
+    )
+
+    .slice(0,5);
 
 const recentItems = [
 
@@ -16770,13 +16805,85 @@ const formatDate = value =>
     "nieuwContent"
 ).innerHTML = `
 
-<div class="card">
+<div
+    style="
+        grid-column:1/-1;
+        margin-bottom:10px;
+    ">
 
     <h2>
+
         🏠 Cockpit
+
     </h2>
 
 </div>
+
+<div class="card">
+
+    <h3>
+
+        ⚡ Snelle acties
+
+    </h3>
+
+    <div
+        style="
+            display:flex;
+            gap:10px;
+            flex-wrap:wrap;
+        ">
+
+        <button
+            class="btn btn-primary"
+            onclick="renderTaken()">
+
+            ➕ Taak
+
+        </button>
+
+        <button
+            class="btn btn-success"
+            onclick="renderDocumenten()">
+
+            📄 Document
+
+        </button>
+
+        <button
+            class="btn btn-secondary"
+            onclick="renderVergaderingen()">
+
+            🗓 Vergadering
+
+        </button>
+
+        <button
+            class="btn btn-warning"
+            onclick="renderProjecten()">
+
+            📁 Project
+
+        </button>
+
+    </div>
+
+</div>
+<button
+    class="btn btn-warning"
+    onclick="renderProjecten()">
+
+    📁 Project
+
+</button>
+
+<button
+    class="btn btn-primary"
+    onclick="renderWG()">
+
+    🤝 Werkgroep
+
+</button>
 
 <div class="card">
 
@@ -16808,51 +16915,134 @@ const formatDate = value =>
 
 </div>
 
-<div class="card">
+<div
+    class="card"
+    style="
+        grid-column:span 2;
+    ">
 
     <h3>
-        🕒 Recent toegevoegd
-    </h3>
+
+    🕒 Recent toegevoegd
+
+<span
+    style="
+        float:right;
+        font-size:12px;
+        opacity:.8;
+    ">
+
+    ${recent10.length} items
+
+</span>
+
+</h3>
 
     ${recent10.map(r => `
 
     <div
         style="
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
             padding:10px;
-            border-bottom:1px solid #ddd;
+            border-bottom:1px solid rgba(255,255,255,.2);
         ">
 
-        <b>
+        <div>
 
-            ${r.type}
+            <b>
 
-            ${r.title || "-"}
+                ${r.type}
 
-        </b>
+                ${r.title || "-"}
 
-        <br>
+            </b>
 
-       <span
-    style="
-        color:#ddd;
-        font-size:11px;
-    ">
+        </div>
 
-    ${
-        r.date
-        ?
-        formatDate(r.date)
-        :
-        ""
-    }
+        <div
+            style="
+                color:#ddd;
+                font-size:11px;
+                white-space:nowrap;
+            ">
 
-</span>
+            ${
+                r.date
+                ?
+                formatDate(r.date)
+                :
+                ""
+            }
 
+        </div>
 
     </div>
 
 `).join("")}
 
+</div>
+
+<div class="card">
+
+    <h3>
+
+        ⚠ Aandacht vereist
+
+    </h3>
+
+    ${
+
+        takenOpen.length > 0
+
+        ?
+
+        `📋 ${takenOpen.length} open taak/taken`
+
+        :
+
+        `✅ Geen open taken`
+
+    }
+
+    <br><br>
+
+    ${
+
+        vergaderingen.filter(
+            v => !v.location
+        ).length > 0
+
+        ?
+
+        `🗓 ${
+            vergaderingen.filter(
+                v => !v.location
+            ).length
+        } vergadering(en) zonder locatie`
+
+        :
+
+        `✅ Alle vergaderingen hebben een locatie`
+        
+
+    }
+<br><br>
+
+${
+
+    documentenZonderCategorie.length > 0
+
+    ?
+
+    `📄 ${documentenZonderCategorie.length} document(en) zonder categorie`
+
+    :
+
+    `✅ Alle documenten hebben een categorie`
+
+}
 </div>
 
 <div class="card">
@@ -16874,7 +17064,25 @@ const formatDate = value =>
             <br>
 
             🏷️ ${d.category || "-"}
+<br>
 
+🕒
+
+${
+
+    d.createdAt
+
+    ?
+
+    formatDate(
+        d.createdAt
+    )
+
+    :
+
+    ""
+
+}
             ${
                 d.fileId || d.id
 
@@ -16929,7 +17137,9 @@ const formatDate = value =>
 
                 <br>
 
-                🚦 ${t.status || "Open"}
+                🚦 Status:
+
+${t.status || "Open"}
 
             </div>
 
@@ -17030,7 +17240,15 @@ ${laatsteVergadering?.date || "-"}
     ${projecten.length}
 
 </b>
+<br><br>
 
+📄 Laatste activiteit:
+
+<b>
+
+${recent10?.[0]?.title || "-"}
+
+</b>
 <br><br>
 
 📄 Documenten in bibliotheek:

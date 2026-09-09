@@ -10381,7 +10381,19 @@ function switchVoedingTab(evt, tab){
   renderVoeding(tab);
 }
 
-function renderVoeding(tab){
+async function renderVoeding(tab){
+
+    const tasks =
+    await loadTasks();
+
+const meetings =
+    await loadMeetings();
+
+const projects =
+    await loadProjects();
+
+const documents =
+    await loadDocuments();
 
     const titles = {
         dieet: '🥗 Dieetadvies',
@@ -10391,9 +10403,13 @@ function renderVoeding(tab){
         gezond: '✅ Gezonde keuzes'
     };
 
-    const data = loadVoeding().filter(x => x.type === tab);
+   const voedingData =
+    await loadVoeding();
 
-    const voedingData = loadVoeding();
+const data =
+    voedingData.filter(
+        x => x.type === tab
+    );
 
     const stats = {
         dieet: voedingData.filter(x => x.type === 'dieet').length,

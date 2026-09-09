@@ -847,6 +847,20 @@ console.log("PDF TEST", window.pdfjsLib);
 
 }
 
+#nieuwContent{
+
+    display:grid;
+
+    grid-template-columns:
+        repeat(
+            auto-fit,
+            minmax(350px,1fr)
+        );
+
+    gap:20px;
+
+}
+
   </style>
 </head>
 <body>
@@ -6069,6 +6083,9 @@ async function saveTop10Faq(topic){
                 id:
                     Date.now()
                     + Math.random(),
+
+                createdAt:
+    new Date().toISOString(),
 
                 status:
                     "Concept",
@@ -16559,6 +16576,19 @@ const groepen =
 const documenten =
     await loadDocuments();
 
+const knowledge =
+    await getKnowledgeData();
+
+const faqs =
+
+    knowledge.filter(
+
+        item =>
+
+            item.type === "FAQ"
+
+    );
+
 const laatsteTaak =
     taken[0];
 
@@ -16587,12 +16617,103 @@ const takenOpen =
 const vergaderingenRecent =
     vergaderingen.slice(0,5);
 
+const recentItems = [
+
+    ...documenten.map(d => ({
+
+        type:"📄",
+
+        title:d.title,
+
+        date:d.createdAt
+
+    })),
+
+    ...taken.map(t => ({
+
+        type:"📋",
+
+        title:t.title,
+
+        date:t.createdAt
+
+    })),
+
+    ...vergaderingen.map(v => ({
+
+        type:"🗓",
+
+        title:v.title,
+
+        date:v.createdAt
+
+    })),
+
+    ...projecten.map(p => ({
+
+        type:"📁",
+
+        title:p.title,
+
+        date:p.createdAt
+
+    })),
+
+    ...groepen.map(g => ({
+    type:"🤝",
+    title:g.name,
+    date:g.createdAt
+})),
+
+...faqs.map(f => ({
+    type:"❓",
+    title:f.title,
+    date:f.createdAt
+}))
+
+];
+
+recentItems.sort(
+
+    (a,b) =>
+
+        new Date(
+            b.date || 0
+        )
+
+        -
+
+        new Date(
+            a.date || 0
+        )
+
+);
+
+const recent10 =
+
+    recentItems
+
+    .filter(
+        x =>
+            x.title
+    )
+
+    .sort(
+        (a,b) =>
+            new Date(
+                b.date || 0
+            )
+            -
+            new Date(
+                a.date || 0
+            )
+    )
+
+    .slice(0,10);
+
 const formatDate = value =>
-
     value
-
     ?
-
     new Date(value)
         .toLocaleString(
             "nl-BE",
@@ -16618,125 +16739,171 @@ const formatDate = value =>
     "nieuwContent"
 ).innerHTML = `
 
-    <div class="card">
+<div class="card">
 
     <h2>
         🏠 Cockpit
     </h2>
-   
+
 </div>
+
 <div class="card">
 
     <h3>
         📊 Overzicht
     </h3>
-<div
-    style="
-        display:flex;
-        gap:15px;
-        flex-wrap:wrap;
-    ">
 
-    <div class="stat-card">
+    <div
+        style="
+            line-height:2;
+            font-size:16px;
+        ">
 
-        📄 ${documenten.length}
-        documenten
+        📄 ${documenten.length} documenten
 
-    </div>
-</div>
+        <br>
 
-    <div class="stat-card">
+        📋 ${takenOpen.length} open taken
 
-        📋 ${taken.length}
-        taken
+        <br>
 
-    </div>
+        🗓 ${vergaderingen.length} vergaderingen
 
-    <div class="stat-card">
+        <br>
 
-        🗓 ${vergaderingen.length}
-        vergaderingen
-
-    </div>
-
-    <div class="stat-card">
-
-        📁 ${projecten.length}
-        projecten
+        📁 ${projecten.length} projecten
 
     </div>
 
 </div>
 
-<br>
-</div>
 <div class="card">
 
     <h3>
+        🕒 Recent toegevoegd
+    </h3>
 
+    ${recent10.map(r => `
+
+    <div
+        style="
+            padding:10px;
+            border-bottom:1px solid #ddd;
+        ">
+
+        <b>
+
+            ${r.type}
+
+            ${r.title || "-"}
+
+        </b>
+
+        <br>
+
+        <span
+            style="
+                color:#666;
+                font-size:12px;
+            ">
+
+            🕒
+
+            ${
+                r.date
+
+                ?
+
+                formatDate(r.date)
+
+                :
+
+                "Datum onbekend"
+            }
+
+        </span>
+
+    </div>
+
+`).join("")}
+
+</div>
+
+<div class="card">
+
+    <h3>
         📄 Laatste documenten
-
     </h3>
 
     ${documentenRecent.map(d => `
 
         <div
-style="
-padding:8px;
-border-bottom:1px solid #ddd;
-">
+            style="
+                padding:8px;
+                border-bottom:1px solid #ddd;
+            ">
 
-📄 ${d.title}
+            📄 ${d.title}
 
-<br>
+            <br>
 
-🏷️ ${d.category || "-"}
-${
-    d.fileId || d.id
+            🏷️ ${d.category || "-"}
 
-    ?
+            ${
+                d.fileId || d.id
 
-    `<br><br>
+                ?
 
-    <button
-        class="btn btn-primary"
-        onclick="openFile('${d.fileId || d.id}')">
+                `
 
-        📂 Open document
+                <br><br>
 
-    </button>`
+                <button
+                    class="btn btn-primary"
+                    onclick="openFile('${d.fileId || d.id}')">
 
-    :
+                    📂 Open document
 
-    ''
-}
-</div>
+                </button>
 
+                `
+
+                :
+
+                ''
+
+            }
+
+        </div>
 
     `).join("")}
 
 </div>
+
 <div class="card">
 
     <h3>
-
         📋 Open taken
-
     </h3>
 
-    ${takenOpen.length
+    ${
+        takenOpen.length
 
         ?
 
         takenOpen.map(t => `
 
-            <div>
+            <div
+                style="
+                    padding:8px;
+                    border-bottom:1px solid #ddd;
+                ">
 
                 📋 ${t.title}
 
-<br>
+                <br>
 
-🚦 ${t.status || "Open"}
+                🚦 ${t.status || "Open"}
 
             </div>
 
@@ -16749,41 +16916,45 @@ ${
     }
 
 </div>
+
 <div class="card">
 
     <h3>
-
         🗓 Vergaderingen
-
     </h3>
 
     ${vergaderingenRecent.map(v => `
 
-        <div>
+        <div
+            style="
+                padding:8px;
+                border-bottom:1px solid #ddd;
+            ">
 
             🗓 ${v.title}
 
-<br>
+            <br>
 
-📅 ${v.date || "-"}
+            📅 ${v.date || "-"}
 
-${v.location
-    ?
-    `<br>📍 ${v.location}`
-    :
-    ''
-}
+            ${
+                v.location
+                ?
+                `<br>📍 ${v.location}`
+                :
+                ''
+            }
+
         </div>
 
     `).join("")}
 
 </div>
+
 <div class="card">
 
     <h3>
-
         🤖 AI Inzichten
-
     </h3>
 
     📄 Laatste document:
@@ -16823,15 +16994,17 @@ ${v.location
 
         ?
 
-        '⚠ Er zijn open taken die opvolging vragen.'
+        `⚠ ${takenOpen.length} taak/taken vragen opvolging.`
 
         :
 
-        '✅ Geen open taken.'
+        `✅ Geen open taken.`
+
     }
 
 </div>
-    `;
+
+`;
 
 }
 

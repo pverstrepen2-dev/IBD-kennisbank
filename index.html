@@ -16797,26 +16797,24 @@ const recentItems = [
     title:t.title,
 
     date:
-        t.createdAt ||
-        t.date,
+        t.createdAt,
 
     action:
-        `renderTaken()`
+        `openTask('${t.id}')`
 
 })),
 
-    ...vergaderingen.map(v => ({
+   ...vergaderingen.map(v => ({
 
     type:"🗓",
 
     title:v.title,
 
     date:
-        v.createdAt ||
-        v.date,
+        v.createdAt,
 
     action:
-        `renderMeetings()`
+        `openMeeting('${v.id}')`
 
 })),
 
@@ -16831,7 +16829,7 @@ const recentItems = [
         p.date,
 
     action:
-        `renderProjectDashboard()`
+    `openProject('${p.id}')`
 
 })),
 
@@ -16846,7 +16844,8 @@ const recentItems = [
         g.date,
 
     action:
-        `renderWG()`
+    `openGroup('${g.id}')`
+
 
 })),
 

@@ -13252,24 +13252,7 @@ async function openDriveFolder(
     folderName,
     addToBreadcrumb = true
 ){
-
-    console.log(
-        "MAP ID:",
-        folderId
-    );
-
-    alert(
-    "Mapnaam: " +
-    folderName +
-    "\n\nMap ID:\n" +
-    folderId
-);
-
-    console.log(
-        "MAP NAAM:",
-        folderName
-    );
-
+    
     try{
 
         const token =
@@ -13426,7 +13409,7 @@ if (breadcrumbPath.length > 1) {
 } else {
     backBtn.style.display = "none";
 }
-alert("HTML WORDT GESCHREVEN");
+
 let target = "driveExplorer";
 
 if(document.getElementById("werkdocsList")){
@@ -13435,15 +13418,7 @@ if(document.getElementById("werkdocsList")){
 else if(currentHoofdgroep === "verenigingen"){
     target = "categoryGrid";
 }
-console.log(
-    "TARGET:",
-    target
-);
 
-console.log(
-    "ELEMENT:",
-    document.getElementById(target)
-);
 document.getElementById(target).innerHTML =
     "<h2>📂 " + folderName + "</h2>" + html;
     }

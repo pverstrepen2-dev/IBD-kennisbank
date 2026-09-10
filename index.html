@@ -4071,7 +4071,6 @@ let breadcrumbPath = [
  sections:['Verenigingen']
 },
 
-
 'Overige Verenigingen': {
  icon:'📂',
  desc:'Overige patiëntenverenigingen',
@@ -4083,6 +4082,7 @@ let breadcrumbPath = [
  desc:'Veelgestelde vragen verenigingen',
  sections:['Verenigingen']
 }
+
     };
 
     async function loadData(){
@@ -7293,6 +7293,9 @@ const taken =
 const meetings =
     await loadMeetings();
 
+const documents =
+    await loadDocuments();
+
 const groups =
     await loadGroups();
     const container =
@@ -7454,6 +7457,206 @@ function renderCCVResults(data){
 // =========================
 // TAKEN
 // =========================
+
+async function renderVerenigingHub(){
+
+    let documenten = [];
+    let projecten = [];
+    let meetings = [];
+    let taken = [];
+
+    try{
+
+        documenten =
+            await loadDocuments();
+
+        projecten =
+            await loadProjects();
+
+        meetings =
+            await loadMeetings();
+
+        taken =
+            await loadTasks();
+
+    }
+    catch(error){
+
+        console.log(
+            "Verenigingshub data niet beschikbaar"
+        );
+
+    }
+
+    const themaTellers = {};
+
+    documenten.forEach(doc => {
+
+        const thema =
+            doc.associationTopic ||
+            "Algemeen";
+
+        themaTellers[thema] =
+            (themaTellers[thema] || 0) + 1;
+
+    });
+
+    const container =
+    document.getElementById(
+        "verenigingHub"
+    );
+
+if(!container){
+    console.warn(
+        "verenigingHub niet gevonden"
+    );
+    return;
+}
+
+    container.style.display =
+        "block";
+
+    container.innerHTML = `
+
+        <div class="stats-grid">
+
+            <div class="card">
+                <h3>📄 Documenten</h3>
+                <h2>${documenten.length}</h2>
+            </div>
+
+            <div class="card">
+                <h3>🗓 Vergaderingen</h3>
+                <h2>${meetings.length}</h2>
+            </div>
+
+            <div class="card">
+                <h3>📋 Taken</h3>
+                <h2>${taken.length}</h2>
+            </div>
+
+            <div class="card">
+                <h3>🎯 Projecten</h3>
+                <h2>${projecten.length}</h2>
+            </div>
+
+        </div>
+
+        <div class="card">
+
+            <h3>
+                📎 OneDrive koppelen
+            </h3>
+
+            <input
+                id="verenigingFolderLink"
+                class="input"
+                placeholder="Plak OneDrive maplink">
+
+            <br><br>
+
+            <button
+                class="btn btn-primary"
+                onclick="saveVerenigingFolder()">
+
+                💾 Opslaan
+
+            </button>
+
+        </div>
+
+        <div class="card">
+
+            <h3>
+                🤖 AI Analyse
+            </h3>
+
+            ${
+                Object.keys(
+                    themaTellers
+                ).length
+
+                ?
+
+                Object.entries(
+                    themaTellers
+                )
+
+                .map(
+                    ([naam,aantal]) =>
+
+                    `
+                    <div>
+
+                        ${naam}
+
+                        (${aantal})
+
+                    </div>
+                    `
+                )
+
+                .join("")
+
+                :
+
+                "Nog geen AI-thema's beschikbaar"
+            }
+
+        </div>
+
+    `;
+
+}
+
+function saveVerenigingFolder(){
+
+    const link =
+
+        document.getElementById(
+            "verenigingFolderLink"
+        ).value;
+
+    localStorage.setItem(
+        "verenigingFolder",
+        link
+    );
+
+    showNotification(
+        "OneDrive koppeling opgeslagen"
+    );
+
+}
+
+function detectAssociationTopic(name){
+
+    const file =
+        name.toLowerCase();
+
+    if(file.includes("gift"))
+        return "Fondsenwerving";
+
+    if(file.includes("subsid"))
+        return "Subsidies";
+
+    if(file.includes("sponsor"))
+        return "Sponsoring";
+
+    if(file.includes("werkgroep"))
+        return "Werkgroepen";
+
+    if(file.includes("bestuur"))
+        return "Bestuur";
+
+    if(file.includes("vrijwilliger"))
+        return "Vrijwilligers";
+
+    if(file.includes("project"))
+        return "Projecten";
+
+    return "Algemeen";
+
+}
 
 function openWerkdocument(folderName){
 
@@ -9226,15 +9429,22 @@ if(exists){
             result.categorie,
         
         tags: result.tags || [],
-samenvatting:
-    result.samenvatting || "",
-faq:
-    result.faq || [],
-zoekindex:
-    result.zoekindex || "",
+
+        samenvatting:
+            result.samenvatting || "",
+
+        faq:
+             result.faq || [],
+
+        zoekindex:
+            result.zoekindex || "",
+
         confidence:
             result.confidence,
-
+        associationTopic:
+            detectAssociationTopic(
+            result.fileName
+    ),
         created:
             new Date().toISOString()
 

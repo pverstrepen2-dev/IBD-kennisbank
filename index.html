@@ -14375,13 +14375,35 @@ if (breadcrumbPath.length > 1) {
 
 let target = "driveExplorer";
 
-if(document.getElementById("werkdocsList")){
+if(
+    document.getElementById(
+        "verenigingDriveExplorer"
+    )
+){
+    target = "verenigingDriveExplorer";
+}
+else if(
+    document.getElementById(
+        "werkdocsList"
+    )
+){
     target = "werkdocsList";
 }
-else if(currentHoofdgroep === "verenigingen"){
+else if(
+    currentHoofdgroep ===
+    "verenigingen"
+){
     target = "categoryGrid";
 }
+console.log(
+    "TARGET:",
+    target
+);
 
+console.log(
+    "FOLDER:",
+    folderName
+);
 document.getElementById(target).innerHTML =
     "<h2>📂 " + folderName + "</h2>" + html;
     }

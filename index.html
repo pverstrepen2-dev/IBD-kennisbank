@@ -3818,10 +3818,11 @@ let breadcrumbPath = [
         name:'CCV-VZW'
     }
 ];
-let verenigingsSubFolders = [];
-let selectedVerenigingFolder = null;
-let expandedFolders = {};
-let loadedFiles = {};
+//let verenigingsSubFolders = [];
+//let selectedVerenigingFolder = null;
+let selectedUploadFolder = null;
+//let expandedFolders = {};
+//let loadedFiles = {};
 
     const categoryInfo = {
       'Symptomen': { icon: '🩺', desc: 'Herkenbare klachten en symptomen', sections: ['Crohn', 'Colitis Ulcerosa', 'Algemeen IBD'] },
@@ -7797,10 +7798,15 @@ ${
 </div>
 
     `;
-setTimeout(
-    loadVerenigingsFolders,
-    200
-);
+setTimeout(() => {
+
+    openDriveFolder(
+        DOCUMENTEN_ROOT_FOLDER_ID,
+        "Documenten",
+        false
+    );
+
+}, 200);
 
 }
 

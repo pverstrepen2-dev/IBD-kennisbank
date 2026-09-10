@@ -1190,10 +1190,23 @@ id="nieuwContent">
 
 </div>
 
-    <!-- Categories -->
-    <div id="categories" class="tab-content">
-      <div class="category-grid" id="categoryGrid"></div>
+<!-- Categories -->
+<div id="categories" class="tab-content">
+
+    <div
+        class="category-grid"
+        id="categoryGrid">
     </div>
+
+    <div
+        id="verenigingHub"
+        style="
+            display:none;
+            margin-top:20px;
+        ">
+    </div>
+
+</div>
 
     <!-- Search -->
     <div id="search" class="tab-content">
@@ -4074,6 +4087,12 @@ let breadcrumbPath = [
 'Overige Verenigingen': {
  icon:'📂',
  desc:'Overige patiëntenverenigingen',
+ sections:['Verenigingen']
+},
+
+'AI Verenigingshub': {
+ icon:'🏛',
+ desc:'AI samenwerking & kennisbeheer',
  sections:['Verenigingen']
 },
 
@@ -7507,10 +7526,13 @@ async function renderVerenigingHub(){
     );
 
 if(!container){
-    console.warn(
+
+    console.error(
         "verenigingHub niet gevonden"
     );
+
     return;
+
 }
 
     container.style.display =
@@ -13423,6 +13445,17 @@ async function goBackFolder() {
 
 function openVerenigingFolder(categorie){
 
+    if(
+        categorie ===
+        "AI Verenigingshub"
+    ){
+
+        renderVerenigingHub();
+
+        return;
+
+    }
+
     const folderId =
         verenigingFolders[categorie];
 
@@ -13441,6 +13474,7 @@ function openVerenigingFolder(categorie){
         );
 
     }
+
 }
 
 function handleCategoryClick(cat){

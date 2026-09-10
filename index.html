@@ -7587,45 +7587,59 @@ if(!container){
 
         </div>
 
-        <div class="card">
+<div class="card">
 
-            <h3>
-                🤖 AI Analyse
-            </h3>
+    <h3>
+        📄 Recente documenten
+    </h3>
 
-            ${
-                Object.keys(
-                    themaTellers
-                ).length
+    ${
+        documenten
+        .slice(0,5)
+        .map(doc => `
 
-                ?
+            <div
+                style="
+                    padding:8px;
+                    border-bottom:1px solid #ddd;
+                ">
 
-                Object.entries(
-                    themaTellers
-                )
+                <b>${doc.title || "Zonder titel"}</b>
 
-                .map(
-                    ([naam,aantal]) =>
+                <br>
+
+                🏷 ${
+                    doc.associationTopic ||
+                    "Algemeen"
+                }
+
+                ${
+                    doc.url
+
+                    ?
 
                     `
-                    <div>
+                    <br>
 
-                        ${naam}
+                    <a
+                        href="${doc.url}"
+       
 
-                        (${aantal})
-
-                    </div>
+                    </a>
                     `
-                )
 
-                .join("")
+                    :
 
-                :
+                    ""
+                }
 
-                "Nog geen AI-thema's beschikbaar"
-            }
+            </div>
 
-        </div>
+        `)
+        .join("")
+    }
+
+</div>
 
     `;
 

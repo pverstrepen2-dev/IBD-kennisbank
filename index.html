@@ -7507,6 +7507,10 @@ function renderCCVResults(data){
 
 async function renderVerenigingHub(){
 
+   if(currentHoofdgroep !== "verenigingen"){
+return;
+} 
+
     let documenten = [];
     let projecten = [];
     let meetings = [];
@@ -14144,11 +14148,16 @@ function handleCategoryClick(cat){
 }
 
 async function openDriveFolder(
+    
     folderId,
     folderName,
     addToBreadcrumb = true
 ){
-    
+   console.log(
+    "OPEN DRIVE FOLDER:",
+    folderName,
+    folderId
+); 
     try{
 
         const token =

@@ -7605,8 +7605,7 @@ if(!container){
     <select
     id="vd_vereniging"
     class="input"
-    onchange="loadVerenigingsFolders()">
-
+   
         <option>
             CCV Vereniging
         </option>
@@ -7668,7 +7667,7 @@ if(!container){
 <br>
     <button
     class="btn btn-success"
-    onclick="uploadVerenigingsDossier()"
+    onclick="uploadVerenigingsDossier()">
 
     📤 Uploaden & Opslaan
 
@@ -7851,8 +7850,8 @@ function saveVerenigingsDossier(){
         "vd_bestand"
     ).files[0]?.name || "",
 
-locatie:
-    selectedVerenigingFolder?.naam
+llocatie:
+    selectedUploadFolder?.naam
     || ""
 
     });
@@ -7886,7 +7885,7 @@ async function uploadVerenigingsDossier(){
     }
 
     const folderId =
-    selectedVerenigingFolder?.id;
+    selectedUploadFolder?.id;
 
    if(!folderId){
 

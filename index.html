@@ -3819,6 +3819,9 @@ let breadcrumbPath = [
     }
 ];
 let verenigingsSubFolders = [];
+let selectedVerenigingFolder = null;
+let expandedFolders = {};
+let loadedFiles = {};
 
     const categoryInfo = {
       'Symptomen': { icon: '🩺', desc: 'Herkenbare klachten en symptomen', sections: ['Crohn', 'Colitis Ulcerosa', 'Algemeen IBD'] },
@@ -7641,18 +7644,23 @@ if(!container){
 <br><br>
 
 <label>
-    📂 OneDrive doelmap
+    📂 OneDrive locatie
 </label>
 
-<select
-    id="vd_locatie"
-    class="input">
+<div
+    id="verenigingFolderTree"
+    class="card"
+    style="
+        margin-top:10px;
+        padding:10px;
+        border:1px solid #ddd;
+        max-height:300px;
+        overflow:auto;
+    ">
 
-    <option>
-        Kies OneDrive map
-    </option>
+    Mappen laden...
 
-</select>
+</div>
 
     <br><br>
 
@@ -7906,9 +7914,8 @@ function saveVerenigingsDossier(){
     ).files[0]?.name || "",
 
 locatie:
-    document.getElementById(
-        "vd_locatie"
-    ).selectedOptions[0].text
+    selectedVerenigingFolder?.naam
+    || ""
 
     });
 
@@ -7946,19 +7953,17 @@ async function uploadVerenigingsDossier(){
         ).value;
 
     const folderId =
-    document.getElementById(
-        "vd_locatie"
-    ).value;
+    selectedVerenigingFolder?.id;
 
-    if(!folderId){
+   if(!folderId){
 
-        alert(
-            "Geen OneDrive-map gevonden"
-        );
+    alert(
+        "Selecteer eerst een OneDrive-map"
+    );
 
-        return;
+    return;
 
-    }
+}
 
     const token =
         await getAccessToken();
@@ -12300,7 +12305,9 @@ async function loadVerenigingsFolders(){
                 x => x.folder
             );
 
-        updateVerenigingsFolderDropdown();
+        renderVerenigingsFolderTree(
+    verenigingsSubFolders
+);
 
     }
     catch(error){
@@ -12314,38 +12321,325 @@ async function loadVerenigingsFolders(){
 
 }
 
-function updateVerenigingsFolderDropdown(){
+function renderVerenigingsFolderTree(
+    folders
+){
 
-    const dropdown =
-        document.getElementById(
-            "vd_locatie"
-        );
+    const container =
+    document.getElementById(
+        "verenigingFolderTree"
+    );
 
-    if(!dropdown){
-        return;
-    }
+if(!container){
+    return;
+}
 
-    dropdown.innerHTML =
+container.innerHTML =
 
-        verenigingsSubFolders.map(
+    folders.map(folder => `
 
-            folder => `
+        <div
+            style="
+                padding:6px;
+            ">
 
-                <option
-                    value="${folder.id}">
+            <span
+                style="
+                    cursor:pointer;
+                    font-weight:bold;
+                "
 
-                    ${folder.name}
+                onclick="
+                    toggleFolder(
+                        '${folder.id}'
+                    )
+                ">
 
-                </option>
+                📂 ${folder.name}
 
-            `
+            </span>
 
-        )
+            <span
+                style="
+                    cursor:pointer;
+                    margin-left:10px;
+                "
 
-        .join("");
+                onclick="
+                    selectVerenigingFolder(
+                        '${folder.id}',
+                        '${folder.name}'
+                    )
+                ">
+
+                ✅
+
+            </span>
+
+          ${
+    expandedFolders[
+        folder.id
+    ]
+
+    ?
+
+    expandedFolders[
+        folder.id
+    ]
+
+    .filter(
+        x => x.folder
+    )
+
+    .map(sub => `
+
+        <div
+            style="
+                margin-left:25px;
+                padding:4px;
+            ">
+
+            <div
+
+                onclick="
+                    loadFolderFiles(
+                        '${sub.id}'
+                    );
+
+                    selectVerenigingFolder(
+                        '${sub.id}',
+                        '${folder.name} > ${sub.name}'
+                    );
+                "
+
+                style="
+                    margin-left:25px;
+                    padding:4px;
+                    cursor:pointer;
+                ">
+
+                📂 ${sub.name}
+
+            </div>
+
+            ${
+                loadedFiles[sub.id]
+
+                ?
+
+                loadedFiles[sub.id]
+
+                .map(file => `
+
+                <div
+                    style="
+                        margin-left:25px;
+                        padding:4px;
+                    ">
+
+                    📄 ${file.name}
+
+                    ${
+                        file.webUrl
+
+                        ?
+
+                        `
+
+                        <br>
+
+                        ${file.webUrl}
+
+                            📎 Open OneDrive
+
+                        </a>
+
+                        `
+
+                        :
+
+                        ""
+
+                    }
+
+                </div>
+
+            `)
+
+            .join("")
+
+            :
+
+            ""
+
+        }
+
+    </div>
+
+`)
+
+.join("")
+
+                :
+
+                ""
+
+            }
+
+        </div>
+
+    `)
+
+    .join("");
+}
+
+function selectVerenigingFolder(
+    id,
+    naam
+){
+
+    selectedVerenigingFolder = {
+
+        id:id,
+        naam:naam
+
+    };
+
+    const info =
+    document.getElementById(
+        "selectedFolderInfo"
+    );
+
+if(info){
+
+    info.innerHTML =
+
+        "✅ Geselecteerd: " +
+        naam;
 
 }
 
+    document.querySelectorAll(
+        "#verenigingFolderTree div"
+    )
+
+    .forEach(el => {
+
+        el.style.background = "";
+
+    });
+
+    showNotification(
+        "Map gekozen: " +
+        naam
+    );
+    document.getElementById(
+    "verenigingFolderTree"
+)
+
+.insertAdjacentHTML(
+
+    "beforebegin",
+
+    `
+
+    <div
+        id="selectedFolderInfo"
+        class="notice">
+
+        ✅ Geselecteerd:
+
+        ${naam}
+
+    </div>
+
+    `
+
+);
+
+}
+
+async function toggleFolder(
+    folderId
+){
+
+    if(
+        expandedFolders[
+            folderId
+        ]
+    ){
+
+        delete expandedFolders[
+            folderId
+        ];
+
+        renderVerenigingsFolderTree(
+            verenigingsSubFolders
+        );
+
+        return;
+
+    }
+
+    const token =
+        await getAccessToken();
+
+    const response =
+        await fetch(
+
+            `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`,
+
+            {
+                headers:{
+                    Authorization:
+                        "Bearer " + token
+                }
+            }
+
+        );
+
+    const data =
+        await response.json();
+
+    expandedFolders[
+        folderId
+    ] = data.value;
+
+    renderVerenigingsFolderTree(
+        verenigingsSubFolders
+    );
+
+}
+
+async function loadFolderFiles(
+    folderId
+){
+
+    const token =
+        await getAccessToken();
+
+    const response =
+        await fetch(
+
+            `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`,
+
+            {
+                headers:{
+                    Authorization:
+                        "Bearer " + token
+                }
+            }
+
+        );
+
+    const data =
+        await response.json();
+
+    return data.value.filter(
+        item => !item.folder
+    );
+
+}
 
    async function buildOneDriveIndex(
     folderId,

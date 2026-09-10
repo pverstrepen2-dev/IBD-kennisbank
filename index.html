@@ -7813,7 +7813,9 @@ ${
 
     `;
 setTimeout(() => {
-
+console.log(
+    "START OPEN DRIVE"
+);
     openDriveFolder(
         DOCUMENTEN_ROOT_FOLDER_ID,
         "Documenten",
@@ -14178,6 +14180,12 @@ async function openDriveFolder(
 
         const data =
             await response.json();
+            console.log(
+    "AANTAL ITEMS:",
+    data.value?.length
+);
+
+console.log(data);
             console.log("STATUS:", response.status);
 console.log("GRAPH RESPONSE:", data);
 if (!response.ok) {
@@ -14365,26 +14373,26 @@ if (breadcrumbPath.length > 1) {
 
 let target = "driveExplorer";
 
-if(
-    document.getElementById(
-        "verenigingDriveExplorer"
-    )
-){
-    target = "verenigingDriveExplorer";
-}
-else if(
-    document.getElementById(
-        "werkdocsList"
-    )
-){
-    target = "werkdocsList";
-}
-else if(
-    currentHoofdgroep ===
-    "verenigingen"
-){
-    target = "categoryGrid";
-}
+//if(
+  //  document.getElementById(
+    //    "verenigingDriveExplorer"
+    //)
+//){
+  //  target = "verenigingDriveExplorer";
+//}
+//else if(
+  //  document.getElementById(
+    //    "werkdocsList"
+    //)
+// ){
+   // target = "werkdocsList";
+// }
+//else if(
+  //  currentHoofdgroep ===
+    //"verenigingen"
+//){
+  //  target = "categoryGrid";
+//}
 console.log(
     "TARGET:",
     target

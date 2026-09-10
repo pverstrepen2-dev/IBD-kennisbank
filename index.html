@@ -12349,11 +12349,15 @@ container.innerHTML =
                     font-weight:bold;
                 "
 
-                onclick="
-                    toggleFolder(
-                        '${folder.id}'
-                    )
-                ">
+               onclick="
+    toggleFolder(
+        '${folder.id}'
+    );
+
+    loadFolderFiles(
+        '${folder.id}'
+    );
+">
 
                 📂 ${folder.name}
 
@@ -12383,114 +12387,148 @@ container.innerHTML =
 
     ?
 
-    expandedFolders[
-        folder.id
-    ]
+    renderFolderChildren(
 
-    .filter(
-        x => x.folder
+        expandedFolders[
+            folder.id
+        ],
+
+        1
+
     )
 
-    .map(sub => `
+    :
+
+    ""
+
+}
+            </div>
+
+    `)
+
+    .join("");
+        }
+
+function renderFolderChildren(
+    items,
+    level = 1
+){
+
+    return items
+
+    .filter(
+        item => item.folder
+    )
+
+    .map(folder => `
 
         <div
             style="
-                margin-left:25px;
+                margin-left:${level * 25}px;
                 padding:4px;
             ">
 
-            <div
+            <span
 
                 onclick="
-                    loadFolderFiles(
-                        '${sub.id}'
-                    );
+    toggleFolder(
+        '${folder.id}'
+    );
 
+    loadFolderFiles(
+        '${folder.id}'
+    );
+"
+
+                style="
+                    cursor:pointer;
+                    font-weight:bold;
+                ">
+
+                📂 ${folder.name}
+
+            </span>
+
+            <span
+
+                onclick="
                     selectVerenigingFolder(
-                        '${sub.id}',
-                        '${folder.name} > ${sub.name}'
-                    );
+                        '${folder.id}',
+                        '${folder.name}'
+                    )
                 "
 
                 style="
-                    margin-left:25px;
-                    padding:4px;
+                    margin-left:10px;
                     cursor:pointer;
                 ">
 
-                📂 ${sub.name}
+                ✅
 
-            </div>
+            </span>
 
             ${
-                loadedFiles[sub.id]
+                expandedFolders[
+                    folder.id
+                ]
 
                 ?
 
-                loadedFiles[sub.id]
+                renderFolderChildren(
 
-                .map(file => `
+                    expandedFolders[
+                        folder.id
+                    ],
 
-                <div
-                    style="
-                        margin-left:25px;
-                        padding:4px;
-                    ">
+                    level + 1
 
-                    📄 ${file.name}
-
-                    ${
-                        file.webUrl
-
-                        ?
-
-                        `
-
-                        <br>
-
-                        ${file.webUrl}
-
-                            📎 Open OneDrive
-
-                        </a>
-
-                        `
-
-                        :
-
-                        ""
-
-                    }
-
-                </div>
-
-            `)
-
-            .join("")
-
-            :
-
-            ""
-
-        }
-
-    </div>
-
-`)
-
-.join("")
+                )
 
                 :
 
                 ""
 
             }
+${
+    loadedFiles[
+        folder.id
+    ]
+
+    ?
+
+    loadedFiles[
+        folder.id
+    ]
+
+    .map(file => `
+
+        <div
+            style="
+                margin-left:${
+                    (level + 1) * 25
+                }px;
+                padding:4px;
+            ">
+
+            📄 ${file.name}
 
         </div>
 
     `)
 
+    .join("")
+
+    :
+
+    ""
+
+}
+        </div>
+
+    `)
+
     .join("");
+
 }
 
 function selectVerenigingFolder(

@@ -13435,7 +13435,15 @@ if(document.getElementById("werkdocsList")){
 else if(currentHoofdgroep === "verenigingen"){
     target = "categoryGrid";
 }
+console.log(
+    "TARGET:",
+    target
+);
 
+console.log(
+    "ELEMENT:",
+    document.getElementById(target)
+);
 document.getElementById(target).innerHTML =
     "<h2>📂 " + folderName + "</h2>" + html;
     }

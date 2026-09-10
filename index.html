@@ -3818,11 +3818,14 @@ let breadcrumbPath = [
         name:'CCV-VZW'
     }
 ];
-//let verenigingsSubFolders = [];
-//let selectedVerenigingFolder = null;
+
+let verenigingsSubFolders = [];
+let selectedVerenigingFolder = null;
 let selectedUploadFolder = null;
 //let expandedFolders = {};
 //let loadedFiles = {};
+const DOCUMENTEN_ROOT_FOLDER_ID =
+    "2B4CCFD79FF4714A!s1c128481d7a048fb91944acbf41be6f6";
 
     const categoryInfo = {
       'Symptomen': { icon: '🩺', desc: 'Herkenbare klachten en symptomen', sections: ['Crohn', 'Colitis Ulcerosa', 'Algemeen IBD'] },
@@ -12200,13 +12203,12 @@ async function loadVerenigingsFolders(){
         const token =
             await getAccessToken();
 
-            const DOCUMENTEN_ROOT_FOLDER_ID =
-    "2B4CCFD79FF4714A!s1c128481d7a048fb91944acbf41be6f6";
-     
-        if(!folderId){
+           const folderId =
+    DOCUMENTEN_ROOT_FOLDER_ID;
 
-            return;
-        }
+if(!folderId){
+    return;
+}
 
         const response =
             await fetch(

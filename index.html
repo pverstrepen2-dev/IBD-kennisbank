@@ -7540,28 +7540,216 @@ if(!container){
 
     container.innerHTML = `
 
-        <div class="stats-grid">
+        <div class="card">
 
-            <div class="card">
-                <h3>📄 Documenten</h3>
-                <h2>${documenten.length}</h2>
-            </div>
+    <h2>
+        🏛 Verenigingscockpit
+    </h2>
 
-            <div class="card">
-                <h3>🗓 Vergaderingen</h3>
-                <h2>${meetings.length}</h2>
-            </div>
+    <p>
+        AI samenwerking en kennisbeheer
+    </p>
 
-            <div class="card">
-                <h3>📋 Taken</h3>
-                <h2>${taken.length}</h2>
-            </div>
+</div>
 
-            <div class="card">
-                <h3>🎯 Projecten</h3>
-                <h2>${projecten.length}</h2>
-            </div>
+<div class="card">
 
+    <h3>
+        📄 Laatste documenten
+    </h3>
+
+    <p>
+        Laatste documenten uit de verenigingen
+    </p>
+
+</div>
+
+<div class="card">
+
+    <h3>
+        📁 Verenigingsdossiers
+    </h3>
+
+    <input
+        id="vd_naam"
+        class="input"
+        placeholder="Naam dossier">
+
+    <br><br>
+
+    <select
+        id="vd_vereniging"
+        class="input">
+
+        <option>
+            CCV Vereniging
+        </option>
+
+        <option>
+            VPP
+        </option>
+
+        <option>
+            IFCCA
+        </option>
+
+        <option>
+            Crohn & Colitis Nederland
+        </option>
+
+    </select>
+
+    <br><br>
+
+    <input
+        type="date"
+        id="vd_datum"
+        class="input">
+
+    <br><br>
+
+    <select
+        id="vd_document"
+        class="input">
+
+        <option value="">
+            Kies document
+        </option>
+
+        ${
+            documenten.map(doc => `
+
+                <option
+                    value="${doc.id}">
+
+                    ${doc.title}
+
+                </option>
+
+            `).join("")
+        }
+
+    </select>
+
+    <br><br>
+
+    <button
+    class="btn btn-primary"
+    onclick="saveVerenigingsDossier()">
+
+    💾 Dossier opslaan
+
+</button>
+
+<hr style="margin:15px 0;">
+
+<h4>
+    📂 Opgeslagen dossiers
+</h4>
+
+${
+    (
+        JSON.parse(
+            localStorage.getItem(
+                "verenigingsDossiers"
+            ) || "[]"
+        )
+    )
+
+    .map(d => `
+
+        <div
+            style="
+                padding:10px;
+                margin-top:8px;
+                background:#f5f7fb;
+                border-radius:8px;
+            ">
+
+            <b>
+                ${d.naam}
+            </b>
+
+            <br>
+
+            🏛 ${d.vereniging}
+
+            <br>
+
+            📅 ${d.datum}
+
+            <br>
+
+            📄 ${
+                documenten.find(
+                    x =>
+                        String(x.id)
+                        ===
+                        String(d.documentId)
+                )?.title
+                ||
+                "Geen document"
+            }
+
+        </div>
+
+    `)
+
+    .join("")
+}
+
+</div>
+
+<div class="card">
+
+    <h3>
+        🤖 AI Signalen
+    </h3>
+
+    <p>
+        Automatische detectie van thema's
+    </p>
+
+</div>
+
+<div class="card">
+
+    <h3>
+        📅 Laatste activiteiten
+    </h3>
+
+    <p>
+        Nieuwe documenten, taken en vergaderingen
+    </p>
+
+</div>
+
+<div class="card">
+
+    <h3>
+        ➕ Nieuw dossier
+    </h3>
+
+    <input
+        id="verenigingTitel"
+        placeholder="Naam dossier">
+
+    <br><br>
+
+    <input
+        type="date"
+        id="verenigingDatum">
+
+    <br><br>
+
+    <button
+        class="btn btn-primary">
+
+        Opslaan
+
+    </button>
+
+</div>
         </div>
 
         <div class="card">
@@ -7662,6 +7850,52 @@ function saveVerenigingFolder(){
         "OneDrive koppeling opgeslagen"
     );
 
+}
+
+function saveVerenigingsDossier(){
+
+    const dossiers =
+        JSON.parse(
+            localStorage.getItem(
+                "verenigingsDossiers"
+            ) || "[]"
+        );
+
+    dossiers.unshift({
+
+        id: Date.now(),
+
+        naam:
+            document.getElementById(
+                "vd_naam"
+            ).value,
+
+        vereniging:
+            document.getElementById(
+                "vd_vereniging"
+            ).value,
+
+        datum:
+            document.getElementById(
+                "vd_datum"
+            ).value,
+
+        documentId:
+            document.getElementById(
+                "vd_document"
+            ).value
+
+    });
+
+    localStorage.setItem(
+        "verenigingsDossiers",
+        JSON.stringify(dossiers)
+    );
+
+    showNotification(
+        "Dossier opgeslagen"
+    );
+    renderVerenigingHub();
 }
 
 function detectAssociationTopic(name){

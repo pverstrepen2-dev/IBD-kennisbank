@@ -3825,7 +3825,7 @@ let selectedUploadFolder = null;
 //let expandedFolders = {};
 //let loadedFiles = {};
 const DOCUMENTEN_ROOT_FOLDER_ID =
-    "2B4CCFD79FF4714A!s1c128481d7a048fb91944acbf41be6f6";
+    "2B4CCFD79FF4714A!sca589f3346bf4a8999180a93f8e0be7b";
 
     const categoryInfo = {
       'Symptomen': { icon: '🩺', desc: 'Herkenbare klachten en symptomen', sections: ['Crohn', 'Colitis Ulcerosa', 'Algemeen IBD'] },
@@ -13477,26 +13477,21 @@ console.log(
 
     });
 const gerelateerdeFaqs =
-
     docs
+        .filter(d => d.type === "FAQ")
+        .filter(faq => {
 
-        .filter(
-            d =>
-                d.type === "FAQ"
-        )
+            const tekst =
+                JSON.stringify(faq)
+                    .toLowerCase();
 
-        .filter(faq =>
-
-            JSON.stringify(faq)
-                .toLowerCase()
-
-                .includes(
-
-                    zoekwaarde
-
+            return zoekwoorden.some(tag =>
+                tekst.includes(
+                    tag.toLowerCase()
                 )
+            );
 
-        );
+        });
 
     panel.innerHTML = `
 
@@ -13964,38 +13959,6 @@ function updateBreadcrumb(){
     breadcrumb.innerHTML = html;
 }
 
-async function openDocumentById(
-    fileId
-){
-
-    const token =
-        await getAccessToken();
-
-    const response =
-        await fetch(
-
-            `https://graph.microsoft.com/v1.0/me/drive/items/${fileId}`,
-
-            {
-                headers:{
-                    Authorization:
-                        "Bearer " +
-                        token
-                }
-            }
-
-        );
-
-    const file =
-        await response.json();
-
-    window.open(
-        file.webUrl,
-        "_blank"
-    );
-
-}
-
 function navigateBreadcrumb(index){
 
     if(index === 0){
@@ -14206,6 +14169,13 @@ async function openDriveFolder(
 
         const data =
             await response.json();
+            console.log("STATUS:", response.status);
+console.log("GRAPH RESPONSE:", data);
+if (!response.ok) {
+    console.error("GRAPH ERROR", data);
+    return;
+}
+
 
             console.table(
     data.value.map(x => ({
@@ -14288,7 +14258,17 @@ if (!data.value) {
 
 updateBreadcrumb();
 
-        const html = data.value.map(item => `
+        if (!data.value || !Array.isArray(data.value)) {
+
+    console.error(
+        "Geen geldige value:",
+        data
+    );
+
+    return;
+}
+
+const html = data.value.map(item => `
 
     <div
         class="card"

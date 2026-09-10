@@ -7643,22 +7643,15 @@ if(!container){
 
 <br><br>
 
-<label>
-    📂 OneDrive locatie
-</label>
+<div class="card">
 
-<div
-    id="verenigingFolderTree"
-    class="card"
-    style="
-        margin-top:10px;
-        padding:10px;
-        border:1px solid #ddd;
-        max-height:300px;
-        overflow:auto;
-    ">
+    <h3>
+        📂 OneDrive Verkenner
+    </h3>
 
-    Mappen laden...
+    <div
+        id="driveExplorer">
+    </div>
 
 </div>
 
@@ -7748,57 +7741,7 @@ ${
     </p>
 
 </div>
-
-<div class="card">
-
-    <h3>
-        ➕ Nieuw dossier
-    </h3>
-
-    <input
-        id="verenigingTitel"
-        placeholder="Naam dossier">
-
-    <br><br>
-
-    <input
-        type="date"
-        id="verenigingDatum">
-
-    <br><br>
-
-    <button
-        class="btn btn-primary">
-
-        Opslaan
-
-    </button>
-
-        </div>
-
-        <div class="card">
-
-            <h3>
-                📎 OneDrive koppelen
-            </h3>
-
-            <input
-                id="verenigingFolderLink"
-                class="input"
-                placeholder="Plak OneDrive maplink">
-
-            <br><br>
-
-            <button
-                class="btn btn-primary"
-                onclick="saveVerenigingFolder()">
-
-                💾 Opslaan
-
-            </button>
-
-        </div>
-
+      
 <div class="card">
 
     <h3>
@@ -7858,25 +7801,6 @@ setTimeout(
     loadVerenigingsFolders,
     200
 );
-
-}
-
-function saveVerenigingFolder(){
-
-    const link =
-
-        document.getElementById(
-            "verenigingFolderLink"
-        ).value;
-
-    localStorage.setItem(
-        "verenigingFolder",
-        link
-    );
-
-    showNotification(
-        "OneDrive koppeling opgeslagen"
-    );
 
 }
 
@@ -7946,11 +7870,6 @@ async function uploadVerenigingsDossier(){
         return;
 
     }
-
-    const locatie =
-        document.getElementById(
-            "vd_locatie"
-        ).value;
 
     const folderId =
     selectedVerenigingFolder?.id;
@@ -12268,16 +12187,9 @@ async function loadVerenigingsFolders(){
         const token =
             await getAccessToken();
 
-        const vereniging =
-            document.getElementById(
-                "vd_vereniging"
-            )?.value;
-
-        const folderId =
-            verenigingFolders[
-                vereniging
-            ];
-
+            const DOCUMENTEN_ROOT_FOLDER_ID =
+    "2B4CCFD79FF4714A!s1c128481d7a048fb91944acbf41be6f6";
+     
         if(!folderId){
 
             return;

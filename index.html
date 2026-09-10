@@ -7657,7 +7657,15 @@ if(!container){
 </div>
 
     <br><br>
+<div
+    id="selectedUploadFolderInfo"
+    class="notice">
 
+    Geen uploadmap geselecteerd
+
+</div>
+
+<br>
     <button
     class="btn btn-success"
     onclick="uploadVerenigingsDossier()"
@@ -14306,6 +14314,37 @@ ${
             scanFolderDocuments('${item.id}')
         ">
         🤖 Analyseer map
+    </button>
+
+    <button
+        class="btn btn-success"
+        onclick="
+            event.stopPropagation();
+
+            selectedUploadFolder = {
+                id:'${item.id}',
+                naam:'${item.name}'
+            };
+
+            const info =
+                document.getElementById(
+                    'selectedUploadFolderInfo'
+                );
+
+            if(info){
+
+                info.innerHTML =
+                    '✅ Uploadmap: ${item.name}';
+
+            }
+
+            showNotification(
+                'Map geselecteerd: ${item.name}'
+            );
+        ">
+
+        ✅ Upload hier
+
     </button>
     `
     :

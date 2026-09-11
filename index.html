@@ -6101,15 +6101,16 @@ const data = await getFilteredData();
     const data =
         await getKnowledgeData();
 
+console.log("FAQ CATEGORY:", faqCategory);
+console.log("DATA:", data);
+
    const items = data.filter(item =>
-    item.type === 'FAQ' &&
-    (
-        item.status === 'Goedgekeurd' ||
-        item.status === 'Concept' ||
-        !item.status
-    ) &&
-    item.category === faqCategory
+
+    (item.category || item.categorie)
+        === faqCategory
+
 );
+console.log("FAQ ITEMS:", items);
 
     const container =
     document.getElementById(
@@ -6470,21 +6471,8 @@ async function saveTop10Faq(topic){
 
 function filterFAQ(){
 
-    const query =
-        document
-            .getElementById(
-                "faqSearch"
-            )
-            .value;
-
-    const results =
-        SearchService.searchFAQ(
-            query,
-            faqData
-        );
-
-    renderFAQ(
-        results
+    renderFaqByGroup(
+        currentHoofdgroep
     );
 
 }

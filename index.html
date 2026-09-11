@@ -3827,8 +3827,8 @@ let breadcrumbPath = [
 let verenigingsSubFolders = [];
 let selectedVerenigingFolder = null;
 let selectedUploadFolder = null;
-//let expandedFolders = {};
-//let loadedFiles = {};
+let expandedFolders = {};
+let loadedFiles = {};
 const DOCUMENTEN_ROOT_FOLDER_ID =
     "2B4CCFD79FF4714A!sca589f3346bf4a8999180a93f8e0be7b";
 
@@ -12018,10 +12018,10 @@ console.log("FETCH OK");
 const data =
     await response.json();
 
-//buildOneDriveIndex(
- //   folderId,
- //   token
-//);
+await buildOneDriveIndex(
+    folderId,
+    token
+);
 
 //console.log(
  //   "ONEDRIVE INDEX:",
@@ -12054,7 +12054,6 @@ document.getElementById(
 document.getElementById(
     "driveExplorer"
 ).innerHTML =
-    "<h2>TEST WERKT</h2>";
 
 data.value.forEach(item => {
 
@@ -12373,29 +12372,44 @@ function selectVerenigingFolder(
 
     selectedVerenigingFolder = {
 
-        id:id,
-        naam:naam
+        id: id,
+        naam: naam
 
     };
 
-    const info =
-    document.getElementById(
-        "selectedFolderInfo"
-    );
+    let info =
+        document.getElementById(
+            "selectedFolderInfo"
+        );
 
-if(info){
+    if(!info){
+
+        document
+            .getElementById(
+                "verenigingFolderTree"
+            )
+            .insertAdjacentHTML(
+                "beforebegin",
+                `
+                <div
+                    id="selectedFolderInfo"
+                    class="notice">
+                </div>
+                `
+            );
+
+        info =
+            document.getElementById(
+                "selectedFolderInfo"
+            );
+    }
 
     info.innerHTML =
-
-        "✅ Geselecteerd: " +
-        naam;
-
-}
+        `✅ Geselecteerd: ${naam}`;
 
     document.querySelectorAll(
         "#verenigingFolderTree div"
     )
-
     .forEach(el => {
 
         el.style.background = "";
@@ -12403,32 +12417,8 @@ if(info){
     });
 
     showNotification(
-        "Map gekozen: " +
-        naam
+        "Map gekozen: " + naam
     );
-    document.getElementById(
-    "verenigingFolderTree"
-)
-
-.insertAdjacentHTML(
-
-    "beforebegin",
-
-    `
-
-    <div
-        id="selectedFolderInfo"
-        class="notice">
-
-        ✅ Geselecteerd:
-
-        ${naam}
-
-    </div>
-
-    `
-
-);
 
 }
 
@@ -12508,11 +12498,17 @@ async function loadFolderFiles(
     const data =
         await response.json();
 
-    return data.value.filter(
+   loadedFiles[folderId] =
+    data.value.filter(
         item => !item.folder
     );
 
-}
+renderVerenigingsFolderTree(
+    verenigingsSubFolders
+);
+
+return loadedFiles[folderId];
+        }
 
    async function buildOneDriveIndex(
     folderId,
@@ -14087,19 +14083,44 @@ async function openDriveFolder(
             );
 
         const data =
-            await response.json();
-            console.log(
-    "AANTAL ITEMS:",
-    data.value?.length
+    await response.json();
+
+console.log(
+    "STATUS:",
+    response.status
 );
 
-console.log(data);
-            console.log("STATUS:", response.status);
-console.log("GRAPH RESPONSE:", data);
-if (!response.ok) {
-    console.error("GRAPH ERROR", data);
+console.log(
+    "GRAPH RESPONSE:",
+    data
+);
+
+if(!response.ok){
+
+    console.error(
+        "GRAPH ERROR",
+        data
+    );
+
     return;
+
 }
+
+if(!data.value){
+
+    console.error(
+        "Geen bestanden ontvangen",
+        data
+    );
+
+    return;
+
+}
+
+console.log(
+    "AANTAL ITEMS:",
+    data.value.length
+);
 
 
             console.table(
@@ -14161,21 +14182,8 @@ file: item.file
         name: folderName
     });
 
-}
+}    
         
-
-        console.log(
-            "MAP INHOUD:",
-            data
-        );
-
-        console.log("STATUS:", response.status);
-
-if (!response.ok) {
-    console.error("GRAPH FOUT:", data);
-    throw new Error(JSON.stringify(data));
-}
-
 if (!data.value) {
     console.error("Geen value ontvangen:", data);
     return;
@@ -14271,12 +14279,25 @@ ${
 `).join("");
 
 const backBtn =
-    document.getElementById("backBtn");
+    document.getElementById(
+        "backBtn"
+    );
 
-if (breadcrumbPath.length > 1) {
-    backBtn.style.display = "inline-block";
-} else {
-    backBtn.style.display = "none";
+if(backBtn){
+
+    if(breadcrumbPath.length > 1){
+
+        backBtn.style.display =
+            "inline-block";
+
+    }
+    else{
+
+        backBtn.style.display =
+            "none";
+
+    }
+
 }
 
 let target = "driveExplorer";

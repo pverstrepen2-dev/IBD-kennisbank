@@ -2593,6 +2593,30 @@ class="tab-content">
     const CCV_KEY = 'ccv_module_data';
     let knowledgeGraph = {};
 
+async function loadEntity(fileId){
+
+    try{
+
+        const data =
+            await loadCCVJson(
+                fileId
+            );
+
+        return data || [];
+
+    }
+    catch(error){
+
+        console.error(
+            "Load fout:",
+            error
+        );
+
+        return [];
+    }
+
+}
+
 async function loadCCVJson(fileId){
     const token = await getAccessToken();
 
@@ -2780,40 +2804,30 @@ async function saveCCV(data){
 
 async function loadTasks(){
 
-    try{
-
-        const data =
-            await loadCCVJson(
-                TASKS_FILE_ID
-            );
-
-        console.log(
-            "TASKS DATA:",
-            data
-        );
-
-        return data || [];
-
-    }
-    catch(error){
-
-        console.error(
-            "TASKS load fout:",
-            error
-        );
-
-        return [];
-
-    }
+    return await loadEntity(
+        TASKS_FILE_ID
+    );
 
 }
 
 async function saveTasks(data){
 
+    await saveEntity(
+        TASKS_FILE_ID,
+        data
+    );
+
+}
+
+async function saveEntity(
+    fileId,
+    data
+){
+
     try{
 
         await saveCCVJson(
-            TASKS_FILE_ID,
+            fileId,
             data
         );
 
@@ -2821,13 +2835,161 @@ async function saveTasks(data){
     catch(error){
 
         console.error(
-            "TASKS save fout:",
+            "Save fout:",
             error
         );
 
     }
 
 }
+
+const DataService = {
+
+    async loadTasks(){
+
+        return await loadEntity(
+            TASKS_FILE_ID
+        );
+
+    },
+
+    async saveTasks(data){
+
+        await saveEntity(
+            TASKS_FILE_ID,
+            data
+        );
+
+    },
+
+    async loadMeetings(){
+
+        return await loadEntity(
+            MEETINGS_FILE_ID
+        );
+
+    },
+
+    async saveMeetings(data){
+
+        await saveEntity(
+            MEETINGS_FILE_ID,
+            data
+        );
+
+    },
+
+    async loadProjects(){
+
+    return await loadEntity(
+        PROJECTS_FILE_ID
+    );
+
+},
+
+async saveProjects(data){
+
+    await saveEntity(
+        PROJECTS_FILE_ID,
+        data
+    );
+
+},
+
+async loadDocuments(){
+
+    return await loadEntity(
+        DOCUMENTS_FILE_ID
+    );
+
+},
+
+async saveDocuments(data){
+
+    await saveEntity(
+        DOCUMENTS_FILE_ID,
+        data
+    );
+
+},
+
+async loadAIKnowledge(){
+
+    return await loadEntity(
+        AI_KNOWLEDGE_FILE_ID
+    );
+
+},
+
+async saveAIKnowledge(data){
+
+    await saveEntity(
+        AI_KNOWLEDGE_FILE_ID,
+        data
+    );
+
+},
+
+async loadMembers(){
+
+    return await loadEntity(
+        MEMBERS_FILE_ID
+    );
+
+},
+
+async saveMembers(data){
+
+    await saveEntity(
+        MEMBERS_FILE_ID,
+        data
+    );
+
+},
+
+async loadGroups(){
+
+    return await loadEntity(
+        GROUPS_FILE_ID
+    );
+
+},
+
+async saveGroups(data){
+
+    await saveEntity(
+        GROUPS_FILE_ID,
+        data
+    );
+
+},
+
+async loadWebsites(){
+
+    if(!msalReady){
+
+        return [];
+
+    }
+
+    return await loadEntity(
+        WEBSITES_FILE_ID
+    );
+
+},
+
+async saveWebsites(data){
+
+    await saveEntity(
+        WEBSITES_FILE_ID,
+        data
+    );
+
+}
+
+};
+
+
 
 // =========================
 // MEETINGS DATABASE
@@ -2835,114 +2997,23 @@ async function saveTasks(data){
 
 async function loadMeetings(){
 
-    try{
-
-        const data =
-            await loadCCVJson(
-                MEETINGS_FILE_ID
-            );
-
-        console.log(
-            "MEETINGS DATA:",
-            data
-        );
-
-        return data || [];
-
-    }
-    catch(error){
-
-        console.error(
-            "MEETINGS load fout:",
-            error
-        );
-
-        return [];
-
-    }
+    return await loadEntity(
+        MEETINGS_FILE_ID
+    );
 
 }
 
 async function saveMeetings(data){
 
-    try{
-
-        await saveCCVJson(
-            MEETINGS_FILE_ID,
-            data
-        );
-
-    }
-    catch(error){
-
-        console.error(
-            "MEETINGS save fout:",
-            error
-        );
-
-    }
+    await saveEntity(
+        MEETINGS_FILE_ID,
+        data
+    );
 
 }
 
 // =========================
 // MEMBERS DATABASE
-// =========================
-
-async function loadMembers(){
-
-    try{
-
-        const data =
-            await loadCCVJson(
-                MEMBERS_FILE_ID
-            );
-
-        console.log(
-            "MEMBERS DATA:",
-            data
-        );
-
-        return data || [];
-
-    }
-    catch(error){
-
-        console.error(
-            "MEMBERS load fout:",
-            error
-        );
-
-        return [];
-
-    }
-
-}
-
-async function saveMembers(data){
-
-    try{
-
-        await saveCCVJson(
-            MEMBERS_FILE_ID,
-            data
-        );
-
-    }
-    catch(error){
-
-        console.error(
-            "MEMBERS save fout:",
-            error
-        );
-
-    }
-
-}
-
-
-
-// =========================
-// DOCUMENTS DATABASE
 // =========================
 
 function extractKeywords(text){
@@ -3003,121 +3074,24 @@ function calculateSimilarity(a,b){
            Math.max(wordsA.size, wordsB.size);
 }
 
-function buildDocumentRelations(documents){
-
-    const relations = [];
-
-    documents.forEach(docA => {
-
-        documents.forEach(docB => {
-
-            if(docA.id === docB.id) return;
-
-            const score =
-                calculateSimilarity(
-                    docA.content || "",
-                    docB.content || ""
-                );
-
-            if(score > 0.4){
-
-                relations.push({
-                    source: docA.id,
-                    target: docB.id,
-                    score
-                });
-
-            }
-
-        });
-
-    });
-
-    return relations;
-
-}
-
-async function loadDocuments(){
-
-    try{
-
-        const data =
-            await loadCCVJson(
-                DOCUMENTS_FILE_ID
-            );
-
-        console.log(
-            "DOCUMENTS DATA:",
-            data
-        );
-
-        return data || [];
-
-    }
-    catch(error){
-
-        console.error(
-            "DOCUMENTS load fout:",
-            error
-        );
-
-        return [];
-
-    }
-
-}
-
-async function saveDocuments(data) {
-    
-
-    try {
-
-        if(!data){
-            throw new Error(
-                "Geen data ontvangen"
-            );
-        }
-
-        await saveCCVJson(
-            DOCUMENTS_FILE_ID,
-            data
-        );
-
-    }
-    catch(error) {
-
-        console.error(
-            "DOCUMENTS save fout:",
-            error
-        );
-
-    }
-
-}
-
-function saveDocument(document) {
-    // opslaan
-    buildDocumentRelations();
-}
-
 async function buildDocumentRelations(){
 
     const projecten =
-    await loadProjects();
+    await DataService.loadProjects();
 
 const taken =
-    await loadTasks();
+    await DataService.loadTasks();
 
 const meetings =
-    await loadMeetings();
+    await DataService.loadMeetings();
 
 const groups =
-    await loadGroups();
+    await DataService.loadGroups();
 
 const documents =
-    await loadDocuments();
+    await DataService.loadDocuments();
 
-    documentRelations = [];
+documentRelations = [];
 
     documents.forEach(docA => {
 
@@ -3382,91 +3356,6 @@ async function saveSociaalDB(data){
 
 }
 
-async function loadAIKnowledge(){
-
-    try{
-
-        return await loadCCVJson(
-            AI_KNOWLEDGE_FILE_ID
-        );
-
-    }
-
-    catch{
-
-        return [];
-
-    }
-
-}
-
-async function saveAIKnowledge(data){
-
-    await saveCCVJson(
-        AI_KNOWLEDGE_FILE_ID,
-        data
-    );
-
-}
-// =========================
-// GROUPS DATABASE
-// =========================
-
-async function loadGroups(){
-
-    try{
-
-        const data =
-            await loadCCVJson(
-                GROUPS_FILE_ID
-            );
-
-        console.log(
-            "GROUPS DATA:",
-            data
-        );
-
-        return data || [];
-
-    }
-    catch(error){
-
-        console.error(
-            "GROUPS load fout:",
-            error
-        );
-
-        return [];
-
-    }
-
-}
-
-async function saveGroups(data){
-
-    try{
-
-        await saveCCVJson(
-            GROUPS_FILE_ID,
-            data
-        );
-
-    }
-    catch(error){
-
-        console.error(
-            "GROUPS save fout:",
-            error
-        );
-
-    }
-
-}
-
-// =========================
-// USERS DATABASE
-// =========================
-
 async function loadMailboxes(){
 
     try{
@@ -3532,57 +3421,6 @@ async function saveUsers(data){
 // =========================
 // PROJECTS DATABASE
 // =========================
-
-async function loadProjects(){
-
-    try{
-
-        const data =
-            await loadCCVJson(
-                PROJECTS_FILE_ID
-            );
-
-        console.log(
-            "PROJECTS DATA:",
-            data
-        );
-
-        return data || [];
-
-    }
-    catch(error){
-
-        console.error(
-            "PROJECTS load fout:",
-            error
-        );
-
-        return [];
-
-    }
-
-}
-
-async function saveProjects(data){
-
-    try{
-
-        await saveCCVJson(
-            PROJECTS_FILE_ID,
-            data
-        );
-
-    }
-    catch(error){
-
-        console.error(
-            "PROJECTS save fout:",
-            error
-        );
-
-    }
-
-}
 
 const VOEDING_KEY = 'voeding_data';
 const WEBSITES_KEY =
@@ -4139,58 +3977,28 @@ const DOCUMENTEN_ROOT_FOLDER_ID =
 async function loadWebsites(){
 
     if(!msalReady){
+
         console.log(
             "MSAL nog niet klaar"
         );
-        return [];
-    }
-
-    try{
-        const data =
-            await loadCCVJson(
-                WEBSITES_FILE_ID
-            );
-
-        return data || [];
-    }
-    catch(error){
-        console.error(
-            "WEBSITES load fout:",
-            error
-        );
 
         return [];
+
     }
+
+    return await loadEntity(
+        WEBSITES_FILE_ID
+    );
+
 }
 
 async function saveWebsites(data){
-    try{
-        await saveCCVJson(
-            WEBSITES_FILE_ID,
-            data
-        );
-    }
-    catch(error){
-        console.error(
-            "WEBSITES save fout:",
-            error
-        );
-    }
-}
 
-async function loadTotaalbeeld(){
+    await saveEntity(
+        WEBSITES_FILE_ID,
+        data
+    );
 
-    const allData =
-        await getFilteredData();
-
-    document.getElementById(
-        "totaalStats"
-    ).innerHTML = `
-        <div class="stat-card">
-            <h3>Totaal Artikels</h3>
-            <p>${allData.length}</p>
-        </div>
-    `;
 }
 
     function saveData(data) {
@@ -4492,51 +4300,199 @@ function showKnowledgeSection(id){
       return diseases.some(d => allowed.includes(d));
     }
 
-    async function getFilteredData(){
+    function normalizeDocument(doc){
+
+    return {
+
+        id: doc.id,
+        title: doc.title,
+        category: doc.categorie,
+        disease: doc.hoofdgroep,
+        type: "AI Document",
+        source: "AI",
+        content: "",
+        fileId: doc.fileId
+
+    };
+
+}
+
+async function getMasterData(){
 
     const knowledge =
-        await getKnowledgeData();
+    await getKnowledgeData();
 
     const docs =
-        await loadDocuments();
+    await DataService.loadDocuments();
 
-    console.log(
-        "KNOWLEDGE:",
-        knowledge
-    );
+const aiKnowledge =
+    await DataService.loadAIKnowledge();
 
-    console.log(
-        "KNOWLEDGE ARRAY:",
-        Array.isArray(knowledge)
-    );
+const projects =
+    await DataService.loadProjects();
 
-    console.log(
-        "DOCS ARRAY:",
-        Array.isArray(docs)
-    );
+const meetings =
+    await DataService.loadMeetings();
+
+const members =
+    await DataService.loadMembers();
+
+const groups =
+    await DataService.loadGroups();
+
+const websites =
+    await DataService.loadWebsites();
 
     return [
 
-        ...knowledge,
+    ...knowledge,
 
-        ...docs.map(doc => ({
-            id: doc.id,
-            title: doc.title,
-            category: doc.categorie,
-            disease: doc.hoofdgroep,
-            type: "AI Document",
-            source: "AI",
-            content: "",
-            fileId: doc.fileId
-        }))
+    ...docs.map(
+        normalizeDocument
+    ),
 
-    ];
+    ...aiKnowledge,
+
+    ...projects,
+
+    ...meetings,
+
+    ...members,
+
+    ...groups,
+
+    ...websites,
+];
+
 }
 
-    async function renderCCVDashboard(){
+const SearchService = {
 
-  const allData =
-    await loadCCV();
+    async search(query){
+
+        const data =
+            await getMasterData();
+
+        if(!query){
+
+            return data;
+
+        }
+
+        const term =
+            String(query || '')
+                .toLowerCase();
+
+        return data.filter(item =>
+
+            String(item.title || '')
+                .toLowerCase()
+                .includes(term)
+
+            ||
+
+            String(item.content || '')
+                .toLowerCase()
+                .includes(term)
+
+            ||
+
+            String(item.category || '')
+                .toLowerCase()
+                .includes(term)
+
+        );
+
+    },
+
+    searchFAQ(
+        query,
+        faqData
+    ){
+
+        const term =
+            String(query || '')
+                .toLowerCase();
+
+        return faqData.filter(item =>
+
+            String(item.question || '')
+                .toLowerCase()
+                .includes(term)
+
+            ||
+
+            String(item.answer || '')
+                .toLowerCase()
+                .includes(term)
+
+        );
+
+    },
+
+    async searchCCV(query){
+
+        const taken =
+            await loadTasks();
+
+        const meetings =
+            await loadMeetings();
+
+        const projecten =
+            await DataService.loadProjects()
+
+        const documenten =
+    await DataService.loadDocuments();
+
+        const leden =
+           await DataService.loadMembers()
+
+        const werkgroepen =
+            await DataService.loadGroups()
+
+        const data = [
+
+            ...taken,
+            ...meetings,
+            ...projecten,
+            ...documenten,
+            ...leden,
+            ...werkgroepen
+
+        ];
+
+        if(!query){
+
+            return data;
+
+        }
+
+        const term =
+            String(query || '')
+                .toLowerCase();
+
+        return data.filter(item =>
+
+            JSON.stringify(item)
+                .toLowerCase()
+                .includes(term)
+
+        );
+
+    }
+
+};
+
+async function getFilteredData(){
+
+    return await getMasterData();
+
+}
+
+async function renderCCVDashboard(){
+
+    const allData =
+        await loadCCV();
 
   const data =
     allData.filter(
@@ -4603,17 +4559,17 @@ async function loadTotaalbeeld(){
 
 async function renderGovernanceDashboard(){
 
-    const knowledge =
-        await loadAIKnowledge();
-
     const docs =
-        await loadDocuments();
+        await DataService.loadDocuments()
+
+    const knowledge =
+    await DataService.loadAIKnowledge();
 
     const websites =
         await loadWebsites();
 
     const projects =
-        await loadProjects();
+        await DataService.loadProjects()
 
     const governanceScore =
         Math.min(
@@ -4786,13 +4742,13 @@ async function renderGovernanceDashboard(){
 async function renderProjectDashboard(){
 
     const projecten =
-        await loadProjects();
+        await DataService.loadProjects()
 
     const taken =
         await loadTasks();
 
     const documenten =
-        await loadDocuments();
+    await DataService.loadDocuments();
 
     document.getElementById(
         "projectOverview"
@@ -5119,26 +5075,22 @@ if(currentHoofdgroep==='verenigingen'){
       console.log("SEARCH ACTIEF");
       console.log("performSearch gestart");
       
-     const knowledgeData =
-    await getFilteredData();
+    const searchTerm =
+(
+    document.getElementById(
+        'searchInput'
+    )?.value || ''
+).toLowerCase();
 
-let aiDocs = [];
+const knowledgeData =
+    await SearchService.search(
+        searchTerm
+    );
+console.log(
+    "SEARCHSERVICE:",
+    knowledgeData.length
+);
 
-if(msalReady){
-    try{
-        aiDocs =
-            await loadDocuments();
-    }
-    catch(error){
-        console.log(
-            "AI documenten nog niet beschikbaar"
-        );
-    }
-}
-
-const allData = knowledgeData;
-
-      const searchTerm = (document.getElementById('searchInput')?.value || '').toLowerCase();
       const category = document.getElementById('categoryFilter')?.value || '';
       const type = document.getElementById('typeFilter')?.value || '';
       const sortBy = document.getElementById('sortBy')?.value || 'recent';
@@ -5165,7 +5117,7 @@ console.log(allData);
       let faqResults = [];
 
 const faqItems =
-    allData.filter(
+    knowledgeData.filter(
         item =>
             (item.category || item.categorie || '')
             .startsWith('FAQ')
@@ -5190,72 +5142,9 @@ let oneDriveResults = [];
 
 try {
 
-    const ccvData =
-        await loadCCV();
-
-    meetingResults =
-        ccvData
-        .filter(x => x.type === 'vergaderingen')
-        .filter(x =>
-            JSON.stringify(x)
-                .toLowerCase()
-                .includes(searchTerm)
-        )
-        .map(x => ({
-            title: x.title,
-            type: 'Vergadering',
-            category: 'CCV',
-            source: 'CCV-VZW',
-            content: x.notes || ''
-        }));
-
-    projectResults =
-        ccvData
-        .filter(x => x.type === 'projecten')
-        .filter(x =>
-            JSON.stringify(x)
-                .toLowerCase()
-                .includes(searchTerm)
-        )
-        .map(x => ({
-            title: x.title,
-            type: 'Project',
-            category: 'CCV',
-            source: 'CCV-VZW',
-            content: x.notes || ''
-        }));
-
-    taskResults =
-        ccvData
-        .filter(x => x.type === 'taken')
-        .filter(x =>
-            JSON.stringify(x)
-                .toLowerCase()
-                .includes(searchTerm)
-        )
-        .map(x => ({
-            title: x.title,
-            type: 'Taak',
-            category: 'CCV',
-            source: 'CCV-VZW',
-            content: x.content || ''
-        }));
-
-    oneDriveResults =
-        (fileIndex || [])
-        .filter(item =>
-            item.name
-                .toLowerCase()
-                .includes(searchTerm)
-        )
-        .map(item => ({
-            title: item.name,
-            category: 'OneDrive',
-            type: 'Bestand',
-            source: 'OneDrive',
-            id: item.id
-        }));
-
+    CCVService.search(
+    searchTerm
+)
 }
 catch(error){
 
@@ -5294,34 +5183,31 @@ const voedingResults =
         content: item.content
 
     }));
+     
+     let result =
+    knowledgeData;
 
-      
+if(category){
 
-      let result = allData.filter(item => {
+    result =
+        result.filter(
+            item =>
+                item.category ===
+                category
+        );
 
-    const haystack = [
-        item.title || '',
-        item.content || '',
-        item.tags || '',
-        item.category || '',
-        item.source || '',
-        item.disease || '',
-        item.samenvatting || '',
-        item.zoekindex || ''
-       
-    ].join(' ').toLowerCase();
+}
 
-    if (searchTerm && !haystack.includes(searchTerm))
-        return false;
+if(type){
 
-    if (category && item.category !== category)
-        return false;
+    result =
+        result.filter(
+            item =>
+                item.type ===
+                type
+        );
 
-    if (type && item.type !== type)
-        return false;
-
-    return true;
-});
+}
 
 console.log(
     "RESULT VOOR FAQ/CCV:",
@@ -5733,6 +5619,7 @@ console.log("GEFILTERD", filtered);
       Geen websites gevonden.
     </div>`;
 }
+
 function updateFavoritesButton(){
   const btn = document.getElementById('favoritesFilterBtn');
   if(!btn) return;
@@ -6231,7 +6118,7 @@ async function generateTop10Faq(){
         await getKnowledgeData();
 
     const docs =
-        await loadDocuments();
+        await DataService.loadDocuments()
 
     let sourceData = [];
 
@@ -6349,7 +6236,7 @@ async function saveTop10Faq(topic){
         await getKnowledgeData();
 
     const docs =
-        await loadDocuments();
+        await DataService.loadDocuments();
 
     const matches = [
 
@@ -6421,54 +6308,25 @@ async function saveTop10Faq(topic){
     );
 }
 
-async function filterFAQ(){
+function filterFAQ(){
 
-    const term =
-        document.getElementById('faqSearch')
-        .value
-        .toLowerCase();
-
-   const faqCategory =
-    getFAQCategory(
-        currentHoofdgroep
-    );
-
-    const data =
-        await getKnowledgeData();
+    const query =
+        document
+            .getElementById(
+                "faqSearch"
+            )
+            .value;
 
     const results =
-    data.filter(item =>
-        item.type === "FAQ" &&
-        item.status === "Goedgekeurd"
-    )
-        .filter(item =>
-            (item.title || '')
-                .toLowerCase()
-                .includes(term)
+        SearchService.searchFAQ(
+            query,
+            faqData
         );
 
-    document
-        .getElementById(
-            'faqContainer'
-        )
-        .innerHTML =
+    renderFAQ(
+        results
+    );
 
-        results.map((item,index)=>`
-
-            <div class="card">
-
-                <h3>
-${index+1}.
-${item.title || item.titel || 'Geen titel'}
-</h3>
-
-<p>
-${item.content || item.inhoud || ''}
-</p>
-
-            </div>
-
-        `).join('');
 }
 
 function renderBronnen(bronnen = []){
@@ -7190,139 +7048,40 @@ async function searchCCV(){
 
     const term =
         document
-        .getElementById(
-            "ccvSearchInput"
-        )
-        .value
-        .toLowerCase();
-
-    const taken =
-    await loadTasks();
-
-const meetings =
-    await loadMeetings();
-
-const projecten =
-    await loadProjects();
-
-const documenten =
-    await loadDocuments();
-
-const leden =
-    await loadMembers();
-
-const werkgroepen =
-    await loadGroups();
-
-const data = [
-
-    ...taken,
-
-    ...meetings,
-
-    ...projecten,
-
-    ...documenten,
-
-    ...leden,
-
-    ...werkgroepen
-
-];
+            .getElementById(
+                "ccvSearchInput"
+            )
+            .value
+            .toLowerCase();
 
     const result =
-        data.filter(item =>
-            JSON.stringify(item)
-            .toLowerCase()
-            .includes(term)
+        await SearchService.searchCCV(
+            term
         );
 
-        if(!term){
+    if(!term){
 
-    await renderCCV(
-        document
-            .querySelector(
-                '#ccvtab .tab-btn.active'
-            )
-            ?.dataset?.tab
-        || 'taken'
-    );
+        await renderCCV(
+            document
+                .querySelector(
+                    '#ccvtab .tab-btn.active'
+                )
+                ?.dataset?.tab
+            || 'taken'
+        );
 
-    return;
-}
+        return;
+    }
 
     document
         .getElementById(
             "ccvContent"
         )
         .innerHTML =
-       result.map(x => `
+        result.map(x => `
+            ...
+        `).join("");
 
-    <div class="card">
-
-        <b>
-
-            ${x.title || x.name || 'Geen titel'}
-
-        </b>
-<br>
-
-${
-    x.date
-
-    ?
-
-    `📅 ${x.date}`
-
-    :
-
-    ''
-}
-        <br>
-
-        ${
-    x.type === 'taken'
-
-    ? '📋 Taak'
-
-    :
-
-    x.type === 'werkgroepen'
-
-    ? '👥 Werkgroep'
-
-    :
-
-    x.type === 'vergaderingen'
-
-    ? '🗓 Vergadering'
-
-    :
-
-    x.type === 'projecten'
-
-    ? '📁 Project'
-
-    :
-
-    x.type === 'leden'
-
-    ? '👤 Lid'
-
-    :
-
-    x.type === 'documenten'
-
-    ? '📄 Document'
-
-    :
-
-    '📦 Item'
-}
-
-    </div>
-
-`).join("");
 }
 
 // =========================
@@ -7332,7 +7091,7 @@ ${
 async function renderDocumentRelations(){
 
   const projecten =
-    await loadProjects();
+    await DataService.loadProjects()
 
 const taken =
     await loadTasks();
@@ -7340,15 +7099,16 @@ const taken =
 const meetings =
     await loadMeetings();
 
-const documents =
-    await loadDocuments();
+const docs =
+        await DataService.loadDocuments()
 
 const groups =
-    await loadGroups();
-    const container =
+    await DataService.loadGroups()
+
+const container =
         document.getElementById("relationsContainer");
 
-    const dashboard =
+const dashboard =
     document.getElementById(
         "relationsDashboard"
     );
@@ -7519,10 +7279,10 @@ return;
     try{
 
         documenten =
-            await loadDocuments();
+           await DataService.loadDocuments()
 
         projecten =
-            await loadProjects();
+            await DataService.loadProjects()
 
         meetings =
             await loadMeetings();
@@ -8400,7 +8160,7 @@ console.log("renderTaken gestart");
   await loadTasks();
 
   const members =
-    await loadMembers();
+   await DataService.loadMembers()
 
 const memberOptions =
     members.map(m => `
@@ -8428,7 +8188,7 @@ const dringend =
     );
 
  const projecten =
-    await loadProjects();
+    await DataService.loadProjects()
  
   const projectOptions =
     projecten.map(p=>`
@@ -8438,7 +8198,7 @@ const dringend =
     `).join('');
 
 const documents =
-    await loadDocuments();
+    await DataService.loadDocuments()
 
 const documentOptions =
     documents.map(d => `
@@ -8756,13 +8516,13 @@ createdAt:
 // =========================
 async function renderWG(){
 const data =
-    await loadGroups();
+    await DataService.loadGroups()
 
 const totaalWG =
     data.length;
 
 const members =
-    await loadMembers();
+    await DataService.loadMembers()
 
 const memberOptions =
     members.map(m => `
@@ -8823,7 +8583,7 @@ const memberOptions =
 async function saveWG(){
 
     const data =
-        await loadGroups();
+       await DataService.loadGroups()
 
     data.unshift({
 
@@ -8875,7 +8635,7 @@ const openActiepunten =
     );
 
     const members =
-    await loadMembers();
+   await DataService.loadMembers()
 
     const memberCheckboxes =
     members.map(m => `
@@ -9166,10 +8926,10 @@ return {
 async function renderProjects(){
 
   const data =
-    await loadProjects();
+    await DataService.loadProjects()
 
-    const documents =
-    await loadDocuments();
+   const docs =
+        await DataService.loadDocuments()
 
 const documentOptions =
 
@@ -9184,7 +8944,7 @@ const documentOptions =
     `).join('');
 
     const members =
-    await loadMembers();
+    await DataService.loadMembers()
 
     const memberOptions =
     members.map(m => `
@@ -9374,7 +9134,7 @@ async function saveProject(){
     );
 
   const data =
-    await loadProjects();
+    await DataService.loadProjects()
 
 data.unshift({
 
@@ -9562,7 +9322,8 @@ async function createMeetingFolder(
 
 async function renderDocs(){
   const data =
-    await loadDocuments();
+    await DataService.loadDocuments()
+
 
     const aiCount =
     data.filter(
@@ -9632,7 +9393,7 @@ async function renderDocs(){
 
 async function autoLinkDocument(documentTitle){
 
-    const projects = await loadProjects();
+    const projects = await DataService.loadProjects()
 
     const matches = projects.filter(p =>
         documentTitle.toLowerCase()
@@ -9645,7 +9406,7 @@ async function autoLinkDocument(documentTitle){
 async function detectProjectForDocument(title){
 
     const projects =
-        await loadProjects();
+       await DataService.loadProjects()
 
     return projects.find(
         p =>
@@ -9660,7 +9421,7 @@ async function detectProjectForDocument(title){
 async function saveDoc(){
 
     const data =
-        await loadDocuments();
+        await DataService.loadDocuments();
     const project =
 await detectProjectForDocument(
     d_title.value
@@ -9698,7 +9459,7 @@ await detectProjectForDocument(
 async function saveAIClassification(result){
 
     const documents =
-        await loadDocuments();
+        await DataService.loadDocuments();
 
     const exists =
 
@@ -9770,7 +9531,7 @@ if(exists){
 async function renderMembers(){
 
   const data =
-    await loadMembers();
+    await DataService.loadMembers();
 
   let html=`
   <h3>Nieuw lid</h3>
@@ -10167,7 +9928,7 @@ async function renderUsers(){
         await loadUsers();
 
     const members =
-        await loadMembers();
+        await DataService.loadMembers()
 
     const memberOptions =
 
@@ -10363,7 +10124,7 @@ async function changeUserRole(
 async function saveMember(){
 
     const data =
-        await loadMembers();
+        await DataService.loadMembers();
 
    data.unshift({
 
@@ -10400,7 +10161,7 @@ const meetings =
     await loadMeetings();
 
 const projects =
-    await loadProjects();
+    await DataService.loadProjects()
 
 const agenda = [
 
@@ -10454,7 +10215,7 @@ const agenda = [
 async function renderKnowledgeGraph(){
 
     const projects =
-        await loadProjects();
+        await DataService.loadProjects();
 
     let html = `
 
@@ -10546,7 +10307,7 @@ async function renderKnowledgeGraph(){
 async function archiveProject(projectId){
 
     const projects =
-        await loadProjects();
+        await DataService.loadProjects();
 
     const project =
         projects.find(
@@ -10917,10 +10678,11 @@ async function renderVoeding(tab){
                 await loadMeetings();
 
             projects =
-                await loadProjects();
+                await DataService.loadProjects()
 
             documents =
-                await loadDocuments();
+                await DataService.loadDocuments()
+
 
         }
         catch(error){
@@ -12712,15 +12474,20 @@ let knowledgeNetwork = null;
 async function buildKnowledgeMap(){
     
     const docs =
-        await loadDocuments();   
-    const projecten =
-        await loadProjects();
+    await DataService.loadDocuments();
+
+const projecten =
+    await DataService.loadProjects();
+
 const meetings =
-    await loadMeetings();
+    await DataService.loadMeetings();
+
 const groups =
-    await loadGroups();
+    await DataService.loadGroups();
+
 const tasks =
-    await loadTasks();
+    await DataService.loadTasks();
+
 const zoekterm =
 
     document
@@ -12885,18 +12652,19 @@ if(
 
 }
 
-nodes.push({
+if(!uniekeNodes.has(doc.id)){
 
-    id:
-        doc.id,
+    nodes.push({
 
-    label:
-        doc.title,
+        id: doc.id,
+        label: doc.title,
+        group: "document"
 
-    group:
-        "document"
+    });
 
-});
+    uniekeNodes.add(doc.id);
+
+}
 
 edges.push({
 
@@ -14504,7 +14272,8 @@ async function createCCVFolder(
 async function getDocumentInsights(fileId){
 
     const docs =
-        await loadDocuments();
+       await DataService.loadDocuments()
+
 
     const zoekterm =
 
@@ -16045,7 +15814,7 @@ function renderAIProposals(){
 async function renderAIApproved(){
 
     const docs =
-        await loadDocuments();
+       await DataService.loadDocuments()
 
     const container =
         document.getElementById(
@@ -16133,7 +15902,7 @@ if(!doc){
     );
 
     const docs =
-        await loadDocuments();
+        await DataService.loadDocuments();
 
     const saved =
         docs.find(
@@ -16387,11 +16156,12 @@ async function askKnowledgeAI(){
     const knowledgeData =
         await getFilteredData();
 
-    const documents =
-        await loadDocuments();
+    const docs =
+        await DataService.loadDocuments()
+
 
     const aiKnowledge =
-        await loadAIKnowledge();
+        await DataService.loadAIKnowledge()
 
     const alles = [
 
@@ -16673,9 +16443,11 @@ async function runAIKnowledgeSearch(){
         document.getElementById(
             "aiKnowledgeSearch"
         ).value;
-const aiKnowledge = await loadAIKnowledge();
+
 const knowledgeData = await getKnowledgeData();
-const documenten = await loadDocuments();
+const docs =
+        await DataService.loadDocuments()
+
 
 const bestaandeItems = [
     ...aiKnowledge,
@@ -16784,7 +16556,7 @@ async function saveAIKnowledgeResult(){
     }
 
     const data =
-        await loadAIKnowledge();
+        await DataService.loadAIKnowledge()
 
     const item = currentAIKnowledge[0];
 
@@ -16808,7 +16580,7 @@ data.unshift(item);
 async function renderAIBibliotheek(){
 console.log("renderAIBibliotheek gestart");
     const alles =
-        await loadAIKnowledge();
+        await DataService.loadAIKnowledge()
 console.log("AI KNOWLEDGE:", alles);
     const groepen = {
 
@@ -16998,7 +16770,7 @@ console.log(
 async function reanalyseKnowledge(id){
 
     const data =
-        await loadAIKnowledge();
+        await DataService.loadAIKnowledge();
 
     const item =
         data.find(
@@ -17105,13 +16877,13 @@ const intent =
         await getKnowledgeData();
 
     const docs =
-        await loadDocuments();
+        await DataService.loadDocuments()
 
     const mailboxen =
 await loadMailboxes();
 
 const projecten =
-await loadProjects();
+await DataService.loadProjects()
 
 const taken =
 await loadTasks();
@@ -17582,7 +17354,7 @@ createdAt:
     };
 
     const data =
-        await loadAIKnowledge();
+        await DataService.loadAIKnowledge()
 
     data.unshift(item);
 
@@ -17721,13 +17493,13 @@ async function runNaturalLanguage(){
 async function renderAIHealthCheck(){
 
     const docs =
-        await loadDocuments();
+        await DataService.loadDocuments()
 
     const mailboxen =
         await loadMailboxes();
 
     const projecten =
-        await loadProjects();
+        await DataService.loadProjects()
 
     const taken =
     await loadTasks();
@@ -17736,7 +17508,7 @@ const meetings =
     await loadMeetings();
 
 const members =
-    await loadMembers();
+    await DataService.loadMembers();
 
 
     const zonderCategorie =
@@ -17931,16 +17703,17 @@ const taken =
     await loadTasks();
 
 const projecten =
-    await loadProjects();
+    await DataService.loadProjects();
 
 const vergaderingen =
     await loadMeetings();
 
 const groepen =
-    await loadGroups();
+    await DataService.loadGroups()
 
 const documenten =
-    await loadDocuments();
+    await DataService.loadDocuments()
+
 
 const knowledge =
     await getKnowledgeData();

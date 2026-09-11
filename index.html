@@ -11211,15 +11211,18 @@ function generateInternetTop20Voeding(){
 );
 
     localStorage.setItem(
-        'voeding_top20_update',
-        new Date().toISOString()
-    );
+    'voeding_top20_update',
+    new Date().toISOString()
+);
 
-    renderVoeding(
-        document.querySelector(
-            '#voedingTabs .active'
-        ).dataset.tab
-    );
+const activeTab =
+    document.querySelector(
+        '#voedingTabs .active'
+    )?.dataset?.tab
+    || 'dieet';
+
+renderVoeding(activeTab);
+
 }
 
 function checkTop20Update(){

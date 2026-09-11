@@ -3623,7 +3623,9 @@ let currentLang =
 
 let msalReady = false;
 
-let databaseCache = null;
+let databaseCache = {
+    knowledgeData: []
+};
 
 let currentHoofdgroep = 'crohn';
 
@@ -4704,7 +4706,7 @@ async function renderGovernanceDashboard(){
     await DataService.loadAIKnowledge();
 
     const websites =
-        await loadWebsites();
+        DataService.loadWebsites()
 
     const projects =
         await DataService.loadProjects()
@@ -5578,7 +5580,7 @@ ${(item.source === 'OneDrive' || item.source === 'AI')
     await loadData();
 
 const customWebsites =
-    await loadWebsites();
+    DataService.loadWebsites()
 
 const all = [
 
@@ -7420,7 +7422,7 @@ return;
             await DataService.loadProjects()
 
         meetings =
-            await loadMeetings();
+           await DataService.loadMeetings()
 
         taken =
             await DataService.loadTasks();
@@ -11657,7 +11659,7 @@ async function saveWebsite(){
     try{
 
         let data =
-            await loadWebsites();
+           DataService.loadWebsites()
 
        data.unshift({
     id: Date.now(),
@@ -11672,7 +11674,7 @@ async function saveWebsite(){
         await saveWebsites(data);
 
 const controle =
-    await loadWebsites();
+   DataService.loadWebsites()
 
 console.log(
     "NA OPSLAAN:",
@@ -16287,9 +16289,22 @@ async function generateInternetTop10(){
 async function askKnowledgeAI(){
 
     const vraag =
+(
     document.getElementById("kcAiQuestion")?.value ||
     document.getElementById("aiQuestion")?.value ||
-    "";
+    ""
+).toLowerCase();
+if(!vraag.trim()){
+
+    antwoordDiv.innerHTML = `
+        <div class="notice">
+            Stel eerst een vraag.
+        </div>
+    `;
+
+    return;
+
+}
    
     const knowledgeData =
         await getFilteredData();
@@ -16588,19 +16603,34 @@ async function generateKnowledgeFaq(){
 async function runAIKnowledgeSearch(){
 
     const zoekterm =
-        document.getElementById(
-            "aiKnowledgeSearch"
-        ).value;
+(
+    document.getElementById(
+        "aiKnowledgeSearch"
+    ).value || ""
+).trim();
+if(!zoekterm.trim()){
 
-const knowledgeData = await getKnowledgeData();
+    alert(
+        "Geef eerst een zoekterm op"
+    );
+
+    return;
+}
+const aiKnowledge =
+    await DataService.loadAIKnowledge();
+
 const docs =
-        await DataService.loadDocuments()
+    await DataService.loadDocuments();
 
+const knowledgeData =
+    await getKnowledgeData();
 
 const bestaandeItems = [
+
     ...aiKnowledge,
     ...knowledgeData,
-    ...documenten
+    ...docs
+
 ].filter(item =>
     JSON.stringify(item)
         .toLowerCase()
@@ -16715,9 +16745,9 @@ item.faq = generateFAQ(
 
 data.unshift(item);
 
-    await saveAIKnowledge(
-        data
-    );
+    await DataService.saveAIKnowledge(
+    data
+);
 
     showNotification(
         "✅ AI item opgeslagen"
@@ -16947,7 +16977,8 @@ async function reanalyseKnowledge(id){
     item.zoekindex =
         analyse.zoekindex;
 
-    await saveAIKnowledge(data);
+    await DataService.saveAIKnowledge(
+data);
 
     renderAIBibliotheek();
 
@@ -17019,7 +17050,7 @@ const intent =
     detectAIIntent(q);
 
     const aiKnowledge =
-        await loadAIKnowledge();
+    await DataService.loadAIKnowledge();
 
     const knowledge =
         await getKnowledgeData();
@@ -17506,7 +17537,7 @@ createdAt:
 
     data.unshift(item);
 
-    await saveAIKnowledge(data);
+    await DataService.saveAIKnowledge(data);
 
     document.getElementById(
         "aiCaptureResult"
@@ -17653,7 +17684,7 @@ async function renderAIHealthCheck(){
     await DataService.loadTasks();
 
 const meetings =
-    await loadMeetings();
+    await DataService.loadMeetings();
 
 const members =
     await DataService.loadMembers();

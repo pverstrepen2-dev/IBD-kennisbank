@@ -2845,45 +2845,96 @@ async function saveEntity(
 
 const DataService = {
 
-    async loadTasks(){
+    cache: {
+        projects: null,
+        documents: null,
+        meetings: null,
+        tasks: null,
+        members: null,
+        groups: null,
+        websites: null,
+        aiKnowledge: null
+    },
 
-        return await loadEntity(
+   async loadTasks(){
+
+    if(this.cache.tasks){
+
+        return this.cache.tasks;
+
+    }
+
+    this.cache.tasks =
+        await loadEntity(
             TASKS_FILE_ID
         );
 
-    },
+    return this.cache.tasks;
 
-    async saveTasks(data){
+},
 
-        await saveEntity(
-            TASKS_FILE_ID,
-            data
-        );
+   async saveTasks(data){
 
-    },
+    await saveEntity(
+        TASKS_FILE_ID,
+        data
+    );
 
-    async loadMeetings(){
+    this.cache.tasks =
+        data;
 
-        return await loadEntity(
+},
+
+   async loadMeetings(){
+
+    if(this.cache.meetings){
+
+        return this.cache.meetings;
+
+    }
+
+    this.cache.meetings =
+        await loadEntity(
             MEETINGS_FILE_ID
         );
 
-    },
+    return this.cache.meetings;
 
-    async saveMeetings(data){
+},
 
-        await saveEntity(
-            MEETINGS_FILE_ID,
-            data
-        );
+async saveMeetings(data){
 
-    },
+    await saveEntity(
+        MEETINGS_FILE_ID,
+        data
+    );
+
+    this.cache.meetings =
+        data;
+
+},
 
     async loadProjects(){
 
-    return await loadEntity(
-        PROJECTS_FILE_ID
+    if(this.cache.projects){
+
+        console.log(
+            "PROJECTS CACHE"
+        );
+
+        return this.cache.projects;
+    }
+
+    console.log(
+        "PROJECTS ONEDRIVE"
     );
+
+    this.cache.projects =
+        await loadEntity(
+            PROJECTS_FILE_ID
+        );
+
+    return this.cache.projects;
 
 },
 
@@ -2894,13 +2945,24 @@ async saveProjects(data){
         data
     );
 
+    this.cache.projects =
+        data;
+
 },
 
 async loadDocuments(){
 
-    return await loadEntity(
-        DOCUMENTS_FILE_ID
-    );
+    if(this.cache.documents){
+
+        return this.cache.documents;
+    }
+
+    this.cache.documents =
+        await loadEntity(
+            DOCUMENTS_FILE_ID
+        );
+
+    return this.cache.documents;
 
 },
 
@@ -2911,13 +2973,25 @@ async saveDocuments(data){
         data
     );
 
+    this.cache.documents =
+        data;
+
 },
 
 async loadAIKnowledge(){
 
-    return await loadEntity(
-        AI_KNOWLEDGE_FILE_ID
-    );
+    if(this.cache.aiKnowledge){
+
+        return this.cache.aiKnowledge;
+
+    }
+
+    this.cache.aiKnowledge =
+        await loadEntity(
+            AI_KNOWLEDGE_FILE_ID
+        );
+
+    return this.cache.aiKnowledge;
 
 },
 
@@ -2928,13 +3002,25 @@ async saveAIKnowledge(data){
         data
     );
 
+    this.cache.aiKnowledge =
+        data;
+
 },
 
 async loadMembers(){
 
-    return await loadEntity(
-        MEMBERS_FILE_ID
-    );
+    if(this.cache.members){
+
+        return this.cache.members;
+
+    }
+
+    this.cache.members =
+        await loadEntity(
+            MEMBERS_FILE_ID
+        );
+
+    return this.cache.members;
 
 },
 
@@ -2945,13 +3031,25 @@ async saveMembers(data){
         data
     );
 
+    this.cache.members =
+        data;
+
 },
 
 async loadGroups(){
 
-    return await loadEntity(
-        GROUPS_FILE_ID
-    );
+    if(this.cache.groups){
+
+        return this.cache.groups;
+
+    }
+
+    this.cache.groups =
+        await loadEntity(
+            GROUPS_FILE_ID
+        );
+
+    return this.cache.groups;
 
 },
 
@@ -2961,6 +3059,9 @@ async saveGroups(data){
         GROUPS_FILE_ID,
         data
     );
+
+    this.cache.groups =
+        data;
 
 },
 
@@ -2972,9 +3073,18 @@ async loadWebsites(){
 
     }
 
-    return await loadEntity(
-        WEBSITES_FILE_ID
-    );
+    if(this.cache.websites){
+
+        return this.cache.websites;
+
+    }
+
+    this.cache.websites =
+        await loadEntity(
+            WEBSITES_FILE_ID
+        );
+
+    return this.cache.websites;
 
 },
 
@@ -2985,11 +3095,66 @@ async saveWebsites(data){
         data
     );
 
+    this.cache.websites =
+        data;
+
+},
+
+async refreshProjects(){
+
+    this.cache.projects =
+        await loadEntity(
+            PROJECTS_FILE_ID
+        );
+
+    return this.cache.projects;
+
+},
+
+async refreshDocuments(){
+
+    this.cache.documents =
+        await loadEntity(
+            DOCUMENTS_FILE_ID
+        );
+
+    return this.cache.documents;
+
+},
+
+async refreshMembers(){
+
+    this.cache.members =
+        await loadEntity(
+            MEMBERS_FILE_ID
+        );
+
+    return this.cache.members;
+
+},
+
+clearCache(){
+
+    this.cache = {
+
+        tasks: null,
+        meetings: null,
+        projects: null,
+        documents: null,
+        aiKnowledge: null,
+        members: null,
+        groups: null,
+        websites: null
+
+    };
+
+    console.log(
+        "CACHE GEWIST"
+    );
+
 }
 
 };
-
-
 
 // =========================
 // MEETINGS DATABASE
@@ -3974,33 +4139,6 @@ const DOCUMENTEN_ROOT_FOLDER_ID =
     return await getKnowledgeData();
 }
 
-async function loadWebsites(){
-
-    if(!msalReady){
-
-        console.log(
-            "MSAL nog niet klaar"
-        );
-
-        return [];
-
-    }
-
-    return await loadEntity(
-        WEBSITES_FILE_ID
-    );
-
-}
-
-async function saveWebsites(data){
-
-    await saveEntity(
-        WEBSITES_FILE_ID,
-        data
-    );
-
-}
-
     function saveData(data) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     }
@@ -4432,11 +4570,11 @@ const SearchService = {
 
     async searchCCV(query){
 
-        const taken =
-            await loadTasks();
+       const taken =
+    await DataService.loadTasks();
 
-        const meetings =
-            await loadMeetings();
+const meetings =
+    await DataService.loadMeetings();
 
         const projecten =
             await DataService.loadProjects()
@@ -4745,7 +4883,7 @@ async function renderProjectDashboard(){
         await DataService.loadProjects()
 
     const taken =
-        await loadTasks();
+        await DataService.loadTasks();
 
     const documenten =
     await DataService.loadDocuments();
@@ -6761,6 +6899,7 @@ async function logoutMicrosoft(){
         ).style.display =
             "none";
 
+        DataService.clearCache();
         await msalInstance.logoutRedirect({
 
     postLogoutRedirectUri:
@@ -7090,10 +7229,10 @@ async function renderDocumentRelations(){
     await DataService.loadProjects()
 
 const taken =
-    await loadTasks();
+    await DataService.loadTasks();
 
 const meetings =
-    await loadMeetings();
+    await DataService.loadMeetings();
 
 const docs =
         await DataService.loadDocuments()
@@ -7284,7 +7423,7 @@ return;
             await loadMeetings();
 
         taken =
-            await loadTasks();
+            await DataService.loadTasks();
 
     }
     catch(error){
@@ -8153,7 +8292,7 @@ async function renderTaken(){
 console.log("renderTaken gestart");
 
  const allData =
-  await loadTasks();
+  await DataService.loadTasks();
 
   const members =
    await DataService.loadMembers()
@@ -8466,7 +8605,7 @@ await renderCCVDashboard(); // ✅ HIER
 async function saveTask(){
 
     const data =
-        await loadTasks();
+        await DataService.loadTasks();
 
     data.unshift({
 
@@ -9281,7 +9420,7 @@ await generateTasksFromMeeting(
 );
 
 const allTasks =
-await loadTasks();
+await DataService.loadTasks();
 
 allTasks.unshift(...aiTasks);
 
@@ -10151,7 +10290,7 @@ async function saveMember(){
 async function renderAgenda(){
 
   const tasks =
-    await loadTasks();
+    await DataService.loadTasks();
 
 const meetings =
     await loadMeetings();
@@ -10668,10 +10807,10 @@ async function renderVoeding(tab){
         try{
 
             tasks =
-                await loadTasks();
+                await DataService.loadTasks();
 
             meetings =
-                await loadMeetings();
+                await DataService.loadMeetings();
 
             projects =
                 await DataService.loadProjects()
@@ -16885,7 +17024,7 @@ const projecten =
 await DataService.loadProjects()
 
 const taken =
-await loadTasks();
+await DataService.loadTasks();
 
     const alles = [
 
@@ -17501,7 +17640,7 @@ async function renderAIHealthCheck(){
         await DataService.loadProjects()
 
     const taken =
-    await loadTasks();
+    await DataService.loadTasks();
 
 const meetings =
     await loadMeetings();
@@ -17699,13 +17838,13 @@ function openProject(id){
 async function renderNieuw(){
 
 const taken =
-    await loadTasks();
+    await DataService.loadTasks();
 
 const projecten =
     await DataService.loadProjects();
 
 const vergaderingen =
-    await loadMeetings();
+    await DataService.loadMeetings();
 
 const groepen =
     await DataService.loadGroups()

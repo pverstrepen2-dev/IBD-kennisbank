@@ -6099,7 +6099,12 @@ const data = await getFilteredData();
     }
 
     const data =
-        await getKnowledgeData();
+    await getKnowledgeData();
+
+console.log(
+    "KNOWLEDGE RAW:",
+    data
+);
 
 console.log("FAQ CATEGORY:", faqCategory);
 console.log("DATA:", data);
@@ -7071,11 +7076,33 @@ async function getKnowledgeData(){
     if(!databaseCache){
 
         await loadDatabaseJson();
+
     }
 
-    return (
-        databaseCache?.knowledgeData
-    ) || [];
+    console.log(
+        "DATABASE CACHE:",
+        databaseCache
+    );
+
+    console.log(
+    "DATABASE CACHE:",
+    databaseCache
+);
+
+console.log(
+    "DATABASE KEYS:",
+    Object.keys(databaseCache || {})
+);
+
+console.log(
+    "KNOWLEDGE DATA:",
+    databaseCache?.knowledgeData
+);
+
+    return Object.values(
+    databaseCache || {}
+).flat();
+
 }
 
 async function saveDatabaseJson(){

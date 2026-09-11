@@ -4706,7 +4706,7 @@ async function renderGovernanceDashboard(){
     await DataService.loadAIKnowledge();
 
     const websites =
-        DataService.loadWebsites()
+        await DataService.loadWebsites();
 
     const projects =
         await DataService.loadProjects()
@@ -5257,6 +5257,20 @@ const faqItems =
             .startsWith('FAQ')
     );
 
+console.log(
+    "KNOWLEDGE DATA",
+    knowledgeData.length
+);
+
+console.log(
+    "FAQ ITEMS",
+    faqItems.length
+);
+
+console.log(
+    faqItems
+);
+
 faqResults =
     faqItems.filter(item =>
         (
@@ -5277,7 +5291,7 @@ let oneDriveResults = [];
 try {
 
     ccvResults =
-        await CCVService.search(
+        await SearchService.searchCCV(
             searchTerm
         );
 
@@ -5323,6 +5337,15 @@ const voedingResults =
      let result =
     knowledgeData;
 
+    console.log(
+    "CATEGORY FILTER:",
+    category
+);
+
+console.log(
+    "DATA VOOR FILTER:",
+    result.slice(0,10)
+);
 if(category){
 
     result =
@@ -5580,7 +5603,8 @@ ${(item.source === 'OneDrive' || item.source === 'AI')
     await loadData();
 
 const customWebsites =
-    await DataService.loadWebsites();
+    await DataService.loadWebsites()
+    || [];
 
 const all = [
 

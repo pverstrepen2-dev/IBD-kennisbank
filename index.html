@@ -5580,7 +5580,7 @@ ${(item.source === 'OneDrive' || item.source === 'AI')
     await loadData();
 
 const customWebsites =
-    DataService.loadWebsites()
+    await DataService.loadWebsites();
 
 const all = [
 

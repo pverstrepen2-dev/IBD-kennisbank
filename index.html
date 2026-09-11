@@ -5096,12 +5096,6 @@ console.log(
       const sortBy = document.getElementById('sortBy')?.value || 'recent';
       console.log("ZOEKTERM:", searchTerm);
 
-console.log(
-    "ALLDATA:",
-    allData.length
-);
-console.log(allData);
-
      if(!searchTerm && !category){
 
     document.getElementById(
@@ -5142,9 +5136,11 @@ let oneDriveResults = [];
 
 try {
 
-    CCVService.search(
-    searchTerm
-)
+    ccvResults =
+        await CCVService.search(
+            searchTerm
+        );
+
 }
 catch(error){
 

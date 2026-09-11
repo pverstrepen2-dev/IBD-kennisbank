@@ -16301,15 +16301,15 @@ async function askKnowledgeAI(){
     const aiKnowledge =
         await DataService.loadAIKnowledge()
 
-    const alles = [
+   const alles = [
 
-        ...knowledgeData,
+    ...knowledgeData,
 
-        ...documents,
+    ...docs,
 
-        ...aiKnowledge
+    ...aiKnowledge
 
-    ];
+];
 
     const VALIDATED_SOURCES = [
 
@@ -16357,20 +16357,30 @@ async function askKnowledgeAI(){
 
         });
 
-    const answerContainer =
+   const antwoordDiv =
     document.getElementById("kcAiAnswer") ||
     document.getElementById("aiAnswer");
 
-    if(resultaten.length === 0){
+if(!antwoordDiv){
 
-        const antwoordDiv =
-    document.getElementById(
-        "kcAiAnswer"
+    console.error(
+        "AI antwoord container niet gevonden"
     );
 
-        return;
+    return;
+}
+  
+if(resultaten.length === 0){
 
-    }
+    antwoordDiv.innerHTML = `
+        <div class="notice">
+            Geen relevante informatie gevonden.
+        </div>
+    `;
+
+    return;
+
+}
 
     antwoordDiv.innerHTML =
 

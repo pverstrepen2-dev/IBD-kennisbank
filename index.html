@@ -6114,10 +6114,34 @@ console.log(
 console.log("FAQ CATEGORY:", faqCategory);
 console.log("DATA:", data);
 
+const faqRecords =
+    data.filter(item =>
+
+        String(
+            item.category ||
+            item.categorie ||
+            ''
+        )
+        .includes('FAQ')
+
+    );
+
+console.log(
+    "FAQ RECORDS:",
+    faqRecords
+);
+
    const items = data.filter(item =>
 
-    (item.category || item.categorie)
-        === faqCategory
+    String(
+        item.category ||
+        item.categorie ||
+        ''
+    )
+    .toLowerCase()
+    .includes(
+        faqCategory.toLowerCase()
+    )
 
 );
 console.log("FAQ ITEMS:", items);

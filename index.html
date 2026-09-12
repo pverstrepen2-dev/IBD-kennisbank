@@ -6099,7 +6099,12 @@ const data = await getFilteredData();
     }
 
     const data =
-    await getKnowledgeData();
+    await getMasterData();
+
+console.log(
+    "FAQ TEST:",
+    data.length
+);
 
 console.log(
     "KNOWLEDGE RAW:",
@@ -7055,7 +7060,12 @@ if(!msalReady){
             );
 
         databaseCache =
-            await response.json();
+    await response.json();
+
+console.log(
+    "DATABASE JSON:",
+    databaseCache
+);
 
         return databaseCache;
 
@@ -7547,7 +7557,7 @@ if(!container){
 
     <select
     id="vd_vereniging"
-    class="input"
+    class="input">
    
         <option>
             CCV Vereniging
@@ -7795,7 +7805,7 @@ function saveVerenigingsDossier(){
         "vd_bestand"
     ).files[0]?.name || "",
 
-llocatie:
+locatie:
     selectedUploadFolder?.naam
     || ""
 

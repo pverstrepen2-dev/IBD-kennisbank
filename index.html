@@ -16396,22 +16396,32 @@ async function generateInternetTop10(){
     }
 
     document.getElementById(
-        "top10Results"
-    ).innerHTML = `
+    "top10Results"
+).innerHTML = `
 
-        <div class="card">
+    <div class="card">
 
-            <h3>
-                🌍 Top 10 FAQ
-            </h3>
+        <h3>
+            🌍 Top 10 FAQ
+        </h3>
 
-            <ol>
-                ${vragen.map(v => `<li>${v}</li>`).join("")}
-            </ol>
+        <ol>
+            ${vragen.map(v => `<li>${v}</li>`).join("")}
+        </ol>
 
-        </div>
+        <br>
 
-    `;
+        <button
+            class="btn btn-success"
+            onclick="saveTop10Faq('${onderwerp}')">
+
+            💾 Opslaan als FAQ
+
+        </button>
+
+    </div>
+
+`;
 }
 
 async function askKnowledgeAI(){

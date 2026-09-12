@@ -6099,7 +6099,7 @@ const data = await getFilteredData();
     }
 
     const data =
-    await getMasterData();
+    await getKnowledgeData();
 
     console.table(
     data.slice(0,50).map(x => ({
@@ -7167,9 +7167,9 @@ console.log(
     databaseCache?.knowledgeData
 );
 
-    return Object.values(
-    databaseCache || {}
-).flat();
+   return (
+    databaseCache?.knowledgeData
+) || [];
 
 }
 

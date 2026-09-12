@@ -6101,6 +6101,40 @@ const data = await getFilteredData();
     const data =
     await getMasterData();
 
+    console.table(
+    data.slice(0,50).map(x => ({
+        title: x.title,
+        category: x.category,
+        categorie: x.categorie,
+        type: x.type
+    }))
+);
+console.log(
+
+    "UNIEKE TYPES:",
+
+    [...new Set(
+        data.map(
+            x => x.type
+        )
+    )]
+
+);
+
+console.log(
+
+    "UNIEKE CATEGORIEEN:",
+
+    [...new Set(
+        data.map(
+            x =>
+                x.category ||
+                x.categorie
+        )
+    )]
+
+);
+
 console.log(
     "FAQ TEST:",
     data.length

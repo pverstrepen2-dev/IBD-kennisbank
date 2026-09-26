@@ -9712,42 +9712,43 @@ async function detectProjectForDocument(title){
 
 }
 
-async function saveDoc(){
+async function saveDoc() {
+    try {
 
-    const data =
-        await DataService.loadDocuments();
-    const project =
-await detectProjectForDocument(
-    d_title.value
-);
-    
+        const title = d_title.value.trim();
+        const url = d_url.value.trim();
 
-    data.unshift({
-    id: Date.now(),
-    createdAt:
-    new Date().toISOString(),
-    type: "documenten",
-    title: d_title.value,
-    url: d_url.value,
+        if (!title) {
+            alert("Titel ontbreekt");
+            return;
+        }
 
-    projectIds: [],
-    taskIds: [],
-    meetingIds: [],
+        const documents =
+            await DataService.loadDocuments();
 
-    linkedProjects: [],
-    linkedTasks: [],
-    linkedMeetings: [],
+        documents.unshift({
+            id: Date.now(),
+            createdAt: new Date().toISOString(),
+            title,
+            url,
+            hoofdgroep: "Algemeen",
+            categorie: "Ongecategoriseerd",
+            tags: []
+        });
 
-    projectId: project?.id || null
-});
+        await DataService.saveDocuments(
+            documents
+        );
 
+        d_title.value = "";
+        d_url.value = "";
 
-    await saveDocuments(
-        data
-    );
+        await renderDocs();
 
-    await renderDocs();
-
+    } catch (err) {
+        console.error(err);
+        alert("Document kon niet opgeslagen worden");
+    }
 }
 
 async function saveAIClassification(result){
@@ -9813,7 +9814,7 @@ if(exists){
 
     });
 
-    await saveDocuments(
+    await DataService.saveDocuments(
         documents
     );
 }

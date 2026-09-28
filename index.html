@@ -3690,23 +3690,14 @@ let databaseCache = {
 };
 
 let currentHoofdgroep = 'crohn';
-
 let websitesOnly = false;
-
 let favoritesOnly = false;
-
 let currentDriveFolder = null;
-
 let oneDriveIndex = [];
-
 let currentAIResults = [];
-
 let aiProposals = [];
-
 let scanRunning = false;
-
 let currentAIKnowledge = [];
-
 let documents = [];
 let faqData = [];
 let websites = [];
@@ -3717,6 +3708,8 @@ let metadataIndex = [];
 let aiIndex = [];
 let indexReady = false;
 let knowledgeNodes = [];
+let oneDriveIndexLoaded = false;
+let cachedRootItems = [];
 const WEBSITE_CATEGORIES = [
     { value:"Onderwijs", icon:"🎓" },
     { value:"Ziekenhuis", icon:"🏥" },
@@ -12080,9 +12073,6 @@ setTimeout(() => {
 
 }, 2000);
 }
-
-let oneDriveIndexLoaded = false;
-let cachedRootItems = [];
 
 async function loadCCVSubFolders(){
 

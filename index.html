@@ -12081,6 +12081,9 @@ setTimeout(() => {
 }, 2000);
 }
 
+let oneDriveIndexLoaded = false;
+let cachedRootItems = [];
+
 async function loadCCVSubFolders(){
 
     console.log("START loadCCVSubFolders");
@@ -12091,6 +12094,7 @@ async function loadCCVSubFolders(){
 
     try{
 
+        // Gebruik cache als index al bestaat
         if(oneDriveIndexLoaded){
 
             console.log(
@@ -12174,6 +12178,13 @@ async function loadCCVSubFolders(){
 
         updateBreadcrumb();
 
+        console.log(
+            "driveExplorer element:",
+            document.getElementById(
+                "driveExplorer"
+            )
+        );
+
         document.getElementById(
             "driveExplorer"
         ).style.display = "block";
@@ -12211,7 +12222,8 @@ async function loadCCVSubFolders(){
                     </h3>
 
                 </div>
-    `).join("");
+
+            `).join("");
 
     }
     catch(error){

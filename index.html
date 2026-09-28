@@ -10667,102 +10667,28 @@ function renderCCVForm(type) {
    let html = '';
 
  if(type === 'taken'){
-  html = `
-
-  <select onchange="applyTemplate(this.value)">
-    <option value="">📋 Gebruik template...</option>
-    <option value="Oorzaken">🧬 Oorzaken</option>
-    <option value="Ziekteverloop">🔄 Ziekteverloop</option>
-    <option value="Flare-ups">🔥 Flare-ups</option>
-    <option value="Remissie">✅ Remissie</option>
-    <option value="Biologische therapie">💉 Biologische therapie</option>
-    <option value="Ademhalingsoefeningen">🌬️ Ademhaling</option>
-  </select>
-
-  <input id="f_title" placeholder="Titel"><br>
-  <textarea id="f_content" placeholder="Beschrijving"></textarea><br>
-
-  <input id="f_owner" placeholder="Inbrenger"><br>
-  <input id="f_group" placeholder="Werkgroep"><br>
-  <input id="f_people" placeholder="Betrokkenen"><br>
-  <input type="date" id="f_date"><br>
-
-  <select id="f_status">
-    <option>Aan te maken</option>
-    <option>In uitvoering</option>
-    <option>Beëindigd</option>
-  </select>
-
-  <button onclick="saveCCVUniversal('taken')">Opslaan</button>
-  `;
+    document.getElementById('ccvDynamicForm').innerHTML = '';
+    return;
 }
 
   if(type === 'werkgroepen'){
-    html = `
-      <input id="f_name" placeholder="Naam"><br>
-      <input id="f_leader" placeholder="Verantwoordelijke"><br>
-      <input id="f_members" placeholder="Leden"><br>
-      <button onclick="saveCCVUniversal('werkgroepen')">Opslaan</button>
-    `;
-  }
-
-  if(type === 'vergaderingen'){
-    html = `
-      <input id="f_title" placeholder="Titel"><br>
-      <input type="date" id="f_date"><br>
-      <textarea id="f_notes" placeholder="Verslag"></textarea><br>
-      <button onclick="saveCCVUniversal('vergaderingen')">Opslaan</button>
-    `;
-  }
-
-  if(type === 'projecten'){
-
-  html = `
-
-    <input
-      id="f_title"
-      placeholder="Projectnaam">
-
-    <input
-      id="f_owner"
-      placeholder="Projectleider">
-
-    <input
-      id="f_status"
-      placeholder="Status">
-
-    <textarea
-      id="f_notes"
-      placeholder="Beschrijving">
-    </textarea>
-
-    <button
-      onclick="
-        saveCCVUniversal(
-          'projecten'
-        )
-      ">
-      Opslaan
-    </button>
-
-  `;
+    document.getElementById('ccvDynamicForm').innerHTML = '';
+    return;
 }
 
-  if(type === 'documenten'){
-    html = `
-      <input id="f_title" placeholder="Titel"><br>
-      <input id="f_url" placeholder="Link"><br>
-      <button onclick="saveCCVUniversal('documenten')">Opslaan</button>
-    `;
-  }
+if(type === 'vergaderingen'){
+    document.getElementById('ccvDynamicForm').innerHTML = '';
+    return;
+}
 
-  if(type === 'leden'){
-    html = `
-      <input id="f_name" placeholder="Naam"><br>
-      <input id="f_region" placeholder="Regio"><br>
-      <input id="f_contact" placeholder="Contact"><br>
-      <button onclick="saveCCVUniversal('leden')">Opslaan</button>
-    `;
+if(type === 'projecten'){
+    document.getElementById('ccvDynamicForm').innerHTML = '';
+    return;
+}
+
+if(type === 'leden'){
+    document.getElementById('ccvDynamicForm').innerHTML = '';
+    return;
   }
 
   document.getElementById('ccvDynamicForm').innerHTML = html;

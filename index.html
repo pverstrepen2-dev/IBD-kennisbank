@@ -13300,7 +13300,9 @@ folderIndex.forEach(folder => {
 
 });
 
-fileIndex.forEach(file => {
+fileIndex
+    .slice(0,250)
+    .forEach(file => {
 
     const fileNodeId =
         "file_" + file.id;
@@ -13590,7 +13592,17 @@ tasks.forEach(task => {
         data,
 
         {
+            layout: {
 
+                improvedLayout: false
+
+        },
+
+            physics: {
+
+                 stabilization: false
+
+        },
             groups: {
 
                 hoofdgroep: {

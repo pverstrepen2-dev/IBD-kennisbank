@@ -3710,6 +3710,8 @@ let indexReady = false;
 let knowledgeNodes = [];
 let oneDriveIndexLoaded = false;
 let cachedRootItems = [];
+const KNOWLEDGE_FOLDER =
+"/Documents/CCV-VZW/Kennisbank";
 const WEBSITE_CATEGORIES = [
     { value:"Onderwijs", icon:"🎓" },
     { value:"Ziekenhuis", icon:"🏥" },
@@ -4565,40 +4567,57 @@ const SearchService = {
 
     async search(query){
 
-        const data =
-            await getMasterData();
+    const data =
+        await getMasterData();
 
-        if(!query){
+    const alles = [
 
-            return data;
+        ...data,
 
-        }
+        ...oneDriveIndex
 
-        const term =
-            String(query || '')
-                .toLowerCase();
+    ];
 
-        return data.filter(item =>
+    if(!query){
 
-            String(item.title || '')
-                .toLowerCase()
-                .includes(term)
+        return alles;
+    }
 
-            ||
+    const term =
+        String(query || '')
+            .toLowerCase();
 
-            String(item.content || '')
-                .toLowerCase()
-                .includes(term)
+    return alles.filter(item => {
 
-            ||
+        const tekst = [
 
-            String(item.category || '')
-                .toLowerCase()
-                .includes(term)
+            item.title || "",
 
-        );
+            item.content || "",
 
-    },
+            item.category || "",
+
+            item.categorie || "",
+
+            item.tags || "",
+
+            item.hoofdgroep || "",
+
+            item.fulltext || "",
+
+            item.samenvatting || "",
+
+            item.fileName || ""
+
+        ]
+        .join(" ")
+        .toLowerCase();
+
+        return tekst.includes(term);
+
+    });
+
+},
 
     searchFAQ(
         query,
@@ -15883,7 +15902,37 @@ console.log(
 );
 currentAIResults =
     results;
-aiProposals = results;
+
+aiProposals =
+    results;
+
+oneDriveIndex =
+    results.map(r => ({
+
+        id: r.fileId,
+
+        title: r.fileName,
+
+        content: r.samenvatting,
+
+        fulltext: r.zoekindex,
+
+        category: r.categorie,
+
+        hoofdgroep: r.hoofdgroep,
+
+        fileId: r.fileId,
+
+        source: "OneDrive"
+
+    }));
+
+oneDriveIndexLoaded = true;
+
+localStorage.setItem(
+    "oneDriveIndex",
+    JSON.stringify(oneDriveIndex)
+);
 
    const container =
     document.getElementById(

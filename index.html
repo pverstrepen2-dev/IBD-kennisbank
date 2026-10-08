@@ -13612,8 +13612,199 @@ console.log(
     "Object gevonden:",
     item
 );
+if(nodeId === "WERKGROEPEN"){
 
-    if(!item){
+    panel.innerHTML = `
+
+        <h3>👥 Werkgroepen</h3>
+
+        <p>
+            ${groups.length}
+            werkgroepen gevonden
+        </p>
+
+        <hr>
+
+        ${groups.map(g => `
+
+            <div>
+
+                👥 ${g.name}
+
+            </div>
+
+        `).join("")}
+
+    `;
+
+    return;
+}
+
+if(nodeId === "PROJECTEN"){
+
+    panel.innerHTML = `
+
+        <h3>📁 Projecten</h3>
+
+        <p>
+            ${projecten.length}
+            projecten gevonden
+        </p>
+
+    `;
+
+    return;
+}
+
+if(nodeId === "VERGADERINGEN"){
+
+    panel.innerHTML = `
+
+        <h3>🗓 Vergaderingen</h3>
+
+        <p>
+            ${meetings.length}
+            vergaderingen gevonden
+        </p>
+
+    `;
+
+    return;
+}
+
+if(nodeId === "TAKEN"){
+
+    panel.innerHTML = `
+
+        <h3>📋 Taken</h3>
+
+        <p>
+            ${tasks.length}
+            taken gevonden
+        </p>
+
+    `;
+
+    return;
+}
+    console.log(
+    "Object gevonden:",
+    item
+);
+
+// ROOT NODES
+
+if(nodeId === "WERKGROEPEN"){
+
+    panel.innerHTML = `
+
+        <h3>👥 Werkgroepen</h3>
+
+        <p>
+            ${groups.length} werkgroepen gevonden
+        </p>
+
+        <hr>
+
+        ${groups.map(g => `
+
+            <div style="margin-bottom:10px;">
+
+                👥 ${g.name}
+
+            </div>
+
+        `).join("")}
+
+    `;
+
+    return;
+}
+
+if(nodeId === "PROJECTEN"){
+
+    panel.innerHTML = `
+
+        <h3>📁 Projecten</h3>
+
+        <p>
+            ${projecten.length} projecten gevonden
+        </p>
+
+        <hr>
+
+        ${projecten.map(p => `
+
+            <div style="margin-bottom:10px;">
+
+                📁 ${p.title}
+
+            </div>
+
+        `).join("")}
+
+    `;
+
+    return;
+}
+
+if(nodeId === "VERGADERINGEN"){
+
+    panel.innerHTML = `
+
+        <h3>🗓 Vergaderingen</h3>
+
+        <p>
+            ${meetings.length} vergaderingen gevonden
+        </p>
+
+        <hr>
+
+        ${meetings.map(m => `
+
+            <div style="margin-bottom:10px;">
+
+                🗓 ${m.title}
+
+            </div>
+
+        `).join("")}
+
+    `;
+
+    return;
+}
+
+if(nodeId === "TAKEN"){
+
+    panel.innerHTML = `
+
+        <h3>📋 Taken</h3>
+
+        <p>
+            ${tasks.length} taken gevonden
+        </p>
+
+        <hr>
+
+        ${tasks.map(t => `
+
+            <div style="margin-bottom:10px;">
+
+                📋 ${t.title}
+
+            </div>
+
+        `).join("")}
+
+    `;
+
+    return;
+}
+
+// CATEGORIE NODES
+
+if(!item){
 
     const categorieDocs =
         docs.filter(d =>
@@ -13669,9 +13860,8 @@ console.log(
     const hoofdgroepDocs =
         docs.filter(
             d =>
-                String(
-                    d.hoofdgroep
-                ) === String(nodeId)
+                String(d.hoofdgroep) ===
+                String(nodeId)
         );
 
     if(hoofdgroepDocs.length){
@@ -13686,6 +13876,28 @@ console.log(
                 ${hoofdgroepDocs.length}
                 documenten gevonden
             </p>
+
+            <hr>
+
+            ${hoofdgroepDocs.map(doc => `
+
+                <div style="margin-bottom:10px;">
+
+                    <span
+                        onclick="openDocumentById('${doc.fileId}')"
+                        style="
+                            color:#1565c0;
+                            cursor:pointer;
+                            text-decoration:underline;
+                        ">
+
+                        📄 ${doc.title}
+
+                    </span>
+
+                </div>
+
+            `).join("")}
 
         `;
 
@@ -13711,7 +13923,6 @@ console.log(
 
     return;
 }
-
     const zoekwoorden =
 
     item.tags

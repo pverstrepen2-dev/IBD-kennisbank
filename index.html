@@ -13034,6 +13034,20 @@ console.table(
 const uniekeNodes =
     new Set();
 
+nodes.push({
+
+    id: "ONEDRIVE_ROOT",
+
+    label: "☁️ CCV-VZW",
+
+    group: "folder"
+
+});
+
+uniekeNodes.add(
+    "ONEDRIVE_ROOT"
+);
+
     let html =
         `<h2>🧠 Knowledge Graph</h2>`;
 
@@ -13241,6 +13255,97 @@ edges.push({
 
 });    // einde docs.forEach
 
+// ======================
+// ONEDRIVE STRUCTUUR
+// ======================
+
+folderIndex.forEach(folder => {
+
+    const folderId =
+        "folder_" + folder.id;
+
+    if(
+        !uniekeNodes.has(folderId)
+    ){
+
+        nodes.push({
+
+            id: folderId,
+
+            label:
+                "📁 " +
+                (folder.name || "Map"),
+
+            group: "folder"
+
+        });
+
+        uniekeNodes.add(
+            folderId
+        );
+
+        edges.push({
+
+            from:
+                "ONEDRIVE_ROOT",
+
+            to:
+                folderId
+
+        });
+
+    }
+
+});
+
+fileIndex.forEach(file => {
+
+    const fileNodeId =
+        "file_" + file.id;
+
+    if(
+        !uniekeNodes.has(fileNodeId)
+    ){
+
+        nodes.push({
+
+            id: fileNodeId,
+
+            label:
+                "📄 " +
+                (file.name || "Bestand"),
+
+            group: "file"
+
+        });
+
+        uniekeNodes.add(
+            fileNodeId
+        );
+
+        edges.push({
+
+            from:
+
+                file.parentId
+
+                ?
+
+                "folder_" + file.parentId
+
+                :
+
+                "ONEDRIVE_ROOT",
+
+            to:
+                fileNodeId
+
+        });
+
+    }
+
+});
+
 projecten.forEach(project => {
 
     console.log(
@@ -13365,7 +13470,7 @@ tasks.forEach(task => {
             "task"
 
     });
-    
+
     edges.push({
 
         from:
@@ -13516,6 +13621,13 @@ tasks.forEach(task => {
 
                 task: {
                     color: "#FF9800"
+                },
+                folder: {
+                    color:"#FF9800"
+                },
+
+                file: {
+                    color:"#03A9F4"
                 }
 
             }
@@ -13722,6 +13834,95 @@ if(nodeId === "TAKEN"){
 );
 
 // ROOT NODES
+
+if(nodeId === "ONEDRIVE_ROOT"){
+
+    panel.innerHTML = `
+
+        <h3>
+            ☁️ CCV-VZW
+        </h3>
+
+        <p>
+            ${folderIndex.length}
+            mappen gevonden
+        </p>
+
+        <p>
+            ${fileIndex.length}
+            bestanden gevonden
+        </p>
+
+    `;
+
+    return;
+}
+
+if(
+    String(nodeId)
+    .startsWith("folder_")
+){
+
+    const folder =
+
+        folderIndex.find(
+            f =>
+                "folder_" + f.id
+                === nodeId
+        );
+
+    if(folder){
+
+        panel.innerHTML = `
+
+            <h3>
+                📁 ${folder.name}
+            </h3>
+
+            <p>
+                OneDrive map
+            </p>
+
+        `;
+
+        return;
+
+    }
+
+}
+
+if(
+    String(nodeId)
+    .startsWith("file_")
+){
+
+    const file =
+
+        fileIndex.find(
+            f =>
+                "file_" + f.id
+                === nodeId
+        );
+
+    if(file){
+
+        panel.innerHTML = `
+
+            <h3>
+                📄 ${file.name}
+            </h3>
+
+            <p>
+                OneDrive bestand
+            </p>
+
+        `;
+
+        return;
+
+    }
+
+}
 
 if(nodeId === "WERKGROEPEN"){
 

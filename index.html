@@ -13615,6 +13615,83 @@ console.log(
 
     if(!item){
 
+    const categorieDocs =
+        docs.filter(d =>
+
+            nodeId ===
+            (
+                (d.hoofdgroep || "Onbekend")
+                + "_" +
+                (d.categorie || "Onbekend")
+            )
+        );
+
+    if(categorieDocs.length){
+
+        panel.innerHTML = `
+
+            <h3>
+                📂 ${nodeId}
+            </h3>
+
+            <p>
+                ${categorieDocs.length}
+                documenten gevonden
+            </p>
+
+            <hr>
+
+            ${categorieDocs.map(doc => `
+
+                <div style="margin-bottom:10px;">
+
+                    <span
+                        onclick="openDocumentById('${doc.fileId}')"
+                        style="
+                            color:#1565c0;
+                            cursor:pointer;
+                            text-decoration:underline;
+                        ">
+
+                        📄 ${doc.title}
+
+                    </span>
+
+                </div>
+
+            `).join("")}
+
+        `;
+
+        return;
+    }
+
+    const hoofdgroepDocs =
+        docs.filter(
+            d =>
+                String(
+                    d.hoofdgroep
+                ) === String(nodeId)
+        );
+
+    if(hoofdgroepDocs.length){
+
+        panel.innerHTML = `
+
+            <h3>
+                🧩 ${nodeId}
+            </h3>
+
+            <p>
+                ${hoofdgroepDocs.length}
+                documenten gevonden
+            </p>
+
+        `;
+
+        return;
+    }
+
     console.error(
         "Geen item gevonden voor node:",
         nodeId
@@ -13622,25 +13699,15 @@ console.log(
 
     panel.innerHTML = `
 
-<div class="knowledge-breadcrumbs">
+        <h3>
+            Item niet gevonden
+        </h3>
 
-    IBD > Onbekend item
+        <p>
+            Node ID: ${nodeId}
+        </p>
 
-</div>
-
-<h3>
-
-    Item niet gevonden
-
-</h3>
-
-<p>
-
-    Node ID: ${nodeId}
-
-</p>
-
-`;
+    `;
 
     return;
 }
@@ -13925,9 +13992,10 @@ const gerelateerdeFaqs =
 
     <button
     class="tab"
-    onclick="showTab('werkgroepen')"
-    focusNodeGroup('group');
->
+    onclick="
+        showTab('werkgroepen');
+        focusNodeGroup('group');
+    ">
     👥 Werkgroepen
 </button>
 
@@ -13938,11 +14006,12 @@ const gerelateerdeFaqs =
     ❓ FAQ's
 </button>
 
-    <button
+   <button
     class="tab"
-    onclick="showTab('projecten')"
-    focusNodeGroup('project');
->
+    onclick="
+        showTab('projecten');
+        focusNodeGroup('project');
+    ">
     📁 Projecten
 </button>
 

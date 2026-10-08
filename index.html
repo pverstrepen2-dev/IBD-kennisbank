@@ -13243,13 +13243,21 @@ edges.push({
 
 projecten.forEach(project => {
 
+    console.log(
+    "PROJECT:",
+    project
+);
+
     nodes.push({
 
         id:
             "project_" + project.id,
 
         label:
-            project.title,
+    project.title ||
+    project.name ||
+    project.naam ||
+    ("Project " + project.id),
 
         group:
             "project"
@@ -13276,7 +13284,14 @@ meetings.forEach(meeting => {
             "meeting_" + meeting.id,
 
         label:
-            meeting.title,
+
+            meeting.title ||
+
+            meeting.name ||
+
+            meeting.subject ||
+
+            ("Vergadering " + meeting.id),
 
         group:
             "meeting"
@@ -13303,7 +13318,14 @@ groups.forEach(group => {
             "group_" + group.id,
 
         label:
-            group.name,
+
+            group.name ||
+
+            group.title ||
+
+            group.naam ||
+
+            ("Werkgroep " + group.id),
 
         group:
             "group"
@@ -13330,13 +13352,20 @@ tasks.forEach(task => {
             "task_" + task.id,
 
         label:
-            task.title,
+
+            task.title ||
+
+            task.name ||
+
+            task.subject ||
+
+            ("Taak " + task.id),
 
         group:
             "task"
 
     });
-
+    
     edges.push({
 
         from:
@@ -14008,7 +14037,10 @@ if(!item){
 
 console.log(
     "Item:",
-    item.title || item.name
+    item.title ||
+    item.name ||
+    item.subject ||
+    item.id
 );
 
 console.log(
@@ -14073,7 +14105,12 @@ const gerelateerdeFaqs =
 
         <h3>
 
-            ${item.title || item.name}
+            ${
+    item.title ||
+    item.name ||
+    item.subject ||
+    ("Object " + item.id)
+}
 
         </h3>
 <p>

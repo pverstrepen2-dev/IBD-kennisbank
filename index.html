@@ -1446,21 +1446,43 @@ class="tab-content">
 
         <h2>🧠 Kenniskaart</h2>
 
-        <input
-            type="text"
-            id="knowledgeSearch"
-            placeholder="Zoekterm..."
-        >
+       <input
+    type="text"
+    id="knowledgeSearch"
+    placeholder="Zoekterm...">
 
-        <br><br>
+<div class="card"
+     style="margin-top:10px;max-width:350px;">
 
-        <button
-            class="btn btn-primary"
-            onclick="buildKnowledgeMap()">
+    <label>
+        🔍 Zoekgevoeligheid
+    </label>
 
-            Kenniskaart genereren
+    <input
+        type="range"
+        id="searchScoreSlider"
+        min="0"
+        max="200"
+        step="5"
+        value="50"
+        oninput="updateSearchThreshold(this.value)">
 
-        </button>
+    <div id="searchScoreValue">
+        Minimumscore: 50
+    </div>
+
+</div>
+
+<br>
+
+<button
+    class="btn btn-primary"
+    onclick="buildKnowledgeMap()">
+
+    Kenniskaart genereren
+
+</button>
+
 <div id="knowledgeStats">
 
 </div>
@@ -3710,6 +3732,28 @@ let indexReady = false;
 let knowledgeNodes = [];
 let oneDriveIndexLoaded = false;
 let cachedRootItems = [];
+const SEARCH_SETTINGS = {
+
+    minScoreShort: 25,
+
+    minScoreNormal: 50,
+
+    maxResults: 100,
+
+    fuzzyEnabled: true
+
+};
+const savedScore =
+    localStorage.getItem(
+        "searchMinScore"
+    );
+
+if(savedScore){
+
+    SEARCH_SETTINGS.minScoreNormal =
+        Number(savedScore);
+
+}
 const KNOWLEDGE_FOLDER =
 "/Documents/CCV-VZW/Kennisbank";
 const WEBSITE_CATEGORIES = [
@@ -4563,6 +4607,187 @@ const websites =
 
 }
 
+function similarity(a,b){
+
+    a = String(a || "")
+        .toLowerCase();
+
+    b = String(b || "")
+        .toLowerCase();
+
+    if(!a || !b){
+        return 0;
+    }
+
+    let matches = 0;
+
+    const len =
+        Math.min(
+            a.length,
+            b.length
+        );
+
+    for(
+        let i = 0;
+        i < len;
+        i++
+    ){
+
+        if(a[i] === b[i]){
+            matches++;
+        }
+
+    }
+
+    return matches /
+        Math.max(
+            a.length,
+            b.length
+        );
+}
+
+function updateSearchThreshold(value){
+
+    SEARCH_SETTINGS.minScoreNormal =
+        Number(value);
+
+    document.getElementById(
+        "searchScoreValue"
+    ).innerHTML =
+        "Minimumscore: " + value;
+
+    localStorage.setItem(
+        "searchMinScore",
+        value
+    );
+}
+
+function calculateSearchScore(item, term){
+
+    let score = 0;
+
+    const title =
+        String(item.title || "")
+        .toLowerCase();
+
+    const category =
+        String(
+            item.category ||
+            item.categorie ||
+            ""
+        ).toLowerCase();
+
+    const tags =
+        Array.isArray(item.tags)
+            ? item.tags.join(" ").toLowerCase()
+            : String(item.tags || "")
+                .toLowerCase();
+
+    const summary =
+        String(
+            item.samenvatting || ""
+        ).toLowerCase();
+
+    const content =
+        String(
+            item.content || ""
+        ).toLowerCase();
+
+    const fulltext =
+        String(
+            item.fulltext || ""
+        ).toLowerCase();
+
+    // exacte titelmatch
+
+    if(title === term)
+        score += 1000;
+
+    // titel bevat zoekterm
+
+    if(title.includes(term))
+        score += 300;
+
+    // categorie
+
+    if(category.includes(term))
+        score += 200;
+
+    // tags
+
+    if(tags.includes(term))
+        score += 200;
+
+    // samenvatting
+
+    if(summary.includes(term))
+        score += 100;
+
+    // inhoud
+
+    if(content.includes(term))
+        score += 50;
+
+    // volledige documenttekst
+
+    if(fulltext.includes(term))
+        score += 25;
+
+    // woord per woord
+
+    const words =
+        term.split(/\s+/);
+
+    words.forEach(word => {
+
+        if(title.includes(word))
+            score += 50;
+
+        if(tags.includes(word))
+            score += 30;
+
+        if(content.includes(word))
+            score += 10;
+
+        if(fulltext.includes(word))
+            score += 5;
+    });
+if(item.source === "OneDrive"){
+    score += 10;
+}
+
+if(item.confidence){
+    score += item.confidence;
+}
+
+if(item.fileId){
+    score += 20;
+}
+if(
+    SEARCH_SETTINGS.fuzzyEnabled
+){
+
+    if(
+        similarity(title,term) > 0.7
+    ){
+        score += 150;
+    }
+
+    if(
+        similarity(category,term) > 0.7
+    ){
+        score += 100;
+    }
+
+}
+    return score;
+    if(summary.startsWith(term))
+    score += 150;
+
+if(title.startsWith(term))
+    score += 250;
+}
+
 const SearchService = {
 
     async search(query){
@@ -4584,39 +4809,38 @@ const SearchService = {
     }
 
     const term =
-        String(query || '')
-            .toLowerCase();
+        String(query || "")
+        .toLowerCase()
+        .trim();
+        const MIN_SEARCH_SCORE =
+    term.length < 5
+        ? SEARCH_SETTINGS.minScoreShort
+        : SEARCH_SETTINGS.minScoreNormal;
 
-    return alles.filter(item => {
+    const resultaten =
 
-        const tekst = [
+    alles
+    .map(item => ({
 
-            item.title || "",
+        ...item,
 
-            item.content || "",
+        score:
+            calculateSearchScore(
+                item,
+                term
+            )
 
-            item.category || "",
-
-            item.categorie || "",
-
-            item.tags || "",
-
-            item.hoofdgroep || "",
-
-            item.fulltext || "",
-
-            item.samenvatting || "",
-
-            item.fileName || ""
-
-        ]
-        .join(" ")
-        .toLowerCase();
-
-        return tekst.includes(term);
-
-    });
-
+    }))
+    .filter(
+        item =>
+            item.score > MIN_SEARCH_SCORE
+    )
+    .sort(
+        (a,b) =>
+            b.score - a.score
+    )
+.slice(0,SEARCH_SETTINGS.maxResults);
+    return resultaten;
 },
 
     searchFAQ(
@@ -7302,6 +7526,27 @@ console.log("FAQ klaar");
         refreshWebsitesOverview();
     }
 }, 2000);
+setTimeout(() => {
+
+    const slider =
+        document.getElementById(
+            "searchScoreSlider"
+        );
+
+    if(slider){
+
+        slider.value =
+            SEARCH_SETTINGS.minScoreNormal;
+
+        document.getElementById(
+            "searchScoreValue"
+        ).innerHTML =
+
+            "Minimumscore: "
+            + SEARCH_SETTINGS.minScoreNormal;
+    }
+
+},500);
   
   // =========================
 // CCV MODULE (NIEUW)

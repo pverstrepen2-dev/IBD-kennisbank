@@ -13609,15 +13609,10 @@ folderIndex.forEach(folder => {
             folderId
         );
 
-        edges.push({
-
-            from:
-                "ONEDRIVE_ROOT",
-
-            to:
-                folderId
-
-        });
+        addEdge(
+    "ONEDRIVE_ROOT",
+    folderId
+);
 
     }
 
@@ -13650,24 +13645,17 @@ fileIndex
             fileNodeId
         );
 
-        edges.push({
+       addEdge(
 
-            from:
+    file.parentId
+    ?
+    "folder_" + file.parentId
+    :
+    "ONEDRIVE_ROOT",
 
-                file.parentId
+    fileNodeId
 
-                ?
-
-                "folder_" + file.parentId
-
-                :
-
-                "ONEDRIVE_ROOT",
-
-            to:
-                fileNodeId
-
-        });
+);
 
     }
 
@@ -13698,7 +13686,7 @@ projecten.forEach(project => {
 
     addEdge(
 
-    tagId,
+    "PROJECTEN",
 
     "project_" +
     project.id
@@ -13731,7 +13719,7 @@ meetings.forEach(meeting => {
 
     addEdge(
 
-    tagId,
+    "VERGADERINGEN",
 
     "meeting_" +
     meeting.id
@@ -13764,12 +13752,13 @@ groups.forEach(group => {
 
     addEdge(
 
-    tagId,
+    "WERKGROEPEN",
 
     "group_" +
     group.id
 
 );
+
 
 });
 
@@ -13797,7 +13786,7 @@ tasks.forEach(task => {
 
     addEdge(
 
-    tagId,
+    "TAKEN",
 
     "task_" +
     task.id

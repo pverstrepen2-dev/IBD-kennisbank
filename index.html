@@ -13243,6 +13243,28 @@ console.table(
     const edges = [];
 const uniekeNodes =
     new Set();
+   const uniekeEdges =
+    new Set();
+
+function addEdge(from,to){
+
+    const edgeKey =
+        from + "=>" + to;
+
+    if(
+        !uniekeEdges.has(edgeKey)
+    ){
+
+        uniekeEdges.add(edgeKey);
+
+        edges.push({
+            from,
+            to
+        });
+
+    }
+
+}
 
 nodes.push({
 
@@ -13384,15 +13406,10 @@ if(
 
     });
 
-    edges.push({
-
-        from:
-            doc.hoofdgroep,
-
-        to:
-            categorieId
-
-    });
+    addEdge(
+    doc.hoofdgroep,
+    categorieId
+);
 
     uniekeNodes.add(
         categorieId
@@ -13414,15 +13431,10 @@ if(!uniekeNodes.has(doc.id)){
 
 }
 
-edges.push({
-
-    from:
-        categorieId,
-
-    to:
-        doc.id
-
-});
+addEdge(
+    categorieId,
+    doc.id
+);
 
 (doc.tags || [])
 .forEach(tag => {
@@ -13450,20 +13462,121 @@ edges.push({
 
     }
 
-    edges.push({
+    addEdge(
+    doc.id,
+    tagId
+);
 
-        from: doc.id,
+projecten.forEach(project => {
 
-        to: tagId
+    const tekst =
 
-    });
+        JSON.stringify(project)
+            .toLowerCase();
+
+    if(
+        tekst.includes(
+            tag.toLowerCase()
+        )
+    ){
+
+       addEdge(
+
+    tagId,
+
+    "project_" +
+    project.id
+
+);
+
+    }
 
 });
 
-    structuur[hoofdgroep][categorie]
+meetings.forEach(meeting => {
+
+    const tekst =
+
+        JSON.stringify(meeting)
+            .toLowerCase();
+
+    if(
+        tekst.includes(
+            tag.toLowerCase()
+        )
+    ){
+
+        addEdge(
+
+    tagId,
+
+    "meeting_" +
+    meeting.id
+
+);
+
+    }
+
+});
+
+groups.forEach(group => {
+
+    const tekst =
+
+        JSON.stringify(group)
+            .toLowerCase();
+
+    if(
+        tekst.includes(
+            tag.toLowerCase()
+        )
+    ){
+
+        addEdge(
+
+    tagId,
+
+    "group_" +
+    group.id
+
+);
+
+    }
+
+});
+
+tasks.forEach(task => {
+
+    const tekst =
+
+        JSON.stringify(task)
+            .toLowerCase();
+
+    if(
+        tekst.includes(
+            tag.toLowerCase()
+        )
+    ){
+
+        addEdge(
+
+    tagId,
+
+    "task_" +
+    task.id
+
+);
+
+    }
+
+});
+
+        structuur[hoofdgroep][categorie]
         .push(doc);
 
-});    // einde docs.forEach
+}); // einde tags.forEach
+
+}); // einde docs.forEach
 
 // ======================
 // ONEDRIVE STRUCTUUR
@@ -13494,15 +13607,10 @@ folderIndex.forEach(folder => {
             folderId
         );
 
-        edges.push({
-
-            from:
-                "ONEDRIVE_ROOT",
-
-            to:
-                folderId
-
-        });
+        addEdge(
+    "ONEDRIVE_ROOT",
+    folderId
+);
 
     }
 
@@ -13535,24 +13643,17 @@ fileIndex
             fileNodeId
         );
 
-        edges.push({
+       addEdge(
 
-            from:
+    file.parentId
+    ?
+    "folder_" + file.parentId
+    :
+    "ONEDRIVE_ROOT",
 
-                file.parentId
+    fileNodeId
 
-                ?
-
-                "folder_" + file.parentId
-
-                :
-
-                "ONEDRIVE_ROOT",
-
-            to:
-                fileNodeId
-
-        });
+);
 
     }
 
@@ -13581,15 +13682,14 @@ projecten.forEach(project => {
 
     });
 
-    edges.push({
+    addEdge(
 
-        from:
-            "PROJECTEN",
+    "PROJECTEN",
 
-        to:
-            "project_" + project.id
+    "project_" +
+    project.id
 
-    });
+);
 
 });
 
@@ -13615,15 +13715,14 @@ meetings.forEach(meeting => {
 
     });
 
-    edges.push({
+    addEdge(
 
-        from:
-            "VERGADERINGEN",
+    "VERGADERINGEN",
 
-        to:
-            "meeting_" + meeting.id
+    "meeting_" +
+    meeting.id
 
-    });
+);
 
 });
 
@@ -13649,15 +13748,15 @@ groups.forEach(group => {
 
     });
 
-    edges.push({
+    addEdge(
 
-        from:
-            "WERKGROEPEN",
+    "WERKGROEPEN",
 
-        to:
-            "group_" + group.id
+    "group_" +
+    group.id
 
-    });
+);
+
 
 });
 
@@ -13683,15 +13782,14 @@ tasks.forEach(task => {
 
     });
 
-    edges.push({
+    addEdge(
 
-        from:
-            "TAKEN",
+    "TAKEN",
 
-        to:
-            "task_" + task.id
+    "task_" +
+    task.id
 
-    });
+);
 
 });
 
@@ -13738,7 +13836,7 @@ tasks.forEach(task => {
 
     <span
         style="
-            color:#1565c0;
+            color:#ffffff;
             cursor:pointer;
             text-decoration:underline;
         "
@@ -13781,7 +13879,21 @@ tasks.forEach(task => {
         document.getElementById(
             "knowledgeNetwork"
         );
+console.log(
+    "Nodes:",
+    nodes.length
+);
 
+console.log(
+    "Edges:",
+    edges.length
+);
+
+console.log(
+    "Unieke edges:",
+    uniekeEdges.size
+);
+    
     const data = {
 
         nodes:
@@ -13893,7 +14005,6 @@ network.on(
     }
 
 );
-}
 
 function showKnowledgeNode(
 
@@ -14256,8 +14367,236 @@ if(nodeId === "TAKEN"){
 
 // CATEGORIE NODES
 
-if(!item){
+if(
+    String(nodeId)
+    .startsWith("tag_")
+){
 
+    const tagNaam =
+
+        String(nodeId)
+            .replace("tag_","");
+
+    const tagDocumenten =
+
+        docs.filter(doc =>
+
+            (doc.tags || [])
+
+            .some(tag =>
+
+                String(tag)
+                    .toLowerCase()
+
+                ===
+
+                tagNaam.toLowerCase()
+
+            )
+
+        );
+
+    const tagVergaderingen =
+
+        meetings.filter(meeting =>
+
+            JSON.stringify(meeting)
+                .toLowerCase()
+                .includes(
+                    tagNaam.toLowerCase()
+                )
+
+        );
+
+    const tagTaken =
+
+        tasks.filter(task =>
+
+            JSON.stringify(task)
+                .toLowerCase()
+                .includes(
+                    tagNaam.toLowerCase()
+                )
+
+        );
+
+    const tagProjecten =
+
+        projecten.filter(project =>
+
+            JSON.stringify(project)
+                .toLowerCase()
+                .includes(
+                    tagNaam.toLowerCase()
+                )
+
+        );
+
+    const tagFaqs =
+
+        docs
+            .filter(d => d.type === "FAQ")
+            .filter(faq =>
+
+                JSON.stringify(faq)
+                    .toLowerCase()
+                    .includes(
+                        tagNaam.toLowerCase()
+                    )
+
+            );
+
+    panel.innerHTML = `
+
+        <h3>
+
+            🏷️ ${tagNaam}
+
+        </h3>
+
+        <p>
+
+            🧠 Centraal kennisobject
+
+        </p>
+
+        <hr>
+
+        <div class="stats-grid">
+
+            <div class="stat-card">
+
+                <div class="number">
+                    ${tagDocumenten.length}
+                </div>
+
+                <div class="label">
+                    Documenten
+                </div>
+
+            </div>
+
+            <div class="stat-card">
+
+                <div class="number">
+                    ${tagFaqs.length}
+                </div>
+
+                <div class="label">
+                    FAQ's
+                </div>
+
+            </div>
+
+            <div class="stat-card">
+
+                <div class="number">
+                    ${tagVergaderingen.length}
+                </div>
+
+                <div class="label">
+                    Vergaderingen
+                </div>
+
+            </div>
+
+            <div class="stat-card">
+
+                <div class="number">
+                    ${tagTaken.length}
+                </div>
+
+                <div class="label">
+                    Taken
+                </div>
+
+            </div>
+
+            <div class="stat-card">
+
+                <div class="number">
+                    ${tagProjecten.length}
+                </div>
+
+                <div class="label">
+                    Projecten
+                </div>
+
+            </div>
+
+        </div>
+
+        <hr>
+
+        <h4>📄 Documenten</h4>
+
+        ${tagDocumenten
+            .slice(0,10)
+            .map(doc => `
+
+                <div>
+
+                    <span
+
+                        onclick="openDocumentById('${doc.fileId}')"
+
+                        style="
+                            color:#ffffff;
+                            cursor:pointer;
+                            text-decoration:underline;
+                        "
+
+                    >
+
+                        📄 ${doc.title}
+
+                    </span>
+
+                </div>
+
+            `)
+            .join("")
+        }
+
+        <hr>
+
+        <h4>❓ FAQ's</h4>
+
+        ${tagFaqs
+            .slice(0,10)
+            .map(faq => `
+
+                <div>
+
+                    <span
+
+                        onclick="openDocumentById('${faq.fileId}')"
+
+                        style="
+                            color:#ffffff;
+                            cursor:pointer;
+                            text-decoration:underline;
+                        "
+
+                    >
+
+                        ❓ ${faq.title}
+
+                    </span>
+
+                </div>
+
+            `)
+            .join("")
+        }
+
+    `;
+
+    return;
+}
+
+if(!item){
+   
     const categorieDocs =
         docs.filter(d =>
 
@@ -15109,6 +15448,7 @@ function focusNodeType(type){
     );
 
 }
+} // einde buildKnowledgeMap
 
 
 async function goBackFolder() {
@@ -19837,6 +20177,7 @@ window.onerror = function(msg){
 };
 
 </script>
+
 <div id="voedingModal" class="voeding-modal">
 
     <h3>🍎 Nieuw voedingsitem</h3>

@@ -195,11 +195,6 @@ console.log("PDF TEST", window.pdfjsLib);
     color: white;
 }
 
-#knowledgeGraph a {
-    color: white !important;
-    text-decoration: underline;
-}
-
 #knowledgeGraph strong,
 #knowledgeGraph h1,
 #knowledgeGraph h2,
@@ -218,11 +213,6 @@ console.log("PDF TEST", window.pdfjsLib);
 
 #ccvContent {
     color: white !important;
-}
-
-#ccvContent a {
-    color: white !important;
-    text-decoration: underline;
 }
 
 #ccvContent ul,
@@ -277,31 +267,13 @@ console.log("PDF TEST", window.pdfjsLib);
 #knowledgeNetwork{
 
     flex:2;
-
-    height:700px;
-
-    border:1px solid #ddd;
-
-    background:white;
-
-}
-
-#knowledgeSidePanel{
-
-    flex:1;
-
-    overflow-y:auto;
-
-    max-height:700px;
-
-    background:white;
-
-}
-
-#knowledgeNetwork{
     width:100%;
     height:700px;
+
     border:1px solid #ddd;
+
+    background:white;
+
     margin-top:20px;
 }
 
@@ -327,36 +299,10 @@ console.log("PDF TEST", window.pdfjsLib);
 
 }
 
-#knowledgeGraphContainer a{
-
-    color:#ffffff !important;
-
-    text-decoration:underline;
-
-}
-
 #knowledgeGraphContainer a:hover{
 
     color:#ffd54f !important;
 
-}
-
-/* Alle links in de knowledge graph wit maken */
-.knowledge-graph a,
-.knowledge-content a,
-.tree-content a,
-ul a,
-li a {
-    color: #ffffff !important;
-}
-
-/* Bij hover lichtgeel */
-.knowledge-graph a:hover,
-.knowledge-content a:hover,
-.tree-content a:hover,
-ul a:hover,
-li a:hover {
-    color: #ffff99 !important;
 }
 
     .stats-grid, .category-grid, .card-grid, .form-grid {
@@ -381,13 +327,6 @@ li a:hover {
 #faqContainer .card h3 {
     overflow-wrap: break-word;
     word-break: break-word;
-}
-
-  .stat-number{
-    font-size:32px;
-    font-weight:bold;
-    color:#4f46e5 !important;
-    display:block;
 }
 
 .stat-label {
@@ -501,6 +440,66 @@ li a:hover {
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: 12px;
     }
+
+.folder-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    padding:10px 15px;
+
+    margin-bottom:8px;
+
+    border:1px solid #e5e7eb;
+    border-radius:10px;
+
+    background:white;
+}
+
+.folder-row:hover{
+    background:#f8fafc;
+}
+
+.folder-info{
+    flex:1;
+}
+
+.folder-link{
+    font-weight:600;
+    text-decoration:none;
+    color:#1f2937;
+}
+
+.folder-link:hover{
+    color:#667eea;
+}
+
+.folder-actions{
+    display:flex;
+    gap:8px;
+}
+
+.folder-header{
+
+    margin-bottom:15px;
+
+}
+
+.folder-header h2{
+
+    margin:0;
+
+}
+
+.folder-stats{
+
+    color:#6b7280;
+
+    font-size:13px;
+
+    margin-top:4px;
+
+}
 
     .results-header {
       display: flex;
@@ -861,10 +860,10 @@ li a:hover {
 }
 
 .stat-number{
-    display:block !important;
-    font-size:32px !important;
-    color:red !important;
-    font-weight:bold !important;
+    display:block;
+    font-size:32px;
+    font-weight:bold;
+    color:#4f46e5;
 }
 
 .label{
@@ -906,13 +905,13 @@ li a:hover {
 
 #knowledgeSidePanel{
 
-    background:
-        rgba(
-            255,
-            255,
-            255,
-            0.08
-        );
+    flex:1;
+
+    overflow-y:auto;
+
+    max-height:700px;
+
+    background:rgba(255,255,255,.08);
 
     backdrop-filter:blur(10px);
 
@@ -921,23 +920,12 @@ li a:hover {
     padding:20px;
 
     color:white;
-
 }
 
 #knowledgeSidePanel h3,
 #knowledgeSidePanel h4{
 
     color:#FFD54F;
-
-}
-
-#knowledgeSidePanel a{
-
-    color:#FFD54F !important;
-
-    text-decoration:none;
-
-    font-weight:600;
 
 }
 
@@ -968,22 +956,6 @@ li a:hover {
     color:white !important;
 
     font-weight:500;
-
-}
-
-#nieuwContent{
-
-    display:grid;
-
-    grid-template-columns:
-        repeat(
-            auto-fit,
-            minmax(420px,1fr)
-        );
-
-    gap:20px;
-
-    align-items:start;
 
 }
 
@@ -1024,13 +996,11 @@ li a:hover {
     display:grid;
 
     grid-template-columns:
-        repeat(
-            auto-fit,
-            minmax(350px,1fr)
-        );
+        repeat(auto-fit,minmax(350px,1fr));
 
     gap:20px;
 
+    align-items:start;
 }
 
 .activity-item:hover{
@@ -1048,14 +1018,6 @@ li a:hover {
 #knowledgeContent *{
 
     color:white !important;
-
-}
-
-#knowledgeContent a{
-
-    color:white !important;
-
-    text-decoration:none;
 
 }
 
@@ -1094,6 +1056,140 @@ li a:hover {
 
 .medlib-column h3 {
     color: #f4b942 !important;
+}
+
+.drive-row{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    padding:8px 12px;
+
+    margin-bottom:4px;
+
+    border-radius:8px;
+
+    border:1px solid #e5e7eb;
+
+    background:#ffffff;
+
+    transition:all .2s;
+
+}
+
+.drive-row:hover{
+
+    background:#f8fafc;
+
+    border-color:#667eea;
+
+}
+
+.drive-left{
+
+    flex:1;
+
+    overflow:hidden;
+
+}
+
+.drive-link{
+
+    display:block;
+
+    text-decoration:none;
+
+    color:#1f2937;
+
+    font-weight:600;
+
+    white-space:nowrap;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+
+}
+
+.drive-meta{
+
+    font-size:12px;
+
+    color:#6b7280;
+
+    margin-top:2px;
+
+}
+
+.drive-link:hover{
+
+    color:#667eea;
+
+}
+
+.drive-actions{
+
+    display:flex;
+
+    gap:6px;
+
+}
+
+.icon-btn{
+
+    border:none;
+
+    background:none;
+
+    cursor:pointer;
+
+    font-size:18px;
+
+    padding:4px;
+
+}
+
+.icon-btn:hover{
+
+    transform:scale(1.15);
+
+}
+
+#knowledgeGraph a:hover,
+#knowledgeGraphContainer a:hover,
+#knowledgeContent a:hover,
+#knowledgeSidePanel a:hover,
+#ccvContent a:hover {
+
+    color:#FFD54F !important;
+
+}
+
+/* =========================
+   KNOWLEDGE GRAPH LINKS
+========================= */
+
+#knowledgeGraph a,
+#knowledgeGraphContainer a,
+#knowledgeContent a,
+#knowledgeSidePanel a,
+#ccvContent a {
+
+    color:#ffffff !important;
+    text-decoration:underline !important;
+    font-weight:500;
+}
+
+#knowledgeGraph a:hover,
+#knowledgeGraphContainer a:hover,
+#knowledgeContent a:hover,
+#knowledgeSidePanel a:hover,
+#ccvContent a:hover {
+
+    color:#FFD54F !important;
 }
 
   </style>
@@ -15235,81 +15331,115 @@ updateBreadcrumb();
 
 const html = data.value.map(item => `
 
-    <div
-        class="card"
-        style="cursor:pointer;"
-        onclick="${
-            item.folder
-                ? `openDriveFolder('${item.id}','${item.name}')`
-                : `openFile('${item.id}')`
-        }"
-    >
+<div
+    class="drive-row"
+    onclick="${
+        item.folder
+        ? `openDriveFolder('${item.id}','${item.name}')`
+        : `openFile('${item.id}')`
+    }"
+>
 
-       <h3>
-    ${item.folder ? "📁" : "📄"}
-    ${item.name}
-</h3>
-${
-    item.folder
-    ?
-    `
-    <button
-        class="btn btn-warning"
-        onclick="
-            event.stopPropagation();
-            scanFolderDocuments('${item.id}')
-        ">
-        🤖 Analyseer map
-    </button>
+    <div class="drive-left">
 
-    <button
-        class="btn btn-success"
-        onclick="
-            event.stopPropagation();
+    <div class="drive-link">
 
-            selectedUploadFolder = {
-                id:'${item.id}',
-                naam:'${item.name}'
-            };
+        ${item.folder ? '📁' : '📄'}
+        ${item.name}
 
-            const info =
-                document.getElementById(
-                    'selectedUploadFolderInfo'
-                );
-
-            if(info){
-
-                info.innerHTML =
-                    '✅ Uploadmap: ${item.name}';
-
-            }
-
-            showNotification(
-                'Map geselecteerd: ${item.name}'
-            );
-        ">
-
-        ✅ Upload hier
-
-    </button>
-    `
-    :
-    ''
-}
-${
-    !item.folder && suggestFileName(item.name)
-    ? `
-    <div style="margin-top:8px;color:#666;">
-        🤖 Naamvoorstel:
-        <b>${suggestFileName(item.name).voorstel}</b>
     </div>
-    `
-    : ''
-}
+
+    <div class="drive-meta">
+
+        ${
+            item.folder
+            ? "OneDrive map"
+            : "Document"
+        }
+
+    </div>
 
 </div>
-`).join("");
 
+    <div class="drive-actions">
+
+        ${
+            item.folder
+            ?
+            `
+            <button
+                class="icon-btn"
+                title="Analyseer map"
+                onclick="
+                    event.stopPropagation();
+                    scanFolderDocuments('${item.id}')
+                "
+            >
+                🤖
+            </button>
+
+            <button
+                class="icon-btn"
+                title="Upload naar map"
+                onclick="
+                    event.stopPropagation();
+
+                    selectedUploadFolder = {
+                        id:'${item.id}',
+                        naam:'${item.name}'
+                    };
+
+                    const info =
+                    document.getElementById(
+                        'selectedUploadFolderInfo'
+                    );
+
+                    if(info){
+
+                        info.innerHTML =
+                            '✅ Uploadmap: ${item.name}';
+
+                    }
+                "
+            >
+                ⬆️
+            </button>
+
+            <button
+                class="icon-btn"
+                title="Open map"
+                onclick="
+                    event.stopPropagation();
+                    openDriveFolder(
+                        '${item.id}',
+                        '${item.name}'
+                    );
+                "
+            >
+                📂
+            </button>
+            `
+            :
+            `
+            <button
+                class="icon-btn"
+                title="Open document"
+                onclick="
+                    event.stopPropagation();
+                    openFile('${item.id}')
+                "
+            >
+                📄
+            </button>
+            `
+        }
+
+    </div>
+
+</div>
+
+`).join('');
+     
 const backBtn =
     document.getElementById(
         "backBtn"
@@ -15363,8 +15493,23 @@ console.log(
     "FOLDER:",
     folderName
 );
-document.getElementById(target).innerHTML =
-    "<h2>📂 " + folderName + "</h2>" + html;
+document.getElementById(target).innerHTML = `
+
+<div class="folder-header">
+
+    <h2>📂 ${folderName}</h2>
+
+    <div class="folder-stats">
+
+        📦 ${data.value.length} items
+
+    </div>
+
+</div>
+
+${html}
+
+`;
     }
     catch(error){
 

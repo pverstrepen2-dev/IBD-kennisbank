@@ -13243,6 +13243,28 @@ console.table(
     const edges = [];
 const uniekeNodes =
     new Set();
+   const uniekeEdges =
+    new Set();
+
+function addEdge(from,to){
+
+    const edgeKey =
+        from + "=>" + to;
+
+    if(
+        !uniekeEdges.has(edgeKey)
+    ){
+
+        uniekeEdges.add(edgeKey);
+
+        edges.push({
+            from,
+            to
+        });
+
+    }
+
+}
 
 nodes.push({
 
@@ -13384,15 +13406,10 @@ if(
 
     });
 
-    edges.push({
-
-        from:
-            doc.hoofdgroep,
-
-        to:
-            categorieId
-
-    });
+    addEdge(
+    doc.hoofdgroep,
+    categorieId
+);
 
     uniekeNodes.add(
         categorieId
@@ -13414,15 +13431,10 @@ if(!uniekeNodes.has(doc.id)){
 
 }
 
-edges.push({
-
-    from:
-        categorieId,
-
-    to:
-        doc.id
-
-});
+addEdge(
+    categorieId,
+    doc.id
+);
 
 (doc.tags || [])
 .forEach(tag => {
@@ -13450,13 +13462,10 @@ edges.push({
 
     }
 
-    edges.push({
-
-        from: doc.id,
-
-        to: tagId
-
-    });
+    addEdge(
+    doc.id,
+    tagId
+);
 
 projecten.forEach(project => {
 
@@ -13471,15 +13480,14 @@ projecten.forEach(project => {
         )
     ){
 
-        edges.push({
+       addEdge(
 
-            from: tagId,
+    tagId,
 
-            to:
-                "project_" +
-                project.id
+    "project_" +
+    project.id
 
-        });
+);
 
     }
 
@@ -13498,15 +13506,14 @@ meetings.forEach(meeting => {
         )
     ){
 
-        edges.push({
+        addEdge(
 
-            from: tagId,
+    tagId,
 
-            to:
-                "meeting_" +
-                meeting.id
+    "meeting_" +
+    meeting.id
 
-        });
+);
 
     }
 
@@ -13525,15 +13532,14 @@ groups.forEach(group => {
         )
     ){
 
-        edges.push({
+        addEdge(
 
-            from: tagId,
+    tagId,
 
-            to:
-                "group_" +
-                group.id
+    "group_" +
+    group.id
 
-        });
+);
 
     }
 
@@ -13552,15 +13558,14 @@ tasks.forEach(task => {
         )
     ){
 
-        edges.push({
+        addEdge(
 
-            from: tagId,
+    tagId,
 
-            to:
-                "task_" +
-                task.id
+    "task_" +
+    task.id
 
-        });
+);
 
     }
 
@@ -13691,15 +13696,14 @@ projecten.forEach(project => {
 
     });
 
-    edges.push({
+    addEdge(
 
-        from:
-            "PROJECTEN",
+    tagId,
 
-        to:
-            "project_" + project.id
+    "project_" +
+    project.id
 
-    });
+);
 
 });
 
@@ -13725,15 +13729,14 @@ meetings.forEach(meeting => {
 
     });
 
-    edges.push({
+    addEdge(
 
-        from:
-            "VERGADERINGEN",
+    tagId,
 
-        to:
-            "meeting_" + meeting.id
+    "meeting_" +
+    meeting.id
 
-    });
+);
 
 });
 
@@ -13759,15 +13762,14 @@ groups.forEach(group => {
 
     });
 
-    edges.push({
+    addEdge(
 
-        from:
-            "WERKGROEPEN",
+    tagId,
 
-        to:
-            "group_" + group.id
+    "group_" +
+    group.id
 
-    });
+);
 
 });
 
@@ -13793,15 +13795,14 @@ tasks.forEach(task => {
 
     });
 
-    edges.push({
+    addEdge(
 
-        from:
-            "TAKEN",
+    tagId,
 
-        to:
-            "task_" + task.id
+    "task_" +
+    task.id
 
-    });
+);
 
 });
 
@@ -13891,7 +13892,21 @@ tasks.forEach(task => {
         document.getElementById(
             "knowledgeNetwork"
         );
+console.log(
+    "Nodes:",
+    nodes.length
+);
 
+console.log(
+    "Edges:",
+    edges.length
+);
+
+console.log(
+    "Unieke edges:",
+    uniekeEdges.size
+);
+    
     const data = {
 
         nodes:

@@ -13460,6 +13460,114 @@ edges.push({
 
 });
 
+projecten.forEach(project => {
+
+    const tekst =
+
+        JSON.stringify(project)
+            .toLowerCase();
+
+    if(
+        tekst.includes(
+            tag.toLowerCase()
+        )
+    ){
+
+        edges.push({
+
+            from: tagId,
+
+            to:
+                "project_" +
+                project.id
+
+        });
+
+    }
+
+});
+
+meetings.forEach(meeting => {
+
+    const tekst =
+
+        JSON.stringify(meeting)
+            .toLowerCase();
+
+    if(
+        tekst.includes(
+            tag.toLowerCase()
+        )
+    ){
+
+        edges.push({
+
+            from: tagId,
+
+            to:
+                "meeting_" +
+                meeting.id
+
+        });
+
+    }
+
+});
+
+groups.forEach(group => {
+
+    const tekst =
+
+        JSON.stringify(group)
+            .toLowerCase();
+
+    if(
+        tekst.includes(
+            tag.toLowerCase()
+        )
+    ){
+
+        edges.push({
+
+            from: tagId,
+
+            to:
+                "group_" +
+                group.id
+
+        });
+
+    }
+
+});
+
+tasks.forEach(task => {
+
+    const tekst =
+
+        JSON.stringify(task)
+            .toLowerCase();
+
+    if(
+        tekst.includes(
+            tag.toLowerCase()
+        )
+    ){
+
+        edges.push({
+
+            from: tagId,
+
+            to:
+                "task_" +
+                task.id
+
+        });
+
+    }
+
+});
+
     structuur[hoofdgroep][categorie]
         .push(doc);
 
@@ -13738,7 +13846,7 @@ tasks.forEach(task => {
 
     <span
         style="
-            color:#1565c0;
+            color:#ffffff;
             cursor:pointer;
             text-decoration:underline;
         "
@@ -14256,8 +14364,236 @@ if(nodeId === "TAKEN"){
 
 // CATEGORIE NODES
 
-if(!item){
+if(
+    String(nodeId)
+    .startsWith("tag_")
+){
 
+    const tagNaam =
+
+        String(nodeId)
+            .replace("tag_","");
+
+    const tagDocumenten =
+
+        docs.filter(doc =>
+
+            (doc.tags || [])
+
+            .some(tag =>
+
+                String(tag)
+                    .toLowerCase()
+
+                ===
+
+                tagNaam.toLowerCase()
+
+            )
+
+        );
+
+    const tagVergaderingen =
+
+        meetings.filter(meeting =>
+
+            JSON.stringify(meeting)
+                .toLowerCase()
+                .includes(
+                    tagNaam.toLowerCase()
+                )
+
+        );
+
+    const tagTaken =
+
+        tasks.filter(task =>
+
+            JSON.stringify(task)
+                .toLowerCase()
+                .includes(
+                    tagNaam.toLowerCase()
+                )
+
+        );
+
+    const tagProjecten =
+
+        projecten.filter(project =>
+
+            JSON.stringify(project)
+                .toLowerCase()
+                .includes(
+                    tagNaam.toLowerCase()
+                )
+
+        );
+
+    const tagFaqs =
+
+        docs
+            .filter(d => d.type === "FAQ")
+            .filter(faq =>
+
+                JSON.stringify(faq)
+                    .toLowerCase()
+                    .includes(
+                        tagNaam.toLowerCase()
+                    )
+
+            );
+
+    panel.innerHTML = `
+
+        <h3>
+
+            🏷️ ${tagNaam}
+
+        </h3>
+
+        <p>
+
+            🧠 Centraal kennisobject
+
+        </p>
+
+        <hr>
+
+        <div class="stats-grid">
+
+            <div class="stat-card">
+
+                <div class="number">
+                    ${tagDocumenten.length}
+                </div>
+
+                <div class="label">
+                    Documenten
+                </div>
+
+            </div>
+
+            <div class="stat-card">
+
+                <div class="number">
+                    ${tagFaqs.length}
+                </div>
+
+                <div class="label">
+                    FAQ's
+                </div>
+
+            </div>
+
+            <div class="stat-card">
+
+                <div class="number">
+                    ${tagVergaderingen.length}
+                </div>
+
+                <div class="label">
+                    Vergaderingen
+                </div>
+
+            </div>
+
+            <div class="stat-card">
+
+                <div class="number">
+                    ${tagTaken.length}
+                </div>
+
+                <div class="label">
+                    Taken
+                </div>
+
+            </div>
+
+            <div class="stat-card">
+
+                <div class="number">
+                    ${tagProjecten.length}
+                </div>
+
+                <div class="label">
+                    Projecten
+                </div>
+
+            </div>
+
+        </div>
+
+        <hr>
+
+        <h4>📄 Documenten</h4>
+
+        ${tagDocumenten
+            .slice(0,10)
+            .map(doc => `
+
+                <div>
+
+                    <span
+
+                        onclick="openDocumentById('${doc.fileId}')"
+
+                        style="
+                            color:#ffffff;
+                            cursor:pointer;
+                            text-decoration:underline;
+                        "
+
+                    >
+
+                        📄 ${doc.title}
+
+                    </span>
+
+                </div>
+
+            `)
+            .join("")
+        }
+
+        <hr>
+
+        <h4>❓ FAQ's</h4>
+
+        ${tagFaqs
+            .slice(0,10)
+            .map(faq => `
+
+                <div>
+
+                    <span
+
+                        onclick="openDocumentById('${faq.fileId}')"
+
+                        style="
+                            color:#ffffff;
+                            cursor:pointer;
+                            text-decoration:underline;
+                        "
+
+                    >
+
+                        ❓ ${faq.title}
+
+                    </span>
+
+                </div>
+
+            `)
+            .join("")
+        }
+
+    `;
+
+    return;
+}
+
+if(!item){
+   
     const categorieDocs =
         docs.filter(d =>
 

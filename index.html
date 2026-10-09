@@ -644,6 +644,27 @@ console.log("PDF TEST", window.pdfjsLib);
       margin-top: 6px;
     }
 
+.onedrive-file{
+    border-radius:6px;
+    transition:all .2s ease;
+}
+
+.onedrive-file:hover{
+    background:#f5f8ff;
+}
+
+.onedrive-link{
+    text-decoration:none;
+    color:#1f4db8;
+    font-weight:500;
+    display:block;
+}
+
+.onedrive-link:hover{
+    text-decoration:underline;
+    color:#003cb3;
+}
+
     .badge{
 
     display:inline-block;
@@ -12676,36 +12697,42 @@ function renderFolderChildren(
 
     return items
 
-    .filter(
-        item => item.folder
-    )
+    .filter(item => item.folder)
 
     .map(folder => `
 
         <div
+
+            class="${
+                selectedVerenigingFolder &&
+                selectedVerenigingFolder.id === folder.id
+                ?
+                'folder-selected'
+                :
+                ''
+            }"
+
             style="
                 margin-left:${level * 25}px;
                 padding:4px;
-            ">
+            "
+        >
 
             <span
 
                 onclick="
-    toggleFolder(
-        '${folder.id}'
-    );
-
-    loadFolderFiles(
-        '${folder.id}'
-    );
-"
+                    toggleFolder('${folder.id}');
+                    loadFolderFiles('${folder.id}');
+                "
 
                 style="
                     cursor:pointer;
                     font-weight:bold;
-                ">
+                "
+            >
 
-                📂 ${folder.name}
+                ${expandedFolders[folder.id] ? "📂" : "📁"}
+                ${folder.name}
 
             </span>
 
@@ -12721,68 +12748,91 @@ function renderFolderChildren(
                 style="
                     margin-left:10px;
                     cursor:pointer;
-                ">
+                "
+            >
 
                 ✅
 
             </span>
 
             ${
-                expandedFolders[
-                    folder.id
-                ]
+                expandedFolders[folder.id]
 
                 ?
 
                 renderFolderChildren(
-
-                    expandedFolders[
-                        folder.id
-                    ],
-
+                    expandedFolders[folder.id],
                     level + 1
-
                 )
+
+                :
+
+                ""
+            }
+
+            ${
+                loadedFiles[folder.id]
+
+                ?
+
+                loadedFiles[folder.id]
+
+                .map(file => `
+
+                    <div
+                        class="onedrive-file"
+                        style="
+                            margin-left:${(level + 1) * 25}px;
+                            padding:6px;
+                        "
+                    >
+
+                        <div class="file-row">
+
+                            ${file.webUrl || '#'}
+                                📄 ${file.name}
+                            </a>
+
+                            ${file.webUrl || '#'}
+                                Open
+                            </a>
+
+                        </div>
+
+                        <div class="file-info">
+
+                            ${
+                                file.size
+                                ?
+                                (file.size / 1024).toFixed(1) + " KB"
+                                :
+                                ""
+                            }
+
+                            ${
+                                file.modified
+                                ?
+                                " • " +
+                                new Date(file.modified)
+                                .toLocaleDateString()
+                                :
+                                ""
+                            }
+
+                        </div>
+
+                    </div>
+
+                `)
+
+                .join("")
 
                 :
 
                 ""
 
             }
-${
-    loadedFiles[
-        folder.id
-    ]
 
-    ?
-
-    loadedFiles[
-        folder.id
-    ]
-
-    .map(file => `
-
-        <div
-            style="
-                margin-left:${
-                    (level + 1) * 25
-                }px;
-                padding:4px;
-            ">
-
-            📄 ${file.name}
-
-        </div>
-
-    `)
-
-    .join("")
-
-    :
-
-    ""
-
-}
         </div>
 
     `)
@@ -12978,15 +13028,23 @@ console.log("FETCH OK");
 
     data.value.forEach(item => {
 
-        oneDriveIndex.push({
+       oneDriveIndex.push({
     title: item.name,
     category: 'OneDrive',
     type: item.folder ? 'Map' : 'Bestand',
     source: 'OneDrive',
     content: item.name,
+
     id: item.id,
+
     folder: item.folder,
-    file: item.file
+    file: item.file,
+
+    webUrl: item.webUrl,
+
+    size: item.size,
+
+    modified: item.lastModifiedDateTime
 });
 
     });

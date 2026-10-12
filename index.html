@@ -6101,9 +6101,13 @@ const search =
 
   const favs = loadFavorites();
 
-  const filtered = all
+  console.log(
+    "ALLE WEBSITES",
+    all.length
+);
+
+const filtered = all
     .filter(site => {
-console.log("ALLE WEBSITES", all);
 
       const txt = [
         site.title || '',
@@ -13663,7 +13667,7 @@ console.log(
     MAX_GRAPH_FILES
 );
 
-const MAX_GRAPH_FILES = 100;
+const MAX_GRAPH_FILES = 500;
 
 fileIndex
     .slice(0, MAX_GRAPH_FILES)
@@ -15676,22 +15680,6 @@ console.log(
             console.log(
     "===== INHOUD MAP ====="
 );
-
-data.value.forEach(item => {
-
-    console.log(
-        "BESTAND:",
-        item.name
-    );
-
-    console.log(
-        "ID:",
-        item.id
-    );
-
-    console.log(item);
-
-});
 
             oneDriveIndex = data.value.map(
     item => ({

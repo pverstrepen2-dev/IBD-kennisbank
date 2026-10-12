@@ -3887,6 +3887,8 @@ let websitesOnly = false;
 let favoritesOnly = false;
 let currentDriveFolder = null;
 let oneDriveIndex = [];
+let oneDriveIndexLoaded = false;
+const indexedIds = new Set();
 let currentAIResults = [];
 let aiProposals = [];
 let scanRunning = false;
@@ -3901,7 +3903,6 @@ let metadataIndex = [];
 let aiIndex = [];
 let indexReady = false;
 let knowledgeNodes = [];
-let oneDriveIndexLoaded = false;
 let cachedRootItems = [];
 const SEARCH_SETTINGS = {
 
@@ -4965,15 +4966,18 @@ const SearchService = {
 
     async search(query){
 
+    if(!oneDriveIndexLoaded){
+
+        await loadCompleteOneDriveIndex();
+
+    }
+
     const data =
         await getMasterData();
 
     const alles = [
-
         ...data,
-
         ...oneDriveIndex
-
     ];
 
     if(!query){
@@ -7433,6 +7437,35 @@ async function loginMicrosoft(){
 
 }
 
+async function loadCompleteOneDriveIndex(){
+
+    if(oneDriveIndexLoaded){
+        return;
+    }
+
+    const token =
+        await getAccessToken();
+
+    oneDriveIndex = [];
+
+    indexedIds.clear();
+
+    visitedFolders.clear();
+
+    await buildOneDriveIndex(
+        ROOT_FOLDER_ID,
+        token
+    );
+
+    oneDriveIndexLoaded = true;
+
+    console.log(
+    "COMPLETE INDEX KLAAR:",
+    oneDriveIndex.length
+);
+
+}
+
 async function logoutMicrosoft(){
 
     try{
@@ -7572,7 +7605,13 @@ if(!msalReady){
     try{
 
         const token =
-            await getAccessToken();
+    await getAccessToken();
+
+if(!oneDriveIndexLoaded){
+
+    await loadCompleteOneDriveIndex();
+
+}
 
         const fileId =
     "2B4CCFD79FF4714A!s3f1f25570cb946bfb3321950e9c2abe3";

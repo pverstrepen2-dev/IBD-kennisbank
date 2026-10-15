@@ -10945,27 +10945,38 @@ const projects =
 
 const agenda = [
 
-    ...tasks,
+    ...tasks.map(t => ({
+        title: t.title || t.name || t.naam || "Taak",
+        date: t.date || t.startDate || t.deadline || "",
+        type: "task"
+    })),
 
-    ...meetings,
+    ...meetings.map(m => ({
+        title: m.title || m.subject || m.name || "Vergadering",
+        date: m.date || m.start || m.startDate || "",
+        type: "meeting"
+    })),
 
-    ...projects
+    ...projects.map(p => ({
+        title: p.title || p.name || p.projectName || p.naam || "Project",
+        date: p.date || p.deadline || p.end || "",
+        type: "project"
+    }))
 
 ];
 
-  agenda.sort(
-    (a,b)=>
+  agenda.sort((a,b) => {
 
-    new Date(
-      a.date || a.end
-    )
+    const dateA = a.date
+        ? new Date(a.date).getTime()
+        : Number.MAX_SAFE_INTEGER;
 
-    -
+    const dateB = b.date
+        ? new Date(b.date).getTime()
+        : Number.MAX_SAFE_INTEGER;
 
-    new Date(
-      b.date || b.end
-    )
-  );
+    return dateA - dateB;
+});
 
   document
     .getElementById(

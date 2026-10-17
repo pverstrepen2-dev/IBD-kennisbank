@@ -5762,12 +5762,7 @@ async function updateDashboard() {
 
     const taken =
         await DataService.loadTasks();
-
-    console.log("DOCS:", docs.length);
-    console.log("PROJECTEN:", projecten.length);
-    console.log("WEBSITES:", websites.length);
-    console.log("TAKEN:", taken.length);
-
+ 
     const knowledgeData =
         await getMasterData();
 
@@ -5805,99 +5800,41 @@ console.log(
 console.log(
     "NIEUWE STATSGRID WORDT GELADEN"
 );
-   document.getElementById(
+
+document.getElementById(
     'statsGrid'
 ).innerHTML = `
-console.log(
-    "STATSGRID GELADEN"
-);
-
-<div class="stat-card">
-
-    <div>📚</div>
-
-    <div class="stat-number">
-        ${knowledgeCount}
+    <div class="stat-card">
+        <div>📚</div>
+        <div class="stat-number">${knowledgeCount}</div>
+        <div class="stat-label">Kennisbank</div>
     </div>
-
-    <div class="stat-label">
-        Kennisbank
+    <div class="stat-card">
+        <div>📁</div>
+        <div class="stat-number">${oneDriveCount}</div>
+        <div class="stat-label">OneDrive</div>
     </div>
-
-</div>
-
-<div class="stat-card">
-
-    <div>📁</div>
-
-    <div class="stat-number">
-        ${oneDriveCount}
+    <div class="stat-card">
+        <div>📋</div>
+        <div class="stat-number">${taken.length}</div>
+        <div class="stat-label">Taken</div>
     </div>
-
-    <div class="stat-label">
-        OneDrive
+    <div class="stat-card">
+        <div>📂</div>
+        <div class="stat-number">${projecten.length}</div>
+        <div class="stat-label">Projecten</div>
     </div>
-
-</div>
-
-<div class="stat-card">
-
-    <div>📋</div>
-
-    <div class="stat-number">
-        ${taken.length}
+    <div class="stat-card">
+        <div>🌐</div>
+        <div class="stat-number">${websites.length}</div>
+        <div class="stat-label">Websites</div>
     </div>
-
-    <div class="stat-label">
-        Taken
+    <div class="stat-card">
+        <div>📊</div>
+        <div class="stat-number">${totalCount}</div>
+        <div class="stat-label">Totaal</div>
     </div>
-
-</div>
-
-<div class="stat-card">
-
-    <div>📂</div>
-
-    <div class="stat-number">
-        ${projecten.length}
-    </div>
-
-    <div class="stat-label">
-        Projecten
-    </div>
-
-</div>
-
-<div class="stat-card">
-
-    <div>🌐</div>
-
-    <div class="stat-number">
-        ${websites.length}
-    </div>
-
-    <div class="stat-label">
-        Websites
-    </div>
-
-</div>
-
-<div class="stat-card">
-
-    <div>📊</div>
-
-    <div class="stat-number">
-        ${totalCount}
-    </div>
-
-    <div class="stat-label">
-        Totaal
-    </div>
-
-</div>
-
 `;
-
 }
 
 async function renderGovernanceDashboard(){
@@ -6120,8 +6057,13 @@ async function renderProjectDashboard(){
 }
 
     async function updateDashboard() {
-      const data =
-    await getFilteredData();
+      const data = [
+
+    ...(await getMasterData()),
+
+    ...(oneDriveIndex || [])
+
+];
     console.log(
     "Dashboard data:",
     data

@@ -4334,21 +4334,90 @@ Zorggids: [
 
 Verenigingen:[
 
+    "vereniging",
+    "verenigingen",
+
     "ccv",
+    "ccv-vzw",
+    "crohn colitis ulcerosa vereniging",
 
     "vpp",
+    "vlaams patientenplatform",
 
     "efcca",
+    "european federation of crohn",
+    "colitis associations",
 
-    "crohn and colitis",
+    "bird",
+    "bird project",
+    "bird initiative",
 
-    "patientenvereniging",
+    "ecco",
+    "european crohn and colitis organisation",
+    "ecco congress",
+    "ecco guideline",
+    "ecco guidelines",
 
-    "vereniging",
+    "patient expert",
+    "patient expert opleiding",
+    "patient expert program",
+    "patient expert programme",
 
     "vrijwilliger",
+    "vrijwilligers",
 
-    "lotgenoten"
+    "lotgenoten",
+    "lotgenotenwerking",
+
+    "patientenvereniging",
+    "patient participation",
+    "patient engagement",
+
+    "advocacy",
+    "patient advocacy",
+
+    "patient participation",
+"patientparticipation",
+
+"patient involvement",
+"patient engagement",
+
+"patient voice",
+"patient voices",
+
+"patient representative",
+"patient representatives",
+
+"patient advocate",
+"patient advocacy",
+
+"patient advisory board",
+
+"public involvement",
+
+"public and patient involvement",
+
+"ppi",
+
+"patient partnership",
+
+"co-creation",
+
+"co creation",
+
+"shared decision making",
+
+"patient centered care",
+
+"patient centred care",
+
+"ervaringsdeskundige",
+
+"patientenvertegenwoordiger",
+
+"patientenparticipatie",
+
+"patienteninspraak"
 
 ]
 
@@ -4502,7 +4571,89 @@ const SUBCATEGORY_RULES = {
         "school",
         "opleiding"
 
-    ]
+    ],
+
+BIRD:[
+
+    "bird",
+    "bird project",
+    "bird initiative"
+
+],
+
+ECCO:[
+
+    "ecco",
+    "european crohn and colitis organisation",
+    "ecco congress",
+    "ecco guideline",
+    "ecco guidelines"
+
+],
+
+PatientExpert:[
+
+    "patient expert",
+    "patient expert opleiding",
+    "patient expert program",
+    "patient expert programme",
+    "patient engagement",
+    "patient representative",
+    "patient partnership"
+
+],
+
+PatientParticipation:[
+
+    "patient participation",
+
+    "patientparticipation",
+
+    "patient involvement",
+
+    "patient engagement",
+
+    "patient voice",
+
+    "patient voices",
+
+    "patient representative",
+
+    "patient representatives",
+
+    "patient advocate",
+
+    "patient advocacy",
+
+    "patient advisory board",
+
+    "public involvement",
+
+    "public and patient involvement",
+
+    "ppi",
+
+    "patient partnership",
+
+    "co-creation",
+
+    "co creation",
+
+    "shared decision making",
+
+    "patient centered care",
+
+    "patient centred care",
+
+    "ervaringsdeskundige",
+
+    "patientenvertegenwoordiger",
+
+    "patientenparticipatie",
+
+    "patienteninspraak"
+
+]
 
 };
 
@@ -6394,6 +6545,46 @@ function calculateCategories(doc){
                 ){
     scores[category] += 100;
 }
+if(
+    path.includes("ecco")
+){
+    scores["Verenigingen"] += 100;
+}
+
+if(
+    path.includes(
+        "patient participation"
+    )
+){
+    scores["Verenigingen"] += 100;
+}
+
+if(
+    path.includes(
+        "patient expert"
+    )
+){
+    scores["Verenigingen"] += 100;
+}
+
+if(
+    path.includes("bird")
+){
+    scores["Verenigingen"] += 100;
+}
+
+if(
+    path.includes("bird")
+){
+    scores["Verenigingen"] += 100;
+}
+
+if(
+    path.includes("patient expert")
+){
+    scores["Verenigingen"] += 100;
+}
+
             });
 
         });
@@ -6515,6 +6706,23 @@ if(
     )
 ){
     score += 3;
+}
+
+if(
+    subCategory ===
+    "PatientParticipation"
+){
+
+    if(
+        path.includes("ppi")
+        ||
+        path.includes("patient")
+        ||
+        path.includes("participation")
+    ){
+        score += 5;
+    }
+
 }
 
 if(score > 0){

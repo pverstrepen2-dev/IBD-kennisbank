@@ -3946,65 +3946,37 @@ const WEBSITE_CATEGORIES = [
 const CATEGORY_RULES = {
 
     Medicatie: [
-
     "humira",
-
     "entyvio",
-
     "stelara",
-
     "skyrizi",
-
     "prednisolone",
-
     "medrol",
-
     "azathioprine",
-
     "imuran",
-
     "methotrexaat",
-
     "behandeling",
-
     "therapie",
-
     "injectie",
-
     "infuus"
-
 ],
 
     Crohn: [
-
     "crohn",
-
     "ibd",
-
     "ziekte van crohn",
-
     "crohn disease",
-
     "terminale ileitis",
-
     "fistel",
-
     "strictuur"
-
 ],
 
     Colitis: [
-
     "colitis",
-
     "colitis ulcerosa",
-
     "uc",
-
     "pancolitis",
-
     "proctitis"
-
 ],
 
     Voeding: [
@@ -4028,27 +4000,16 @@ const CATEGORY_RULES = {
     ],
 
 "Biologische therapie": [
-
     "humira",
-
     "adalimumab",
-
     "entyvio",
-
     "vedolizumab",
-
     "stelara",
-
     "ustekinumab",
-
     "skyrizi",
-
     "biological",
-
     "biologisch",
-
     "tnf-remmer"
-
 ]
 
 };
@@ -5293,28 +5254,151 @@ async function renderCCVDashboard(){
   `;
 }
 
-async function loadTotaalbeeld(){
+async function updateDashboard() {
 
-    const allData =
+    const data =
         await getFilteredData();
 
-    document.getElementById(
-        "totaalStats"
-    ).innerHTML = `
+    const docs =
+        await DataService.loadDocuments();
 
-        <div class="stat-card">
+    const projecten =
+        await DataService.loadProjects();
 
-            <h3>
-                📚 Totaal Artikels
-            </h3>
+    const websites =
+        await DataService.loadWebsites();
 
-            <p>
-                ${allData.length}
-            </p>
+    const taken =
+        await DataService.loadTasks();
 
-        </div>
+    console.log("DOCS:", docs.length);
+    console.log("PROJECTEN:", projecten.length);
+    console.log("WEBSITES:", websites.length);
+    console.log("TAKEN:", taken.length);
 
-    `;
+    const knowledgeData =
+        await getMasterData();
+
+    if(
+        !oneDriveIndexLoaded
+    ){
+        await loadCompleteOneDriveIndex();
+    }
+
+    const knowledgeCount =
+        knowledgeData.length;
+
+    const oneDriveCount =
+        oneDriveIndex.length;
+
+    const totalCount =
+        knowledgeCount +
+        oneDriveCount;
+
+        console.log(
+    "KNOWLEDGE COUNT:",
+    knowledgeCount
+);
+
+console.log(
+    "ONEDRIVE COUNT:",
+    oneDriveCount
+);
+
+console.log(
+    "TOTAL COUNT:",
+    totalCount
+);
+
+   document.getElementById(
+    'statsGrid'
+).innerHTML = `
+
+<div class="stat-card">
+
+    <div>📚</div>
+
+    <div class="stat-number">
+        ${knowledgeCount}
+    </div>
+
+    <div class="stat-label">
+        Kennisbank
+    </div>
+
+</div>
+
+<div class="stat-card">
+
+    <div>📁</div>
+
+    <div class="stat-number">
+        ${oneDriveCount}
+    </div>
+
+    <div class="stat-label">
+        OneDrive
+    </div>
+
+</div>
+
+<div class="stat-card">
+
+    <div>📋</div>
+
+    <div class="stat-number">
+        ${taken.length}
+    </div>
+
+    <div class="stat-label">
+        Taken
+    </div>
+
+</div>
+
+<div class="stat-card">
+
+    <div>📂</div>
+
+    <div class="stat-number">
+        ${projecten.length}
+    </div>
+
+    <div class="stat-label">
+        Projecten
+    </div>
+
+</div>
+
+<div class="stat-card">
+
+    <div>🌐</div>
+
+    <div class="stat-number">
+        ${websites.length}
+    </div>
+
+    <div class="stat-label">
+        Websites
+    </div>
+
+</div>
+
+<div class="stat-card">
+
+    <div>📊</div>
+
+    <div class="stat-number">
+        ${totalCount}
+    </div>
+
+    <div class="stat-label">
+        Totaal
+    </div>
+
+</div>
+
+`;
 
 }
 

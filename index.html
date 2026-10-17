@@ -5802,9 +5802,15 @@ console.log(
     totalCount
 );
 
+console.log(
+    "NIEUWE STATSGRID WORDT GELADEN"
+);
    document.getElementById(
     'statsGrid'
 ).innerHTML = `
+console.log(
+    "STATSGRID GELADEN"
+);
 
 <div class="stat-card">
 
@@ -6444,7 +6450,7 @@ function calculateCategories(doc){
                     category.toLowerCase()
                 )
                 ){
-    scores[category] += 50;
+    scores[category] += 100;
 }
             });
 
@@ -6484,6 +6490,21 @@ function calculateCategories(doc){
         ...Object.values(scores)
     );
 
+    if(
+    text.includes(
+        "colitis ulcerosa"
+    )
+){
+    scores["Crohn"] -= 20;
+}
+if(
+    text.includes(
+        "ziekte van crohn"
+    )
+){
+    scores["Colitis"] -= 20;
+}
+
     const result =
 
         Object.entries(scores)
@@ -6513,6 +6534,9 @@ function calculateCategories(doc){
 }
 
 function calculateSubCategories(doc){
+const path =
+    (doc.path || "")
+    .toLowerCase();
 
     const text = (
 
@@ -6532,20 +6556,32 @@ function calculateSubCategories(doc){
 
         ([subCategory, keywords]) => {
 
-            if(
+            let score = 0;
 
-                keywords.some(
-                    keyword =>
-                        text.includes(keyword)
-                )
+if(
+    keywords.some(
+        keyword =>
+        text.includes(keyword)
+    )
+){
+    score += 1;
+}
 
-            ){
+if(
+    path.includes(
+        subCategory.toLowerCase()
+    )
+){
+    score += 3;
+}
 
-                subCategories.push(
-                    subCategory
-                );
+if(score > 0){
 
-            }
+    subCategories.push(
+        subCategory
+    );
+
+}
 
         }
 
@@ -14209,6 +14245,41 @@ function extractEntities(text){
 
 }
 
+async function getFileContent(
+    itemId,
+    token
+){
+
+    try{
+
+        const response =
+            await fetch(
+
+                `https://graph.microsoft.com/v1.0/me/drive/items/${itemId}/content`,
+
+                {
+                    headers:{
+                        Authorization:
+                            "Bearer " + token
+                    }
+                }
+
+            );
+
+        const blob =
+            await response.blob();
+
+        return blob;
+
+    }
+    catch(error){
+
+        return null;
+
+    }
+
+}
+
    async function buildOneDriveIndex(
     folderId,
     token,
@@ -14257,6 +14328,8 @@ console.log("FETCH OK");
     id: item.id,
 
     title: item.name,
+
+    fulltext: "",
 
     path: currentPath || "",
 
@@ -14320,6 +14393,14 @@ documentData.subCategories =
 documentData.confidence =
     categoryResult.confidence;
 
+documentData.mainCategory =
+
+    documentData.categories?.[0]
+
+    ||
+
+    "Controle Nodig"
+
 documentData.category =
     documentData.categories[0]
     || "Onbekend";
@@ -14338,6 +14419,31 @@ documentData.entities =
         documentData.content
 
     );
+
+if(item.file){
+
+    const extension =
+
+        item.name
+            .split(".")
+            .pop()
+            .toLowerCase();
+
+    documentData.fileType =
+        extension;
+
+    if(
+        extension === "pdf"
+        ||
+        extension === "docx"
+    ){
+
+        documentData.fulltext = "";
+        documentData.fulltextLoaded = false;
+
+    }
+
+}
 
 oneDriveIndex.push(
     documentData

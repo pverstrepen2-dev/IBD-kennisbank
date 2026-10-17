@@ -5106,6 +5106,36 @@ const ROOT_FOLDER_ID =
  sections:['Verenigingen']
 },
 
+   'ECCO': {
+    icon:'🌍',
+    desc:'European Crohn & Colitis Organisation',
+    sections:['Verenigingen']
+},
+
+'BIRD': {
+    icon:'🕊️',
+    desc:'Building Research in IBD',
+    sections:['Verenigingen']
+},
+
+'Patient Expert': {
+    icon:'🎓',
+    desc:'Patient Expert Opleidingen',
+    sections:['Verenigingen']
+},
+
+'AGA': {
+    icon:'🇺🇸',
+    desc:'American Gastroenterological Association',
+    sections:['Verenigingen']
+},
+
+'UEG': {
+    icon:'🇪🇺',
+    desc:'United European Gastroenterology',
+    sections:['Verenigingen']
+},
+
 'Overige Verenigingen': {
  icon:'📂',
  desc:'Overige patiëntenverenigingen',
@@ -6786,7 +6816,42 @@ const ENTITY_MAP = {
         "entyvio",
         "stelara",
         "skyrizi"
-    ]
+    ],
+
+    PatientParticipation:[
+
+    "patient participation",
+    "patient involvement",
+    "patient engagement",
+    "ppi",
+    "patient partnership"
+
+],
+
+PatientExpert:[
+
+    "patient expert",
+    "patient expert opleiding",
+    "patient representative"
+
+],
+
+ECCO:[
+
+    "ecco",
+    "european crohn and colitis organisation",
+    "ecco congress",
+    "ecco guideline"
+
+],
+
+BIRD:[
+
+    "bird",
+    "bird project",
+    "bird initiative"
+
+]
 
 };
 
@@ -14852,24 +14917,99 @@ const categorieId =
     "_" +
     doc.categorie;
 
+let subvereniging = null;
+
+const text = JSON.stringify(doc)
+    .toLowerCase();
+
+if(text.includes("ecco")){
+    subvereniging = "ECCO";
+}
+
+else if(text.includes("bird")){
+    subvereniging = "BIRD";
+}
+
+else if(
+    text.includes("patient expert")
+){
+    subvereniging =
+        "PatientExpert";
+}
+
+else if(
+    text.includes(
+        "patient participation"
+    )
+){
+    subvereniging =
+        "PatientParticipation";
+}
+
 if(
     !uniekeNodes.has(
         categorieId
     )
 ){
 
-    nodes.push({
+    let categorieGroup =
+    "categorie";
 
-        id:
-            categorieId,
+let categorieLabel =
+    doc.categorie;
 
-        label:
-            doc.categorie,
+if(doc.categorie === "PatientParticipation"){
 
-        group:
-            "categorie"
+    categorieGroup =
+        "patientParticipation";
 
-    });
+    categorieLabel =
+        "🤝 Patient Participation";
+
+}
+
+if(doc.categorie === "PatientExpert"){
+
+    categorieGroup =
+        "patientExpert";
+
+    categorieLabel =
+        "🎓 Patient Expert";
+
+}
+
+if(doc.categorie === "ECCO"){
+
+    categorieGroup =
+        "ecco";
+
+    categorieLabel =
+        "🌍 ECCO";
+
+}
+
+if(doc.categorie === "BIRD"){
+
+    categorieGroup =
+        "bird";
+
+    categorieLabel =
+        "🕊️ BIRD";
+
+}
+
+nodes.push({
+
+    id:
+        categorieId,
+
+    label:
+        categorieLabel,
+
+    group:
+        categorieGroup
+
+});
 
     addEdge(
     doc.hoofdgroep,
@@ -14896,10 +15036,77 @@ if(!uniekeNodes.has(doc.id)){
 
 }
 
-addEdge(
-    categorieId,
-    doc.id
-);
+if(
+    subvereniging
+){
+
+    const subNodeId =
+
+        categorieId +
+        "_" +
+        subvereniging;
+
+    if(
+        !uniekeNodes.has(
+            subNodeId
+        )
+    ){
+
+        nodes.push({
+
+            id:
+                subNodeId,
+
+            label:
+
+    subvereniging === "ECCO"
+
+        ? "🌍 ECCO"
+
+    : subvereniging === "BIRD"
+
+        ? "🕊️ BIRD"
+
+    : subvereniging === "PatientExpert"
+
+        ? "🎓 Patient Expert"
+
+    : subvereniging === "PatientParticipation"
+
+        ? "🤝 Patient Participation"
+
+    : subvereniging,
+
+            group:
+                subvereniging
+
+        });
+
+        uniekeNodes.add(
+            subNodeId
+        );
+
+        addEdge(
+            categorieId,
+            subNodeId
+        );
+
+    }
+
+    addEdge(
+        subNodeId,
+        doc.id
+    );
+
+}
+else{
+
+    addEdge(
+        categorieId,
+        doc.id
+    );
+
+}
 
 (doc.tags || [])
 .forEach(tag => {
@@ -15535,6 +15742,22 @@ console.log(
                 document: {
                     color: "#EF5350"
                 },
+
+                PatientParticipation: {
+    color: "#00ACC1"
+},
+
+PatientExpert: {
+    color: "#8E24AA"
+},
+
+ECCO: {
+    color: "#1565C0"
+},
+
+BIRD: {
+    color: "#00897B"
+},
 
                 tag: {
                     color: "#00BCD4"

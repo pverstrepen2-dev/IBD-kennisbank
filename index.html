@@ -3946,25 +3946,66 @@ const WEBSITE_CATEGORIES = [
 const CATEGORY_RULES = {
 
     Medicatie: [
-        "humira",
-        "entyvio",
-        "stelara",
-        "skyrizi",
-        "adalimumab",
-        "biological"
-    ],
+
+    "humira",
+
+    "entyvio",
+
+    "stelara",
+
+    "skyrizi",
+
+    "prednisolone",
+
+    "medrol",
+
+    "azathioprine",
+
+    "imuran",
+
+    "methotrexaat",
+
+    "behandeling",
+
+    "therapie",
+
+    "injectie",
+
+    "infuus"
+
+],
 
     Crohn: [
-        "crohn",
-        "ibd",
-        "ziekte van crohn"
-    ],
+
+    "crohn",
+
+    "ibd",
+
+    "ziekte van crohn",
+
+    "crohn disease",
+
+    "terminale ileitis",
+
+    "fistel",
+
+    "strictuur"
+
+],
 
     Colitis: [
-        "colitis",
-        "uc",
-        "ulcerative colitis"
-    ],
+
+    "colitis",
+
+    "colitis ulcerosa",
+
+    "uc",
+
+    "pancolitis",
+
+    "proctitis"
+
+],
 
     Voeding: [
         "fodmap",
@@ -3984,7 +4025,31 @@ const CATEGORY_RULES = {
         "ccv",
         "crohn",
         "colitis"
-    ]
+    ],
+
+"Biologische therapie": [
+
+    "humira",
+
+    "adalimumab",
+
+    "entyvio",
+
+    "vedolizumab",
+
+    "stelara",
+
+    "ustekinumab",
+
+    "skyrizi",
+
+    "biological",
+
+    "biologisch",
+
+    "tnf-remmer"
+
+]
 
 };
 
@@ -5768,35 +5833,83 @@ if(currentHoofdgroep==='verenigingen'){
 
 function calculateCategories(doc){
 
-    const text =
-    (
+    const text = (
+
         (doc.title || '') +
         ' ' +
-        (doc.content || '')
+        (doc.content || '') +
+        ' ' +
+        (doc.fulltext || '')
+
     ).toLowerCase();
 
-    const categories = [];
+    const scores = {};
 
     Object.entries(CATEGORY_RULES)
         .forEach(([category, keywords]) => {
 
-            const match =
-                keywords.some(
-                    word =>
-                        text.includes(word)
-                );
+            scores[category] = 0;
 
-            if(match){
+            keywords.forEach(keyword => {
 
-                categories.push(
-                    category
-                );
+                if(
+                    text.includes(keyword)
+                ){
+                    scores[category] += 1;
+                }
 
-            }
+            });
 
         });
 
-    return categories;
+    // extra score via entities
+
+    if(
+        doc.entities?.medications?.length
+    ){
+        scores["Medicatie"] =
+            (scores["Medicatie"] || 0)
+            + 10;
+    }
+
+    if(
+        doc.entities?.diseases
+        ?.includes("crohn")
+    ){
+        scores["Crohn"] =
+            (scores["Crohn"] || 0)
+            + 10;
+    }
+
+    if(
+        doc.entities?.diseases
+        ?.includes("colitis")
+    ){
+        scores["Colitis"] =
+            (scores["Colitis"] || 0)
+            + 10;
+    }
+
+    const result =
+
+        Object.entries(scores)
+
+        .filter(
+            ([category, score]) =>
+                score > 0
+        )
+
+        .sort(
+            (a,b) =>
+                b[1] - a[1]
+        )
+
+        .map(
+            ([category]) =>
+                category
+        );
+
+    return result;
 
 }
 
@@ -13554,6 +13667,14 @@ documentData.categories =
     calculateCategories(
         documentData
     );
+
+documentData.category =
+    documentData.categories[0]
+    || "Onbekend";
+    console.log(
+    documentData.title,
+    documentData.categories
+);
 
 documentData.entities =
     extractEntities(

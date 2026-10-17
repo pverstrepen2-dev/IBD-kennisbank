@@ -4917,6 +4917,17 @@ function calculateSearchScore(item, term){
             item.fulltext || ""
         ).toLowerCase();
 
+    const entitiesText =
+
+    JSON.stringify(
+        item.entities || {}
+    )
+
+    .toLowerCase();
+
+    const expandedTerms =
+    expandSearchTerms(term);
+
     // exacte titelmatch
 
     if(title === term)
@@ -4971,6 +4982,31 @@ function calculateSearchScore(item, term){
         if(fulltext.includes(word))
             score += 5;
     });
+
+    expandedTerms.forEach(entity => {
+
+    if(title.includes(entity))
+        score += 120;
+
+    if(tags.includes(entity))
+        score += 80;
+
+    if(content.includes(entity))
+        score += 40;
+
+    if(fulltext.includes(entity))
+        score += 20;
+
+        if(
+        entitiesText.includes(
+            entity
+        )
+    ){
+        score += 300;
+    }
+
+});
+
 if(item.source === "OneDrive"){
     score += 10;
 }
@@ -5764,6 +5800,87 @@ function calculateCategories(doc){
 
 }
 
+const ENTITY_MAP = {
+
+    humira: [
+        "adalimumab",
+        "biological",
+        "tnf-remmer",
+        "crohn",
+        "colitis"
+    ],
+
+    adalimumab: [
+        "humira",
+        "biological",
+        "tnf-remmer",
+        "crohn",
+        "colitis"
+    ],
+
+    entyvio: [
+        "vedolizumab",
+        "biological",
+        "crohn",
+        "colitis"
+    ],
+
+    stelara: [
+        "ustekinumab",
+        "biological",
+        "crohn",
+        "colitis"
+    ],
+
+    skyrizi: [
+        "risankizumab",
+        "biological",
+        "crohn"
+    ],
+
+    crohn: [
+        "ibd",
+        "biological",
+        "humira",
+        "entyvio",
+        "stelara",
+        "skyrizi"
+    ]
+
+};
+
+function expandSearchTerms(term){
+
+    const expanded =
+        new Set();
+
+    expanded.add(
+        term.toLowerCase()
+    );
+
+    if(
+        ENTITY_MAP[
+            term.toLowerCase()
+        ]
+    ){
+
+        ENTITY_MAP[
+            term.toLowerCase()
+        ]
+        .forEach(item => {
+
+            expanded.add(item);
+
+        });
+
+    }
+
+    return [
+        ...expanded
+    ];
+
+}
+
     async function performSearch() {
 
       console.log("SEARCH ACTIEF");
@@ -5775,6 +5892,16 @@ function calculateCategories(doc){
         'searchInput'
     )?.value || ''
 ).toLowerCase();
+
+const expandedTerms =
+    expandSearchTerms(
+        searchTerm
+    );
+
+console.log(
+    "UITGEBREIDE ZOEKTERM:",
+    expandedTerms
+);
 
 const knowledgeData =
     await SearchService.search(
@@ -5826,15 +5953,24 @@ console.log(
 );
 
 faqResults =
-    faqItems.filter(item =>
-        (
-            (item.title || item.titel || '') +
-            ' ' +
-            (item.content || item.inhoud || '')
-        )
-        .toLowerCase()
-        .includes(searchTerm)
+faqItems.filter(item => {
+
+    const text = (
+
+        (item.title || '') +
+        ' ' +
+        (item.content || '')
+
+    ).toLowerCase();
+
+    return expandedTerms.some(
+
+        term =>
+            text.includes(term)
+
     );
+
+});
 
 let ccvResults = [];
 let meetingResults = [];
@@ -5888,29 +6024,38 @@ const voedingResults =
 
     }));
      
-     let result = knowledgeData
-    .map(item => ({
-        ...item,
-        score:
-            calculateSearchScore(
-                item,
-                searchTerm
-            )
-    }))
-    .filter(
-        item =>
-            item.score > 0
-    );
+    let result =
+    knowledgeData;
 
-    console.log(
-    "CATEGORY FILTER:",
-    category
-);
+if(searchTerm){
 
-console.log(
-    "DATA VOOR FILTER:",
-    result.slice(0,10)
-);
+    result =
+        result.filter(item => {
+
+            const text = (
+
+                (item.title || '') +
+                ' ' +
+                (item.content || '') +
+                ' ' +
+                ((item.tags || [])
+                    .join(' ')) +
+                ' ' +
+                ((item.categories || [])
+                    .join(' '))
+
+            ).toLowerCase();
+
+            return expandedTerms.some(
+
+                term =>
+                    text.includes(term)
+
+            );
+
+        });
+
+}
 if(category){
 
     result =

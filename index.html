@@ -3943,6 +3943,51 @@ const WEBSITE_CATEGORIES = [
     { value:"Overig", icon:"📁" }
 ];
 
+const CATEGORY_RULES = {
+
+    Medicatie: [
+        "humira",
+        "entyvio",
+        "stelara",
+        "skyrizi",
+        "adalimumab",
+        "biological"
+    ],
+
+    Crohn: [
+        "crohn",
+        "ibd",
+        "ziekte van crohn"
+    ],
+
+    Colitis: [
+        "colitis",
+        "uc",
+        "ulcerative colitis"
+    ],
+
+    Voeding: [
+        "fodmap",
+        "voeding",
+        "dieet",
+        "recept"
+    ],
+
+    Onderzoek: [
+        "studie",
+        "research",
+        "onderzoek",
+        "trial"
+    ],
+
+    CCV: [
+        "ccv",
+        "crohn",
+        "colitis"
+    ]
+
+};
+
 const FAQ_CATEGORIES = [
     {
         key: "crohn",
@@ -5685,6 +5730,40 @@ if(currentHoofdgroep==='verenigingen'){
       if (categories.includes(current)) select.value = current;
     }
 
+function calculateCategories(doc){
+
+    const text =
+    (
+        (doc.title || '') +
+        ' ' +
+        (doc.content || '')
+    ).toLowerCase();
+
+    const categories = [];
+
+    Object.entries(CATEGORY_RULES)
+        .forEach(([category, keywords]) => {
+
+            const match =
+                keywords.some(
+                    word =>
+                        text.includes(word)
+                );
+
+            if(match){
+
+                categories.push(
+                    category
+                );
+
+            }
+
+        });
+
+    return categories;
+
+}
+
     async function performSearch() {
 
       console.log("SEARCH ACTIEF");
@@ -5809,8 +5888,19 @@ const voedingResults =
 
     }));
      
-     let result =
-    knowledgeData;
+     let result = knowledgeData
+    .map(item => ({
+        ...item,
+        score:
+            calculateSearchScore(
+                item,
+                searchTerm
+            )
+    }))
+    .filter(
+        item =>
+            item.score > 0
+    );
 
     console.log(
     "CATEGORY FILTER:",
@@ -13154,6 +13244,71 @@ renderVerenigingsFolderTree(
 return loadedFiles[folderId];
         }
 
+function extractKeywords(text){
+
+    if(!text) return [];
+
+    return text
+        .toLowerCase()
+        .split(/[\s\-_]+/)
+        .filter(word => word.length > 3);
+
+}
+
+function extractEntities(text){
+
+    const lower =
+        (text || '')
+        .toLowerCase();
+
+    return {
+
+        medications: [
+
+            ...[
+                "humira",
+                "entyvio",
+                "stelara",
+                "skyrizi"
+            ].filter(
+                m =>
+                lower.includes(m)
+            )
+
+        ],
+
+        diseases: [
+
+            ...[
+                "crohn",
+                "colitis",
+                "ibd"
+            ].filter(
+                d =>
+                lower.includes(d)
+            )
+
+        ],
+
+        organisations: [
+
+            ...[
+                "ccv",
+                "ecco",
+                "efcca"
+            ].filter(
+                o =>
+                lower.includes(o)
+            )
+
+        ],
+
+        projects: []
+
+    };
+
+}
+
    async function buildOneDriveIndex(
     folderId,
     token
@@ -13196,16 +13351,40 @@ console.log("FETCH OK");
 
     data.value.forEach(item => {
 
-       oneDriveIndex.push({
-    title: item.name,
-    category: 'OneDrive',
-    type: item.folder ? 'Map' : 'Bestand',
-    source: 'OneDrive',
-    content: item.name,
+       const documentData = {
 
     id: item.id,
 
+    title: item.name,
+
+    category: 'OneDrive',
+
+    categories: [],
+
+    tags: [],
+
+    keywords: [],
+
+    entities: {
+        diseases: [],
+        medications: [],
+        organisations: [],
+        projects: [],
+        countries: []
+    },
+
+    relations: [],
+
+    searchText: item.name,
+
+    type: item.folder ? 'Map' : 'Bestand',
+
+    source: 'OneDrive',
+
+    content: item.name,
+
     folder: item.folder,
+
     file: item.file,
 
     webUrl: item.webUrl,
@@ -13213,7 +13392,38 @@ console.log("FETCH OK");
     size: item.size,
 
     modified: item.lastModifiedDateTime
-});
+
+};
+
+documentData.keywords =
+    extractKeywords(
+        item.name
+    );
+
+documentData.entities =
+    extractEntities(
+        item.name
+    );
+
+documentData.categories =
+    calculateCategories(
+        documentData
+    );
+
+documentData.entities =
+    extractEntities(
+
+        documentData.title +
+
+        " " +
+
+        documentData.content
+
+    );
+
+oneDriveIndex.push(
+    documentData
+);
 
     });
 
@@ -13295,10 +13505,12 @@ console.table(
 
     const nodes = [];
     const edges = [];
-const uniekeNodes =
+    const uniekeNodes =
     new Set();
    const uniekeEdges =
     new Set();
+   const relationIndex =
+    new Map();
 
 function addEdge(from,to){
 
@@ -13542,6 +13754,143 @@ addEdge(
     doc.id,
     tagId
 );
+
+(doc.entities?.medications || [])
+.forEach(med => {
+
+    const medId =
+        "med_" + med;
+
+    if(
+        !uniekeNodes.has(medId)
+    ){
+
+        nodes.push({
+
+            id: medId,
+
+            label: med,
+
+            group: "medication"
+
+        });
+
+        uniekeNodes.add(
+            medId
+        );
+
+    }
+
+    addEdge(
+        doc.id,
+        medId
+    );
+
+});
+
+(doc.entities?.diseases || [])
+.forEach(disease => {
+
+    const diseaseId =
+        "disease_" + disease;
+
+    if(
+        !uniekeNodes.has(
+            diseaseId
+        )
+    ){
+
+        nodes.push({
+
+            id: diseaseId,
+
+            label: disease,
+
+            group: "disease"
+
+        });
+
+        uniekeNodes.add(
+            diseaseId
+        );
+
+    }
+
+    addEdge(
+        doc.id,
+        diseaseId
+    );
+
+});
+
+(doc.entities?.organisations || [])
+.forEach(org => {
+
+    const orgId =
+        "org_" + org;
+
+    if(
+        !uniekeNodes.has(orgId)
+    ){
+
+        nodes.push({
+
+            id: orgId,
+
+            label: org,
+
+            group: "organisation"
+
+        });
+
+        uniekeNodes.add(
+            orgId
+        );
+
+    }
+
+    addEdge(
+        doc.id,
+        orgId
+    );
+
+});
+
+(doc.entities?.projects || [])
+.forEach(project => {
+
+    const projectId =
+        "project_" + project;
+
+    if(
+        !uniekeNodes.has(
+            projectId
+        )
+    ){
+
+        nodes.push({
+
+            id: projectId,
+
+            label: project,
+
+            group: "project"
+
+        });
+
+        uniekeNodes.add(
+            projectId
+        );
+
+    }
+
+    addEdge(
+        doc.id,
+        projectId
+    );
+
+});
+
 
 projectTeksten.forEach(project => {
 

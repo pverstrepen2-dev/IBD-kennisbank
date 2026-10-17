@@ -3968,7 +3968,8 @@ const CATEGORY_RULES = {
     "crohn disease",
     "terminale ileitis",
     "fistel",
-    "strictuur"
+    "strictuur",
+    "ileitis"
 ],
 
     Colitis: [
@@ -3983,7 +3984,8 @@ const CATEGORY_RULES = {
         "fodmap",
         "voeding",
         "dieet",
-        "recept"
+        "recept",
+        "supplement"
     ],
 
     Onderzoek: [
@@ -4010,7 +4012,35 @@ const CATEGORY_RULES = {
     "biological",
     "biologisch",
     "tnf-remmer"
-]
+],
+
+ Mindfulness: [
+        "mindfulness",
+        "meditatie",
+        "ademhaling",
+        "bodyscan",
+        "stress",
+        "ontspanning"
+    ],
+
+Zorggids: [
+
+        "ziekenhuis",
+        "ibd verpleegkundige",
+        "gastro-enteroloog",
+        "zorgverlener"
+
+    ],
+
+    SocialeGids: [
+
+        "invaliditeit",
+        "werk",
+        "studie",
+        "terugbetaling",
+        "attest"
+
+    ]
 
 };
 
@@ -5917,6 +5947,11 @@ if(currentHoofdgroep==='verenigingen'){
 
 function calculateCategories(doc){
 
+    const path =
+
+    (doc.path || "")
+    .toLowerCase();
+
     const text = (
 
         (doc.title || '') +
@@ -5933,7 +5968,7 @@ function calculateCategories(doc){
         .forEach(([category, keywords]) => {
 
             scores[category] = 0;
-
+        
             keywords.forEach(keyword => {
 
                 if(
@@ -5942,6 +5977,13 @@ function calculateCategories(doc){
                     scores[category] += 1;
                 }
 
+                if(
+                    path.includes(
+                    category.toLowerCase()
+                )
+                ){
+    scores[category] += 50;
+}
             });
 
         });
@@ -5974,6 +6016,12 @@ function calculateCategories(doc){
             + 10;
     }
 
+    const highestScore =
+
+    Math.max(
+        ...Object.values(scores)
+    );
+
     const result =
 
         Object.entries(scores)
@@ -5993,8 +6041,13 @@ function calculateCategories(doc){
                 category
         );
 
-    return result;
+   return {
 
+    categories: result,
+
+    confidence: highestScore
+
+};
 }
 
 const ENTITY_MAP = {
@@ -13653,7 +13706,8 @@ function extractEntities(text){
 
    async function buildOneDriveIndex(
     folderId,
-    token
+    token,
+    currentPath = ""
 ){
 
     if(visitedFolders.has(folderId)){
@@ -13699,6 +13753,8 @@ console.log("FETCH OK");
 
     title: item.name,
 
+    path: currentPath || "",
+
     category: 'OneDrive',
 
     categories: [],
@@ -13742,15 +13798,16 @@ documentData.keywords =
         item.name
     );
 
-documentData.entities =
-    extractEntities(
-        item.name
-    );
-
-documentData.categories =
+const categoryResult =
     calculateCategories(
         documentData
     );
+
+documentData.categories =
+    categoryResult.categories;
+
+documentData.confidence =
+    categoryResult.confidence;
 
 documentData.category =
     documentData.categories[0]
@@ -13782,9 +13839,12 @@ oneDriveIndex.push(
     if(item.folder){
 
         await buildOneDriveIndex(
-            item.id,
-            token
-        );
+    item.id,
+    token,
+    currentPath +
+    "/" +
+    item.name
+);
 
     }
 

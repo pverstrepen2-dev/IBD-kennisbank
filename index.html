@@ -14528,6 +14528,45 @@ async function getFileContent(
 
 }
 
+function detectHoofdgroepFromPath(path){
+
+    path = String(path || "").toLowerCase();
+
+    if(path.includes("crohn")){
+        return "Crohn";
+    }
+
+    if(path.includes("colitis")){
+        return "Colitis Ulcerosa";
+    }
+
+    if(path.includes("microscopische")){
+        return "Microscopische Colitis";
+    }
+
+    if(path.includes("voeding")){
+        return "Voeding";
+    }
+
+    if(path.includes("zorggids")){
+        return "Zorggids";
+    }
+
+    if(path.includes("sociale")){
+        return "Sociale Gids";
+    }
+
+    if(path.includes("mindfulness")){
+        return "Mindfulness";
+    }
+
+    if(path.includes("vereniging")){
+        return "Verenigingen";
+    }
+
+    return "Algemeen IBD";
+}
+
    async function buildOneDriveIndex(
     folderId,
     token,
@@ -14653,9 +14692,7 @@ documentData.category =
     documentData.categories[0]
     || "Onbekend";
     documentData.hoofdgroep =
-    detectHoofdgroepFromPath(
-        currentPath
-    );
+    detectHoofdgroepFromPath(currentPath);
     console.log(
     documentData.title,
     documentData.categories

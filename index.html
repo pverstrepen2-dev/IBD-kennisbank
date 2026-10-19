@@ -4771,15 +4771,35 @@ function getWebsiteCategories(){
 
 const verenigingFolders = {
 
-    "VPP": "2B4CCFD79FF4714A!s30d2ab55ea7e42428131c95479626cc2",
+    "VPP":
+        "2B4CCFD79FF4714A!s30d2ab55ea7e42428131c95479626cc2",
 
-    "CCV Vereniging": "2B4CCFD79FF4714A!s639be803a4d144208d5ce252931bde76",
+    "CCV Vereniging":
+        "2B4CCFD79FF4714A!s639be803a4d144208d5ce252931bde76",
 
-    "Crohn & Colitis Nederland": "2B4CCFD79FF4714A!s80d207c4ba3c4a5596157109ac51302d",
+    "Crohn & Colitis Nederland":
+        "2B4CCFD79FF4714A!s80d207c4ba3c4a5596157109ac51302d",
 
-    "IFCCA": "2B4CCFD79FF4714A!s3e9a9f747f8c47adb52f75b6387a87b9",
+    "IFCCA":
+        "2B4CCFD79FF4714A!s3e9a9f747f8c47adb52f75b6387a87b9",
 
-    "Overige Verenigingen": "2B4CCFD79FF4714A!s44957b6e7ec24c87aa0445d636d4e02c"
+    "ECCO":
+        "HIER_MAP_ID",
+
+    "BIRD":
+        "HIER_MAP_ID",
+
+    "Patient Expert":
+        "HIER_MAP_ID",
+
+    "AGA":
+        "HIER_MAP_ID",
+
+    "UEG":
+        "HIER_MAP_ID",
+
+    "Overige Verenigingen":
+        "2B4CCFD79FF4714A!s44957b6e7ec24c87aa0445d636d4e02c"
 
 };
 
@@ -6370,8 +6390,13 @@ if(
     return;
 
 }
-      const data =
+      const lokaleData =
     await getFilteredData();
+
+const data = [
+    ...lokaleData,
+    ...oneDriveIndex
+];
     console.log(
     "DATA IN CATEGORYGRID:",
     data.length
@@ -9392,24 +9417,30 @@ if(!container){
     <select
     id="vd_vereniging"
     class="input">
-   
-        <option>
-            CCV Vereniging
-        </option>
 
-        <option>
-            VPP
-        </option>
+    <option>CCV Vereniging</option>
 
-        <option>
-            IFCCA
-        </option>
+    <option>VPP</option>
 
-        <option>
-            Crohn & Colitis Nederland
-        </option>
+    <option>Crohn & Colitis Nederland</option>
 
-    </select>
+    <option>IFCCA</option>
+
+    <option>ECCO</option>
+
+    <option>BIRD</option>
+
+    <option>Patient Expert</option>
+
+    <option>Patient Participation</option>
+
+    <option>AGA</option>
+
+    <option>UEG</option>
+
+    <option>Overige Verenigingen</option>
+
+</select>
 
     <br><br>
 
@@ -14548,7 +14579,7 @@ console.log("FETCH OK");
 
     path: currentPath || "",
 
-    category: 'OneDrive',
+    category: '',
 
     categories: [],
 
@@ -14619,6 +14650,10 @@ documentData.mainCategory =
 documentData.category =
     documentData.categories[0]
     || "Onbekend";
+    documentData.hoofdgroep =
+    detectHoofdgroepFromPath(
+        currentPath
+    );
     console.log(
     documentData.title,
     documentData.categories
@@ -14874,10 +14909,16 @@ docs.forEach(doc => {
     }
 
     const hoofdgroep =
-        doc.hoofdgroep || "Onbekend";
+    doc.hoofdgroep
+    || currentHoofdgroep
+    || "Crohn";
 
-    const categorie =
-        doc.categorie || "Onbekend";
+const categorie =
+    doc.category
+    || doc.mainCategory
+    || doc.categorie
+    || "Onbekend";
+
     
     if(!structuur[hoofdgroep]){
         structuur[hoofdgroep] = {};

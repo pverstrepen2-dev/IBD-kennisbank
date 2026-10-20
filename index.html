@@ -17648,6 +17648,10 @@ async function openDriveFolder(
 ){
 
     console.log(
+    "NAAM:",
+    folderName
+);
+    console.log(
         "OPEN DRIVE FOLDER:",
         folderName,
         folderId
@@ -17956,7 +17960,10 @@ function renderDriveItems(items){
                 style="cursor:pointer;"
                 onclick="${
                     item.folder
-                    ? `openDriveFolder('${item.id}')`
+                    ? `openDriveFolder(
+    '${item.id}',
+    '${item.name}'
+)`
                     : ''
                 }"
             >

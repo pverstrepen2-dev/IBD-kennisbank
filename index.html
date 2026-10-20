@@ -14744,6 +14744,13 @@ oneDriveIndex.push(
 
     if(item.folder){
 
+        console.log(
+            "MAP GEVONDEN:",
+            currentPath + "/" + item.name,
+            "ID:",
+            item.id
+        );
+
         await buildOneDriveIndex(
     item.id,
     token,

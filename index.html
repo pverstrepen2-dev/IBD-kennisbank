@@ -1549,6 +1549,7 @@ class="btn btn-primary"
       <button class="tab-btn" onclick="switchTab(event,'projectdashboard')">📊 Projectdashboard</button>
       <button class="tab-btn" onclick="switchTab(event, 'websites')">🌐 Websites</button>
       <button class="tab-btn" onclick="switchTab(event,'knowledge-map')">🧠 Kenniskaart</button>
+      <button class="btn btn-primary" onclick="openKnowledgeMapWindow()">🌐 Open kenniskaart</button>
       <button class="tab-btn" onclick="switchTab(event,'relations')">🔗 Documentrelaties</button>
     </div>
 
@@ -16361,6 +16362,27 @@ if(nodeId === "TAKEN"){
 
 // ROOT NODES
 
+if(nodeId === "ONEDRIVE"){
+
+    panel.innerHTML = `
+
+        <h3>☁️ OneDrive</h3>
+
+        <p>
+            ${folderIndex.length}
+            mappen gevonden
+        </p>
+
+        <p>
+            ${fileIndex.length}
+            bestanden gevonden
+        </p>
+
+    `;
+
+    return;
+}
+
 if(nodeId === "ONEDRIVE_ROOT"){
 
     panel.innerHTML = `
@@ -16377,6 +16399,43 @@ if(nodeId === "ONEDRIVE_ROOT"){
         <p>
             ${fileIndex.length}
             bestanden gevonden
+        </p>
+
+    `;
+
+    return;
+}
+
+if(nodeId === "KENNISBANK"){
+
+    const kennisDocs =
+        docs.filter(
+            d => d.hoofdgroep
+        );
+
+    panel.innerHTML = `
+
+        <h3>🧠 Kennisbank</h3>
+
+        <p>
+            ${kennisDocs.length}
+            documenten gevonden
+        </p>
+
+    `;
+
+    return;
+}
+
+if(nodeId === "DOCUMENTEN"){
+
+    panel.innerHTML = `
+
+        <h3>📄 Documenten</h3>
+
+        <p>
+            ${docs.length}
+            documenten gevonden
         </p>
 
     `;

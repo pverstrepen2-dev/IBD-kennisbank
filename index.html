@@ -14991,9 +14991,9 @@ console.table(
     docs.slice(0,5)
 );
 
-    const nodes = [];
-    const edges = [];
-    const uniekeNodes =
+   const nodes = [];
+const edges = [];
+const uniekeNodes =
     new Set();
    const uniekeEdges =
     new Set();
@@ -15019,7 +15019,150 @@ function addEdge(from,to){
     }
 
 }
+/* =========================
+   CCV HOOFDSTRUCTUUR
+========================= */
 
+nodes.push({
+    id:"ccv-root",
+    label:"CCV-VZW",
+    group:"organisatie"
+});
+
+nodes.push({
+    id:"PROJECTEN",
+    label:"📁 Projecten",
+    group:"hub"
+});
+
+nodes.push({
+    id:"VERGADERINGEN",
+    label:"🗓 Vergaderingen",
+    group:"hub"
+});
+
+nodes.push({
+    id:"TAKEN",
+    label:"✅ Taken",
+    group:"hub"
+});
+
+nodes.push({
+    id:"WERKGROEPEN",
+    label:"👥 Werkgroepen",
+    group:"hub"
+});
+
+nodes.push({
+    id:"DOCUMENTEN",
+    label:"📄 Documenten",
+    group:"hub"
+});
+
+/* =========================
+   HOOFDVERBINDINGEN
+========================= */
+
+addEdge(
+    "ccv-root",
+    "PROJECTEN"
+);
+
+addEdge(
+    "ccv-root",
+    "DOCUMENTEN"
+);
+
+addEdge(
+    "ccv-root",
+    "VERGADERINGEN"
+);
+
+addEdge(
+    "ccv-root",
+    "TAKEN"
+);
+
+addEdge(
+    "ccv-root",
+    "WERKGROEPEN"
+);
+
+addEdge(
+    "ccv-root",
+    "AGENDA"
+);
+
+addEdge(
+    "ccv-root",
+    "ONEDRIVE"
+);
+
+addEdge(
+    "ONEDRIVE",
+    "ONEDRIVE_ROOT"
+);
+
+addEdge(
+    "ccv-root",
+    "LEDENBEHEER"
+);
+
+addEdge(
+    "ccv-root",
+    "MAILBOXEN"
+);
+
+addEdge(
+    "ccv-root",
+    "ARCHIEF"
+);
+
+addEdge(
+    "ccv-root",
+    "KENNISBANK"
+);
+
+nodes.push({
+    id:"AGENDA",
+    label:"📅 Agenda",
+    group:"hub"
+});
+
+nodes.push({
+    id:"ONEDRIVE",
+    label:"☁️ OneDrive",
+    group:"hub"
+});
+
+nodes.push({
+    id:"LEDENBEHEER",
+    label:"👤 Ledenbeheer",
+    group:"hub"
+});
+
+nodes.push({
+    id:"MAILBOXEN",
+    label:"📧 Mailboxen",
+    group:"hub"
+});
+
+nodes.push({
+    id:"ARCHIEF",
+    label:"🗄 Archief",
+    group:"hub"
+});
+
+nodes.push({
+    id:"KENNISBANK",
+    label:"🧠 Kennisbank",
+    group:"hub"
+});
+addEdge(
+    "DOCUMENTEN",
+    "KENNISBANK"
+);
+    
 nodes.push({
 
     id: "ONEDRIVE_ROOT",
@@ -15038,42 +15181,6 @@ uniekeNodes.add(
         `<h2>🧠 Knowledge Graph</h2>`;
 
     const structuur = {};
-
-nodes.push({
-
-    id:"PROJECTEN",
-
-    label:"📁 Projecten",
-
-    group:"hoofdgroep"
-
-});
-
-nodes.push({
-
-    id:"VERGADERINGEN",
-
-    label:"🗓 Vergaderingen",
-
-    group:"hoofdgroep"
-
-});
-
-nodes.push({
-
-    id:"WERKGROEPEN",
-
-    label:"👥 Werkgroepen",
-
-    group:"hoofdgroep"
-
-});
-
-nodes.push({
-    id:"TAKEN",
-    label:"📋 Taken",
-    group:"hoofdgroep"
-});
 
 // PERFORMANCE CACHE
 
@@ -15141,33 +15248,37 @@ const categorie =
 
 if(
     !uniekeNodes.has(
-        doc.hoofdgroep
+        hoofdgroep
     )
 ){
 
     nodes.push({
 
         id:
-            doc.hoofdgroep,
+            hoofdgroep,
 
         label:
-            doc.hoofdgroep,
+            hoofdgroep,
 
         group:
             "hoofdgroep"
 
     });
+    addEdge(
+    "KENNISBANK",
+    hoofdgroep
+);
 
     uniekeNodes.add(
-        doc.hoofdgroep
+        hoofdgroep
     );
 
 }
 
 const categorieId =
-    doc.hoofdgroep +
+    hoofdgroep +
     "_" +
-    doc.categorie;
+    categorie;
 
 let subvereniging = null;
 
@@ -15208,9 +15319,9 @@ if(
     "categorie";
 
 let categorieLabel =
-    doc.categorie;
+    categorie;
 
-if(doc.categorie === "PatientParticipation"){
+if(categorie === "PatientParticipation"){
 
     categorieGroup =
         "patientParticipation";
@@ -15220,7 +15331,7 @@ if(doc.categorie === "PatientParticipation"){
 
 }
 
-if(doc.categorie === "PatientExpert"){
+if(categorie === "PatientExpert"){
 
     categorieGroup =
         "patientExpert";
@@ -15230,7 +15341,7 @@ if(doc.categorie === "PatientExpert"){
 
 }
 
-if(doc.categorie === "ECCO"){
+if(categorie === "ECCO"){
 
     categorieGroup =
         "ecco";
@@ -15240,7 +15351,7 @@ if(doc.categorie === "ECCO"){
 
 }
 
-if(doc.categorie === "BIRD"){
+if(categorie === "BIRD"){
 
     categorieGroup =
         "bird";
@@ -15264,7 +15375,7 @@ nodes.push({
 });
 
     addEdge(
-    doc.hoofdgroep,
+    hoofdgroep,
     categorieId
 );
 
@@ -15706,9 +15817,9 @@ fileIndex
 projecten.forEach(project => {
 
     console.log(
-    "PROJECT:",
-    project
-);
+        "PROJECT:",
+        project
+    );
 
     nodes.push({
 
@@ -15716,10 +15827,10 @@ projecten.forEach(project => {
             "project_" + project.id,
 
         label:
-    project.title ||
-    project.name ||
-    project.naam ||
-    ("Project " + project.id),
+            project.title ||
+            project.name ||
+            project.naam ||
+            ("Project " + project.id),
 
         group:
             "project"
@@ -15727,15 +15838,12 @@ projecten.forEach(project => {
     });
 
     addEdge(
-
-    "PROJECTEN",
-
-    "project_" +
-    project.id
-
-);
+        "PROJECTEN",
+        "project_" + project.id
+    );
 
 });
+
 
 meetings.forEach(meeting => {
 
@@ -19803,7 +19911,7 @@ if(!doc){
 
             category:
                 getFAQCategory(
-                    doc.hoofdgroep
+                    hoofdgroep
                 ),
 
             disease:

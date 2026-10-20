@@ -2967,7 +2967,7 @@ const IMPORTANT_DOCS_FOLDER_ID = "2B4CCFD79FF4714A!s914e3bb09f4f437881e24d2b981a
 const werkdocumentFolders = {
 
     Rugzak:
-    "2B4CCFD79FF4714A!s5e02290bd9ec442ba81f47445c713ebb",
+"2B4CCFD79FF4714A!s092c733b5dc3426884c004750abcbc5b",
 
     Startermap:
     "2B4CCFD79FF4714A!s2570f86f10e04ad68925c586f0658b1c",
@@ -4818,7 +4818,7 @@ const verenigingsUploadFolders = {
         "ID_SUBSIDIES_MAP",
 
     projecten:
-        "ID_PROJECTEN_MAP"
+        "2B4CCFD79FF4714A!sed929b31656943808861e3e04c7fb1eb"
 
 };
 
@@ -9983,6 +9983,16 @@ async function renderRecentWerkdocumenten(){
         const data =
             await response.json();
 
+       if(!response.ok){
+
+    console.error(
+        "Werkdocument-map niet gevonden",
+        data
+    );
+
+    return;
+}
+
         bestanden.push(
 
             ...data.value
@@ -14371,22 +14381,17 @@ async function toggleFolder(
     const token =
         await getAccessToken();
 
-    const response =
-        await fetch(
+  const result =
+    await graphGet(
+        `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`,
+        token
+    );
 
-            `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`,
+if(!result.success){
+    return;
+}
 
-            {
-                headers:{
-                    Authorization:
-                        "Bearer " + token
-                }
-            }
-
-        );
-
-    const data =
-        await response.json();
+const data = result.data;
 
     expandedFolders[
         folderId
@@ -14405,22 +14410,17 @@ async function loadFolderFiles(
     const token =
         await getAccessToken();
 
-    const response =
-        await fetch(
+    const result =
+    await graphGet(
+        `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`,
+        token
+    );
 
-            `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`,
+if(!result.success){
+    return;
+}
 
-            {
-                headers:{
-                    Authorization:
-                        "Bearer " + token
-                }
-            }
-
-        );
-
-    const data =
-        await response.json();
+const data = result.data;
 
    loadedFiles[folderId] =
     data.value.filter(
@@ -14592,23 +14592,17 @@ function detectHoofdgroepFromPath(path){
     // console.log("INDEX MAP:", folderId);
 
     // console.log("FETCH START");
-const response =
-    await fetch(
+const result =
+    await graphGet(
         `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`,
-        {
-            headers:{
-                Authorization:
-                    "Bearer " + token
-            }
-        }
+        token
     );
 
-// console.log("FETCH OK");
+if(!result.success){
+    return;
+}
 
-    const data =
-        await response.json();
-
-    if(!data.value) return;
+const data = result.data;
 
     data.value.forEach(item => {
 
@@ -14754,6 +14748,58 @@ oneDriveIndex.push(
 
 }
 
+}
+
+async function graphGet(url, token){
+
+    try{
+
+        const response = await fetch(url,{
+            headers:{
+                Authorization: "Bearer " + token
+            }
+        });
+
+        const data = await response.json();
+
+        if(!response.ok){
+
+            console.error(
+                "GRAPH ERROR:",
+                response.status,
+                data
+            );
+
+            return {
+                success: false,
+                status: response.status,
+                data: data,
+                value: []
+            };
+        }
+
+        return {
+            success: true,
+            status: response.status,
+            data: data,
+            value: data.value || []
+        };
+
+    }
+    catch(error){
+
+        console.error(
+            "GRAPH EXCEPTION:",
+            error
+        );
+
+        return {
+            success: false,
+            status: 500,
+            data: null,
+            value: []
+        };
+    }
 }
 
 async function openDocumentById(fileId){
@@ -17447,21 +17493,17 @@ async function openDriveFolder(
         const token =
             await getAccessToken();
 
-        const response =
-            await fetch(
+       const result =
+    await graphGet(
+        `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`,
+        token
+    );
 
-                `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`,
+if(!result.success){
+    return;
+}
 
-                {
-                    headers:{
-                        Authorization:
-                            "Bearer " + token
-                    }
-                }
-            );
-
-        const data =
-    await response.json();
+const data = result.data;
 
 console.log(
     "STATUS:",

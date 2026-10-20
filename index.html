@@ -14750,58 +14750,6 @@ oneDriveIndex.push(
 
 }
 
-async function graphGet(url, token){
-
-    try{
-
-        const response = await fetch(url,{
-            headers:{
-                Authorization: "Bearer " + token
-            }
-        });
-
-        const data = await response.json();
-
-        if(!response.ok){
-
-            console.error(
-                "GRAPH ERROR:",
-                response.status,
-                data
-            );
-
-            return {
-                success: false,
-                status: response.status,
-                data: data,
-                value: []
-            };
-        }
-
-        return {
-            success: true,
-            status: response.status,
-            data: data,
-            value: data.value || []
-        };
-
-    }
-    catch(error){
-
-        console.error(
-            "GRAPH EXCEPTION:",
-            error
-        );
-
-        return {
-            success: false,
-            status: 500,
-            data: null,
-            value: []
-        };
-    }
-}
-
 async function openDocumentById(fileId){
 
     const token =
@@ -17477,324 +17425,323 @@ function handleCategoryClick(cat){
 
 }
 
+async function graphGet(url, token){
+
+    try{
+
+        const response =
+            await fetch(url,{
+                headers:{
+                    Authorization:
+                        "Bearer " + token
+                }
+            });
+
+        const data =
+            await response.json();
+
+        return {
+            success: response.ok,
+            status: response.status,
+            data: data,
+            value: data.value || []
+        };
+
+    }
+    catch(error){
+
+        return {
+            success: false,
+            status: 500,
+            data: { error },
+            value: []
+        };
+
+    }
+
+}
+
 async function openDriveFolder(
-    
     folderId,
     folderName,
     addToBreadcrumb = true
 ){
-   console.log(
-    "OPEN DRIVE FOLDER:",
-    folderName,
-    folderId
-); 
+
+    console.log(
+        "OPEN DRIVE FOLDER:",
+        folderName,
+        folderId
+    );
+
     try{
 
         const token =
             await getAccessToken();
 
-       const result =
-    await graphGet(
-        `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`,
-        token
-    );
+        const result =
+            await graphGet(
+                `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`,
+                token
+            );
 
-if(!result.success){
-    return;
-}
+        console.log(
+            "STATUS:",
+            result.status
+        );
 
-const data = result.data;
+        if(!result.success){
 
-console.log(
-    "STATUS:",
-    response.status
-);
+            console.error(
+                "GRAPH ERROR:",
+                result.data
+            );
 
-console.log(
-    "GRAPH RESPONSE:",
-    data
-);
+            return;
 
-if(!response.ok){
+        }
 
-    console.error(
-        "GRAPH ERROR",
-        data
-    );
+        const data = result.data;
 
-    return;
+        if(
+            !data.value ||
+            !Array.isArray(data.value)
+        ){
 
-}
+            console.error(
+                "Geen geldige value:",
+                data
+            );
 
-if(!data.value){
+            return;
 
-    console.error(
-        "Geen bestanden ontvangen",
-        data
-    );
+        }
 
-    return;
+        console.log(
+            "GRAPH RESPONSE:",
+            data
+        );
 
-}
+        console.log(
+            "AANTAL ITEMS:",
+            data.value.length
+        );
 
-console.log(
-    "AANTAL ITEMS:",
-    data.value.length
-);
+        console.table(
+            data.value.map(x => ({
+                naam: x.name,
+                map: !!x.folder,
+                bestand: !!x.file,
+                id: x.id
+            }))
+        );
 
+        oneDriveIndex =
+            data.value.map(item => ({
 
-            console.table(
-    data.value.map(x => ({
-        naam: x.name,
-        map: !!x.folder,
-        bestand: !!x.file,
-        id: x.id
-    }))
-);
+                title: item.name,
 
-            console.log(
-    "===== INHOUD MAP ====="
-);
+                category: "OneDrive",
 
-            oneDriveIndex = data.value.map(
-    item => ({
+                type:
+                    item.folder
+                    ? "Map"
+                    : "Bestand",
 
-        title: item.name,
+                source: "OneDrive",
 
-        category: 'OneDrive',
+                content: item.name,
 
-        type:
-            item.folder
-            ? 'Map'
-            : 'Bestand',
+                id: item.id,
 
-        source: 'OneDrive',
+                folder: item.folder,
 
-        content: item.name,
+                file: item.file
 
-        id: item.id,
-folder: item.folder,
-file: item.file
-
-    })
-);
+            }));
 
         if(addToBreadcrumb){
 
-    breadcrumbPath.push({
-        id: folderId,
-        name: folderName
-    });
+            breadcrumbPath.push({
+                id: folderId,
+                name: folderName
+            });
 
-}    
-        
-if (!data.value) {
-    console.error("Geen value ontvangen:", data);
-    return;
-}
-
-updateBreadcrumb();
-
-        if (!data.value || !Array.isArray(data.value)) {
-
-    console.error(
-        "Geen geldige value:",
-        data
-    );
-
-    return;
-}
-
-const html = data.value.map(item => `
-
-<div
-    class="drive-row"
-    onclick="${
-        item.folder
-        ? `openDriveFolder('${item.id}','${item.name}')`
-        : `openFile('${item.id}')`
-    }"
->
-
-    <div class="drive-left">
-
-    <div class="drive-link">
-
-        ${item.folder ? '📁' : '📄'}
-        ${item.name}
-
-    </div>
-
-    <div class="drive-meta">
-
-        ${
-            item.folder
-            ? "OneDrive map"
-            : "Document"
         }
 
-    </div>
+        updateBreadcrumb();
 
-</div>
+        const html =
+            data.value.map(item => `
 
-    <div class="drive-actions">
+                <div
+                    class="drive-row"
+                    onclick="${
+                        item.folder
+                        ? `openDriveFolder('${item.id}','${item.name}')`
+                        : `openFile('${item.id}')`
+                    }"
+                >
 
-        ${
-            item.folder
-            ?
-            `
-            <button
-                class="icon-btn"
-                title="Analyseer map"
-                onclick="
-                    event.stopPropagation();
-                    scanFolderDocuments('${item.id}')
-                "
-            >
-                🤖
-            </button>
+                    <div class="drive-left">
 
-            <button
-                class="icon-btn"
-                title="Upload naar map"
-                onclick="
-                    event.stopPropagation();
+                        <div class="drive-link">
+                            ${item.folder ? "📁" : "📄"}
+                            ${item.name}
+                        </div>
 
-                    selectedUploadFolder = {
-                        id:'${item.id}',
-                        naam:'${item.name}'
-                    };
+                        <div class="drive-meta">
+                            ${
+                                item.folder
+                                ? "OneDrive map"
+                                : "Document"
+                            }
+                        </div>
 
-                    const info =
-                    document.getElementById(
-                        'selectedUploadFolderInfo'
-                    );
+                    </div>
 
-                    if(info){
+                    <div class="drive-actions">
 
-                        info.innerHTML =
-                            '✅ Uploadmap: ${item.name}';
+                        ${
+                            item.folder
+                            ?
 
-                    }
-                "
-            >
-                ⬆️
-            </button>
+                            `
+                            <button
+                                class="icon-btn"
+                                title="Analyseer map"
+                                onclick="
+                                    event.stopPropagation();
+                                    scanFolderDocuments('${item.id}')
+                                "
+                            >
+                                🤖
+                            </button>
 
-            <button
-                class="icon-btn"
-                title="Open map"
-                onclick="
-                    event.stopPropagation();
-                    openDriveFolder(
-                        '${item.id}',
-                        '${item.name}'
-                    );
-                "
-            >
-                📂
-            </button>
-            `
-            :
-            `
-            <button
-                class="icon-btn"
-                title="Open document"
-                onclick="
-                    event.stopPropagation();
-                    openFile('${item.id}')
-                "
-            >
-                📄
-            </button>
-            `
+                            <button
+                                class="icon-btn"
+                                title="Upload naar map"
+                                onclick="
+                                    event.stopPropagation();
+
+                                    selectedUploadFolder = {
+                                        id:'${item.id}',
+                                        naam:'${item.name}'
+                                    };
+
+                                    const info =
+                                    document.getElementById(
+                                        'selectedUploadFolderInfo'
+                                    );
+
+                                    if(info){
+                                        info.innerHTML =
+                                        '✅ Uploadmap: ${item.name}';
+                                    }
+                                "
+                            >
+                                ⬆️
+                            </button>
+
+                            <button
+                                class="icon-btn"
+                                title="Open map"
+                                onclick="
+                                    event.stopPropagation();
+                                    openDriveFolder(
+                                        '${item.id}',
+                                        '${item.name}'
+                                    );
+                                "
+                            >
+                                📂
+                            </button>
+                            `
+
+                            :
+
+                            `
+                            <button
+                                class="icon-btn"
+                                title="Open document"
+                                onclick="
+                                    event.stopPropagation();
+                                    openFile('${item.id}')
+                                "
+                            >
+                                📄
+                            </button>
+                            `
+                        }
+
+                    </div>
+
+                </div>
+
+            `).join("");
+
+        const backBtn =
+            document.getElementById(
+                "backBtn"
+            );
+
+        if(backBtn){
+
+            backBtn.style.display =
+                breadcrumbPath.length > 1
+                ? "inline-block"
+                : "none";
+
         }
 
-    </div>
+        const target =
+            "driveExplorer";
 
-</div>
+        const targetElement =
+            document.getElementById(
+                target
+            );
 
-`).join('');
-     
-const backBtn =
-    document.getElementById(
-        "backBtn"
-    );
+        if(!targetElement){
 
-if(backBtn){
+            console.error(
+                "driveExplorer niet gevonden"
+            );
 
-    if(breadcrumbPath.length > 1){
+            return;
 
-        backBtn.style.display =
-            "inline-block";
+        }
 
-    }
-    else{
+        targetElement.style.display =
+            "block";
 
-        backBtn.style.display =
-            "none";
+        console.log(
+            "TARGET:",
+            target
+        );
 
-    }
+        console.log(
+            "FOLDER:",
+            folderName
+        );
 
-}
+        targetElement.innerHTML = `
 
-let target = "driveExplorer";
+            <div class="folder-header">
 
-const targetElement =
-    document.getElementById(target);
+                <h2>
+                    📂 ${folderName}
+                </h2>
 
-if(!targetElement){
-    alert("driveExplorer niet gevonden");
-    return;
-}
-targetElement.style.display = "block";
+                <div class="folder-stats">
+                    📦 ${data.value.length} items
+                </div>
 
-//if(
-  //  document.getElementById(
-    //    "verenigingDriveExplorer"
-    //)
-//){
-  //  target = "verenigingDriveExplorer";
-//}
-//else if(
-  //  document.getElementById(
-    //    "werkdocsList"
-    //)
-// ){
-   // target = "werkdocsList";
-// }
-//else if(
-  //  currentHoofdgroep ===
-    //"verenigingen"
-//){
-  //  target = "categoryGrid";
-//}
-console.log(
-    "TARGET:",
-    target
-);
+            </div>
 
-console.log(
-    "FOLDER:",
-    folderName
-);
-targetElement.innerHTML = `
+            ${html}
 
-<div class="folder-header">
+        `;
 
-    <h2>📂 ${folderName}</h2>
-
-    <div class="folder-stats">
-
-        📦 ${data.value.length} items
-
-    </div>
-
-</div>
-
-${html}
-
-`;
     }
     catch(error){
 

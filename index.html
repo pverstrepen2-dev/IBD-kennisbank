@@ -4208,36 +4208,59 @@ const CATEGORY_RULES = {
 
 Zorggids: [
 
-        "ibd centrum",
+    "ibd centrum",
+    "ziekenhuis",
+    "kliniek",
+    "universitair ziekenhuis",
+    "gastro-enteroloog",
+    "maag darm lever",
+    "mdl",
+    "mdl arts",
+    "specialist",
+    "arts",
+    "huisarts",
+    "verpleegkundige",
+    "ibd verpleegkundige",
+    "nurse",
+    "zorgverlener",
+    "zorgteam",
+    "consultatie",
+    "raadpleging",
+    "afspraak",
+    "doorverwijzing",
+    "verwijzing",
 
-        "ziekenhuis",
+    "coloscopie",
+    "endoscopie",
+    "gastroscopie",
+    "sigmoidoscopie",
+    "capsule endoscopie",
+    "echo",
+    "echografie",
+    "mri",
+    "ct",
+    "ct scan",
+    "onderzoek",
+    "bloedonderzoek",
+    "stoelgangsonderzoek",
+    "calprotectine",
+    "biopsie",
 
-        "gastro-enteroloog",
+    "diëtist",
+    "psycholoog",
+    "maatschappelijk werker",
+    "chirurg",
+    "stomaverpleegkundige",
+    "apotheker",
 
-        "maag darm lever",
-
-        "mdl",
-
-        "ibd verpleegkundige",
-
-        "diëtist",
-
-        "psycholoog",
-
-        "zorgverlener",
-
-        "consultatie",
-
-        "specialist",
-
-        "kliniek",
-
-        "universitair ziekenhuis",
-
-        "zorgteam",
-
-        "verwijzing"
-    ],
+    "zorgtraject",
+    "multidisciplinair",
+    "behandelcentrum",
+    "expertisecentrum",
+    "second opinion",
+    "transitiezorg",
+    "nazorg"
+],
 
 "Microscopische Colitis":[
 
@@ -4291,46 +4314,65 @@ Zorggids: [
 
     SocialeGids: [
 
-        "invaliditeit",
+    "werk",
+    "werkgever",
+    "werknemer",
+    "arbeid",
+    "job",
+    "loopbaan",
+    "arbeidscontract",
+    "arbeidsrecht",
+    "arbeidsgeneesheer",
+    "preventieadviseur",
 
-        "ziekte-uitkering",
+    "arbeidsongeschiktheid",
+    "ziekte-uitkering",
+    "invaliditeit",
+    "langdurige ziekte",
+    "uitkering",
+    "werkhervatting",
+    "progressieve tewerkstelling",
 
-        "arbeidsongeschiktheid",
+    "mutualiteit",
+    "ziekenfonds",
+    "cm",
+    "helan",
+    "solidaris",
+    "partena",
+    "lm",
 
-        "werk",
+    "terugbetaling",
+    "tegemoetkoming",
+    "integratietegemoetkoming",
+    "zorgbudget",
+    "sociale rechten",
+    "rechten",
+    "attest",
 
-        "werkgever",
+    "studie",
+    "student",
+    "school",
+    "hogeschool",
+    "universiteit",
+    "onderwijs",
 
-        "studie",
+    "vaph",
+    "fod",
+    "ocmw",
+    "handicap",
+    "erkenning handicap",
 
-        "school",
+    "verlof",
+    "zorgverlof",
+    "ouderschapsverlof",
+    "tijdskrediet",
 
-        "universiteit",
-
-        "rechten",
-
-        "sociale rechten",
-
-        "attest",
-
-        "mutualiteit",
-
-        "ziekenfonds",
-
-        "terugbetaling",
-
-        "uitkering",
-
-        "integratietegemoetkoming",
-
-        "zorgbudget",
-
-        "sociaal",
-
-        "verlof",
-
-        "arbeidsrecht"
-    ],
+    "sociaal",
+    "welzijn",
+    "inkomen",
+    "verzekering",
+    "hospitalisatieverzekering"
+],
 
 Verenigingen:[
 
@@ -6583,69 +6625,52 @@ function calculateCategories(doc){
     const scores = {};
 
     Object.entries(CATEGORY_RULES)
-        .forEach(([category, keywords]) => {
+.forEach(([category, keywords]) => {
 
-            scores[category] = 0;
-        
-            keywords.forEach(keyword => {
+    scores[category] = 0;
 
-                if(
-                    text.includes(keyword)
-                ){
-                    scores[category] += 1;
-                }
+    // MAPSTRUCTUUR-SCORE
 
-                if(
-                    path.includes(
-                    category.toLowerCase()
-                )
-                ){
-    scores[category] += 100;
-}
-if(
-    path.includes("ecco")
-){
-    scores["Verenigingen"] += 100;
-}
+    if(
+        path.includes(
+            category.toLowerCase()
+        )
+    ){
+        scores[category] += 100;
+    }
 
-if(
-    path.includes(
-        "patient participation"
-    )
-){
-    scores["Verenigingen"] += 100;
-}
+    if(path.includes("ecco")){
+        scores["Verenigingen"] =
+            (scores["Verenigingen"] || 0) + 100;
+    }
 
-if(
-    path.includes(
-        "patient expert"
-    )
-){
-    scores["Verenigingen"] += 100;
-}
+    if(path.includes("bird")){
+        scores["Verenigingen"] =
+            (scores["Verenigingen"] || 0) + 100;
+    }
 
-if(
-    path.includes("bird")
-){
-    scores["Verenigingen"] += 100;
-}
+    if(path.includes("patient expert")){
+        scores["Verenigingen"] =
+            (scores["Verenigingen"] || 0) + 100;
+    }
 
-if(
-    path.includes("bird")
-){
-    scores["Verenigingen"] += 100;
-}
+    if(path.includes("patient participation")){
+        scores["Verenigingen"] =
+            (scores["Verenigingen"] || 0) + 100;
+    }
 
-if(
-    path.includes("patient expert")
-){
-    scores["Verenigingen"] += 100;
-}
+    keywords.forEach(keyword => {
 
-            });
+        if(
+            text.includes(keyword)
+        ){
+            scores[category] += 1;
+        }
 
-        });
+    });
 
+});
+                   
     // extra score via entities
 
     if(
@@ -14700,6 +14725,16 @@ documentData.entities =
         documentData.content
 
     );
+
+documentData.searchText =
+[
+    documentData.title,
+    documentData.path,
+    documentData.content,
+    documentData.fulltext
+]
+.join(" ")
+.toLowerCase();
 
 if(item.file){
 

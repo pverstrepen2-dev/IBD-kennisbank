@@ -17692,6 +17692,15 @@ if(backBtn){
 
 let target = "driveExplorer";
 
+const targetElement =
+    document.getElementById(target);
+
+if(!targetElement){
+    alert("driveExplorer niet gevonden");
+    return;
+}
+targetElement.style.display = "block";
+
 //if(
   //  document.getElementById(
     //    "verenigingDriveExplorer"
@@ -17721,7 +17730,7 @@ console.log(
     "FOLDER:",
     folderName
 );
-document.getElementById(target).innerHTML = `
+targetElement.innerHTML = `
 
 <div class="folder-header">
 

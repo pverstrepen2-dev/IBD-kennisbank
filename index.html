@@ -1192,6 +1192,151 @@ console.log("PDF TEST", window.pdfjsLib);
     color:#FFD54F !important;
 }
 
+/* ==========================================
+   ONEDRIVE VERKENNER
+========================================== */
+
+#driveExplorer{
+    display:block !important;
+    visibility:visible !important;
+    width:100%;
+    min-height:400px;
+    padding:10px;
+    margin-top:10px;
+    overflow:visible !important;
+    position:relative;
+    z-index:10;
+}
+
+/* ==========================================
+   FOLDER HEADER
+========================================== */
+
+.folder-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:12px 16px;
+    margin-bottom:12px;
+    background:#f5f7fb;
+    border:1px solid #dbe3ea;
+    border-radius:10px;
+}
+
+.folder-header h2{
+    margin:0;
+}
+
+.folder-stats{
+    font-size:13px;
+    color:#666;
+}
+
+/* ==========================================
+   RIJEN
+========================================== */
+
+.drive-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    width:100%;
+    padding:12px;
+    margin-bottom:8px;
+    background:#fff;
+    border:1px solid #dbe3ea;
+    border-radius:8px;
+    cursor:pointer;
+    transition:all .2s ease;
+}
+
+.drive-row:hover{
+    background:#f8fafc;
+    border-color:#4f8cff;
+}
+
+/* ==========================================
+   LINKER KOLOM
+========================================== */
+
+.drive-left{
+    flex:1;
+    min-width:0;
+}
+
+.drive-link{
+    font-weight:600;
+    color:#222;
+    word-break:break-word;
+}
+
+.drive-meta{
+    margin-top:4px;
+    font-size:12px;
+    color:#666;
+}
+
+/* ==========================================
+   ACTIES
+========================================== */
+
+.drive-actions{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    flex-shrink:0;
+}
+
+.icon-btn{
+    border:none;
+    background:#eef4ff;
+    border-radius:6px;
+    padding:6px 10px;
+    cursor:pointer;
+}
+
+.icon-btn:hover{
+    background:#dce9ff;
+}
+
+/* ==========================================
+   CARDS
+========================================== */
+
+.card{
+    overflow:visible !important;
+}
+
+/* ==========================================
+   VERENIGINGSHUB
+========================================== */
+
+#verenigingHub{
+    display:block;
+    width:100%;
+}
+
+#verenigingHub .card{
+    overflow:visible !important;
+}
+
+/* ==========================================
+   RESPONSIVE
+========================================== */
+
+@media (max-width:768px){
+
+    .drive-row{
+        flex-direction:column;
+        align-items:flex-start;
+    }
+
+    .drive-actions{
+        margin-top:10px;
+    }
+
+}
+
   </style>
 </head>
 <body>
@@ -17776,6 +17921,12 @@ async function openDriveFolder(
             ${html}
 
         `;
+        console.log(
+    "HTML GESCHREVEN:",
+    targetElement.innerHTML.length
+);
+targetElement.style.border =
+    "3px solid red";
 
     }
     catch(error){

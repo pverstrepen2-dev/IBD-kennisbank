@@ -4799,7 +4799,7 @@ const verenigingFolders = {
         "2B4CCFD79FF4714A!sdba79216f9734de793d393b3899eba39",
 
     "Overige Verenigingen":
-        "2B4CCFD79FF4714A!s44957b6e7ec24c87aa0445d636d4e02c"
+"2B4CCFD79FF4714A!s7abc591afeea4cdab3f39febb3c5fb6e"
 
 };
 
@@ -13910,14 +13910,20 @@ async function loadCCVSubFolders(){
             await response.json();
 
         cachedRootItems =
-            data.value || [];
+    data.value || [];
 
-        await buildOneDriveIndex(
-            folderId,
-            token
-        );
+// oude index leegmaken
+oneDriveIndex = [];
 
-        oneDriveIndexLoaded = true;
+// bezochte mappen resetten
+visitedFolders.clear();
+
+await buildOneDriveIndex(
+    folderId,
+    token
+);
+
+oneDriveIndexLoaded = true;
 
         console.log(
             "CCV SUBFOLDERS:",

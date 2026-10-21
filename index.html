@@ -14811,184 +14811,266 @@ function detectHoofdgroepFromPath(path){
     currentPath = ""
 ){
 
+    if(!folderId){
+
+        console.error(
+            "buildOneDriveIndex: folderId ontbreekt"
+        );
+
+        return;
+    }
+
+    if(!token){
+
+        console.error(
+            "buildOneDriveIndex: token ontbreekt voor map",
+            folderId
+        );
+
+        return;
+    }
+
     if(visitedFolders.has(folderId)){
+
         console.log(
             "AL GEZIEN:",
             folderId
         );
+
         return;
     }
 
     visitedFolders.add(folderId);
 
-    // console.log("INDEX MAP:", folderId);
+    const result =
+        await graphGet(
+            `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`,
+            token
+        );
 
-    // console.log("FETCH START");
-const result =
-    await graphGet(
-        `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`,
-        token
-    );
+    if(!result.success){
 
-if(!result.success){
-    return;
-}
+        console.error(
+            "Indexeren mislukt voor map:",
+            folderId,
+            result.status,
+            result.data
+        );
 
-const data = result.data;
+        return;
+    }
 
-    data.value.forEach(item => {
+    const items =
+        Array.isArray(result.data?.value)
+            ? result.data.value
+            : [];
 
-       const documentData = {
+    for(const item of items){
 
-    id: item.id,
+        const itemPath =
+            currentPath
+                ? currentPath + "/" + item.name
+                : item.name;
 
-    title: item.name,
+        const documentData = {
 
-    fulltext: "",
+            id: item.id,
 
-    path: currentPath || "",
+            fileId: item.id,
 
-    category: '',
+            title: item.name,
 
-    categories: [],
+            fulltext: "",
 
-    tags: [],
+            path: itemPath,
 
-    keywords: [],
+            category: "",
 
-    entities: {
-        diseases: [],
-        medications: [],
-        organisations: [],
-        projects: [],
-        countries: []
-    },
+            categories: [],
 
-    relations: [],
+            subCategories: [],
 
-    searchText: item.name,
+            tags: [],
 
-    type: item.folder ? 'Map' : 'Bestand',
+            keywords: [],
 
-    source: 'OneDrive',
+            entities: {
+                diseases: [],
+                medications: [],
+                organisations: [],
+                projects: [],
+                countries: []
+            },
 
-    content: item.name,
+            relations: [],
 
-    folder: item.folder,
+            searchText: item.name,
 
-    file: item.file,
+            type:
+                item.folder
+                    ? "Map"
+                    : "Bestand",
 
-    webUrl: item.webUrl,
+            source: "OneDrive",
 
-    size: item.size,
+            content: item.name,
 
-    modified: item.lastModifiedDateTime
+            folder: item.folder || null,
 
-};
+            file: item.file || null,
 
-documentData.keywords =
-    extractKeywords(
-        item.name
-    );
+            webUrl: item.webUrl || "",
 
-const categoryResult =
-    calculateCategories(
-        documentData
-    );
+            size: item.size || 0,
 
-documentData.categories =
-    categoryResult.categories;
+            modified:
+                item.lastModifiedDateTime || null
 
-documentData.subCategories =
+        };
 
-    calculateSubCategories(
-        documentData
-    );
+        documentData.keywords =
+            extractKeywords(
+                item.name
+            );
 
-documentData.confidence =
-    categoryResult.confidence;
+        const categoryResult =
+            calculateCategories(
+                documentData
+            );
 
-documentData.mainCategory =
+        documentData.categories =
+            Array.isArray(
+                categoryResult?.categories
+            )
+                ? categoryResult.categories
+                : [];
 
-    documentData.categories?.[0]
+        documentData.subCategories =
+            calculateSubCategories(
+                documentData
+            ) || [];
 
-    ||
+        documentData.confidence =
+            categoryResult?.confidence || 0;
 
-    "Controle Nodig"
+        documentData.mainCategory =
+            documentData.categories[0]
+            || "Controle Nodig";
 
-documentData.category =
-    documentData.categories[0]
-    || "Onbekend";
-    documentData.hoofdgroep =
-    detectHoofdgroepFromPath(currentPath);
+        documentData.category =
+            documentData.categories[0]
+            || "Onbekend";
 
-documentData.entities =
-    extractEntities(
+        documentData.hoofdgroep =
+            detectHoofdgroepFromPath(
+                itemPath
+            );
 
-        documentData.title +
+        documentData.entities =
+            extractEntities(
+                documentData.title +
+                " " +
+                documentData.content
+            );
 
-        " " +
+        if(item.file){
 
-        documentData.content
+            const nameParts =
+                item.name.split(".");
 
-    );
+            const extension =
+                nameParts.length > 1
+                    ? nameParts
+                        .pop()
+                        .toLowerCase()
+                    : "";
 
-documentData.searchText =
-[
-    documentData.title,
-    documentData.path,
-    documentData.content,
-    documentData.fulltext
-]
-.join(" ")
-.toLowerCase();
+            documentData.fileType =
+                extension;
 
-if(item.file){
+            if(
+                extension === "pdf"
+                ||
+                extension === "docx"
+            ){
 
-    const extension =
+                documentData.fulltext = "";
 
-        item.name
-            .split(".")
-            .pop()
+                documentData.fulltextLoaded =
+                    false;
+
+            }
+
+        }
+
+        documentData.searchText =
+            [
+                documentData.title,
+                documentData.path,
+                documentData.content,
+                documentData.fulltext
+            ]
+            .join(" ")
             .toLowerCase();
 
-    documentData.fileType =
-        extension;
+        oneDriveIndex.push(
+            documentData
+        );
 
-    if(
-        extension === "pdf"
-        ||
-        extension === "docx"
-    ){
+        if(item.folder){
 
-        documentData.fulltext = "";
-        documentData.fulltextLoaded = false;
+            folderIndex.push({
+
+                id: item.id,
+
+                name: item.name,
+
+                parentId: folderId,
+
+                path: itemPath,
+
+                folder: true,
+
+                type: "folder",
+
+                webUrl:
+                    item.webUrl || ""
+
+            });
+
+            await buildOneDriveIndex(
+                item.id,
+                token,
+                itemPath
+            );
+
+        }else if(item.file){
+
+            fileIndex.push({
+
+                id: item.id,
+
+                name: item.name,
+
+                parentId: folderId,
+
+                path: itemPath,
+
+                file: true,
+
+                type: "file",
+
+                fileType:
+                    documentData.fileType || "",
+
+                webUrl:
+                    item.webUrl || ""
+
+            });
+
+        }
 
     }
-
-}
-
-oneDriveIndex.push(
-    documentData
-);
-
-    });
-
-    for(const item of data.value){
-
-    if(item.folder){
-
-        await buildOneDriveIndex(
-    item.id,
-    token,
-    currentPath +
-    "/" +
-    item.name
-);
-
-    }
-
-}
 
 }
 
@@ -16342,10 +16424,6 @@ console.log(
     nodeId
 );
 
-console.log(
-    "Object gevonden:",
-    item
-);
 if(nodeId === "WERKGROEPEN"){
 
     panel.innerHTML = `
@@ -16421,11 +16499,7 @@ if(nodeId === "TAKEN"){
 
     return;
 }
-    console.log(
-    "Object gevonden:",
-    item
-);
-
+    
 // ROOT NODES
 
 if(nodeId === "ONEDRIVE"){
@@ -16451,21 +16525,39 @@ if(nodeId === "ONEDRIVE"){
 
 if(nodeId === "ONEDRIVE_ROOT"){
 
+    const aantalMappen =
+        Array.isArray(folderIndex)
+            ? folderIndex.length
+            : 0;
+
+    const aantalBestanden =
+        Array.isArray(fileIndex)
+            ? fileIndex.length
+            : 0;
+
     panel.innerHTML = `
 
-        <h3>
-            ☁️ CCV-VZW
-        </h3>
+        <h3>☁️ CCV-VZW</h3>
 
         <p>
-            ${folderIndex.length}
+            📁 ${aantalMappen}
             mappen gevonden
         </p>
 
         <p>
-            ${fileIndex.length}
+            📄 ${aantalBestanden}
             bestanden gevonden
         </p>
+
+        <hr>
+
+        <button
+            type="button"
+            class="btn btn-primary"
+            onclick="loadCCVSubFolders()"
+        >
+            📂 Open CCV-VZW-structuur
+        </button>
 
     `;
 

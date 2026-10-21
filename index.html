@@ -2042,10 +2042,13 @@ class="tab-content">
 
     <div id="knowledgeSideContent"></div>
 
-</div>
+</div> <!-- knowledgeSidePanel -->
 
-    </div>
+</div> <!-- knowledge-layout -->
 
+</div> <!-- graph-relations -->
+
+</div> <!-- knowledge-map -->
 
 <div id="aikennis" class="tab-content">
 
@@ -5599,7 +5602,19 @@ if(tab){
 }
 
 if (tabName === "totaalbeeld") {
-    await loadTotaalbeeld();
+
+    if(typeof loadTotaalbeeld === "function"){
+
+        await loadTotaalbeeld();
+
+    } else {
+
+        console.warn(
+            "loadTotaalbeeld ontbreekt"
+        );
+
+    }
+
 }
 if (tabName === 'aifaq') {
     renderAIFAQ();

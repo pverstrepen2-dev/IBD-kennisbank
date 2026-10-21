@@ -18534,7 +18534,60 @@ async function openDriveFolder(
     folderName,
     addToBreadcrumb = true
 ){
+    const manageTab =
+        document.getElementById(
+            "manage"
+        );
 
+    if(manageTab){
+
+        document
+            .querySelectorAll(
+                ".tab-content"
+            )
+            .forEach(tab => {
+
+                tab.classList.remove(
+                    "active"
+                );
+
+                tab.style.display =
+                    "none";
+
+            });
+
+        manageTab.classList.add(
+            "active"
+        );
+
+        manageTab.style.display =
+            "block";
+
+                document
+            .querySelectorAll(
+                ".tab-btn"
+            )
+            .forEach(button => {
+
+                button.classList.remove(
+                    "active"
+                );
+
+            });
+
+        const manageButton =
+            document.querySelector(
+                ".tab-btn[onclick*=\"'manage'\"]"
+            );
+
+        if(manageButton){
+
+            manageButton.classList.add(
+                "active"
+            );
+
+        }
+    }
     console.log(
     "NAAM:",
     folderName
@@ -18792,12 +18845,22 @@ targetElement.style.minHeight = "400px";
             ${html}
 
         `;
+                setTimeout(function(){
+
+            targetElement.scrollIntoView({
+
+                behavior: "smooth",
+
+                block: "start"
+
+            });
+
+        }, 50);
+
         console.log(
     "HTML GESCHREVEN:",
     targetElement.innerHTML.length
 );
-targetElement.style.border =
-    "3px solid red";
 
     }
     catch(error){

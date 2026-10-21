@@ -255,26 +255,15 @@ console.log("PDF TEST", window.pdfjsLib);
 }
 
 .knowledge-layout{
-
-    display:flex;
-
-    gap:15px;
-
-    align-items:flex-start;
-
+    position:relative;
+    width:100%;
+    height:85vh;
 }
 
 #knowledgeNetwork{
-
-    flex:2;
     width:100%;
-    height:700px;
-
-    border:1px solid #ddd;
-
-    background:white;
-
-    margin-top:20px;
+    height:100%;
+    border-radius:10px;
 }
 
 #knowledgeGraphContainer{
@@ -1320,6 +1309,50 @@ console.log("PDF TEST", window.pdfjsLib);
     overflow:visible !important;
 }
 
+.knowledge-side-panel{
+
+    position:absolute;
+
+    top:10px;
+
+    right:-420px;
+
+    width:400px;
+
+    height:calc(100% - 20px);
+
+    overflow-y:auto;
+
+    background:#7257b7;
+
+    transition:right 0.3s ease;
+
+    z-index:999;
+
+}
+
+.knowledge-side-panel.open{
+
+    right:10px;
+
+}
+
+.close-btn{
+
+    background:#ef4444;
+
+    color:white;
+
+    border:none;
+
+    padding:6px 10px;
+
+    border-radius:6px;
+
+    cursor:pointer;
+
+}
+
 /* ==========================================
    RESPONSIVE
 ========================================== */
@@ -1943,17 +1976,27 @@ class="tab-content">
         </div>
 
         <div
-            id="knowledgeSidePanel"
-            class="card"
-            style="display:none;"
-        >
-        </div>
+    id="knowledgeSidePanel"
+    class="knowledge-side-panel card">
+
+    <div class="panel-header">
+
+        <button
+            class="close-btn"
+            onclick="closeKnowledgePanel()">
+
+            ✖
+
+        </button>
 
     </div>
 
+    <div id="knowledgeSideContent"></div>
+
 </div>
-     
-</div>
+
+    </div>
+
 
 <div id="aikennis" class="tab-content">
 
@@ -3621,6 +3664,15 @@ function buildKnowledgeGraph(documents) {
         });
 
     });
+
+}
+
+function openKnowledgeMapWindow(){
+
+    window.open(
+        "knowledge-map.html",
+        "_blank"
+    );
 
 }
 
@@ -16173,31 +16225,29 @@ network.on(
         if(
             !params.nodes.length
         ){
+
+            closeKnowledgePanel();
+
             return;
+
         }
 
         const nodeId =
             params.nodes[0];
 
         showKnowledgeNode(
-
             nodeId,
-
             docs,
-
             projecten,
-
             meetings,
-
             groups,
-
             tasks
-
         );
 
     }
 
 );
+
 } // einde buildKnowledgeMap
 
 function showKnowledgeNode(
@@ -16216,14 +16266,19 @@ function showKnowledgeNode(
 
 ){
 
-    const panel =
+    const sidePanel =
+    document.getElementById(
+        "knowledgeSidePanel"
+    );
 
-        document.getElementById(
-            "knowledgeSidePanel"
-        );
+const panel =
+    document.getElementById(
+        "knowledgeSideContent"
+    );
 
-    panel.style.display =
-        "block";
+sidePanel.classList.add(
+    "open"
+);
 
     let item =
 
@@ -17519,6 +17574,19 @@ ${
 
     `;
 }
+
+function closeKnowledgePanel(){
+
+    document
+        .getElementById(
+            "knowledgeSidePanel"
+        )
+        .classList.remove(
+            "open"
+        );
+
+}
+
 
 function suggestFileName(name){
 
@@ -22566,5 +22634,6 @@ window.onerror = function(msg){
 
 </div>
 </div>
+<script src="knowledge-map.js"></script>
 </body>
 </html> 

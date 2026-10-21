@@ -1379,6 +1379,46 @@ console.log("PDF TEST", window.pdfjsLib);
 
 }
 
+/* =========================================
+   DEFINITIEVE WEERGAVE VAN HOOFDTABS
+   ========================================= */
+
+.tab-content {
+    display: none;
+    width: 100%;
+}
+
+/* Alleen de geselecteerde hoofdtab tonen */
+.tab-content.active {
+    display: block !important;
+}
+
+/* Graph-subtabs apart behandelen */
+.graph-content {
+    display: none;
+}
+
+.graph-content.active {
+    display: block;
+}
+
+/* Kenniscentrum-subpanelen apart behandelen */
+.knowledge-panel {
+    display: none;
+}
+
+/* Voorkom dat het kenniskaartpaneel
+   de gewone tabs beïnvloedt */
+#knowledgeSidePanel {
+    position: absolute;
+}
+
+#knowledgeSidePanel:not(.open) {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
   </style>
 </head>
 <body>
@@ -5523,9 +5563,26 @@ if(disease === 'ccv'){
       .forEach(btn => btn.classList.remove('active'));
       evt.target.classList.add('active');
 
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-      const tab = document.getElementById(tabName);
-      if (tab) tab.classList.add('active');
+      document
+    .querySelectorAll('.tab-content')
+    .forEach(el => {
+
+        el.classList.remove('active');
+
+        el.style.display = 'none';
+
+    });
+
+const tab =
+    document.getElementById(tabName);
+
+if(tab){
+
+    tab.classList.add('active');
+
+    tab.style.display = 'block';
+
+}
 
       if (tabName === 'dashboard') updateDashboard();
       if (tabName === 'nieuw') renderNieuw();
@@ -5591,28 +5648,38 @@ if(tabName === "kenniscentrum"){
 
 function showTab(tabId){
 
-    document
-        .querySelectorAll(
-            ".tab-content"
-        )
-        .forEach(tab => {
+    const tabs = [
 
-            tab.classList.remove(
-                "active"
-            );
+        "tab-documenten",
+        "tab-taken",
+        "tab-vergaderingen",
+        "tab-werkgroepen",
+        "tab-faqs",
+        "tab-projecten"
 
-        });
+    ];
+
+    tabs.forEach(id => {
+
+        const el =
+            document.getElementById(id);
+
+        if(el){
+
+            el.style.display =
+                "none";
+
+        }
+
+    });
 
     const target =
-        document.getElementById(
-            tabId
-        );
+        document.getElementById(tabId);
 
     if(target){
 
-        target.classList.add(
-            "active"
-        );
+        target.style.display =
+            "block";
 
     }
 

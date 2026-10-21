@@ -15158,18 +15158,60 @@ oneDriveIndex.push(
 
     if(item.folder){
 
-        await buildOneDriveIndex(
+       const nextPath =
+    currentPath
+        ? currentPath + "/" + item.name
+        : item.name;
+
+await buildOneDriveIndex(
     item.id,
     token,
-    currentPath +
-    "/" +
-    item.name
+    nextPath
 );
 
     }
 
 }
 
+}
+
+async function ensureOneDriveIndex(){
+
+    if(
+        folderIndex.length > 0
+        ||
+        fileIndex.length > 0
+    ){
+        return true;
+    }
+
+    const token =
+        await getAccessToken();
+
+    if(!token){
+        return false;
+    }
+
+    oneDriveIndex.length = 0;
+    folderIndex.length = 0;
+    fileIndex.length = 0;
+
+    visitedFolders.clear();
+
+    const ccvRootFolderId =
+        "2B4CCFD79FF4714A!s3451c122bf304e639899a9f1060c96ff";
+
+    await buildOneDriveIndex(
+        ccvRootFolderId,
+        token,
+        "CCV-VZW"
+    );
+
+    return (
+        folderIndex.length > 0
+        ||
+        fileIndex.length > 0
+    );
 }
 
 async function openDocumentById(fileId){
@@ -15246,9 +15288,11 @@ function isKnowledgeNodeInitiallyVisible(node){
 }
 
 async function buildKnowledgeMap(){
-    
+
+    await ensureOneDriveIndex();
+
     const docs =
-    await DataService.loadDocuments();
+        await DataService.loadDocuments();
 
 const projecten =
     await DataService.loadProjects();
@@ -16043,8 +16087,20 @@ folderIndex.forEach(folder => {
             folderId
         );
 
-        addEdge(
-    "ONEDRIVE_ROOT",
+       const parentFolderBestaat =
+    folderIndex.some(
+        kandidaat =>
+            String(kandidaat.id) ===
+            String(folder.parentId)
+    );
+
+const parentNodeId =
+    parentFolderBestaat
+        ? "folder_" + folder.parentId
+        : "ONEDRIVE_ROOT";
+
+addEdge(
+    parentNodeId,
     folderId
 );
 
@@ -16086,16 +16142,20 @@ fileIndex
             fileNodeId
         );
 
-       addEdge(
+       const parentFolderBestaat =
+    folderIndex.some(
+        folder =>
+            String(folder.id) ===
+            String(file.parentId)
+    );
 
-    file.parentId
-    ?
-    "folder_" + file.parentId
-    :
-    "ONEDRIVE_ROOT",
+addEdge(
+
+    parentFolderBestaat
+        ? "folder_" + file.parentId
+        : "ONEDRIVE_ROOT",
 
     fileNodeId
-
 );
 
     }
@@ -16992,14 +17052,24 @@ if(nodeId === "ONEDRIVE"){
         <h3>☁️ OneDrive</h3>
 
         <p>
-            ${folderIndex.length}
+            📁 ${folderIndex.length}
             mappen gevonden
         </p>
 
         <p>
-            ${fileIndex.length}
+            📄 ${fileIndex.length}
             bestanden gevonden
         </p>
+
+        <hr>
+
+        <button
+            type="button"
+            class="btn btn-primary"
+            onclick="reloadOneDriveKnowledgeMap()"
+        >
+            🔄 OneDrive opnieuw laden
+        </button>
 
     `;
 
@@ -18155,6 +18225,21 @@ function closeKnowledgePanel(){
 
 }
 
+async function reloadOneDriveKnowledgeMap(){
+
+    oneDriveIndex.length = 0;
+    folderIndex.length = 0;
+    fileIndex.length = 0;
+
+    visitedFolders.clear();
+
+    closeKnowledgePanel();
+
+    await ensureOneDriveIndex();
+
+    await buildKnowledgeMap();
+}
+
 
 function suggestFileName(name){
 
@@ -18521,31 +18606,7 @@ async function openDriveFolder(
                 id: x.id
             }))
         );
-
-        oneDriveIndex =
-            data.value.map(item => ({
-
-                title: item.name,
-
-                category: "OneDrive",
-
-                type:
-                    item.folder
-                    ? "Map"
-                    : "Bestand",
-
-                source: "OneDrive",
-
-                content: item.name,
-
-                id: item.id,
-
-                folder: item.folder,
-
-                file: item.file
-
-            }));
-
+      
         if(addToBreadcrumb){
 
             breadcrumbPath.push({

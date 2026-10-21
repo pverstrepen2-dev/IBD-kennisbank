@@ -1362,6 +1362,69 @@ console.log("PDF TEST", window.pdfjsLib);
 
 }
 
+/* =========================================
+   BEDIENING PROGRESSIEVE KENNISKAART
+   ========================================= */
+
+.knowledge-graph-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    margin: 10px 0;
+    padding: 10px;
+
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+}
+
+.knowledge-graph-controls .btn {
+    min-height: 38px;
+}
+
+.knowledge-help {
+    position: absolute;
+
+    top: 10px;
+    left: 10px;
+
+    z-index: 20;
+
+    max-width: 340px;
+    padding: 8px 12px;
+
+    color: #2f2452;
+    background: rgba(255, 255, 255, 0.94);
+
+    border-radius: 8px;
+
+    box-shadow:
+        0 4px 14px
+        rgba(0, 0, 0, 0.14);
+
+    font-size: 13px;
+    line-height: 1.4;
+
+    pointer-events: none;
+}
+
+@media (max-width: 700px) {
+
+    .knowledge-graph-controls {
+        flex-direction: column;
+    }
+
+    .knowledge-graph-controls .btn {
+        width: 100%;
+    }
+
+    .knowledge-help {
+        right: 10px;
+        max-width: none;
+    }
+
+}
+
 /* ==========================================
    RESPONSIVE
 ========================================== */
@@ -2019,7 +2082,43 @@ class="tab-content">
     class="graph-content"
 >
 
+    <div class="knowledge-graph-controls">
+
+        <button
+            type="button"
+            class="btn btn-secondary"
+            onclick="resetKnowledgeGraphView()"
+        >
+            🏠 Beginweergave
+        </button>
+
+        <button
+            type="button"
+            class="btn btn-secondary"
+            onclick="expandSelectedKnowledgeNode()"
+        >
+            ➕ Selectie uitklappen
+        </button>
+
+        <button
+            type="button"
+            class="btn btn-secondary"
+            onclick="focusKnowledgeSelection()"
+        >
+            🎯 Selectie centreren
+        </button>
+
+    </div>
+
     <div class="knowledge-layout">
+
+        <div class="knowledge-help">
+
+            <strong>Bediening:</strong>
+            één klik toont details,
+            dubbelklik opent het volgende niveau.
+
+        </div>
 
         <div id="knowledgeNetwork">
         </div>
@@ -4153,7 +4252,6 @@ let fileIndex = [];
 let metadataIndex = [];
 let aiIndex = [];
 let indexReady = false;
-let knowledgeNodes = [];
 let cachedRootItems = [];
 const SEARCH_SETTINGS = {
 
@@ -15101,6 +15199,52 @@ async function openDocumentById(fileId){
 }
 
 let knowledgeNetwork = null;
+
+let knowledgeNodeDataSet = null;
+let knowledgeEdgeDataSet = null;
+let knowledgeNodes = [];
+const MAX_NODES_PER_EXPANSION = 25;
+
+function isKnowledgeNodeInitiallyVisible(node){
+
+    if(!node){
+        return false;
+    }
+
+    const zichtbareStartNodes =
+        new Set([
+
+            "ccv-root",
+
+            "PROJECTEN",
+
+            "DOCUMENTEN",
+
+            "VERGADERINGEN",
+
+            "TAKEN",
+
+            "WERKGROEPEN",
+
+            "AGENDA",
+
+            "ONEDRIVE",
+
+            "LEDENBEHEER",
+
+            "MAILBOXEN",
+
+            "ARCHIEF",
+
+            "KENNISBANK"
+
+        ]);
+
+    return zichtbareStartNodes.has(
+        String(node.id)
+    );
+}
+
 async function buildKnowledgeMap(){
     
     const docs =
@@ -16200,15 +16344,37 @@ console.log(
     edges.length
 );
 
-    const data = {
+    const nodesMetBeginweergave =
+    nodes.map(node => ({
 
-        nodes:
-            new vis.DataSet(nodes),
+        ...node,
 
-        edges:
-            new vis.DataSet(edges)
+        hidden:
+            !isKnowledgeNodeInitiallyVisible(
+                node
+            )
 
-    };
+    }));
+
+knowledgeNodeDataSet =
+    new vis.DataSet(
+        nodesMetBeginweergave
+    );
+
+knowledgeEdgeDataSet =
+    new vis.DataSet(
+        edges
+    );
+
+const data = {
+
+    nodes:
+        knowledgeNodeDataSet,
+
+    edges:
+        knowledgeEdgeDataSet
+
+};
 
     const network =
     new vis.Network(
@@ -16308,11 +16474,10 @@ BIRD: {
 
     }
 );
-knowledgeNodes = nodes;
+knowledgeNodes =
+    nodesMetBeginweergave;
 network.on(
-
     "click",
-
     function(params){
 
         if(
@@ -16338,10 +16503,320 @@ network.on(
         );
 
     }
+);
+
+network.on(
+    "doubleClick",
+    function(params){
+
+        if(
+            !params.nodes.length
+        ){
+            return;
+        }
+
+        const nodeId =
+            params.nodes[0];
+
+        expandKnowledgeNode(
+            nodeId
+        );
+
+    }
+);
+
+network.on(
+
+    "doubleClick",
+
+    function(params){
+
+        if(!params.nodes.length){
+            return;
+        }
+
+        const nodeId =
+            params.nodes[0];
+
+        expandKnowledgeNode(
+            nodeId
+        );
+
+    }
 
 );
 
 } // einde buildKnowledgeMap
+
+function expandKnowledgeNode(nodeId){
+
+    if(
+        !knowledgeNetwork
+        ||
+        !knowledgeNodeDataSet
+        ||
+        !nodeId
+    ){
+        return;
+    }
+
+    const verbondenNodeIds =
+        knowledgeNetwork
+            .getConnectedNodes(
+                nodeId
+            );
+
+    const alleVerborgenVerbondenNodes =
+        verbondenNodeIds.filter(id => {
+
+            const node =
+                knowledgeNodeDataSet.get(
+                    id
+                );
+
+            return (
+                node
+                &&
+                node.hidden === true
+            );
+
+        });
+
+    if(!alleVerborgenVerbondenNodes.length){
+
+        console.info(
+            "Geen verborgen nodes meer bij:",
+            nodeId
+        );
+
+        return;
+    }
+
+    const teTonenNodeIds =
+        alleVerborgenVerbondenNodes.slice(
+            0,
+            MAX_NODES_PER_EXPANSION
+        );
+
+    const updates =
+        teTonenNodeIds.map(id => ({
+
+            id: id,
+
+            hidden: false
+
+        }));
+
+    knowledgeNodeDataSet.update(
+        updates
+    );
+
+    knowledgeNodes =
+        knowledgeNodeDataSet.get();
+
+    kenniskaartHertekenen(
+        [
+            nodeId,
+            ...teTonenNodeIds
+        ]
+    );
+
+    if(
+        alleVerborgenVerbondenNodes.length
+        >
+        teTonenNodeIds.length
+    ){
+
+        console.info(
+            "Een deel van de verbonden nodes werd getoond:",
+            {
+                totaal:
+                    alleVerborgenVerbondenNodes.length,
+
+                getoond:
+                    teTonenNodeIds.length,
+
+                maximum:
+                    MAX_NODES_PER_EXPANSION
+            }
+        );
+
+    }
+
+}
+
+function kenniskaartHertekenen(
+    nodeIds = []
+){
+
+    if(!knowledgeNetwork){
+        return;
+    }
+
+    knowledgeNetwork.redraw();
+
+    if(!nodeIds.length){
+        return;
+    }
+
+    setTimeout(function(){
+
+        knowledgeNetwork.fit({
+
+            nodes: nodeIds,
+
+            animation: {
+
+                duration: 450,
+
+                easingFunction:
+                    "easeInOutQuad"
+
+            }
+
+        });
+
+    }, 50);
+}
+
+function expandSelectedKnowledgeNode(){
+
+    if(!knowledgeNetwork){
+
+        alert(
+            "Genereer eerst de kenniskaart."
+        );
+
+        return;
+    }
+
+    const geselecteerdeNodes =
+        knowledgeNetwork
+            .getSelectedNodes();
+
+    if(!geselecteerdeNodes.length){
+
+        alert(
+            "Selecteer eerst een onderdeel van de kenniskaart."
+        );
+
+        return;
+    }
+
+    expandKnowledgeNode(
+        geselecteerdeNodes[0]
+    );
+}
+
+function focusKnowledgeSelection(){
+
+    if(!knowledgeNetwork){
+
+        alert(
+            "Genereer eerst de kenniskaart."
+        );
+
+        return;
+    }
+
+    const geselecteerdeNodes =
+        knowledgeNetwork
+            .getSelectedNodes();
+
+    if(!geselecteerdeNodes.length){
+
+        alert(
+            "Selecteer eerst een onderdeel van de kenniskaart."
+        );
+
+        return;
+    }
+
+    const nodeId =
+        geselecteerdeNodes[0];
+
+    knowledgeNetwork.focus(
+
+        nodeId,
+
+        {
+
+            scale: 1.15,
+
+            animation: {
+
+                duration: 450,
+
+                easingFunction:
+                    "easeInOutQuad"
+
+            }
+
+        }
+
+    );
+}
+
+function resetKnowledgeGraphView(){
+
+    if(
+        !knowledgeNetwork
+        ||
+        !knowledgeNodeDataSet
+    ){
+
+        alert(
+            "Genereer eerst de kenniskaart."
+        );
+
+        return;
+    }
+
+    const alleNodes =
+        knowledgeNodeDataSet.get();
+
+    const updates =
+        alleNodes.map(node => ({
+
+            id: node.id,
+
+            hidden:
+                !isKnowledgeNodeInitiallyVisible(
+                    node
+                )
+
+        }));
+
+    knowledgeNodeDataSet.update(
+        updates
+    );
+
+    knowledgeNodes =
+        knowledgeNodeDataSet.get();
+
+    closeKnowledgePanel();
+
+    knowledgeNetwork.unselectAll();
+
+    setTimeout(function(){
+
+        knowledgeNetwork.redraw();
+
+        knowledgeNetwork.fit({
+
+            animation: {
+
+                duration: 500,
+
+                easingFunction:
+                    "easeInOutQuad"
+
+            }
+
+        });
+
+    }, 50);
+}
 
 function showKnowledgeNode(
 

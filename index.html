@@ -15560,6 +15560,11 @@ addEdge(
     "KENNISBANK"
 );
 
+addEdge(
+    "ccv-root",
+    "VERENIGINGEN"
+);
+
 nodes.push({
     id:"AGENDA",
     label:"📅 Agenda",
@@ -15595,10 +15600,34 @@ nodes.push({
     label:"🧠 Kennisbank",
     group:"hub"
 });
+
+nodes.push({
+    id:"VERENIGINGEN",
+    label:"🤝 Verenigingen",
+    group:"hub"
+});
+
+nodes.push({
+    id:"FAQS",
+    label:"❓ FAQ",
+    group:"hub"
+});
+
 addEdge(
     "DOCUMENTEN",
     "KENNISBANK"
 );
+
+addEdge(
+    "DOCUMENTEN",
+    "ONEDRIVE"
+);
+
+addEdge(
+    "VERENIGINGEN",
+    "ONEDRIVE"
+);
+
     
 nodes.push({
 
@@ -15610,9 +15639,58 @@ nodes.push({
 
 });
 
+Object.keys(
+    verenigingFolders
+).forEach(vereniging => {
+
+    const verenigingId =
+        "vereniging_" +
+        vereniging;
+
+    nodes.push({
+
+        id: verenigingId,
+
+        label: vereniging,
+
+        group: "vereniging"
+
+    });
+
+    addEdge(
+        "VERENIGINGEN",
+        verenigingId
+    );
+
+});
+
 uniekeNodes.add(
     "ONEDRIVE_ROOT"
 );
+Object.keys(
+    verenigingFolders
+).forEach(vereniging => {
+
+    const verenigingId =
+        "vereniging_" +
+        vereniging;
+
+    nodes.push({
+
+        id: verenigingId,
+
+        label: vereniging,
+
+        group: "vereniging"
+
+    });
+
+    addEdge(
+        "VERENIGINGEN",
+        verenigingId
+    );
+
+});
 
     let html =
         `<h2>🧠 Knowledge Graph</h2>`;
@@ -15893,9 +15971,15 @@ if(
     }
 
     addEdge(
-        subNodeId,
-        doc.id
-    );
+    subNodeId,
+    doc.id
+);
+
+addEdge(
+    "vereniging_" +
+    subvereniging,
+    doc.id
+);
 
 }
 else{
@@ -16584,6 +16668,11 @@ const data = {
                 hoofdgroep: {
     color:"#FFD600",
     size:50
+},
+
+vereniging:{
+    color:"#009688",
+    size:35
 },
 
                 categorie: {

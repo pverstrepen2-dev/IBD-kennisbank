@@ -15387,6 +15387,35 @@ function isKnowledgeNodeInitiallyVisible(node){
     );
 }
 
+function detectVereniging(doc){
+
+    const path =
+        String(
+            doc.path || ""
+        ).toLowerCase();
+
+    const tekst =
+        JSON.stringify(doc)
+        .toLowerCase();
+
+    return Object.keys(
+        verenigingFolders
+    ).find(vereniging =>
+
+        path.includes(
+            vereniging.toLowerCase()
+        )
+
+        ||
+
+        tekst.includes(
+            vereniging.toLowerCase()
+        )
+
+    ) || null;
+
+}
+
 async function buildKnowledgeMap(){
 
     await ensureOneDriveIndex();
@@ -15624,11 +15653,10 @@ addEdge(
 );
 
 addEdge(
-    "VERENIGINGEN",
-    "ONEDRIVE"
+    "DOCUMENTEN",
+    "FAQS"
 );
-
-    
+   
 nodes.push({
 
     id: "ONEDRIVE_ROOT",
@@ -15667,30 +15695,6 @@ Object.keys(
 uniekeNodes.add(
     "ONEDRIVE_ROOT"
 );
-Object.keys(
-    verenigingFolders
-).forEach(vereniging => {
-
-    const verenigingId =
-        "vereniging_" +
-        vereniging;
-
-    nodes.push({
-
-        id: verenigingId,
-
-        label: vereniging,
-
-        group: "vereniging"
-
-    });
-
-    addEdge(
-        "VERENIGINGEN",
-        verenigingId
-    );
-
-});
 
     let html =
         `<h2>🧠 Knowledge Graph</h2>`;
@@ -15726,19 +15730,12 @@ const taskTeksten =
 docs.forEach(doc => {
 
     if(
-
-        zoekterm
-
-        &&
-
-        (doc.searchIndex || "")
-    .includes(zoekterm)
-
-    ){
-
-        return;
-
-    }
+    zoekterm &&
+    !(doc.searchIndex || "")
+        .includes(zoekterm)
+){
+    return;
+}
 
     const hoofdgroep =
     doc.hoofdgroep
@@ -15794,34 +15791,8 @@ const categorieId =
     "_" +
     categorie;
 
-let subvereniging = null;
-
-const text = JSON.stringify(doc)
-    .toLowerCase();
-
-if(text.includes("ecco")){
-    subvereniging = "ECCO";
-}
-
-else if(text.includes("bird")){
-    subvereniging = "BIRD";
-}
-
-else if(
-    text.includes("patient expert")
-){
-    subvereniging =
-        "PatientExpert";
-}
-
-else if(
-    text.includes(
-        "patient participation"
-    )
-){
-    subvereniging =
-        "PatientParticipation";
-}
+const subvereniging =
+    detectVereniging(doc);
 
 if(
     !uniekeNodes.has(
@@ -16792,27 +16763,6 @@ network.on(
         );
 
     }
-);
-
-network.on(
-
-    "doubleClick",
-
-    function(params){
-
-        if(!params.nodes.length){
-            return;
-        }
-
-        const nodeId =
-            params.nodes[0];
-
-        expandKnowledgeNode(
-            nodeId
-        );
-
-    }
-
 );
 
 } // einde buildKnowledgeMap

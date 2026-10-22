@@ -1693,6 +1693,7 @@ class="btn btn-primary"
       <button class="tab-btn" onclick="switchTab(event, 'totaalbeeld')">📈 Totaalbeeld</button>
       <button class="tab-btn" onclick="switchTab(event,'projectdashboard')">📊 Projectdashboard</button>
       <button class="tab-btn" onclick="switchTab(event, 'websites')">🌐 Websites</button>
+      <button class="tab-btn" onclick="switchTab(event,'bronnen')">📚 Bronnen</button>
       <button class="tab-btn" onclick="switchTab(event,'knowledge-map')">🧠 Kenniskaart</button>
       <button class="btn btn-primary" onclick="openKnowledgeMapWindow()">🌐 Open kenniskaart</button>
       <button class="tab-btn" onclick="switchTab(event,'relations')">🔗 Documentrelaties</button>
@@ -2450,6 +2451,89 @@ class="tab-content">
         <div id="allSitesList"></div>
       </div>
     </div>
+
+<!-- Externe Bronnen -->
+<div id="bronnen" class="tab-content">
+
+    <div class="admin-section">
+
+        <div class="admin-title">
+            📚 Externe Bronnen
+        </div>
+
+        <hr>
+
+        <h3>
+            ➕ Nieuwe bron
+        </h3>
+
+        <input
+            id="bronTitel"
+            placeholder="Titel artikel">
+
+        <input
+            id="bronUrl"
+            placeholder="https://">
+
+        <select id="bronType">
+
+            <option value="LinkedIn">
+                LinkedIn
+            </option>
+
+            <option value="Website">
+                Website
+            </option>
+
+            <option value="Nieuws">
+                Nieuws
+            </option>
+
+            <option value="PubMed">
+                PubMed
+            </option>
+
+            <option value="ECCO">
+                ECCO
+            </option>
+
+            <option value="UEG">
+                UEG
+            </option>
+
+            <option value="VPP">
+                VPP
+            </option>
+
+        </select>
+
+        <textarea
+
+            id="bronNotities"
+
+            placeholder="Samenvatting of inhoud"
+
+            rows="6">
+
+        </textarea>
+
+        <button
+            class="btn btn-success"
+            onclick="saveExternalSource()">
+
+            📥 Opslaan
+
+        </button>
+
+        <hr>
+
+        <div id="sourcesContainer">
+
+        </div>
+
+    </div>
+
+</div>
 
     <!-- FAQ -->
 <div id="faq" class="tab-content">
@@ -4191,9 +4275,39 @@ async function saveUsers(data){
 // PROJECTS DATABASE
 // =========================
 
-const VOEDING_KEY = 'voeding_data';
+const VOEDING_KEY =
+    'voeding_data';
+
 const WEBSITES_KEY =
-'websites_data';
+    'websites_data';
+
+const SOURCES_KEY =
+    'external_sources';
+
+async function loadSourcesDB(){
+
+    return JSON.parse(
+
+        localStorage.getItem(
+            SOURCES_KEY
+        ) || "[]"
+
+    );
+
+}
+
+async function saveSourcesDB(data){
+
+    localStorage.setItem(
+
+        SOURCES_KEY,
+
+        JSON.stringify(data)
+
+    );
+
+}
+
 function loadVoeding(){
   return JSON.parse(localStorage.getItem(VOEDING_KEY) || '[]');
 }
@@ -5729,6 +5843,7 @@ if (tabName === 'aiapproved') {
     renderAIApproved();
 }
       if (tabName === 'websites') refreshWebsitesOverview();
+      if(tabName === 'bronnen'){ renderSources();}
       if (tabName === 'voeding') renderVoeding('dieet');
       if (tabName === 'aikennis'){
     console.log(
@@ -9719,6 +9834,43 @@ if(tab==='recentewerkdocs')
 function renderCCVResults(data){
   document.getElementById('ccvContent').innerHTML =
     data.map(d=>`<div class="card"><b>${d.title||d.name}</b></div>`).join('');
+}
+
+async function renderSources(){
+
+    const bronnen =
+        await loadSourcesDB();
+
+    document.getElementById(
+        "sourcesContainer"
+    ).innerHTML =
+
+        bronnen.map(bron => `
+
+            <div class="card">
+
+                <b>
+                    ${bron.title}
+                </b>
+
+                <br><br>
+
+                📂 ${bron.type}
+
+                <br><br>
+
+                <a
+                    href="${bron.url}"
+                    target="_blank">
+
+                    Open bron
+
+                </a>
+
+            </div>
+
+        `).join("");
+
 }
 
 // =========================
@@ -13983,6 +14135,123 @@ document.getElementById("w_category").selectedIndex = 0;
             "error"
         );
     }
+}
+
+async function saveExternalSource(){
+
+    const bronnen =
+        await loadSourcesDB();
+
+    const analyse =
+    await analyseDocumentContent(
+
+        document
+            .getElementById(
+                "bronNotities"
+            ).value,
+
+        document
+            .getElementById(
+                "bronTitel"
+            ).value
+
+    );
+
+const item = {
+
+        id:
+            Date.now(),
+
+        title:
+            document
+            .getElementById(
+                "bronTitel"
+            ).value,
+
+        url:
+            document
+            .getElementById(
+                "bronUrl"
+            ).value,
+
+        type:
+            document
+            .getElementById(
+                "bronType"
+            ).value,
+
+        notes:
+            document
+            .getElementById(
+                "bronNotities"
+            ).value,
+
+        created:
+            new Date()
+            .toISOString()
+
+    };
+
+    bronnen.unshift(
+        item
+    );
+
+    await saveSourcesDB(
+        bronnen
+    );
+
+    renderSources();
+
+    showNotification(
+        "✅ Bron opgeslagen"
+    );
+
+}
+
+async function renderSources(){
+
+    const bronnen =
+        await loadSourcesDB();
+
+    const target =
+        document.getElementById(
+            "sourcesContainer"
+        );
+
+    if(!target){
+        return;
+    }
+
+    target.innerHTML =
+
+        bronnen.map(bron => `
+
+            <div class="card">
+
+                <h3>
+                    ${bron.title}
+                </h3>
+
+                <p>
+                    📂 ${bron.type}
+                </p>
+
+                <p>
+
+                    <a
+                        href="${bron.url}"
+                        target="_blank">
+
+                        Open bron
+
+                    </a>
+
+                </p>
+
+            </div>
+
+        `).join("");
+
 }
 
 function importVoeding(event, type){

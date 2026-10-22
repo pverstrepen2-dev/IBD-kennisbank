@@ -3299,7 +3299,6 @@ class="tab-content">
 
 </div>
   <div id="notification" class="notification"></div>
-
   <script>
     const STORAGE_KEY = 'ibd_kennisbank_multilang';
     const LANG_KEY = 'ibd_selected_language';
@@ -17890,6 +17889,66 @@ console.log(
     "Object gevonden:",
     item
 );
+
+if(
+    nodeId.startsWith(
+        "vereniging_"
+    )
+){
+
+    const verenigingNaam =
+        nodeId.replace(
+            "vereniging_",
+            ""
+        );
+
+    const documenten =
+        docs.filter(doc => {
+
+            const vereniging =
+                detectVereniging(
+                    doc
+                );
+
+            return (
+                vereniging ===
+                verenigingNaam
+            );
+
+        });
+
+    panel.innerHTML = `
+
+        <h3>
+            🤝 ${verenigingNaam}
+        </h3>
+
+        <p>
+
+            ${documenten.length}
+            gekoppelde documenten
+
+        </p>
+
+        <hr>
+
+        ${documenten.map(doc => `
+
+            <div
+                class="card">
+
+                📄 ${doc.title}
+
+            </div>
+
+        `).join("")}
+
+    `;
+
+    return;
+
+}
+
 if(nodeId === "WERKGROEPEN"){
 
     panel.innerHTML = `

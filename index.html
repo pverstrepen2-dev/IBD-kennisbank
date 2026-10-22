@@ -2524,6 +2524,33 @@ class="tab-content">
             rows="6">
 
         </textarea>
+        <hr>
+
+<h3>
+    🤖 AI Analyse
+</h3>
+
+<input
+    id="bronHoofdgroep"
+    placeholder="Hoofdgroep"
+    readonly>
+
+<input
+    id="bronCategorie"
+    placeholder="Categorie"
+    readonly>
+
+<input
+    id="bronConfidence"
+    placeholder="Confidence"
+    readonly>
+
+<textarea
+    id="bronTags"
+    rows="3"
+    placeholder="Tags"
+    readonly>
+</textarea>
 
         <button
             class="btn btn-success"
@@ -14494,6 +14521,45 @@ async function analyseUrlBron(){
     ).value =
         tekst;
 
+const analyse =
+    await analyseDocumentContent(
+
+        document.getElementById(
+            "bronNotities"
+        ).value,
+
+        document.getElementById(
+            "bronTitel"
+        ).value
+
+    );
+
+console.log(
+    "AI ANALYSE:",
+    analyse
+);
+
+document.getElementById(
+    "bronHoofdgroep"
+).value =
+    analyse.hoofdgroep;
+
+document.getElementById(
+    "bronCategorie"
+).value =
+    analyse.categorie;
+
+document.getElementById(
+    "bronConfidence"
+).value =
+    analyse.confidence + "%";
+
+document.getElementById(
+    "bronTags"
+).value =
+    (analyse.tags || [])
+        .join(", ");
+        
     showNotification(
         "✅ URL geanalyseerd"
     );
@@ -14526,13 +14592,15 @@ function extractTitleFromUrl(
                 .split("/")
                 .pop();
 
-        return decodeURIComponent(
-            laatsteDeel
-        )
-        .replaceAll(
-            "-",
-            " "
-        );
+        if(!laatsteDeel){
+    return "";
+}
+
+return decodeURIComponent(
+    laatsteDeel
+)
+.replaceAll("-", " ")
+.replaceAll("_", " ");
 
     }
     catch{
@@ -14565,38 +14633,58 @@ async function saveExternalSource(){
 
 const item = {
 
-        id:
-            Date.now(),
+    id:
+        Date.now(),
 
-        title:
-            document
-            .getElementById(
-                "bronTitel"
-            ).value,
+    title:
+        document.getElementById(
+            "bronTitel"
+        ).value,
 
-        url:
-            document
-            .getElementById(
-                "bronUrl"
-            ).value,
+    url:
+        document.getElementById(
+            "bronUrl"
+        ).value,
 
-        type:
-            document
-            .getElementById(
-                "bronType"
-            ).value,
+    type:
+        document.getElementById(
+            "bronType"
+        ).value,
 
-        notes:
-            document
-            .getElementById(
-                "bronNotities"
-            ).value,
+    notes:
+        document.getElementById(
+            "bronNotities"
+        ).value,
 
-        created:
-            new Date()
-            .toISOString()
+    hoofdgroep:
+        analyse.hoofdgroep,
 
-    };
+    categorie:
+        analyse.categorie,
+
+    onderwerp:
+        analyse.onderwerp,
+
+    tags:
+        analyse.tags,
+
+    confidence:
+        analyse.confidence,
+
+    samenvatting:
+        analyse.samenvatting,
+
+    faq:
+        analyse.faq,
+
+    zoekindex:
+        analyse.zoekindex,
+
+    created:
+        new Date()
+        .toISOString()
+
+};
 
     bronnen.unshift(
         item

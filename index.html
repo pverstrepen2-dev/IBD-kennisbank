@@ -2475,6 +2475,14 @@ class="tab-content">
             id="bronUrl"
             placeholder="https://">
 
+        <button
+    class="btn btn-primary"
+    onclick="analyseUrlBron()">
+
+    📥 URL analyseren
+
+</button>
+
         <select id="bronType">
 
             <option value="LinkedIn">
@@ -14135,6 +14143,404 @@ document.getElementById("w_category").selectedIndex = 0;
             "error"
         );
     }
+}
+
+async function analyseUrlBron(){
+
+    const url =
+        document
+            .getElementById(
+                "bronUrl"
+            )
+            .value
+            .trim()
+            .toLowerCase();
+
+    if(!url){
+
+        alert(
+            "Voer eerst een URL in."
+        );
+
+        return;
+
+    }
+
+    let type =
+        "Website";
+
+    let vereniging =
+        "";
+
+    let notities = [];
+
+    // LinkedIn
+
+    if(
+        url.includes(
+            "linkedin.com"
+        )
+    ){
+
+        type =
+            "LinkedIn";
+
+        notities.push(
+            "Bron automatisch herkend als LinkedIn artikel."
+        );
+
+    }
+
+    // ECCO
+
+    if(
+        url.includes(
+            "ecco-ibd.eu"
+        )
+    ){
+
+        type =
+            "ECCO";
+
+        vereniging =
+            "ECCO";
+
+        notities.push(
+            "Bron afkomstig van ECCO."
+        );
+
+        notities.push(
+            "Mogelijk relevant voor richtlijnen, congressen of IBD-onderzoek."
+        );
+
+    }
+
+    // UEG
+
+    if(
+        url.includes(
+            "ueg.eu"
+        )
+    ){
+
+        type =
+            "UEG";
+
+        vereniging =
+            "UEG";
+
+        notities.push(
+            "Bron afkomstig van United European Gastroenterology."
+        );
+
+    }
+
+    // EFCCA
+
+    if(
+        url.includes(
+            "efcca.org"
+        )
+    ){
+
+        type =
+            "EFCCA";
+
+        vereniging =
+            "EFCCA";
+
+        notities.push(
+            "Bron afkomstig van EFCCA."
+        );
+
+        notities.push(
+            "Waarschijnlijk patiëntenparticipatie of internationale belangenbehartiging."
+        );
+
+    }
+
+    // VPP
+
+    if(
+        url.includes(
+            "patientenplatform"
+        )
+        ||
+        url.includes(
+            "vlaamspatientenplatform"
+        )
+    ){
+
+        type =
+            "VPP";
+
+        vereniging =
+            "VPP";
+
+        notities.push(
+            "Bron afkomstig van het Vlaams Patiëntenplatform."
+        );
+
+    }
+
+    // CCV-VZW
+
+    if(
+        url.includes(
+            "ccv-vzw.be"
+        )
+        ||
+        url.includes(
+            "crohn-colitis.be"
+        )
+    ){
+
+        type =
+            "CCV-VZW";
+
+        vereniging =
+            "CCV-VZW";
+
+        notities.push(
+            "Bron afkomstig van CCV-VZW."
+        );
+
+    }
+
+    // Crohn & Colitis Nederland
+
+    if(
+        url.includes(
+            "crohn-colitis.nl"
+        )
+    ){
+
+        type =
+            "Crohn & Colitis Nederland";
+
+        vereniging =
+            "Crohn & Colitis Nederland";
+
+        notities.push(
+            "Bron afkomstig van Crohn & Colitis Nederland."
+        );
+
+    }
+
+    // BIRD
+
+    if(
+        url.includes(
+            "bird"
+        )
+    ){
+
+        type =
+            "BIRD";
+
+        vereniging =
+            "BIRD";
+
+        notities.push(
+            "Bron mogelijk gekoppeld aan BIRD."
+        );
+
+    }
+
+    // AGA
+
+    if(
+        url.includes(
+            "gastro.org"
+        )
+    ){
+
+        type =
+            "AGA";
+
+        vereniging =
+            "AGA";
+
+        notities.push(
+            "Bron afkomstig van de American Gastroenterological Association."
+        );
+
+    }
+
+    // EUPATI
+
+    if(
+        url.includes(
+            "eupati"
+        )
+    ){
+
+        type =
+            "EUPATI";
+
+        vereniging =
+            "EUPATI";
+
+        notities.push(
+            "Bron afkomstig van EUPATI."
+        );
+
+        notities.push(
+            "Waarschijnlijk gerelateerd aan patiëntenbetrokkenheid en onderzoek."
+        );
+
+    }
+
+    // PubMed
+
+    if(
+        url.includes(
+            "pubmed"
+        )
+        ||
+        url.includes(
+            "ncbi.nlm.nih.gov"
+        )
+    ){
+
+        type =
+            "PubMed";
+
+        notities.push(
+            "Wetenschappelijk artikel uit PubMed."
+        );
+
+        notities.push(
+            "Controleer relevantie voor kennisbank en onderzoek."
+        );
+
+    }
+
+    // Nieuws
+
+    if(
+        url.includes(
+            "nieuws"
+        )
+        ||
+        url.includes(
+            "news"
+        )
+    ){
+
+        notities.push(
+            "Mogelijk nieuwsartikel."
+        );
+
+    }
+
+    // Onderzoek
+
+    if(
+        url.includes(
+            "research"
+        )
+        ||
+        url.includes(
+            "study"
+        )
+        ||
+        url.includes(
+            "trial"
+        )
+    ){
+
+        notities.push(
+            "Mogelijk onderzoeksgerelateerde bron."
+        );
+
+    }
+
+    // Titel genereren
+
+    document.getElementById(
+        "bronTitel"
+    ).value =
+        extractTitleFromUrl(
+            url
+        );
+
+    // Type invullen
+
+    document.getElementById(
+        "bronType"
+    ).value =
+        type;
+
+    // Notities opbouwen
+
+    let tekst =
+        notities.join(
+            "\n"
+        );
+
+    if(
+        vereniging
+    ){
+
+        tekst +=
+            "\n\nVERENIGING: " +
+            vereniging;
+
+    }
+
+    document.getElementById(
+        "bronNotities"
+    ).value =
+        tekst;
+
+    showNotification(
+        "✅ URL geanalyseerd"
+    );
+
+    console.log(
+        "URL ANALYSE",
+        {
+            url,
+            type,
+            vereniging,
+            notities
+        }
+    );
+
+}
+
+function extractTitleFromUrl(
+    url
+){
+
+    try{
+
+        const cleanUrl =
+            url
+                .split("?")[0]
+                .split("#")[0];
+
+        const laatsteDeel =
+            cleanUrl
+                .split("/")
+                .pop();
+
+        return decodeURIComponent(
+            laatsteDeel
+        )
+        .replaceAll(
+            "-",
+            " "
+        );
+
+    }
+    catch{
+
+        return "";
+
+    }
+
 }
 
 async function saveExternalSource(){

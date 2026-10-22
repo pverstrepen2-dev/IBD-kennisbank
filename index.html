@@ -6185,12 +6185,13 @@ if(
     }
 
 }
-    return score;
     if(summary.startsWith(term))
     score += 150;
 
 if(title.startsWith(term))
     score += 250;
+
+return score;
 }
 
 const SearchService = {
@@ -15104,7 +15105,7 @@ documentData.category =
 
 documentData.entities =
     extractEntities(
-
+   
         documentData.title +
 
         " " +
@@ -15113,12 +15114,56 @@ documentData.entities =
 
     );
 
-documentData.searchText =
+documentData.metadata = {
+
+    hoofdgroep:
+        documentData.hoofdgroep,
+
+    categorie:
+        documentData.category,
+
+    subcategorie:
+        documentData.subCategories,
+
+    tags:
+        documentData.tags,
+
+    entities:
+        documentData.entities,
+
+    source:
+        documentData.source,
+
+    path:
+        documentData.path,
+
+    fileType:
+        documentData.fileType
+
+};
+
+documentData.searchIndex =
 [
     documentData.title,
+
     documentData.path,
+
     documentData.content,
-    documentData.fulltext
+
+    documentData.fulltext,
+
+    documentData.category,
+
+    documentData.categories.join(" "),
+
+    documentData.keywords.join(" "),
+
+    documentData.tags.join(" "),
+
+    JSON.stringify(
+        documentData.entities
+    )
+
 ]
 .join(" ")
 .toLowerCase();
@@ -15145,6 +15190,43 @@ if(item.file){
         documentData.fulltextLoaded = false;
 
     }
+
+}
+
+if(item.folder){
+
+    folderIndex.push({
+
+        id: item.id,
+
+        name: item.name,
+
+        parentId: folderId,
+
+        path: currentPath,
+
+        webUrl: item.webUrl
+
+    });
+
+}
+else{
+
+    fileIndex.push({
+
+        id: item.id,
+
+        name: item.name,
+
+        parentId: folderId,
+
+        path: currentPath,
+
+        webUrl: item.webUrl,
+
+        fileType: documentData.fileType
+
+    });
 
 }
 
@@ -15207,6 +15289,24 @@ async function ensureOneDriveIndex(){
         "CCV-VZW"
     );
 
+console.log(
+    "ONEDRIVE:",
+    oneDriveIndex.length
+);
+console.log(
+    "ONEDRIVE:",
+    oneDriveIndex.length
+);
+
+console.log(
+    "FOLDERINDEX:",
+    folderIndex.length
+);
+
+console.log(
+    "FILEINDEX:",
+    fileIndex.length
+);
     return (
         folderIndex.length > 0
         ||
@@ -15344,9 +15444,14 @@ function addEdge(from,to){
         uniekeEdges.add(edgeKey);
 
         edges.push({
-            from,
-            to
-        });
+
+    from,
+
+    to,
+
+    value: 1
+
+});
 
     }
 
@@ -15548,9 +15653,8 @@ docs.forEach(doc => {
 
         &&
 
-        !JSON.stringify(doc)
-            .toLowerCase()
-            .includes(zoekterm)
+        (doc.searchIndex || "")
+    .includes(zoekterm)
 
     ){
 
@@ -16061,6 +16165,22 @@ taskTeksten.forEach(task => {
 // ======================
 // ONEDRIVE STRUCTUUR
 // ======================
+documentRelations.forEach(rel => {
+
+    edges.push({
+
+        from:
+            rel.source,
+
+        to:
+            rel.target,
+
+        value:
+            rel.strength || 1
+
+    });
+
+});
 
 folderIndex.forEach(folder => {
 
@@ -16609,6 +16729,11 @@ network.on(
 } // einde buildKnowledgeMap
 
 function expandKnowledgeNode(nodeId){
+
+    console.log(
+        "EXPAND:",
+        nodeId
+    );
 
     if(
         !knowledgeNetwork

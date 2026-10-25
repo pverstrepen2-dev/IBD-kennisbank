@@ -2570,6 +2570,51 @@ class="tab-content">
 
 </div>
 
+<div class="sources-toolbar">
+
+    <input
+        type="text"
+        id="sourceSearch"
+        placeholder="Zoek in externe bronnen..."
+        oninput="renderSources()"
+    >
+
+</div>
+
+<div id="sourcesContainer"></div>
+
+<div
+    id="sourceDetails"
+    class="source-details"
+    style="display:none;"
+></div>
+
+<select
+    id="sourceCategoryFilter"
+    onchange="renderSources()"
+>
+    <option value="">
+        Alle categorieën
+    </option>
+
+    <option value="Zorg">
+        Zorg
+    </option>
+
+    <option value="Beleid">
+        Beleid
+    </option>
+
+    <option value="Voeding">
+        Voeding
+    </option>
+
+    <option value="Onderzoek">
+        Onderzoek
+    </option>
+
+</select>
+
     <!-- FAQ -->
 <div id="faq" class="tab-content">
   <div class="admin-section">
@@ -9875,31 +9920,107 @@ async function renderSources(){
     const bronnen =
         await loadSourcesDB();
 
-    document.getElementById(
-        "sourcesContainer"
-    ).innerHTML =
+    const target =
+        document.getElementById(
+            "sourcesContainer"
+        );
 
-        bronnen.map(bron => `
+    if(!target){
+        return;
+    }
 
-            <div class="card">
+    const zoekterm =
+        (
+            document.getElementById(
+                "sourceSearch"
+            )?.value || ""
+        ).toLowerCase();
 
-                <b>
+    const categorie =
+        document.getElementById(
+            "sourceCategoryFilter"
+        )?.value || "";
+
+    const gefilterd =
+        bronnen.filter(bron => {
+
+            const zoektekst = [
+                bron.title,
+                bron.notes,
+                bron.samenvatting,
+                bron.tags
+            ]
+            .join(" ")
+            .toLowerCase();
+
+            const matchZoek =
+                zoektekst.includes(
+                    zoekterm
+                );
+
+            const matchCat =
+                !categorie ||
+                bron.categorie === categorie;
+
+            return (
+                matchZoek &&
+                matchCat
+            );
+
+        });
+
+    target.innerHTML =
+        gefilterd.map(bron => `
+
+            <div class="source-card">
+
+                <h3>
                     ${bron.title}
-                </b>
+                </h3>
 
-                <br><br>
+                <div class="source-meta">
 
-                📂 ${bron.type}
+                    📂 ${bron.type || "-"}
 
-                <br><br>
+                    |
 
-                <a
-                    href="${bron.url}"
-                    target="_blank">
+                    🏷 ${bron.categorie || "-"}
 
-                    Open bron
+                </div>
 
-                </a>
+                <div class="source-tags">
+
+                    ${Array.isArray(bron.tags)
+                        ? bron.tags.join(", ")
+                        : bron.tags || ""}
+                </div>
+
+                <p class="source-summary">
+
+                    ${
+                        bron.samenvatting ||
+                        bron.notes ||
+                        ""
+                    }
+
+                </p>
+
+                <div class="source-actions">
+
+                    <a
+                        href="${bron.url}"
+                        target="_blank"
+                    >
+                        Open bron
+                    </a>
+
+                    <button
+                        onclick="showSourceDetails(${bron.id})"
+                    >
+                        Details
+                    </button>
+
+                </div>
 
             </div>
 
@@ -16199,12 +16320,19 @@ const tasks =
 
 const zoekterm =
 
+(
     document
         .getElementById(
             "knowledgeSearch"
         )
-        .value
-        .toLowerCase();
+        ?.value
+
+    ||
+
+    ""
+
+)
+.toLowerCase();
     
     console.log(
     "EERSTE DOC:",
@@ -16755,6 +16883,94 @@ else{
     tagId
 );
 
+
+
+
+
+projectTeksten.forEach(project => {
+
+    if(
+        project.tekst.includes(
+            tag.toLowerCase()
+        )
+    ){
+
+        addEdge(
+            tagId,
+            "project_" + project.id
+        );
+
+    }
+
+});
+
+meetingTeksten.forEach(meeting => {
+
+    if(
+        meeting.tekst.includes(
+            tag.toLowerCase()
+        )
+    ){
+
+        addEdge(
+
+            tagId,
+
+            "meeting_" +
+            meeting.id
+
+        );
+
+    }
+
+});
+
+groupTeksten.forEach(group => {
+
+    if(
+        group.tekst.includes(
+            tag.toLowerCase()
+        )
+    ){
+
+        addEdge(
+
+            tagId,
+
+            "group_" +
+            group.id
+
+        );
+
+    }
+
+});
+
+taskTeksten.forEach(task => {
+
+    if(
+        task.tekst.includes(
+            tag.toLowerCase()
+        )
+    ){
+
+        addEdge(
+
+            tagId,
+
+            "task_" +
+            task.id
+
+        );
+
+    }
+
+});
+
+        
+
+}); // einde tags.forEach
+
 (doc.entities?.medications || [])
 .forEach(med => {
 
@@ -16890,92 +17106,8 @@ else{
     );
 
 });
-
-
-projectTeksten.forEach(project => {
-
-    if(
-        project.tekst.includes(
-            tag.toLowerCase()
-        )
-    ){
-
-        addEdge(
-            tagId,
-            "project_" + project.id
-        );
-
-    }
-
-});
-
-meetingTeksten.forEach(meeting => {
-
-    if(
-        meeting.tekst.includes(
-            tag.toLowerCase()
-        )
-    ){
-
-        addEdge(
-
-            tagId,
-
-            "meeting_" +
-            meeting.id
-
-        );
-
-    }
-
-});
-
-groupTeksten.forEach(group => {
-
-    if(
-        group.tekst.includes(
-            tag.toLowerCase()
-        )
-    ){
-
-        addEdge(
-
-            tagId,
-
-            "group_" +
-            group.id
-
-        );
-
-    }
-
-});
-
-taskTeksten.forEach(task => {
-
-    if(
-        task.tekst.includes(
-            tag.toLowerCase()
-        )
-    ){
-
-        addEdge(
-
-            tagId,
-
-            "task_" +
-            task.id
-
-        );
-
-    }
-
-});
-
-        structuur[hoofdgroep][categorie]
+structuur[hoofdgroep][categorie]
         .push(doc);
-
-}); // einde tags.forEach
 
 }); // einde docs.forEach
 
@@ -17417,19 +17549,19 @@ vereniging:{
     color:"#D1D5DB"
 },
 
-                PatientParticipation: {
+                patientParticipation: {
     color: "#00ACC1"
 },
 
-PatientExpert: {
+patientExpert: {
     color: "#8E24AA"
 },
 
-ECCO: {
+ecco: {
     color: "#1565C0"
 },
 
-BIRD: {
+bird: {
     color: "#00897B"
 },
 
@@ -19953,16 +20085,6 @@ async function getDocumentInsights(fileId){
     const docs =
        await DataService.loadDocuments()
 
-
-    const zoekterm =
-
-    document
-        .getElementById(
-            "knowledgeSearch"
-        )
-        .value
-        .toLowerCase();
-
     const doc =
         docs.find(
             d => d.fileId === fileId
@@ -19971,12 +20093,9 @@ async function getDocumentInsights(fileId){
     if(!doc) return null;
 
     return {
-        samenvatting:
-            doc.samenvatting,
-        faq:
-            doc.faq,
-        project:
-            doc.projectId
+        samenvatting: doc.samenvatting,
+        faq: doc.faq,
+        project: doc.projectId
     };
 }
 
@@ -20358,28 +20477,19 @@ async function analyseDocumentContent(
    const scores = {
 
     "Algemene Informatie":0,
-    "Woordenlijsten":0,
     "Medicatie":0,
-    "Vertalingen":0,
-    "Glossary":0,
-
-    "Medicatie IBD":0,
-    "Biologics":0,
-    "Immunosuppressiva":0,
-
+    "Biologische Therapie":0,
     "Onderzoek":0,
     "Diagnostiek":0,
-    "Richtlijnen":0,
-
     "Voeding":0,
+    "Operaties":0,
+    "Complicaties":0,
+    "Dagelijks Leven":0,
+    "Patiëntenrechten":0,
+    "Psychosociaal":0,
+    "Woordenlijsten":0,
     "Werk":0,
     "Psychosociaal":0,
-    "Operaties":0,
-
-    "Operatie":0,
-"Complicaties":0,
-"Dagelijks Leven":0,
-"Patiëntenrechten":0,
 "FODMAP":0,
 "Recepten":0,
 "Supplementen":0,
@@ -21715,9 +21825,9 @@ if(!doc){
             type:"FAQ",
 
             category:
-                getFAQCategory(
-                    hoofdgroep
-                ),
+    getFAQCategory(
+        doc.hoofdgroep
+    ),
 
             disease:
                 doc.hoofdgroep,
@@ -22000,16 +22110,7 @@ if(resultaten.length === 0){
 
     <ul>
 
-        ${(item.bronnen || VALIDATED_SOURCES)
-            .map(bron => `
-
-                <li>
-
-                    <a
-                        href="${bron.url}"
-                        target="_blank">
-
-                        `).join("")
+        (item.bronnen || VALIDATED_SOURCES)
         }
 
     </ul>

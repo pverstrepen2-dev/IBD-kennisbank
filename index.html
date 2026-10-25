@@ -10064,8 +10064,12 @@ gefilterd.map(bron => `
                 📅 Gevonden:
                 ${
                     bron.gevondenOp
-                    || bron.createdAt
-                    || "-"
+||
+bron.created
+||
+bron.createdAt
+||
+"-"
                 }
             </p>
 
@@ -14923,52 +14927,6 @@ const item = {
     showNotification(
         "✅ Bron opgeslagen"
     );
-
-}
-
-async function renderSources(){
-
-    const bronnen =
-        await loadSourcesDB();
-
-    const target =
-        document.getElementById(
-            "sourcesContainer"
-        );
-
-    if(!target){
-        return;
-    }
-
-    target.innerHTML =
-
-        bronnen.map(bron => `
-
-            <div class="card">
-
-                <h3>
-                    ${bron.title}
-                </h3>
-
-                <p>
-                    📂 ${bron.type}
-                </p>
-
-                <p>
-
-                    <a
-                        href="${bron.url}"
-                        target="_blank">
-
-                        Open bron
-
-                    </a>
-
-                </p>
-
-            </div>
-
-        `).join("");
 
 }
 

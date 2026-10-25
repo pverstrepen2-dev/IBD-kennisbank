@@ -9941,6 +9941,30 @@ async function renderSources(){
             "sourceCategoryFilter"
         )?.value || "";
 
+bronnen.sort(
+
+    (a,b) =>
+
+        new Date(
+            b.gevondenOp
+            ||
+            b.createdAt
+            ||
+            0
+        )
+
+        -
+
+        new Date(
+            a.gevondenOp
+            ||
+            a.createdAt
+            ||
+            0
+        )
+
+);
+
     const gefilterd =
         bronnen.filter(bron => {
 
@@ -9970,67 +9994,147 @@ async function renderSources(){
         });
 
     target.innerHTML =
-        gefilterd.map(bron => `
 
-            <div class="source-card">
+`
 
-                <h3>
-                    ${bron.title}
-                </h3>
+<div class="card">
 
-                <div class="source-meta">
+    <h3>
+        📊 Overzicht bronnen
+    </h3>
 
-                    📂 ${bron.type || "-"}
+    Totaal bronnen:
 
-                    |
+    <b>
+        ${gefilterd.length}
+    </b>
 
-                    🏷 ${bron.categorie || "-"}
+</div>
 
-                </div>
+`
 
-                <div class="source-tags">
++
 
-                    ${Array.isArray(bron.tags)
-                        ? bron.tags.join(", ")
-                        : bron.tags || ""}
-                </div>
+gefilterd.map(bron => `
 
-                <p class="source-summary">
+        <div class="card source-card">
 
-                    ${
-                        bron.samenvatting ||
-                        bron.notes ||
-                        ""
-                    }
+            <h3>
+                📄 ${bron.title || "Geen titel"}
+            </h3>
 
-                </p>
+            <p>
+                🌍 Bron:
+                <b>
+                    ${bron.type || bron.source || "-"}
+                </b>
+            </p>
 
-                <div class="source-actions">
+            <p>
+                📂 Hoofdgroep:
+                <b>
+                    ${bron.hoofdgroep || "-"}
+                </b>
+            </p>
 
-                    <a
-                        href="${bron.url}"
-                        target="_blank"
-                    >
-                        Open bron
-                    </a>
+            <p>
+                🏷 Categorie:
+                <b>
+                    ${bron.categorie || "-"}
+                </b>
+            </p>
 
-                    <button
-                        onclick="showSourceDetails(${bron.id})"
-                    >
-                        Details
-                    </button>
+            <p>
+                🎯 Confidence:
+                <b>
+                    ${bron.confidence || "-"}%
+                </b>
+            </p>
 
-                </div>
+            <p>
+                🏷 Tags:
+                ${
+                    Array.isArray(bron.tags)
+                    ? bron.tags.join(", ")
+                    : bron.tags || "-"
+                }
+            </p>
+
+            <p>
+                📅 Gevonden:
+                ${
+                    bron.gevondenOp
+                    || bron.createdAt
+                    || "-"
+                }
+            </p>
+
+            <div
+                style="
+                    background:#f8fafc;
+                    color:#222;
+                    padding:12px;
+                    border-radius:8px;
+                    margin-top:10px;
+                    margin-bottom:10px;
+                "
+            >
+
+                <b>📝 Samenvatting</b>
+
+                <br><br>
+
+                ${
+                    bron.samenvatting
+                    ||
+                    bron.notes
+                    ||
+                    "Geen samenvatting beschikbaar"
+                }
 
             </div>
 
-        `).join("");
+            <div class="source-actions">
+
+                <a
+                    href="${bron.url}"
+                    target="_blank"
+                >
+                    🔗 Open bron
+                </a>
+
+                <button
+                    onclick="showSourceDetails(${bron.id})"
+                >
+                    📋 Details
+                </button>
+
+                <button
+                    class="btn btn-success"
+                    onclick="saveSourceToKnowledge('${bron.id}')"
+                >
+                    ✅ Naar kennisbank
+                </button>
+
+            </div>
+
+        </div>
+
+    `).join("");
 
 }
 
 // =========================
 // TAKEN
 // =========================
+
+async function saveSourceToKnowledge(id){
+
+    alert(
+        "Wordt later gekoppeld aan de kennisbank"
+    );
+
+}
 
 async function renderVerenigingHub(){
 
@@ -16966,9 +17070,7 @@ taskTeksten.forEach(task => {
     }
 
 });
-
-        
-
+       
 }); // einde tags.forEach
 
 (doc.entities?.medications || [])

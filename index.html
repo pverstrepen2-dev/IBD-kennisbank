@@ -10183,9 +10183,9 @@ Object.keys(bronnenPerWebsite)
 
     ${
 
-        bronnenPerWebsite[site]
+    bronnenPerWebsite[site]
 
-        .map(bron => `
+    .map(bron => `
 
         <div class="card source-card">
 
@@ -10193,15 +10193,93 @@ Object.keys(bronnenPerWebsite)
                 📄 ${bron.title || "Geen titel"}
             </h3>
 
-        </details>
+            <p>
+                🌍 Bron:
+                <b>
+                    ${bron.type || bron.source || "-"}
+                </b>
+            </p>
 
-        `)
+            <p>
+                📂 Hoofdgroep:
+                <b>
+                    ${bron.hoofdgroep || "-"}
+                </b>
+            </p>
 
-        .join("")
+            <p>
+                🏷 Categorie:
+                <b>
+                    ${bron.categorie || "-"}
+                </b>
+            </p>
+
+            <p>
+                📅 Gevonden:
+                ${
+                    new Date(
+                        bron.gevondenOp ||
+                        bron.created ||
+                        bron.createdAt
+                    ).toLocaleString("nl-BE")
+                }
+            </p>
+
+            <details>
+
+                <summary>
+                    📝 Samenvatting tonen
+                </summary>
+
+                <div class="info-box">
+
+                    ${
+                        bron.samenvatting
+                        ||
+                        bron.notes
+                        ||
+                        "Geen samenvatting beschikbaar"
+                    }
+
+                </div>
+
+            </details>
+
+            <div class="source-actions">
+
+                <a
+                    href="${bron.url}"
+                    target="_blank"
+                >
+                    🔗 Open bron
+                </a>
+
+                <button
+                    onclick="showSourceDetails(${bron.id})"
+                >
+                    📋 Details
+                </button>
+
+                <button
+                    class="btn btn-success"
+                    onclick="saveSourceToKnowledge('${bron.id}')"
+                >
+                    ✅ Naar kennisbank
+                </button>
+
+            </div>
+
+        </div>
+
+    `)
+
+    .join("")
+
+}
 
     }
 
-</div>
+</details>
 
 `)
 

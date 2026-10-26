@@ -10276,6 +10276,61 @@ Object.keys(bronnenPerWebsite)
             </p>
 
 ${
+    bron.imageData?.length
+
+    ?
+
+    `
+
+    <div
+        style="
+            display:flex;
+            gap:10px;
+            flex-wrap:wrap;
+            margin-top:10px;
+        "
+    >
+
+        ${
+
+            bron.imageData
+
+            .map(img => `
+
+                <img
+
+                    src="${img}"
+
+                    style="
+                        width:120px;
+                        height:120px;
+                        object-fit:cover;
+                        border-radius:8px;
+                        cursor:pointer;
+                        border:1px solid #ddd;
+                    "
+
+                    onclick="window.open('${img}')"
+
+                >
+
+            `)
+
+            .join("")
+
+        }
+
+    </div>
+
+    `
+
+    :
+
+    ""
+
+}
+
+${
     bron.images &&
     bron.images.length
 
@@ -15118,6 +15173,31 @@ return decodeURIComponent(
 
 }
 
+async function fileToBase64(file){
+
+    return new Promise(
+        (resolve,reject)=>{
+
+            const reader =
+                new FileReader();
+
+            reader.onload =
+                () => resolve(
+                    reader.result
+                );
+
+            reader.onerror =
+                reject;
+
+            reader.readAsDataURL(
+                file
+            );
+
+        }
+    );
+
+}
+
 async function saveExternalSource(){
 
     const bronnen =
@@ -15145,6 +15225,16 @@ Array.from(
     document.getElementById(
         "bronImages"
     )?.files || []
+
+);
+
+const imageData =
+
+await Promise.all(
+
+    images.map(
+        file => fileToBase64(file)
+    )
 
 );
 
@@ -15192,10 +15282,15 @@ const item = {
         analyse.samenvatting,
 
     images:
-
+  
     images.map(
-        file => file.name
+        file => ({
+            name:file.name
+        })
     ),
+
+imageData:
+    imageData,
 
     faq:
         analyse.faq,

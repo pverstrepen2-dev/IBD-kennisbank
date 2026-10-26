@@ -10345,7 +10345,7 @@ ${
     ""
 
 }
-    
+
             <details>
 
                 <summary>
@@ -20879,6 +20879,37 @@ if(lower.includes("ustekinumab"))
 if(lower.includes("vedolizumab"))
     scores["Biologics"] += 25;
 
+const medicijnen = [
+
+    "infliximab",
+    "adalimumab",
+    "ustekinumab",
+    "vedolizumab",
+    "risankizumab",
+    "mirikizumab",
+    "golimumab",
+    "mesalazine",
+    "azathioprine",
+    "mercaptopurine",
+    "methotrexate",
+    "tofacitinib",
+    "filgotinib",
+    "upadacitinib",
+    "ozanimod",
+    "etrasimod"
+
+];
+
+medicijnen.forEach(med => {
+
+    if(lower.includes(med)){
+
+        gevondenMedicatie.push(med);
+
+    }
+
+});
+
 if(lower.includes("risankizumab"))
     scores["Biologics"] += 25;
 
@@ -20966,7 +20997,7 @@ if(lower.includes("fistel"))
     scores["Operaties"] += 30;
 
     const tags = [];
-
+    const gevondenMedicatie = [];
     const zoekwoorden = [
         "crohn",
         "colitis",
@@ -20987,6 +21018,16 @@ if(lower.includes("fistel"))
         }
 
     });
+
+    gevondenMedicatie.forEach(med => {
+
+    if(!tags.includes(med)){
+
+        tags.push(med);
+
+    }
+
+});
 
    const crohnCount =
     (lower.match(/crohn/g) || []).length;
@@ -21195,6 +21236,8 @@ return {
     categorie,
     onderwerp,
     tags,
+    detectedMedicines:
+        gevondenMedicatie,
     samenvatting,
     faq,
     zoekindex,
@@ -21510,6 +21553,9 @@ results.push({
 
     tags:
         analyse.tags || [],
+
+    detectedMedicines:
+    analyse.detectedMedicines || [],
 
     samenvatting:
         analyse.samenvatting || "",
@@ -23607,6 +23653,7 @@ createdAt:
     document.getElementById(
         "aiCaptureUrl"
     ).value = "";
+
 }
 
 async function buildFolderIndex(folderId, token){

@@ -10026,7 +10026,26 @@ bronnen.sort(
     )
 ].sort();
 
-    target.innerHTML =
+const bronnenPerWebsite = {};
+
+gefilterd.forEach(bron => {
+
+    const site =
+        bron.type ||
+        bron.source ||
+        "Onbekend";
+
+    if(!bronnenPerWebsite[site]){
+
+        bronnenPerWebsite[site] = [];
+
+    }
+
+    bronnenPerWebsite[site].push(bron);
+
+});
+
+target.innerHTML =
 
 `
 

@@ -1296,6 +1296,22 @@ console.log("PDF TEST", window.pdfjsLib);
     overflow:visible !important;
 }
 
+.info-box{
+
+    background:#f8fafc;
+
+    padding:12px;
+
+    border-radius:8px;
+
+    margin-top:10px;
+
+    margin-bottom:10px;
+
+    border-left:4px solid #4f6cf7;
+
+}
+
 /* ==========================================
    VERENIGINGSHUB
 ========================================== */
@@ -2573,21 +2589,11 @@ class="tab-content">
 <div class="sources-toolbar">
 
     <input
-        type="text"
-        id="sourceSearch"
-        placeholder="Zoek in externe bronnen..."
-        oninput="renderSources()"
-    >
-
-</div>
-
-<div id="sourcesContainer"></div>
-
-<div
-    id="sourceDetails"
-    class="source-details"
-    style="display:none;"
-></div>
+    type="text"
+    id="sourceSearch"
+    placeholder="Zoek in externe bronnen..."
+    oninput="renderSources()"
+>
 
 <select
     id="sourceCategoryFilter"
@@ -2614,6 +2620,14 @@ class="tab-content">
     </option>
 
 </select>
+
+<div id="sourcesContainer"></div>
+
+<div
+    id="sourceDetails"
+    class="source-details"
+    style="display:none;"
+></div>
 
     <!-- FAQ -->
 <div id="faq" class="tab-content">
@@ -9941,6 +9955,11 @@ async function renderSources(){
             "sourceCategoryFilter"
         )?.value || "";
 
+const website =
+    document.getElementById(
+        "sourceWebsiteFilter"
+    )?.value || "";
+
 bronnen.sort(
 
     (a,b) =>
@@ -9986,12 +10005,26 @@ bronnen.sort(
                 !categorie ||
                 bron.categorie === categorie;
 
+            const matchWebsite =
+    !website ||
+    (bron.type || bron.source) === website;
+
             return (
-                matchZoek &&
-                matchCat
-            );
+    matchZoek &&
+    matchCat &&
+    matchWebsite
+);
 
         });
+
+        const websites =
+[
+    ...new Set(
+        bronnen.map(
+            b => b.type || b.source || "Onbekend"
+        )
+    )
+].sort();
 
     target.innerHTML =
 
@@ -10003,11 +10036,94 @@ bronnen.sort(
         📊 Overzicht bronnen
     </h3>
 
-    Totaal bronnen:
+<div
+    style="
+        display:flex;
+        gap:10px;
+        margin-bottom:15px;
+        flex-wrap:wrap;
+    "
+>
 
-    <b>
-        ${gefilterd.length}
-    </b>
+<input
+    id="sourceSearch"
+    placeholder="🔎 Zoeken..."
+    value="${zoekterm}"
+    oninput="renderSources()"
+>
+
+<select
+    id="sourceWebsiteFilter"
+    onchange="renderSources()"
+>
+
+<option value="">
+Alle websites
+</option>
+
+${websites.map(site => `
+
+<option
+    value="${site}"
+    ${website===site ? "selected" : ""}
+>
+${site}
+</option>
+
+`).join("")}
+
+</select>
+
+<select
+    id="sourceCategoryFilter"
+    onchange="renderSources()"
+>
+
+<option value="">
+Alle categorieën
+</option>
+
+<option
+    value="Zorg"
+    ${categorie==="Zorg" ? "selected" : ""}
+>
+Zorg
+</option>
+
+<option
+    value="Beleid"
+    ${categorie==="Beleid" ? "selected" : ""}
+>
+Beleid
+</option>
+
+<option
+    value="Voeding"
+    ${categorie==="Voeding" ? "selected" : ""}
+>
+Voeding
+</option>
+
+<option
+    value="Onderzoek"
+    ${categorie==="Onderzoek" ? "selected" : ""}
+>
+Onderzoek
+</option>
+
+</select>
+
+</div>
+
+    <p>
+        📚 Totaal:
+        <b>${gefilterd.length}</b>
+    </p>
+
+    <p>
+        🌐 Websites:
+        <b>${websites.length}</b>
+    </p>
 
 </div>
 
@@ -10015,7 +10131,27 @@ bronnen.sort(
 
 +
 
-gefilterd.map(bron => `
+Object.keys(bronnenPerWebsite)
+
+.sort()
+
+.map(site => `
+
+<div class="card">
+
+    <h3>
+
+        🌐 ${site}
+
+        (${bronnenPerWebsite[site].length})
+
+    </h3>
+
+    ${
+
+        bronnenPerWebsite[site]
+
+        .map(bron => `
 
         <div class="card source-card">
 
@@ -10063,40 +10199,38 @@ gefilterd.map(bron => `
             <p>
                 📅 Gevonden:
                 ${
-                    bron.gevondenOp
-||
-bron.created
-||
-bron.createdAt
-||
-"-"
-                }
+new Date(
+    bron.gevondenOp
+    ||
+    bron.created
+    ||
+    bron.createdAt
+).toLocaleString(
+    "nl-BE"
+)
+}
             </p>
 
-            <div
-                style="
-                    background:#f8fafc;
-                    color:#222;
-                    padding:12px;
-                    border-radius:8px;
-                    margin-top:10px;
-                    margin-bottom:10px;
-                "
-            >
+           <details>
 
-                <b>📝 Samenvatting</b>
+    <summary>
+        📝 Samenvatting tonen
+    </summary>
 
-                <br><br>
+   <div class="info-box">
 
-                ${
-                    bron.samenvatting
-                    ||
-                    bron.notes
-                    ||
-                    "Geen samenvatting beschikbaar"
-                }
+        ${
+            bron.samenvatting
+            ||
+            bron.notes
+            ||
+            "Geen samenvatting beschikbaar"
+        }
 
-            </div>
+    </div>
+
+</details>
+
 
             <div class="source-actions">
 
@@ -10122,9 +10256,15 @@ bron.createdAt
 
             </div>
 
-        </div>
+               </div>
 
-    `).join("");
+        `).join("")
+
+    }
+
+</div>
+
+`).join("");
 
 }
 

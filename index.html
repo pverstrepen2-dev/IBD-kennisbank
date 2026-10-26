@@ -2597,15 +2597,38 @@ class="tab-content">
     📋 Plak hier een afbeelding met Ctrl+V
 </div>
 
-<div id="bronImagePreview"></div>
+<div
+    id="bronDropZone"
+    class="notice"
+    style="
+        margin-top:10px;
+        padding:15px;
+        border:2px dashed #ccc;
+        text-align:center;
+    "
+>
+
+    📥 Sleep afbeeldingen hierheen
+
+</div>
+
+<div
+    id="bronImagePreview"
+    style="
+        display:flex;
+        gap:10px;
+        flex-wrap:wrap;
+        margin-top:10px;
+    "
+></div>
 
 <div
     id="bronPastePreview"
     style="
-        margin-top:10px;
         display:flex;
         gap:10px;
         flex-wrap:wrap;
+        margin-top:10px;
     "
 ></div>
 
@@ -5876,22 +5899,67 @@ document.addEventListener(
             "bronImages"
         ){
 
-            const count =
-                event.target.files.length;
+            const files =
+                Array.from(
+                    event.target.files
+                );
 
-            document.getElementById(
-                "bronImagePreview"
-            ).innerHTML =
+            const preview =
+                document.getElementById(
+                    "bronImagePreview"
+                );
 
-                count > 0
+            preview.innerHTML = "";
 
-                ?
+            files.forEach(file => {
 
-                `📊 ${count} afbeelding(en) geselecteerd`
+                const reader =
+                    new FileReader();
 
-                :
+                reader.onload =
+                    function(e){
 
-                "";
+                        preview.innerHTML += `
+
+                            <div>
+
+                                <img
+
+                                    src="${e.target.result}"
+
+                                    style="
+                                        width:120px;
+                                        height:120px;
+                                        object-fit:cover;
+                                        border-radius:8px;
+                                        border:1px solid #ddd;
+                                    "
+
+                                >
+
+                                <div
+                                    style="
+                                        font-size:11px;
+                                        max-width:120px;
+                                        overflow:hidden;
+                                    "
+                                >
+
+                                    ${file.name}
+
+                                </div>
+
+                            </div>
+
+                        `;
+
+                    };
+
+                reader.readAsDataURL(
+                    file
+                );
+
+            });
 
         }
 
@@ -15234,12 +15302,74 @@ async function fileToBase64(file){
 }
 
 let pastedImages = [];
+const dropZone =
+    document.getElementById(
+        "bronDropZone"
+    );
+
+if(dropZone){
+
+    dropZone.addEventListener(
+        "dragover",
+
+        e => {
+
+            e.preventDefault();
+
+            dropZone.style.borderColor =
+                "#4f6ef7";
+
+        }
+    );
+
+    dropZone.addEventListener(
+        "dragleave",
+
+        () => {
+
+            dropZone.style.borderColor =
+                "#ccc";
+
+        }
+    );
+
+    dropZone.addEventListener(
+        "drop",
+
+        e => {
+
+            e.preventDefault();
+
+            document.getElementById(
+                "bronImages"
+            ).files =
+                e.dataTransfer.files;
+
+            dropZone.style.borderColor =
+                "#ccc";
+
+            document
+                .getElementById(
+                    "bronImages"
+                )
+                .dispatchEvent(
+                    new Event(
+                        "change"
+                    )
+                );
+
+        }
+    );
+
+}
 document.addEventListener(
 
     "paste",
 
     async function(event){
 
+        console.log("PASTE GEDETECTEERD");
+        
         const items =
             event.clipboardData?.items;
 
@@ -15267,9 +15397,9 @@ document.addEventListener(
                         );
 
                         const container =
-                            document.getElementById(
-                                "bronPastePreview"
-                            );
+    document.getElementById(
+        "bronImagePreview"
+    );
 
                         container.innerHTML += `
 
@@ -15301,6 +15431,7 @@ document.addEventListener(
 
     }
 );
+
 async function saveExternalSource(){
 
     const bronnen =

@@ -2271,6 +2271,24 @@ class="tab-content">
 
 <br><br>
 
+<label>
+    📊 Charts / afbeeldingen
+</label>
+
+<br>
+
+<input
+    type="file"
+    id="aiCaptureImages"
+    accept="image/*"
+    multiple
+>
+<div id="imagePreviewCount">
+</div>
+<br><br>
+
+<br><br>
+
 <button
     class="btn btn-success"
     onclick="runAICapture()">
@@ -5812,6 +5830,38 @@ const ROOT_FOLDER_ID =
       n.className = `notification show ${type === 'error' ? 'error' : ''}`;
       setTimeout(() => n.classList.remove('show'), 2800);
     }
+
+document.addEventListener(
+    "change",
+
+    function(event){
+
+        if(
+            event.target.id ===
+            "aiCaptureImages"
+        ){
+
+            const count =
+                event.target.files.length;
+
+            document.getElementById(
+                "imagePreviewCount"
+            ).innerHTML =
+
+                count > 0
+
+                ?
+
+                `📊 ${count} afbeelding(en) geselecteerd`
+
+                :
+
+                "";
+
+        }
+
+    }
+);
 
     function setLanguage(lang) {
       currentLang = lang;
@@ -10225,6 +10275,77 @@ Object.keys(bronnenPerWebsite)
                 }
             </p>
 
+${
+    bron.images &&
+    bron.images.length
+
+    ?
+
+    `
+
+    <p>
+
+        📊 Charts:
+
+        <b>
+
+            ${bron.images.length}
+
+        </b>
+
+    </p>
+
+    `
+
+    :
+
+    ""
+
+}
+
+${
+    bron.images?.length
+
+    ?
+
+    `
+
+    <details>
+
+        <summary>
+
+            🖼 Bekijk charts
+
+        </summary>
+
+        ${
+
+            bron.images
+
+            .map(image => `
+
+                <div>
+
+                    📊 ${image}
+
+                </div>
+
+            `)
+
+            .join("")
+
+        }
+
+    </details>
+
+    `
+
+    :
+
+    ""
+
+}
+    
             <details>
 
                 <summary>
@@ -23374,6 +23495,16 @@ async function runAICapture(){
             "aiCaptureText"
         ).value;
 
+const images =
+
+Array.from(
+
+    document.getElementById(
+        "aiCaptureImages"
+    )?.files || []
+
+);
+
     const bronUrl =
         document.getElementById(
             "aiCaptureUrl"
@@ -23409,6 +23540,12 @@ createdAt:
 
         samenvatting:
             analyse.samenvatting,
+
+            images:
+
+    images.map(
+        file => file.name
+    ),
 
         tags:
             analyse.tags,

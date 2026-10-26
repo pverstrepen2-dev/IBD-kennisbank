@@ -2599,6 +2599,16 @@ class="tab-content">
 
 <div id="bronImagePreview"></div>
 
+<div
+    id="bronPastePreview"
+    style="
+        margin-top:10px;
+        display:flex;
+        gap:10px;
+        flex-wrap:wrap;
+    "
+></div>
+
 <hr>
 
 <h3>
@@ -15223,6 +15233,74 @@ async function fileToBase64(file){
 
 }
 
+let pastedImages = [];
+document.addEventListener(
+
+    "paste",
+
+    async function(event){
+
+        const items =
+            event.clipboardData?.items;
+
+        if(!items) return;
+
+        for(const item of items){
+
+            if(
+                item.type.startsWith(
+                    "image/"
+                )
+            ){
+
+                const file =
+                    item.getAsFile();
+
+                const reader =
+                    new FileReader();
+
+                reader.onload =
+                    function(e){
+
+                        pastedImages.push(
+                            e.target.result
+                        );
+
+                        const container =
+                            document.getElementById(
+                                "bronPastePreview"
+                            );
+
+                        container.innerHTML += `
+
+                            <img
+
+                                src="${e.target.result}"
+
+                                style="
+                                    width:120px;
+                                    height:120px;
+                                    object-fit:cover;
+                                    border-radius:8px;
+                                    border:1px solid #ddd;
+                                "
+
+                            >
+
+                        `;
+
+                    };
+
+                reader.readAsDataURL(
+                    file
+                );
+
+            }
+
+        }
+
+    }
+);
 async function saveExternalSource(){
 
     const bronnen =
@@ -15307,15 +15385,14 @@ const item = {
         analyse.samenvatting,
 
     images:
-  
+
     images.map(
-        file => ({
-            name:file.name
-        })
+        file => file.name
     ),
 
 imageData:
-    imageData,
+
+    pastedImages,
 
     faq:
         analyse.faq,

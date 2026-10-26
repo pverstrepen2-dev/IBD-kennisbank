@@ -755,6 +755,22 @@ console.log("PDF TEST", window.pdfjsLib);
     background:#eef2ff;
 }
 
+.source-group summary{
+
+    cursor:pointer;
+
+    font-weight:bold;
+
+    padding:10px;
+
+}
+
+.source-group summary:hover{
+
+    color:#2563eb;
+
+}
+
 /* =========================
    VOEDING MODAL
 ========================= */
@@ -10155,12 +10171,15 @@ Object.keys(bronnenPerWebsite)
 
 .map(site => `
 
-<div class="card">
+<details class="card source-group">
 
-    <h3>
+    <summary>
+
         🌐 ${site}
+
         (${bronnenPerWebsite[site].length})
-    </h3>
+
+    </summary>
 
     ${
 
@@ -10174,7 +10193,7 @@ Object.keys(bronnenPerWebsite)
                 📄 ${bron.title || "Geen titel"}
             </h3>
 
-        </div>
+        </details>
 
         `)
 

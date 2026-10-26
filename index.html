@@ -5838,14 +5838,14 @@ document.addEventListener(
 
         if(
             event.target.id ===
-            "aiCaptureImages"
+            "bronImages"
         ){
 
             const count =
                 event.target.files.length;
 
             document.getElementById(
-                "imagePreviewCount"
+                "bronImagePreview"
             ).innerHTML =
 
                 count > 0
@@ -15138,6 +15138,16 @@ async function saveExternalSource(){
 
     );
 
+const images =
+
+Array.from(
+
+    document.getElementById(
+        "bronImages"
+    )?.files || []
+
+);
+
 const item = {
 
     id:
@@ -15180,6 +15190,12 @@ const item = {
 
     samenvatting:
         analyse.samenvatting,
+
+    images:
+
+    images.map(
+        file => file.name
+    ),
 
     faq:
         analyse.faq,
@@ -23595,6 +23611,9 @@ createdAt:
 
         tags:
             analyse.tags,
+
+        detectedMedicines:
+    analyse.detectedMedicines || [],
 
         faq:
             analyse.faq,

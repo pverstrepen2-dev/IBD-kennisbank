@@ -10639,6 +10639,141 @@ async function deleteSource(id){
 
 }
 
+function showDuplicateSourceDialog(
+    bestaandeBron,
+    nieuweBron
+){
+
+    const target =
+        document.getElementById(
+            "sourceDetails"
+        );
+
+    if(!target){
+        return;
+    }
+
+    target.style.display =
+        "block";
+
+    target.innerHTML = `
+
+        <div class="card">
+
+            <h3>
+                ⚠ Mogelijke dubbele bron gevonden
+            </h3>
+
+            <p>
+
+                <b>Titel:</b>
+
+                ${bestaandeBron.title}
+
+            </p>
+
+            <p>
+
+                <b>Website:</b>
+
+                ${
+                    bestaandeBron.type
+                    ||
+                    bestaandeBron.source
+                    ||
+                    "-"
+                }
+
+            </p>
+
+            <p>
+
+                <b>Datum:</b>
+
+                ${
+                    bestaandeBron.created
+                    ||
+                    bestaandeBron.createdAt
+                    ||
+                    bestaandeBron.gevondenOp
+                    ||
+                    "-"
+                }
+
+            </p>
+
+            <hr>
+
+            <button
+                class="btn btn-primary"
+                onclick="showSourceDetails('${bestaandeBron.id}')"
+            >
+
+                🔍 Open bestaande bron
+
+            </button>
+
+            <button
+                class="btn btn-danger"
+                onclick="deleteSource('${bestaandeBron.id}')"
+            >
+
+                🗑 Verwijder bestaande bron
+
+            </button>
+
+            <button
+                class="btn btn-success"
+                onclick="forceSaveDuplicate()"
+            >
+
+                💾 Toch opslaan
+
+            </button>
+
+        </div>
+
+    `;
+
+    window.pendingDuplicateSource =
+        nieuweBron;
+
+}
+
+async function forceSaveDuplicate(){
+
+    if(
+        !window.pendingDuplicateSource
+    ){
+        return;
+    }
+
+    const bronnen =
+        await loadSourcesDB();
+
+    bronnen.unshift(
+        window.pendingDuplicateSource
+    );
+
+    await saveSourcesDB(
+        bronnen
+    );
+
+    window.pendingDuplicateSource =
+        null;
+
+    document.getElementById(
+        "sourceDetails"
+    ).style.display = "none";
+
+    await renderSources();
+
+    showNotification(
+        "✅ Bron opgeslagen"
+    );
+
+}
+
 function normalizeTitle(t){
 
     return (t || "")
@@ -10966,21 +11101,39 @@ async function cleanupDuplicateSources(){
 
         const sleutel =
 
-            normalizeTitle(
-                bron.title
-            )
+    normalizeTitle(
+        bron.title
+    )
 
-            +
+    +
 
-            "|"
+    "|"
 
-            +
+    +
 
-            (
-                bron.url || ""
-            )
-            .trim()
-            .toLowerCase();
+    (
+        bron.type
+        ||
+        bron.source
+        ||
+        ""
+    )
+    .trim()
+    .toLowerCase()
+
+    +
+
+    "|"
+
+    +
+
+    (
+        bron.url
+        ||
+        ""
+    )
+    .trim()
+    .toLowerCase();
 
         if(!gezien[sleutel]){
 
@@ -16036,15 +16189,43 @@ const dubbeleBron =
         bron =>
 
             (
-                bron.title
-                    ?.trim()
-                    .toLowerCase()
+                (
+    bron.title
+        ?.trim()
+        .toLowerCase()
 
-                ===
+    ===
 
-                item.title
-                    ?.trim()
-                    .toLowerCase()
+    item.title
+        ?.trim()
+        .toLowerCase()
+)
+
+&&
+
+(
+    (
+        bron.type
+        ||
+        bron.source
+        ||
+        ""
+    )
+    .trim()
+    .toLowerCase()
+
+    ===
+
+    (
+        item.type
+        ||
+        item.source
+        ||
+        ""
+    )
+    .trim()
+    .toLowerCase()
+)
             )
 
             ||
@@ -16073,17 +16254,12 @@ const dubbeleBron =
 
 if(dubbeleBron){
 
-    const doorgaan = confirm(
-
-        "Er bestaat al een bron met dezelfde titel. Toch opslaan?"
-
+    showDuplicateSourceDialog(
+        dubbeleBron,
+        item
     );
 
-    if(!doorgaan){
-
-        return;
-
-    }
+    return;
 
 }
 

@@ -10850,6 +10850,17 @@ function renderDuplicateSources(
 
             </h3>
 
+            <button
+    class="btn btn-danger"
+    onclick="cleanupDuplicateSources()"
+>
+
+    🧹 Alles opschonen
+
+</button>
+
+<br><br>
+
     `;
 
     dubbels.forEach(pair => {
@@ -10929,6 +10940,113 @@ ${Math.round(
         )
         .style.display =
             "block";
+
+}
+
+async function cleanupDuplicateSources(){
+
+    const bevestigen = confirm(
+
+        "Alle gevonden duplicaten automatisch verwijderen?\n\nDe nieuwste versie wordt behouden."
+
+    );
+
+    if(!bevestigen){
+
+        return;
+
+    }
+
+    const bronnen =
+        await loadSourcesDB();
+
+    const gezien = {};
+
+    bronnen.forEach(bron => {
+
+        const sleutel =
+
+            normalizeTitle(
+                bron.title
+            )
+
+            +
+
+            "|"
+
+            +
+
+            (
+                bron.url || ""
+            )
+            .trim()
+            .toLowerCase();
+
+        if(!gezien[sleutel]){
+
+            gezien[sleutel] =
+                bron;
+
+        }
+        else{
+
+            const bestaandeDatum =
+
+                new Date(
+
+                    gezien[sleutel].created
+                    ||
+                    gezien[sleutel].createdAt
+                    ||
+                    gezien[sleutel].gevondenOp
+                    ||
+                    0
+
+                );
+
+            const nieuweDatum =
+
+                new Date(
+
+                    bron.created
+                    ||
+                    bron.createdAt
+                    ||
+                    bron.gevondenOp
+                    ||
+                    0
+
+                );
+
+            if(
+                nieuweDatum >
+                bestaandeDatum
+            ){
+
+                gezien[sleutel] =
+                    bron;
+
+            }
+
+        }
+
+    });
+
+    const uniekeBronnen =
+
+        Object.values(
+            gezien
+        );
+
+    await saveSourcesDB(
+        uniekeBronnen
+    );
+
+    await renderSources();
+
+    showNotification(
+        "🧹 Duplicaten opgeschoond"
+    );
 
 }
 

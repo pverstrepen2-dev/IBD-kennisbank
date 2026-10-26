@@ -10559,6 +10559,15 @@ ${
                     ✅ Naar kennisbank
                 </button>
 
+                <button
+    class="btn btn-danger"
+    onclick="deleteSource('${bron.id}')"
+>
+
+    🗑 Verwijderen
+
+</button>
+
             </div>
 
         </div>
@@ -10586,6 +10595,37 @@ async function saveSourceToKnowledge(id){
 
     alert(
         "Wordt later gekoppeld aan de kennisbank"
+    );
+
+}
+
+async function deleteSource(id){
+
+    if(
+        !confirm(
+            "Bron verwijderen?"
+        )
+    ){
+        return;
+    }
+
+    let bronnen =
+        await loadSourcesDB();
+
+    bronnen =
+        bronnen.filter(
+            bron =>
+                bron.id != id
+        );
+
+    await saveSourcesDB(
+        bronnen
+    );
+
+    renderSources();
+
+    showNotification(
+        "🗑 Bron verwijderd"
     );
 
 }
@@ -15568,6 +15608,35 @@ imageData:
         .toISOString()
 
 };
+
+const bestaatAl =
+
+    bronnen.find(
+
+        bron =>
+
+            bron.title
+            ?.toLowerCase() ===
+            item.title
+            ?.toLowerCase()
+
+    );
+
+if(bestaatAl){
+
+    if(
+        !confirm(
+
+            "Deze bron bestaat mogelijk al. Toch opslaan?"
+
+        )
+    ){
+
+        return;
+
+    }
+
+}
 
     bronnen.unshift(
         item

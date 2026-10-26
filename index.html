@@ -10504,25 +10504,38 @@ ${
 
 }
 
-            <details>
+           ${
+    bron.ocrText
 
-                <summary>
-                    📝 Samenvatting tonen
-                </summary>
+    ?
 
-                <div class="info-box">
+    `
 
-                    ${
-                        bron.samenvatting
-                        ||
-                        bron.notes
-                        ||
-                        "Geen samenvatting beschikbaar"
-                    }
+    <details>
 
-                </div>
+        <summary>
 
-            </details>
+            📄 OCR tekst
+
+        </summary>
+
+        <div
+            class="info-box"
+        >
+
+            ${bron.ocrText}
+
+        </div>
+
+    </details>
+
+    `
+
+    :
+
+    ""
+
+}
 
             <div class="source-actions">
 
@@ -15369,7 +15382,7 @@ document.addEventListener(
     async function(event){
 
         console.log("PASTE GEDETECTEERD");
-        
+
         const items =
             event.clipboardData?.items;
 
@@ -15509,6 +15522,9 @@ const item = {
     tags:
         analyse.tags,
 
+    detectedMedicines:
+    analyse.detectedMedicines || [],
+
     confidence:
         analyse.confidence,
 
@@ -15520,6 +15536,22 @@ const item = {
     images.map(
         file => file.name
     ),
+
+imageData:
+
+    imageData,
+
+ocrText:
+
+    "",
+
+detectedMedicines:
+
+    [],
+
+generatedTags:
+
+    [],
 
 imageData:
 
@@ -21240,7 +21272,19 @@ const medicijnen = [
     "filgotinib",
     "upadacitinib",
     "ozanimod",
-    "etrasimod"
+    "etrasimod",
+    "mirikizumab",
+"guselkumab",
+"omalizumab",
+"prednisolone",
+"prednison",
+"budesonide",
+"methotrexate",
+"skyrizi",
+"entyvio",
+"stelara",
+"remicade",
+"humira"
 
 ];
 
@@ -21363,9 +21407,29 @@ if(lower.includes("fistel"))
 
     });
 
-    gevondenMedicatie.forEach(med => {
+    if(
+    gevondenMedicatie.length > 0
+){
 
-    if(!tags.includes(med)){
+    if(
+        !tags.includes(
+            "medicatie"
+        )
+    ){
+
+        tags.push(
+            "medicatie"
+        );
+
+    }
+
+}
+
+gevondenMedicatie.forEach(med => {
+
+    if(
+        !tags.includes(med)
+    ){
 
         tags.push(med);
 

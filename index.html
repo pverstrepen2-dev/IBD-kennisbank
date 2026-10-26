@@ -10639,6 +10639,64 @@ async function deleteSource(id){
 
 }
 
+function normalizeTitle(t){
+
+    return (t || "")
+
+        .toLowerCase()
+
+        .replace(/[^\w\s]/g,"")
+
+        .replace(/\s+/g," ")
+
+        .trim();
+
+}
+
+function similarity(a,b){
+
+    a = normalizeTitle(a);
+    b = normalizeTitle(b);
+
+    if(!a || !b){
+
+        return 0;
+
+    }
+
+    let matches = 0;
+
+    const wordsA =
+        a.split(" ");
+
+    const wordsB =
+        b.split(" ");
+
+    wordsA.forEach(word => {
+
+        if(
+            wordsB.includes(word)
+        ){
+
+            matches++;
+
+        }
+
+    });
+
+    return (
+
+        matches /
+
+        Math.max(
+            wordsA.length,
+            wordsB.length
+        )
+
+    ) * 100;
+
+}
+
 async function findDuplicateSources(){
 
     const bronnen =
@@ -10648,44 +10706,118 @@ async function findDuplicateSources(){
 
     const dubbels = [];
 
-    bronnen.forEach(bron => {
+    for(
 
-        const sleutel =
+    let i = 0;
 
-            (
-                bron.title || ""
-            )
+    i < bronnen.length;
 
-            .trim()
+    i++
 
+){
+
+    const bronA =
+        bronnen[i];
+
+    for(
+
+        let j = i + 1;
+
+        j < bronnen.length;
+
+        j++
+
+    ){
+
+        const bronB =
+            bronnen[j];
+
+        const titelA =
+            normalizeTitle(
+                bronA.title
+            );
+
+        const titelB =
+            normalizeTitle(
+                bronB.title
+            );
+
+        const urlA =
+            (bronA.url || "")
             .toLowerCase();
 
-        if(!sleutel){
-            return;
-        }
+        const urlB =
+            (bronB.url || "")
+            .toLowerCase();
 
-        if(gezien[sleutel]){
+        const websiteA =
+            (
+                bronA.type ||
+                bronA.source ||
+                ""
+            ).toLowerCase();
+
+        const websiteB =
+            (
+                bronB.type ||
+                bronB.source ||
+                ""
+            ).toLowerCase();
+
+        const score =
+            similarity(
+                titelA,
+                titelB
+            );
+
+        const titelDubbel =
+            titelA === titelB;
+
+        const urlDubbel =
+            urlA &&
+            urlA === urlB;
+
+        const titelWebsiteDubbel =
+
+            titelA === titelB
+
+            &&
+
+            websiteA === websiteB;
+
+        const gelijkaardig =
+            score >= 90;
+
+        if(
+
+            titelDubbel ||
+
+            urlDubbel ||
+
+            titelWebsiteDubbel ||
+
+            gelijkaardig
+
+        ){
 
             dubbels.push({
 
                 origineel:
-                    gezien[sleutel],
+                    bronA,
 
                 dubbel:
-                    bron
+                    bronB,
+
+                score:
+                    score
 
             });
 
         }
-        else{
 
-            gezien[sleutel] =
-                bron;
+    }
 
-        }
-
-    });
-
+}
     if(
         dubbels.length === 0
     ){
@@ -10751,6 +10883,14 @@ function renderDuplicateSources(
                 <br>
 
                 📅 Nieuw:
+
+                <br>
+
+🔍 Gelijkenis:
+
+${Math.round(
+    pair.score || 100
+)}%
 
                 ${
                     pair.dubbel.created ||

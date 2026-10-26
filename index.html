@@ -10313,6 +10313,15 @@ Onderzoek
         <b>${websites.length}</b>
     </p>
 
+<button
+    class="btn btn-warning"
+    onclick="findDuplicateSources()"
+>
+
+    🧹 Dubbele bronnen zoeken
+
+</button>
+
 </div>
 
 `
@@ -10627,6 +10636,159 @@ async function deleteSource(id){
     showNotification(
         "🗑 Bron verwijderd"
     );
+
+}
+
+async function findDuplicateSources(){
+
+    const bronnen =
+        await loadSourcesDB();
+
+    const gezien = {};
+
+    const dubbels = [];
+
+    bronnen.forEach(bron => {
+
+        const sleutel =
+
+            (
+                bron.title || ""
+            )
+
+            .trim()
+
+            .toLowerCase();
+
+        if(!sleutel){
+            return;
+        }
+
+        if(gezien[sleutel]){
+
+            dubbels.push({
+
+                origineel:
+                    gezien[sleutel],
+
+                dubbel:
+                    bron
+
+            });
+
+        }
+        else{
+
+            gezien[sleutel] =
+                bron;
+
+        }
+
+    });
+
+    if(
+        dubbels.length === 0
+    ){
+
+        alert(
+            "✅ Geen dubbele bronnen gevonden."
+        );
+
+        return;
+
+    }
+
+    renderDuplicateSources(
+        dubbels
+    );
+
+}
+
+function renderDuplicateSources(
+    dubbels
+){
+
+    let html = `
+
+        <div class="card">
+
+            <h3>
+
+                🧹 Mogelijke dubbele bronnen
+
+            </h3>
+
+    `;
+
+    dubbels.forEach(pair => {
+
+        html += `
+
+            <div
+                class="card source-card"
+                style="
+                    margin-top:10px;
+                    border-left:4px solid orange;
+                "
+            >
+
+                <b>
+
+                    ${pair.dubbel.title}
+
+                </b>
+
+                <br>
+
+                📅 Oud:
+
+                ${
+                    pair.origineel.created ||
+                    pair.origineel.createdAt ||
+                    "-"
+                }
+
+                <br>
+
+                📅 Nieuw:
+
+                ${
+                    pair.dubbel.created ||
+                    pair.dubbel.createdAt ||
+                    "-"
+                }
+
+                <br><br>
+
+                <button
+                    class="btn btn-danger"
+                    onclick="deleteSource('${pair.dubbel.id}')"
+                >
+
+                    🗑 Verwijder duplicaat
+
+                </button>
+
+            </div>
+
+        `;
+
+    });
+
+    html += "</div>";
+
+    document
+        .getElementById(
+            "sourceDetails"
+        )
+        .innerHTML = html;
+
+    document
+        .getElementById(
+            "sourceDetails"
+        )
+        .style.display =
+            "block";
 
 }
 
@@ -15609,28 +15771,57 @@ imageData:
 
 };
 
-const bestaatAl =
+const dubbeleBron =
 
     bronnen.find(
 
         bron =>
 
-            bron.title
-            ?.toLowerCase() ===
-            item.title
-            ?.toLowerCase()
+            (
+                bron.title
+                    ?.trim()
+                    .toLowerCase()
+
+                ===
+
+                item.title
+                    ?.trim()
+                    .toLowerCase()
+            )
+
+            ||
+
+            (
+
+                bron.url
+                    ?.trim()
+                    .toLowerCase()
+
+                &&
+
+                bron.url
+                    ?.trim()
+                    .toLowerCase()
+
+                ===
+
+                item.url
+                    ?.trim()
+                    .toLowerCase()
+
+            )
 
     );
 
-if(bestaatAl){
+if(dubbeleBron){
 
-    if(
-        !confirm(
+    const doorgaan = confirm(
 
-            "Deze bron bestaat mogelijk al. Toch opslaan?"
+        "Er bestaat al een bron met dezelfde titel. Toch opslaan?"
 
-        )
-    ){
+    );
+
+    if(!doorgaan){
 
         return;
 
@@ -15638,9 +15829,9 @@ if(bestaatAl){
 
 }
 
-    bronnen.unshift(
-        item
-    );
+bronnen.unshift(
+    item
+);
 
     await saveSourcesDB(
         bronnen

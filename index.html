@@ -15900,12 +15900,24 @@ async function analyseUrlBron(){
     ).value =
         tekst;
 
+const analyseText =
+
+    document.getElementById(
+        "bronTitel"
+    ).value
+
+    + " "
+
+    +
+
+    document.getElementById(
+        "bronNotities"
+    ).value;
+
 const analyse =
     await analyseDocumentContent(
 
-        document.getElementById(
-            "bronNotities"
-        ).value,
+        analyseText,
 
         document.getElementById(
             "bronTitel"
@@ -21966,7 +21978,9 @@ async function analyseDocumentContent(
 ){
 
     const lower =
-        text.toLowerCase();
+(
+    title + " " + text
+).toLowerCase();
     const tags = [];
     const gevondenMedicatie = [];
 
@@ -22040,6 +22054,36 @@ if(lower.includes("ustekinumab"))
 
 if(lower.includes("vedolizumab"))
     scores["Biologische Therapie"] += 25;
+
+if(lower.includes("diagnostic"))
+    scores["Diagnostiek"] += 50;
+
+if(lower.includes("diagnostics"))
+    scores["Diagnostiek"] += 50;
+
+if(lower.includes("guideline"))
+    scores["Onderzoek"] += 25;
+
+if(lower.includes("guidelines"))
+    scores["Onderzoek"] += 25;
+
+if(lower.includes("guideline"))
+    scores["Onderzoek"] += 25;
+
+if(lower.includes("diagnostic"))
+    scores["Diagnostiek"] += 25;
+
+if(lower.includes("diagnostics"))
+    scores["Diagnostiek"] += 25;
+
+if(lower.includes("ecco"))
+    tags.push("ECCO");
+
+if(lower.includes("guideline"))
+    tags.push("Guideline");
+
+if(lower.includes("diagnostic"))
+    tags.push("Diagnostiek");
 
 const medicijnen = [
 

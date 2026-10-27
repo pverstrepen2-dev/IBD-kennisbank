@@ -21879,6 +21879,8 @@ async function analyseDocumentContent(
 
     const lower =
         text.toLowerCase();
+    const tags = [];
+    const gevondenMedicatie = [];
 
     let hoofdgroep = "ibd";
     let categorie = "Onderzoek";
@@ -21903,7 +21905,9 @@ async function analyseDocumentContent(
 "Recepten":0,
 "Supplementen":0,
 "Tekorten":0,
-"Gezonde keuzes":0
+"Gezonde keuzes":0,
+"Vertalingen":0,
+"Glossary":0
 
 };
 
@@ -21938,16 +21942,16 @@ if(lower.includes("wat is crohn"))
     scores["Algemene Informatie"] += 40;
 
 if(lower.includes("infliximab"))
-    scores["Biologics"] += 25;
+    scores["Biologische Therapie"] += 25;
 
 if(lower.includes("adalimumab"))
-    scores["Biologics"] += 25;
+    scores["Biologische Therapie"] += 25;
 
 if(lower.includes("ustekinumab"))
-    scores["Biologics"] += 25;
+    scores["Biologische Therapie"] += 25;
 
 if(lower.includes("vedolizumab"))
-    scores["Biologics"] += 25;
+    scores["Biologische Therapie"] += 25;
 
 const medicijnen = [
 
@@ -21993,7 +21997,7 @@ medicijnen.forEach(med => {
 });
 
 if(lower.includes("risankizumab"))
-    scores["Biologics"] += 25;
+    scores["Biologische Therapie"] += 25;
 
 if(lower.includes("geneesmiddel"))
     scores["Medicatie"] += 15;
@@ -22078,8 +22082,7 @@ if(lower.includes("operatie"))
 if(lower.includes("fistel"))
     scores["Operaties"] += 30;
 
-    const tags = [];
-    const gevondenMedicatie = [];
+    
     const zoekwoorden = [
         "crohn",
         "colitis",
@@ -22188,10 +22191,10 @@ if(lower.includes("dieet"))
     scores["Voeding"] += 5;
 
 if(lower.includes("operatie"))
-    scores["Operatie"] += 5;
+    scores["Operaties"] += 5;
 
 if(lower.includes("stoma"))
-    scores["Operatie"] += 6;
+    scores["Operaties"] += 6;
 
 if(lower.includes("fistel"))
     scores["Complicaties"] += 6;

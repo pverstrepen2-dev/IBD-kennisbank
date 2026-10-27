@@ -10774,6 +10774,94 @@ async function forceSaveDuplicate(){
 
 }
 
+async function showSourceDetails(id){
+
+    const bronnen =
+        await loadSourcesDB();
+
+    const bron =
+        bronnen.find(
+            b => String(b.id) === String(id)
+        );
+
+    if(!bron){
+
+        alert(
+            "Bron niet gevonden"
+        );
+
+        return;
+    }
+
+    const target =
+        document.getElementById(
+            "sourceDetails"
+        );
+
+    if(!target){
+        return;
+    }
+
+    target.innerHTML = `
+
+        <div class="card">
+
+            <h3>
+                📚 ${bron.title || "Geen titel"}
+            </h3>
+
+            <p>
+                <b>Website:</b>
+                ${bron.source || bron.type || "-"}
+            </p>
+
+            <p>
+                <b>Categorie:</b>
+                ${bron.category || "-"}
+            </p>
+
+            <p>
+                <b>Tags:</b>
+                ${
+                    Array.isArray(bron.tags)
+                    ? bron.tags.join(", ")
+                    : bron.tags || "-"
+                }
+            </p>
+
+            <hr>
+
+            <div style="
+                white-space:pre-wrap;
+                line-height:1.6;
+            ">
+
+                ${
+                    bron.content
+                    ||
+                    bron.samenvatting
+                    ||
+                    bron.description
+                    ||
+                    "Geen inhoud beschikbaar"
+                }
+
+            </div>
+
+        </div>
+
+    `;
+}
+
+function showSourceDetails(id){
+
+    console.log(
+        "Bron openen:",
+        id
+    );
+
+}
+
 function normalizeTitle(t){
 
     return (t || "")

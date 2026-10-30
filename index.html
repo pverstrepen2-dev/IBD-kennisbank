@@ -5882,6 +5882,22 @@ const ROOT_FOLDER_ID =
       localStorage.setItem(FAVORITES_KEY, JSON.stringify(favs));
     }
 
+    function maakZoekIndex(bron){
+
+    return [
+        bron.title || "",
+        bron.samenvatting || "",
+        bron.notes || "",
+        bron.website || "",
+        bron.url || "",
+        ...(bron.tags || []),
+        ...(bron.detectedMedicines || [])
+    ]
+    .join(" ")
+    .toLowerCase();
+
+}
+
     function showNotification(message, type = 'success') {
       const n = document.getElementById('notification');
       n.textContent = message;
@@ -10098,10 +10114,112 @@ function renderCCVResults(data){
     data.map(d=>`<div class="card"><b>${d.title||d.name}</b></div>`).join('');
 }
 
+function berekenRelevantie(
+    bron,
+    zoekterm
+){
+
+    const q =
+        zoekterm.toLowerCase();
+
+    let score = 0;
+
+    if(
+        bron.title
+        ?.toLowerCase()
+        .includes(q)
+    ){
+
+        score += 100;
+
+    }
+
+    if(
+        bron.tags?.some(
+            tag =>
+                tag.toLowerCase()
+                .includes(q)
+        )
+    ){
+
+        score += 50;
+
+    }
+
+    if(
+        bron.detectedMedicines?.some(
+            med =>
+                med.toLowerCase()
+                .includes(q)
+        )
+    ){
+
+        score += 40;
+
+    }
+
+    if(
+        bron.samenvatting
+        ?.toLowerCase()
+        .includes(q)
+    ){
+
+        score += 25;
+
+    }
+
+    if(
+        bron.ocrText
+        ?.toLowerCase()
+        .includes(q)
+    ){
+
+        score += 20;
+
+    }
+
+    return score;
+
+}
+
 async function renderSources(){
 
     const bronnen =
         await loadSourcesDB();
+
+    bronnen.forEach(bron => {
+
+        bron._searchIndex = [
+
+            bron.title || "",
+
+            bron.notes || "",
+
+            bron.samenvatting || "",
+
+            bron.ocrText || "",
+
+            bron.website || "",
+
+            bron.type || "",
+
+            bron.source || "",
+
+            bron.categorie || "",
+
+            bron.hoofdgroep || "",
+
+            ...(bron.tags || []),
+
+            ...(bron.detectedMedicines || [])
+
+        ]
+
+        .join(" ")
+
+        .toLowerCase();
+
+    });
 
     const target =
         document.getElementById(
@@ -10155,20 +10273,11 @@ bronnen.sort(
 
     const gefilterd =
         bronnen.filter(bron => {
-
-            const zoektekst = [
-                bron.title,
-                bron.notes,
-                bron.samenvatting,
-                bron.tags
-            ]
-            .join(" ")
-            .toLowerCase();
-
+            
             const matchZoek =
-                zoektekst.includes(
-                    zoekterm
-                );
+    bron._searchIndex.includes(
+        zoekterm
+    );
 
             const matchCat =
                 !categorie ||
@@ -10185,6 +10294,28 @@ bronnen.sort(
 );
 
         });
+
+if(zoekterm){
+
+    gefilterd.sort(
+
+        (a,b) =>
+
+            berekenRelevantie(
+                b,
+                zoekterm
+            )
+
+            -
+
+            berekenRelevantie(
+                a,
+                zoekterm
+            )
+
+    );
+
+}
 
         const websites =
 [
@@ -10774,6 +10905,62 @@ async function forceSaveDuplicate(){
 
 }
 
+function berekenRelatieScore(
+    bronA,
+    bronB
+){
+
+    let score = 0;
+
+    const tagsA =
+        bronA.tags || [];
+
+    const tagsB =
+        bronB.tags || [];
+
+    tagsA.forEach(tag => {
+
+        if(
+            tagsB.includes(tag)
+        ){
+
+            score += 2;
+
+        }
+
+    });
+
+    const medsA =
+        bronA.detectedMedicines || [];
+
+    const medsB =
+        bronB.detectedMedicines || [];
+
+    medsA.forEach(med => {
+
+        if(
+            medsB.includes(med)
+        ){
+
+            score += 5;
+
+        }
+
+    });
+
+    if(
+        bronA.type &&
+        bronA.type === bronB.type
+    ){
+
+        score += 1;
+
+    }
+
+    return score;
+
+}
+
 async function showSourceDetails(id){
 
     const bronnen =
@@ -10793,14 +10980,41 @@ async function showSourceDetails(id){
         return;
     }
 
+    const gerelateerdeBronnen =
+
+    bronnen
+
+    .filter(andere => {
+
+        if(
+            andere.id === bron.id
+        ){
+
+            return false;
+
+        }
+
+        return (
+            berekenRelatieScore(
+                bron,
+                andere
+            ) >= 4
+        );
+
+    })
+
+    .slice(0,5);
+
     const target =
         document.getElementById(
             "sourceDetails"
         );
-
+        
     if(!target){
         return;
     }
+
+    
 
     target.innerHTML = `
 
@@ -10817,21 +11031,45 @@ async function showSourceDetails(id){
 
             <p>
                 <b>Categorie:</b>
-                ${bron.category || "-"}
+                ${bron.categorie || "-"}
             </p>
 
             <p>
-                <b>Tags:</b>
-                ${
-                    Array.isArray(bron.tags)
-                    ? bron.tags.join(", ")
-                    : bron.tags || "-"
-                }
-            </p>
+    <b>Tags:</b>
+    ${
+        Array.isArray(bron.tags)
+        ? bron.tags.join(", ")
+        : bron.tags || "-"
+    }
+</p>
 
-            <hr>
+${
+    bron.detectedMedicines?.length
 
-            <div style="
+    ?
+
+    `
+
+    <p>
+
+        <b>💊 Medicatie:</b>
+
+        ${bron.detectedMedicines.join(", ")}
+
+    </p>
+
+    `
+
+    :
+
+    ""
+
+}
+
+<hr>
+
+
+                        <div style="
                 white-space:pre-wrap;
                 line-height:1.6;
             ">
@@ -10848,18 +11086,56 @@ async function showSourceDetails(id){
 
             </div>
 
+            ${
+                gerelateerdeBronnen.length
+
+                ?
+
+                `
+
+                <hr>
+
+                <h3>
+                    🔗 Gerelateerde bronnen
+                </h3>
+
+                ${
+
+                    gerelateerdeBronnen
+
+                    .map(g => `
+
+                        <div
+                            class="card"
+                            style="
+                                margin-top:8px;
+                                cursor:pointer;
+                                background:#f5f7fb;
+                            "
+                            onclick="showSourceDetails('${g.id}')"
+                        >
+
+                            📄 ${g.title}
+
+                        </div>
+
+                    `)
+
+                    .join("")
+
+                }
+
+                `
+
+                :
+
+                ""
+
+            }
+
         </div>
 
     `;
-}
-
-function showSourceDetails(id){
-
-    console.log(
-        "Bron openen:",
-        id
-    );
-
 }
 
 function normalizeTitle(t){

@@ -4539,6 +4539,7 @@ let oneDriveIndexLoaded = false;
 const indexedIds = new Set();
 const visitedFolders = new Set();
 let currentAIResults = [];
+let agendaItems = [];
 let aiProposals = [];
 let scanRunning = false;
 let currentAIKnowledge = [];
@@ -14485,22 +14486,28 @@ const projects =
 const agenda = [
 
     ...tasks.map(t => ({
-        title: t.title || t.name || t.naam || "Taak",
-        date: t.date || t.startDate || t.deadline || "",
-        type: "task"
-    })),
+    id: t.id,
+    title: t.title || t.name || t.naam || "Taak",
+    date: t.date || t.startDate || t.deadline || "",
+    type: "task",
+    data: t
+})),
 
     ...meetings.map(m => ({
-        title: m.title || m.subject || m.name || "Vergadering",
-        date: m.date || m.start || m.startDate || "",
-        type: "meeting"
-    })),
+    id: m.id,
+    title: m.title || m.subject || m.name || "Vergadering",
+    date: m.date || m.start || m.startDate || "",
+    type: "meeting",
+    data: m
+})),
 
     ...projects.map(p => ({
-        title: p.title || p.name || p.projectName || p.naam || "Project",
-        date: p.date || p.deadline || p.end || "",
-        type: "project"
-    }))
+    id: p.id,
+    title: p.title || p.name || p.projectName || p.naam || "Project",
+    date: p.date || p.deadline || p.end || "",
+    type: "project",
+    data: p
+}))
 
 ];
 
@@ -14516,7 +14523,7 @@ const agenda = [
 
     return dateA - dateB;
 });
-
+agendaItems = agenda;
   document
     .getElementById(
       'ccvContent'
@@ -14525,21 +14532,45 @@ const agenda = [
 
     agenda.map(item=>`
 
-      <div class="card">
-
-        <b>
-          ${item.title}
-        </b>
-
-        <br>
-
-        📅
-        ${item.date || item.end || ''}
-
-      </div>
+      <div
+    class="agenda-item"
+    onclick="
+${
+    item.type === 'task'
+        ? `openTask('${item.id}')`
+        : item.type === 'meeting'
+            ? `openMeeting('${item.id}')`
+            : `openProject('${item.id}')`
+}
+"
+    style="
+        cursor:pointer;
+        color:#f4b400;
+        margin-bottom:8px;
+    "
+>
+    📅 ${item.title}
+</div>
 
     `).join('');
 
+}
+
+function openAgendaItem(id){
+
+    const item =
+        agendaItems.find(
+            a => String(a.id) === String(id)
+        );
+
+    if(!item){
+
+        alert(
+            "Agenda-item niet gevonden"
+        );
+
+        return;
+    }
 }
 
 async function renderKnowledgeGraph(){

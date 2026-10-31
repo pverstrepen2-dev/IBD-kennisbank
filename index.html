@@ -12356,6 +12356,7 @@ async function renderRecentWerkdocumenten(){
 
 }
 
+let medicalLibraryFiles = [];
 async function renderMedicalLibrary(){
 
     const token =
@@ -12377,6 +12378,8 @@ async function renderMedicalLibrary(){
 
     const data =
         await response.json();
+        medicalLibraryFiles =
+    data.value;
 
 const medicatieStats = {};
 
@@ -12496,6 +12499,15 @@ groepen[categorie].push(file);
     >
         🔍 Zoeken
     </button>
+
+<br><br>
+
+<button
+    class="btn btn-warning"
+    onclick="analyseAllMedicalDocuments()"
+>
+    🤖 Analyseer alle documenten
+</button>
 
     <div
         id="medicalLibraryAnswer"
@@ -12736,9 +12748,46 @@ async function askMedicalLibraryAI(){
 
     const matches =
 
-        docs.filter(doc =>
+    docs.filter(doc => {
 
-            JSON.stringify(doc)
+        const zoektekst = [
+
+            doc.title || "",
+
+            doc.samenvatting || "",
+
+            doc.zoekindex || "",
+
+            doc.categorie || "",
+
+            doc.hoofdgroep || "",
+
+            (doc.tags || [])
+                .join(" "),
+
+            (doc.detectedMedicines || [])
+                .join(" "),
+
+            JSON.stringify(
+                doc.faq || []
+            )
+
+        ]
+        .join(" ")
+        .toLowerCase();
+
+        return zoektekst.includes(
+            vraag
+        );
+
+    });
+
+    const filesFound =
+
+    medicalLibraryFiles
+        .filter(file =>
+
+            file.name
                 .toLowerCase()
                 .includes(vraag)
 
@@ -12758,13 +12807,26 @@ async function askMedicalLibraryAI(){
 
                 <div class="card">
 
-                    📄 ${doc.title}
+    <b>
+        📄 ${doc.title}
+    </b>
 
-                    <br>
+    <br>
 
-                    🏷️ ${doc.category || "-"}
+    🏷️ ${doc.categorie || "-"}
 
-                </div>
+    <br>
+
+    🎯 ${doc.confidence || 0}%
+
+    <br><br>
+
+    ${
+        (doc.samenvatting || "")
+            .substring(0,250)
+    }
+
+</div>
 
             `)
             .join("")
@@ -12987,6 +13049,26 @@ console.log(
             file
         );
 
+const bestaat =
+
+    oneDriveIndex?.find(
+        d =>
+            String(d.fileId)
+            ===
+            String(fileId)
+    );
+
+if(bestaat){
+
+    console.log(
+        "Reeds geanalyseerd:",
+        fileId
+    );
+
+    return;
+
+}
+
 const token =
     await getAccessToken();
 
@@ -13105,6 +13187,57 @@ function filterMedicalLibrary(){
                 "none";
 
         });
+
+}
+
+async function analyseAllMedicalDocuments(){
+
+    if(
+        !window.medicalLibraryFiles
+        ||
+        !window.medicalLibraryFiles.length
+    ){
+        alert(
+            "Geen documenten gevonden"
+        );
+        return;
+    }
+
+    const bevestigen =
+        confirm(
+            `AI analyse starten voor ${
+                window.medicalLibraryFiles.length
+            } documenten?`
+        );
+
+    if(!bevestigen){
+        return;
+    }
+
+    for(const file of window.medicalLibraryFiles){
+
+        try{
+
+            await analyseMedicalDocument(
+                file.id
+            );
+
+        }
+        catch(error){
+
+            console.error(
+                "Fout bij:",
+                file.name,
+                error
+            );
+
+        }
+
+    }
+
+    alert(
+        "✅ Alle documenten geanalyseerd"
+    );
 
 }
 
@@ -23022,6 +23155,22 @@ if(lower.includes("diagnostics"))
 
 if(lower.includes("ecco"))
     tags.push("ECCO");
+
+if(lower.includes("ueg"))
+    tags.push("UEG");
+
+if(lower.includes("esgar"))
+    tags.push("ESGAR");
+
+if(lower.includes("aga"))
+    tags.push("AGA");
+
+if(lower.includes("bsg"))
+    tags.push("BSG");
+
+if(lower.includes("efcca"))
+    tags.push("EFCCA");
+
 
 if(lower.includes("guideline"))
     tags.push("Guideline");

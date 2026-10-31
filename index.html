@@ -9862,8 +9862,26 @@ async function addCCV(type,obj){
 // TAB SWITCH
 async function switchCCVTab(evt,tab){
   console.log("TAB:", tab);
-  document.querySelectorAll('#ccvtab .tab-btn').forEach(b=>b.classList.remove('active'));
-  evt.target.classList.add('active');
+  document.querySelectorAll('#ccvtab .tab-btn')
+    .forEach(b => b.classList.remove('active'));
+
+if(evt && evt.target){
+
+    evt.target.classList.add('active');
+
+}
+else{
+
+    const knop =
+        document.querySelector(
+            `#ccvtab .tab-btn[data-tab="${tab}"]`
+        );
+
+    if(knop){
+        knop.classList.add('active');
+    }
+
+}
   const titles = {
 
     taken:
@@ -12360,10 +12378,68 @@ async function renderMedicalLibrary(){
     const data =
         await response.json();
 
+const medicatieStats = {};
+
     const groepen = {};
+    groepen.woordenlijst = [];
+groepen.medicatie = [];
+groepen.vertaling = [];
+groepen.glossary = [];
 
     data.value.forEach(file=>{
 
+        const lower =
+    file.name.toLowerCase();
+    const medicijnen = [
+
+    "infliximab",
+    "adalimumab",
+    "vedolizumab",
+    "ustekinumab",
+    "risankizumab",
+
+    "humira",
+    "remicade",
+    "entyvio",
+    "stelara",
+    "skyrizi",
+
+    "mesalazine",
+    "pentasa",
+    "salofalk",
+    "asacol",
+
+    "azathioprine",
+    "imuran",
+
+    "mercaptopurine",
+
+    "methotrexaat",
+
+    "tofacitinib",
+    "upadacitinib",
+    "rinvoq",
+
+    "filgotinib",
+    "jyseleca"
+
+];
+
+medicijnen.forEach(med => {
+
+    if(lower.includes(med)){
+
+        if(!medicatieStats[med]){
+
+            medicatieStats[med] = 0;
+
+        }
+
+        medicatieStats[med]++;
+
+    }
+
+});
         if(file.folder)
             return;
 
@@ -12387,8 +12463,100 @@ groepen[categorie].push(file);
     ).innerHTML = `
 
     <h2>📚 Medische Bibliotheek</h2>
+<div class="notice">
 
-    <div class="medlib-grid">
+    📄 ${data.value.length}
+    documenten gevonden
+
+</div>
+
+<br>
+
+<div class="card">
+
+    <h3>
+        🤖 AI Medische Assistent
+    </h3>
+
+    <input
+        id="medicalLibraryQuestion"
+        placeholder="Vraag bv. Wat zegt ECCO over Vedolizumab?"
+        style="
+            width:100%;
+            padding:10px;
+            margin-top:10px;
+        "
+    >
+
+    <br><br>
+
+    <button
+        class="btn btn-primary"
+        onclick="askMedicalLibraryAI()"
+    >
+        🔍 Zoeken
+    </button>
+
+    <div
+        id="medicalLibraryAnswer"
+        style="margin-top:15px;"
+    ></div>
+
+</div>
+
+<br>
+
+<div class="card">
+
+    <h3>
+        💊 Medicatiecentrum
+    </h3>
+
+    ${
+        Object.entries(medicatieStats)
+
+        .sort((a,b)=>b[1]-a[1])
+
+        .map(([med,count])=>`
+
+            <div
+                style="
+                    margin-bottom:8px;
+                    cursor:pointer;
+                    color:#4f46e5;
+                "
+                onclick="
+                    filterMedicatieLibrary(
+                        '${med}'
+                    )
+                "
+            >
+
+                💊 ${med}
+                (${count})
+
+            </div>
+
+        `)
+        .join("")
+    }
+
+</div>
+
+<br>
+<input
+    id="medicalSearch"
+    placeholder="🔍 Zoek document..."
+    onkeyup="filterMedicalLibrary()"
+    style="
+        width:100%;
+        padding:10px;
+        margin-bottom:15px;
+    "
+>
+
+<br>
+<div class="medlib-grid">
 
         <div class="medlib-column">
 
@@ -12416,12 +12584,54 @@ groepen[categorie].push(file);
             ${
                 groepen.medicatie.map(file=>`
 
-                <div class="medlib-doc"
-                     onclick="openFile('${file.id}')">
+                <div
+    class="medlib-doc"
+    onclick="openFile('${file.id}')"
+>
 
-                    📄 ${file.name}
+    <b>
+        📄 ${file.name}
+    </b>
 
-                </div>
+    <br>
+
+    <small>
+
+        🤖 AI analyse beschikbaar
+
+<br>
+
+🎯 AI Ready
+
+    </small>
+
+    <br>
+
+    <button
+        class="btn btn-primary btn-sm"
+        onclick="
+            event.stopPropagation();
+            showMedicalSummary('${file.id}')
+        "
+    >
+
+        📝 Samenvatting
+
+    </button>
+<br><br>
+
+<button
+    class="btn btn-success btn-sm"
+    onclick="
+        event.stopPropagation();
+        createFAQFromAI('${file.id}')
+    "
+>
+
+    ❓ FAQ
+
+</button>
+</div>
 
                 `).join("")
             }
@@ -12469,6 +12679,171 @@ groepen[categorie].push(file);
     </div>
 
     `;
+}
+
+async function askMedicalLibraryAI(){
+
+    const vraag =
+        document
+            .getElementById(
+                "medicalLibraryQuestion"
+            )
+            .value
+            .toLowerCase();
+
+    if(!vraag){
+        return;
+    }
+
+    const docs =
+        oneDriveIndex || [];
+
+    const matches =
+
+        docs.filter(doc =>
+
+            JSON.stringify(doc)
+                .toLowerCase()
+                .includes(vraag)
+
+        );
+
+    document.getElementById(
+        "medicalLibraryAnswer"
+    ).innerHTML =
+
+        matches.length
+
+        ?
+
+        matches
+            .slice(0,10)
+            .map(doc => `
+
+                <div class="card">
+
+                    📄 ${doc.title}
+
+                    <br>
+
+                    🏷️ ${doc.category || "-"}
+
+                </div>
+
+            `)
+            .join("")
+
+        :
+
+        "Geen resultaten gevonden";
+
+}
+
+async function showMedicalSummary(fileId){
+
+    const doc =
+    oneDriveIndex.find(
+        d =>
+            String(d.fileId)
+            ===
+            String(fileId)
+    );
+
+    if(!doc){
+
+        alert(
+            "Nog geen AI samenvatting beschikbaar"
+        );
+
+        return;
+
+    }
+
+    document.getElementById(
+    "medicalLibraryAnswer"
+).innerHTML = `
+
+<div class="card">
+
+    <h3>
+        📄 ${doc.title}
+    </h3>
+
+    <br>
+
+    ${doc.samenvatting ||
+    "Geen samenvatting gevonden"}
+
+</div>
+
+`;
+
+}
+
+async function filterMedicatieLibrary(medicijn){
+
+    const docs =
+        oneDriveIndex.filter(doc =>
+
+            JSON.stringify(doc)
+                .toLowerCase()
+                .includes(
+                    medicijn.toLowerCase()
+                )
+
+        );
+
+    document.getElementById(
+        "medicalLibraryAnswer"
+    ).innerHTML =
+
+        docs.map(doc => `
+
+            <div class="card">
+
+                📄 ${doc.title}
+
+            </div>
+
+        `).join("");
+
+}
+
+function filterMedicalLibrary(){
+
+    const zoekterm =
+
+        document
+            .getElementById(
+                "medicalSearch"
+            )
+            .value
+            .toLowerCase();
+
+    document
+        .querySelectorAll(
+            ".medlib-doc"
+        )
+        .forEach(card => {
+
+            card.style.display =
+
+                card.textContent
+                    .toLowerCase()
+                    .includes(
+                        zoekterm
+                    )
+
+                ?
+
+                "block"
+
+                :
+
+                "none";
+
+        });
+
 }
 
 async function renderTaken(){
@@ -25462,12 +25837,9 @@ const users =
 `;
 }
 
-function openTask(id){
+async function openTask(id){
 
-    switchCCVTab(
-        null,
-        "taken"
-    );
+    await renderTaken();
 
     console.log(
         "Open taak:",
@@ -25475,25 +25847,20 @@ function openTask(id){
     );
 }
 
-function openMeeting(id){
+async function openMeeting(id){
 
-    switchCCVTab(
-        null,
-        "vergaderingen"
-    );
+    await renderMeetings();
 
     console.log(
         "Open vergadering:",
         id
     );
+
 }
 
-function openGroup(id){
+async function openGroup(id){
 
-    switchCCVTab(
-        null,
-        "werkgroepen"
-    );
+    await renderWG();
 
     console.log(
         "Open werkgroep:",
@@ -25501,12 +25868,9 @@ function openGroup(id){
     );
 }
 
-function openProject(id){
+async function openProject(id){
 
-    switchCCVTab(
-        null,
-        "projecten"
-    );
+    await renderProjectDashboard();
 
     console.log(
         "Open project:",

@@ -12378,8 +12378,13 @@ async function renderMedicalLibrary(){
 
     const data =
         await response.json();
-        medicalLibraryFiles =
+        window.medicalLibraryFiles =
     data.value;
+
+console.log(
+    "MEDICAL FILES:",
+    window.medicalLibraryFiles.length
+);
 
 const medicatieStats = {};
 
@@ -12842,7 +12847,7 @@ async function showMedicalSummary(fileId){
     const doc =
     oneDriveIndex.find(
         d =>
-            String(d.fileId)
+            String(d.id)
             ===
             String(fileId)
     );
@@ -12862,7 +12867,7 @@ const related =
     oneDriveIndex
     .filter(x =>
 
-        x.fileId !== doc.fileId
+        x.id !== doc.id
 
         &&
 
@@ -13020,12 +13025,16 @@ async function analyseMedicalDocument(
 
         const file =
 
-            dataCacheDocuments?.find(
-                d =>
-                    String(d.id)
-                    ===
-                    String(fileId)
-            );
+    window.medicalLibraryFiles?.find(
+        d =>
+            String(d.id)
+            ===
+            String(fileId)
+    );
+    console.log(
+    "MEDICAL FILES:",
+    window.medicalLibraryFiles
+);
 console.log(
     "FILE GEVONDEN:",
     file

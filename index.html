@@ -12592,6 +12592,16 @@ groepen[categorie].push(file);
     <b>
         📄 ${file.name}
     </b>
+<br>
+
+<span style="
+    font-size:12px;
+    color:#888;
+">
+
+📂 ${classifyMedicalDocument(file.name)}
+
+</span>
 
     <br>
 
@@ -12620,6 +12630,20 @@ groepen[categorie].push(file);
     </button>
 <br><br>
 
+<br><br>
+
+<button
+    class="btn btn-warning btn-sm"
+    onclick="
+        event.stopPropagation();
+        analyseMedicalDocument('${file.id}')
+    "
+>
+    🤖 Analyseer
+</button>
+
+<br><br>
+
 <button
     class="btn btn-success btn-sm"
     onclick="
@@ -12627,8 +12651,20 @@ groepen[categorie].push(file);
         createFAQFromAI('${file.id}')
     "
 >
-
     ❓ FAQ
+</button>
+
+<br><br>
+
+<button
+    class="btn btn-secondary btn-sm"
+    onclick="
+        event.stopPropagation();
+        openFile('${file.id}')
+    "
+>
+
+    📂 Open
 
 </button>
 </div>
@@ -12758,25 +12794,251 @@ async function showMedicalSummary(fileId){
         return;
 
     }
+    
+const related =
 
-    document.getElementById(
+    oneDriveIndex
+    .filter(x =>
+
+        x.fileId !== doc.fileId
+
+        &&
+
+        x.categorie === doc.categorie
+
+    )
+    .slice(0,5);
+
+   document.getElementById(
     "medicalLibraryAnswer"
 ).innerHTML = `
 
 <div class="card">
 
-    <h3>
+    <h2>
         📄 ${doc.title}
-    </h3>
+    </h2>
 
-    <br>
+    <hr>
+
+    <h3>
+        📝 Samenvatting
+    </h3>
 
     ${doc.samenvatting ||
     "Geen samenvatting gevonden"}
 
+    <br><br>
+
+    <h3>
+        💊 Gedetecteerde medicatie
+    </h3>
+
+    ${
+        (doc.detectedMedicines || []).length
+
+        ?
+
+        (doc.detectedMedicines || [])
+            .map(med => `
+                <div>
+                    💊 ${med}
+                </div>
+            `)
+            .join("")
+
+        :
+
+        "Geen medicatie gevonden"
+    }
+
+    <br><br>
+
+    <h3>
+        🏷️ Tags
+    </h3>
+
+    ${
+        (doc.tags || []).length
+
+        ?
+
+        (doc.tags || [])
+            .join(", ")
+
+        :
+
+        "Geen tags beschikbaar"
+    }
+
+    <br><br>
+
+    <h3>
+        ❓ FAQ
+    </h3>
+
+    ${
+        (doc.faq || []).length
+
+        ?
+
+        (doc.faq || [])
+        .map(f => `
+
+            <div
+                style="
+                    margin-bottom:15px;
+                    padding:10px;
+                    border-left:3px solid #4f46e5;
+                "
+            >
+
+                <b>
+                    ${f.vraag}
+                </b>
+
+                <br><br>
+
+                ${f.antwoord}
+
+            </div>
+
+        `)
+        .join("")
+
+        :
+
+        "Nog geen FAQ beschikbaar"
+    }
+
+    <br><br>
+
+    <h3>
+        📚 Gerelateerde documenten
+    </h3>
+
+    ${
+        related.length
+
+        ?
+
+        related.map(r => `
+
+            <div
+                style="
+                    padding:8px;
+                    margin-bottom:6px;
+                    border-left:3px solid #4f46e5;
+                "
+            >
+
+                📄 ${r.title}
+
+            </div>
+
+        `).join("")
+
+        :
+
+        "Geen gerelateerde documenten gevonden"
+
+    }
+
 </div>
 
 `;
+
+}
+
+async function analyseMedicalDocument(
+    fileId
+){
+
+    try{
+
+        const file =
+
+            dataCacheDocuments?.find(
+                d =>
+                    String(d.id)
+                    ===
+                    String(fileId)
+            );
+console.log(
+    "FILE GEVONDEN:",
+    file
+);
+        if(!file){
+
+            alert(
+                "Document niet gevonden"
+            );
+
+            return;
+
+        }
+
+        alert(
+            "AI analyse gestart..."
+        );
+
+        console.log(
+            "Analyse:",
+            file
+        );
+
+const token =
+    await getAccessToken();
+
+const response =
+    await fetch(
+
+        `https://graph.microsoft.com/v1.0/me/drive/items/${fileId}/content`,
+
+        {
+            headers:{
+                Authorization:
+                    "Bearer " + token
+            }
+        }
+
+    );
+const tekst =
+    await response.text();
+
+console.log(
+    "Tekst opgehaald:",
+    tekst.substring(0,500)
+);
+const analyse =
+    await analyseDocumentContent(
+        tekst,
+        file.name
+    );
+    analyse.fileId =
+    fileId;
+
+analyse.fileName =
+    file.name;
+
+    await saveAIClassification(
+    analyse
+);
+await renderMedicalLibrary();
+alert(
+    "✅ Analyse opgeslagen"
+);
+    }
+
+    catch(error){
+
+        console.error(error);
+
+        alert(
+            "Analyse mislukt"
+        );
+
+    }
 
 }
 

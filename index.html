@@ -13306,33 +13306,43 @@ const documentOptions =
 
   let html = `
 
-<h3>📋 Nieuwe taak</h3>
-<div class="notice">
+<h2>📋 Takenbeheer</h2>
 
-📌 Maak een taak aan en koppel deze aan een project, document en betrokken personen.
+<button
+    class="btn btn-success"
+    onclick="toggleTaskForm()"
+>
+    ➕ Nieuwe taak
+</button>
 
-</div>
+<div
+    id="taskFormContainer"
+    style="display:none;margin-top:15px;"
+>
+
 <div class="form-section">
 
 <h4>📋 Basisinformatie</h4>
-  
-<button onclick="document.getElementById('voedingImport').click()">📥 Importeren</button>
-  <input type="file" id="voedingImport" accept=".json" style="display:none" onchange="importVoeding(event)">
 
-  <label>📝 Titel</label>
-  <input id="t_title" placeholder="Titel">
-  <textarea
+<label>📝 Titel</label>
+<input
+    id="t_title"
+    placeholder="Titel"
+>
+
+<textarea
     id="t_description"
     rows="5"
-    placeholder="Beschrijving van de taak">
-</textarea>
+    placeholder="Beschrijving van de taak"
+></textarea>
 
 </div>
 
 <div class="form-section">
 
 <h4>👥 Verantwoordelijkheid</h4>
-  <div class="form-grid-2">
+
+<div class="form-grid-2">
 
 <div>
 
@@ -13340,11 +13350,11 @@ const documentOptions =
 
 <select id="t_owner">
 
-    <option value="">
-        Kies eigenaar
-    </option>
+<option value="">
+    Kies eigenaar
+</option>
 
-    ${memberOptions}
+${memberOptions}
 
 </select>
 
@@ -13356,7 +13366,8 @@ const documentOptions =
 
 <input
     id="t_group"
-    placeholder="Werkgroep">
+    placeholder="Werkgroep"
+>
 
 </div>
 
@@ -13367,6 +13378,7 @@ const documentOptions =
 <div class="form-section">
 
 <h4>📂 Koppelingen</h4>
+
 <div class="form-grid-2">
 
 <div>
@@ -13375,11 +13387,11 @@ const documentOptions =
 
 <select id="t_project">
 
-  <option value="">
+<option value="">
     Geen project
-  </option>
+</option>
 
-  ${projectOptions}
+${projectOptions}
 
 </select>
 
@@ -13391,19 +13403,17 @@ const documentOptions =
 
 <select id="t_document">
 
-    <option value="">
-        Geen document
-    </option>
+<option value="">
+    Geen document
+</option>
 
-    ${documentOptions}
+${documentOptions}
 
 </select>
 
 </div>
 
 </div>
-
-<br><br>
 
 </div>
 
@@ -13413,120 +13423,84 @@ const documentOptions =
 
 <div class="form-grid-2">
 
-    <div>
+<div>
 
-        <label>📌 Topic</label>
+<label>📌 Topic</label>
 
-        <input
-            id="t_topic"
-            placeholder="Onderwerp van de taak">
-
-    </div>
-
-    <div>
-
-        <label>👥 Personen</label>
-
-        <input
-            id="t_people"
-            placeholder="Betrokken personen">
-
-    </div>
-
-   <div>
-
-    <label>📅 Deadline</label>
-
-    <input
-        type="date"
-        id="t_date">
+<input
+    id="t_topic"
+    placeholder="Onderwerp van de taak"
+>
 
 </div>
 
 <div>
 
-    <label>🚦 Prioriteit</label>
+<label>👥 Personen</label>
 
-    <select id="t_urgency">
+<input
+    id="t_people"
+    placeholder="Betrokken personen"
+>
 
-        <option>Normaal</option>
+</div>
 
-        <option>Dringend</option>
+<div>
 
-        <option>Zeer dringend</option>
+<label>📅 Deadline</label>
 
-    </select>
+<input
+    type="date"
+    id="t_date"
+>
+
+</div>
+
+<div>
+
+<label>🚦 Prioriteit</label>
+
+<select id="t_urgency">
+
+<option>Normaal</option>
+<option>Dringend</option>
+<option>Zeer dringend</option>
+
+</select>
 
 </div>
 
 </div>
 
- </div>
+</div>
 
 <div class="form-section">
 
 <h4>🚦 Opvolging</h4>
 
-  <select id="t_status">
-    <option>Aan te maken</option>
-    <option>In uitvoering</option>
-    <option>Beëindigd</option>
-  </select>
+<select id="t_status">
 
-  <div style="text-align:right; margin-top:15px;">
+<option>Aan te maken</option>
+<option>In uitvoering</option>
+<option>Beëindigd</option>
+
+</select>
+
+<br><br>
 
 <button
     class="btn btn-success"
-    style="
-        width:100%;
-        font-size:16px;
-        padding:12px;
-    "
-    onclick="saveTask()">
-
+    style="width:100%;"
+    onclick="saveTask()"
+>
     💾 Taak opslaan
-
 </button>
 
 </div>
 
 </div>
- 
-  <h3>Overzicht</h3>
-  
-<div class="stats-grid">
 
-    <div class="card">
-
-        <b>📋 Open taken</b>
-
-        <div class="stat-number">
-            ${openTaken.length}
-        </div>
-
-    </div>
-
-    <div class="card">
-
-        <b>⚠️ Dringende taken</b>
-
-        <div class="stat-number">
-            ${dringend.length}
-        </div>
-
-    </div>
-
-    <div class="card">
-
-        <b>✅ Totaal taken</b>
-
-        <div class="stat-number">
-            ${data.length}
-        </div>
-
-    </div>
-
-</div>
+<h3>📊 Overzicht</h3>
 `;
   data.forEach(d=>{
     let c='status-open';
@@ -13534,7 +13508,11 @@ const documentOptions =
     if(d.status==='Beëindigd') c='status-done';
 
     html+=`
-    <div class="card">
+    <div
+    class="card"
+    style="cursor:pointer;"
+    onclick="openTask('${d.id}')"
+>
       <b>${d.title}</b><br>
       👤 ${
     members.find(
@@ -13578,6 +13556,10 @@ createdAt:
 
         title: t_title.value,
 
+        description:
+    t_description.value,
+
+
         ownerId: t_owner.value,
 
         group: t_group.value,
@@ -13605,6 +13587,19 @@ createdAt:
     await renderTaken();
 
     await renderCCVDashboard();
+
+}
+
+async function renderNieuweTaakForm(){
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+        HIER JE HUIDIGE
+        NIEUWE TAAK FORMULIER
+
+    `;
 
 }
 

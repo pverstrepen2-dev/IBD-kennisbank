@@ -26529,32 +26529,21 @@ console.log(
                 🗓 ${meeting.title || "Vergadering"}
             </h2>
 
-            <p>
-                <b>Datum:</b>
-                ${
-                    meeting.date ||
-                    meeting.startDate ||
-                    "-"
-                }
-            </p>
+            <div class="card">
 
-            <p>
-                <b>Locatie:</b>
-                ${
-                    meeting.location ||
-                    "-"
-                }
-            </p>
+    <h3>Debug gegevens</h3>
 
-            <p>
-                <b>Beschrijving:</b>
-                <br>
-                ${
-                    meeting.description ||
-                    meeting.notes ||
-                    "Geen beschrijving"
-                }
-            </p>
+    <pre style="
+        white-space:pre-wrap;
+        background:#f5f5f5;
+        padding:10px;
+        border-radius:8px;
+        color:black;
+    ">
+${JSON.stringify(meeting, null, 2)}
+    </pre>
+
+</div>
 
             <div
                 style="

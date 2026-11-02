@@ -26139,19 +26139,32 @@ const users =
 
 async function openTask(id){
 
-    alert(
-        "Taak geopend: " + id
-    );
+    const taken =
+        await DataService.loadTasks();
+
+    const taak =
+        taken.find(
+            t => String(t.id) === String(id)
+        );
+
+    console.log(taak);
 
 }
 
 async function openMeeting(id){
 
-    alert(
-        "Vergadering geopend: " + id
-    );
+    const meetings =
+        await DataService.loadMeetings();
+
+    const meeting =
+        meetings.find(
+            m => String(m.id) === String(id)
+        );
+
+    console.log(meeting);
 
 }
+
 
 async function openGroup(id){
 
@@ -26165,9 +26178,15 @@ async function openGroup(id){
 
 async function openProject(id){
 
-    alert(
-        "Project geopend: " + id
-    );
+    const projecten =
+        await DataService.loadProjects();
+
+    const project =
+        projecten.find(
+            p => String(p.id) === String(id)
+        );
+
+    console.log(project);
 
 }
 

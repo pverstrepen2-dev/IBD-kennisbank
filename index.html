@@ -26191,7 +26191,9 @@ async function openTask(id){
 
     if(!taak){
 
-        alert("Taak niet gevonden");
+        alert(
+            "Taak niet gevonden"
+        );
 
         return;
     }
@@ -26200,59 +26202,97 @@ async function openTask(id){
         "ccvContent"
     ).innerHTML = `
 
-    <div class="card">
+        <div class="card">
 
-        <h2>
-            📋 ${taak.title || "Taak"}
-        </h2>
+            <h2>
+                📋 ${taak.title || "Taak"}
+            </h2>
 
-        <p>
-            <b>Status:</b>
-            ${taak.status || "Open"}
-        </p>
+            <p>
+                <b>🚦 Status</b><br>
+                ${taak.status || "Open"}
+            </p>
 
-        <p>
-            <b>Prioriteit:</b>
-            ${taak.priority || "-"}
-        </p>
+            <p>
+                <b>⚡ Prioriteit</b><br>
+                ${taak.priority || "-"}
+            </p>
 
-        <p>
-            <b>Deadline:</b>
-            ${taak.deadline || "-"}
-        </p>
+            <p>
+                <b>📅 Deadline</b><br>
+                ${
+                    taak.deadline ||
+                    taak.date ||
+                    taak.dueDate ||
+                    "-"
+                }
+            </p>
 
-        <p>
-            <b>Beschrijving:</b><br>
-            ${taak.description || "Geen beschrijving"}
-        </p>
+            <p>
+                <b>📝 Beschrijving / Notities</b>
+            </p>
 
-        <br>
+            <div
+                style="
+                    white-space:pre-wrap;
+                    max-height:400px;
+                    overflow:auto;
+                    padding:12px;
+                    border:1px solid #ddd;
+                    border-radius:8px;
+                    background:#fafafa;
+                    color:#222;
+                    margin-bottom:20px;
+                "
+            >
+                ${
+                    taak.description ||
+                    taak.notes ||
+                    taak.content ||
+                    taak.summary ||
+                    "Geen beschrijving beschikbaar"
+                }
+            </div>
 
-        <div
-    style="
-        display:flex;
-        gap:10px;
-        margin-top:20px;
-    "
->
+            <div
+                style="
+                    display:flex;
+                    gap:10px;
+                    flex-wrap:wrap;
+                "
+            >
 
-    <button
-        class="btn btn-warning"
-        onclick="editTask('${taak.id}')"
-    >
-        ✏ Bewerken
-    </button>
+                <button
+                    class="btn btn-warning"
+                    onclick="editTask('${taak.id}')"
+                >
+                    ✏ Bewerken
+                </button>
 
-    <button
-        class="btn"
-        onclick="restoreAgendaLayout()"
-    >
-        ← Terug naar agenda
-    </button>
+                <button
+                    class="btn btn-secondary"
+                    onclick="duplicateTask('${taak.id}')"
+                >
+                    📋 Dupliceren
+                </button>
 
-</div>
+                <button
+                    class="btn btn-danger"
+                    onclick="deleteTask('${taak.id}')"
+                >
+                    🗑 Verwijderen
+                </button>
 
-    </div>
+                <button
+                    class="btn"
+                    onclick="restoreAgendaLayout()"
+                >
+                    ← Terug naar agenda
+                </button>
+
+            </div>
+
+        </div>
 
     `;
 }
@@ -26883,44 +26923,61 @@ async function openProject(id){
             </h2>
 
             <p>
-                <b>Status:</b>
+                <b>🚦 Status</b><br>
                 ${project.status || "-"}
             </p>
 
             <p>
-                <b>Deadline:</b>
+                <b>📅 Deadline</b><br>
                 ${
                     project.deadline ||
                     project.date ||
+                    project.endDate ||
                     "-"
                 }
             </p>
 
             <p>
-                <b>Beschrijving:</b>
-                <br>
-                ${
-                    project.description ||
-                    project.notes ||
-                    "Geen beschrijving"
-                }
-            </p>
-
-            <p>
-                <b>Taken:</b>
+                <b>📋 Taken</b><br>
                 ${(project.tasks || []).length}
             </p>
 
             <p>
-                <b>Vergaderingen:</b>
+                <b>🗓 Vergaderingen</b><br>
                 ${(project.meetings || []).length}
             </p>
+
+            <p>
+                <b>📝 Beschrijving / Notities</b>
+            </p>
+
+            <div
+                style="
+                    white-space:pre-wrap;
+                    max-height:400px;
+                    overflow:auto;
+                    padding:12px;
+                    border:1px solid #ddd;
+                    border-radius:8px;
+                    background:#fafafa;
+                    color:#222;
+                    margin-bottom:20px;
+                "
+            >
+                ${
+                    project.description ||
+                    project.notes ||
+                    project.summary ||
+                    project.content ||
+                    "Geen beschrijving beschikbaar"
+                }
+            </div>
 
             <div
                 style="
                     display:flex;
                     gap:10px;
-                    margin-top:20px;
+                    flex-wrap:wrap;
                 "
             >
 
@@ -26929,6 +26986,20 @@ async function openProject(id){
                     onclick="editProject('${project.id}')"
                 >
                     ✏ Bewerken
+                </button>
+
+                <button
+                    class="btn btn-secondary"
+                    onclick="duplicateProject('${project.id}')"
+                >
+                    📋 Dupliceren
+                </button>
+
+                <button
+                    class="btn btn-danger"
+                    onclick="deleteProject('${project.id}')"
+                >
+                    🗑 Verwijderen
                 </button>
 
                 <button
@@ -26943,7 +27014,6 @@ async function openProject(id){
         </div>
 
     `;
-
 }
 
 async function editProject(id){

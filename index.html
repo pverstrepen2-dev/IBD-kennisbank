@@ -26147,8 +26147,55 @@ async function openTask(id){
             t => String(t.id) === String(id)
         );
 
-    console.log(taak);
+    if(!taak){
 
+        alert("Taak niet gevonden");
+
+        return;
+    }
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+    <div class="card">
+
+        <h2>
+            📋 ${taak.title || "Taak"}
+        </h2>
+
+        <p>
+            <b>Status:</b>
+            ${taak.status || "Open"}
+        </p>
+
+        <p>
+            <b>Prioriteit:</b>
+            ${taak.priority || "-"}
+        </p>
+
+        <p>
+            <b>Deadline:</b>
+            ${taak.deadline || "-"}
+        </p>
+
+        <p>
+            <b>Beschrijving:</b><br>
+            ${taak.description || "Geen beschrijving"}
+        </p>
+
+        <br>
+
+        <button
+            class="btn"
+            onclick="renderAgenda()"
+        >
+            ← Terug naar agenda
+        </button>
+
+    </div>
+
+    `;
 }
 
 async function openMeeting(id){
@@ -26161,10 +26208,53 @@ async function openMeeting(id){
             m => String(m.id) === String(id)
         );
 
-    console.log(meeting);
+    if(!meeting){
+
+        alert(
+            "Vergadering niet gevonden"
+        );
+
+        return;
+    }
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+        <div class="card">
+
+            <h2>
+                🗓 ${meeting.title || "Vergadering"}
+            </h2>
+
+            <p>
+                <b>Datum:</b>
+                ${meeting.date || "-"}
+            </p>
+
+            <p>
+                <b>Locatie:</b>
+                ${meeting.location || "-"}
+            </p>
+
+            <p>
+                <b>Beschrijving:</b>
+                <br>
+                ${meeting.description || "Geen beschrijving"}
+            </p>
+
+            <button
+                class="btn"
+                onclick="renderAgenda()"
+            >
+                ← Terug naar agenda
+            </button>
+
+        </div>
+
+    `;
 
 }
-
 
 async function openGroup(id){
 
@@ -26186,7 +26276,61 @@ async function openProject(id){
             p => String(p.id) === String(id)
         );
 
-    console.log(project);
+    if(!project){
+
+        alert(
+            "Project niet gevonden"
+        );
+
+        return;
+    }
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+        <div class="card">
+
+            <h2>
+                📁 ${project.title || "Project"}
+            </h2>
+
+            <p>
+                <b>Status:</b>
+                ${project.status || "-"}
+            </p>
+
+            <p>
+                <b>Deadline:</b>
+                ${project.deadline || "-"}
+            </p>
+
+            <p>
+                <b>Beschrijving:</b>
+                <br>
+                ${project.description || "Geen beschrijving"}
+            </p>
+
+            <p>
+                <b>Taken:</b>
+                ${(project.tasks || []).length}
+            </p>
+
+            <p>
+                <b>Vergaderingen:</b>
+                ${(project.meetings || []).length}
+            </p>
+
+            <button
+                class="btn"
+                onclick="renderAgenda()"
+            >
+                ← Terug naar agenda
+            </button>
+
+        </div>
+
+    `;
 
 }
 

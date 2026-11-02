@@ -26552,7 +26552,15 @@ async function openMeeting(id){
 
         return;
     }
+console.log(
+    "DATE =",
+    meeting.date
+);
 
+console.log(
+    "LOCATION =",
+    meeting.location
+);
     document.getElementById(
         "ccvContent"
     ).innerHTML = `
@@ -26563,21 +26571,55 @@ async function openMeeting(id){
                 🗓 ${meeting.title || "Vergadering"}
             </h2>
 
-            <p>
-                <b>📅 Datum</b><br>
-                ${
-                    meeting.date ||
-                    "-"
-                }
-            </p>
+            <div
+    style="
+        margin-bottom:15px;
+        color:#222;
+    "
+>
+    <b>📅 Datum</b><br>
 
-            <p>
-                <b>📍 Locatie</b><br>
-                ${
-                    meeting.location ||
-                    "-"
-                }
-            </p>
+    <span
+        style="
+            font-size:16px;
+            color:#222;
+            font-weight:500;
+        "
+    >
+        ${
+            meeting.date
+                ? new Date(
+                    meeting.date
+                  ).toLocaleDateString(
+                    "nl-BE"
+                  )
+                : "-"
+        }
+    </span>
+
+</div>
+
+            <div
+    style="
+        margin-bottom:15px;
+        color:#222;
+    "
+>
+    <b>📍 Locatie</b><br>
+
+    <span
+        style="
+            font-size:16px;
+            color:#222;
+        "
+    >
+        ${
+            meeting.location ||
+            "-"
+        }
+    </span>
+
+</div>
 
             <p>
                 <b>📝 Agenda / Notities</b>

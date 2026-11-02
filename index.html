@@ -26260,19 +26260,44 @@ async function editTask(id){
 
             <br><br>
 
-            <button
-                class="btn btn-success"
-                onclick="saveTaskEdit('${taak.id}')"
-            >
-                💾 Opslaan
-            </button>
+            <div
+    style="
+        display:flex;
+        gap:10px;
+        flex-wrap:wrap;
+        margin-top:20px;
+    "
+>
 
-            <button
-                class="btn"
-                onclick="openTask('${taak.id}')"
-            >
-                Annuleren
-            </button>
+    <button
+        class="btn btn-success"
+        onclick="saveTaskEdit('${taak.id}')"
+    >
+        💾 Opslaan
+    </button>
+
+    <button
+        class="btn btn-warning"
+        onclick="duplicateTask('${taak.id}')"
+    >
+        📋 Dupliceren
+    </button>
+
+    <button
+        class="btn btn-danger"
+        onclick="deleteTask('${taak.id}')"
+    >
+        🗑 Verwijderen
+    </button>
+
+    <button
+        class="btn"
+        onclick="openTask('${taak.id}')"
+    >
+        ❌ Annuleren
+    </button>
+
+</div>
 
         </div>
 
@@ -26306,6 +26331,71 @@ async function saveTaskEdit(id){
     );
 
     openTask(id);
+
+}
+
+async function duplicateTask(id){
+
+    const taken =
+        await DataService.loadTasks();
+
+    const taak =
+        taken.find(
+            t => String(t.id) === String(id)
+        );
+
+    if(!taak) return;
+
+    const kopie = {
+
+        ...taak,
+
+        id:
+            Date.now().toString(),
+
+        title:
+            (taak.title || "Taak")
+            + " (Kopie)",
+
+        createdAt:
+            new Date().toISOString()
+
+    };
+
+    taken.unshift(kopie);
+
+    await DataService.saveTasks(
+        taken
+    );
+
+    openTask(kopie.id);
+
+}
+
+async function deleteTask(id){
+
+    if(
+        !confirm(
+            "Taak verwijderen?"
+        )
+    ){
+        return;
+    }
+
+    const taken =
+        await DataService.loadTasks();
+
+    await DataService.saveTasks(
+
+        taken.filter(
+            t =>
+                String(t.id) !==
+                String(id)
+        )
+
+    );
+
+    renderAgenda();
 
 }
 
@@ -26425,12 +26515,44 @@ async function editMeeting(id){
 
             <br><br>
 
-            <button
-                class="btn btn-success"
-                onclick="saveMeetingEdit('${meeting.id}')"
-            >
-                💾 Opslaan
-            </button>
+            <div
+    style="
+        display:flex;
+        gap:10px;
+        flex-wrap:wrap;
+        margin-top:20px;
+    "
+>
+
+    <button
+        class="btn btn-success"
+        onclick="saveMeetingEdit('${meeting.id}')"
+    >
+        💾 Opslaan
+    </button>
+
+    <button
+        class="btn btn-warning"
+        onclick="duplicateMeeting('${meeting.id}')"
+    >
+        📋 Dupliceren
+    </button>
+
+    <button
+        class="btn btn-danger"
+        onclick="deleteMeeting('${meeting.id}')"
+    >
+        🗑 Verwijderen
+    </button>
+
+    <button
+        class="btn"
+        onclick="openMeeting('${meeting.id}')"
+    >
+        ❌ Annuleren
+    </button>
+
+</div>
 
         </div>
 
@@ -26465,6 +26587,73 @@ async function saveMeetingEdit(id){
     );
 
     openMeeting(id);
+
+}
+
+async function duplicateMeeting(id){
+
+    const meetings =
+        await DataService.loadMeetings();
+
+    const meeting =
+        meetings.find(
+            m => String(m.id) === String(id)
+        );
+
+    if(!meeting) return;
+
+    const kopie = {
+
+        ...meeting,
+
+        id:
+            Date.now().toString(),
+
+        title:
+            (meeting.title || "Vergadering")
+            + " (Kopie)",
+
+        createdAt:
+            new Date().toISOString()
+
+    };
+
+    meetings.unshift(kopie);
+
+    await DataService.saveMeetings(
+        meetings
+    );
+
+    openMeeting(
+        kopie.id
+    );
+
+}
+
+async function deleteMeeting(id){
+
+    if(
+        !confirm(
+            "Vergadering verwijderen?"
+        )
+    ){
+        return;
+    }
+
+    const meetings =
+        await DataService.loadMeetings();
+
+    await DataService.saveMeetings(
+
+        meetings.filter(
+            m =>
+                String(m.id) !==
+                String(id)
+        )
+
+    );
+
+    renderAgenda();
 
 }
 
@@ -26604,12 +26793,44 @@ async function editProject(id){
 
             <br><br>
 
-            <button
-                class="btn btn-success"
-                onclick="saveProjectEdit('${project.id}')"
-            >
-                💾 Opslaan
-            </button>
+            <div
+    style="
+        display:flex;
+        gap:10px;
+        flex-wrap:wrap;
+        margin-top:20px;
+    "
+>
+
+    <button
+        class="btn btn-success"
+        onclick="saveProjectEdit('${project.id}')"
+    >
+        💾 Opslaan
+    </button>
+
+    <button
+        class="btn btn-warning"
+        onclick="duplicateProject('${project.id}')"
+    >
+        📋 Dupliceren
+    </button>
+
+    <button
+        class="btn btn-danger"
+        onclick="deleteProject('${project.id}')"
+    >
+        🗑 Verwijderen
+    </button>
+
+    <button
+        class="btn"
+        onclick="openProject('${project.id}')"
+    >
+        ❌ Annuleren
+    </button>
+
+</div>
 
         </div>
 
@@ -26644,6 +26865,75 @@ async function saveProjectEdit(id){
     );
 
     openProject(id);
+
+}
+
+async function duplicateProject(id){
+
+    const projecten =
+        await DataService.loadProjects();
+
+    const project =
+        projecten.find(
+            p => String(p.id) === String(id)
+        );
+
+    if(!project) return;
+
+    const kopie = {
+
+        ...project,
+
+        id:
+            Date.now().toString(),
+
+        title:
+            (project.title || "Project")
+            + " (Kopie)",
+
+        createdAt:
+            new Date().toISOString()
+
+    };
+
+    projecten.unshift(
+        kopie
+    );
+
+    await DataService.saveProjects(
+        projecten
+    );
+
+    openProject(
+        kopie.id
+    );
+
+}
+
+async function deleteProject(id){
+
+    if(
+        !confirm(
+            "Project verwijderen?"
+        )
+    ){
+        return;
+    }
+
+    const projecten =
+        await DataService.loadProjects();
+
+    await DataService.saveProjects(
+
+        projecten.filter(
+            p =>
+                String(p.id) !==
+                String(id)
+        )
+
+    );
+
+    renderAgenda();
 
 }
 

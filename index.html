@@ -26186,16 +26186,127 @@ async function openTask(id){
 
         <br>
 
-        <button
-            class="btn"
-            onclick="renderAgenda()"
-        >
-            ← Terug naar agenda
-        </button>
+        <div
+    style="
+        display:flex;
+        gap:10px;
+        margin-top:20px;
+    "
+>
+
+    <button
+        class="btn btn-warning"
+        onclick="editTask('${taak.id}')"
+    >
+        ✏ Bewerken
+    </button>
+
+    <button
+        class="btn"
+        onclick="renderAgenda()"
+    >
+        ← Terug naar agenda
+    </button>
+
+</div>
 
     </div>
 
     `;
+}
+
+async function editTask(id){
+
+    const taken =
+        await DataService.loadTasks();
+
+    const taak =
+        taken.find(
+            t => String(t.id) === String(id)
+        );
+
+    if(!taak){
+        alert("Taak niet gevonden");
+        return;
+    }
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+        <div class="card">
+
+            <h2>
+                ✏ Taak bewerken
+            </h2>
+
+            <label>Titel</label>
+
+            <input
+                id="editTaskTitle"
+                value="${taak.title || ''}"
+                style="width:100%;"
+            >
+
+            <br><br>
+
+            <label>Status</label>
+
+            <input
+                id="editTaskStatus"
+                value="${taak.status || ''}"
+                style="width:100%;"
+            >
+
+            <br><br>
+
+            <button
+                class="btn btn-success"
+                onclick="saveTaskEdit('${taak.id}')"
+            >
+                💾 Opslaan
+            </button>
+
+            <button
+                class="btn"
+                onclick="openTask('${taak.id}')"
+            >
+                Annuleren
+            </button>
+
+        </div>
+
+    `;
+}
+
+async function saveTaskEdit(id){
+
+    const taken =
+        await DataService.loadTasks();
+
+    const taak =
+        taken.find(
+            t => String(t.id) === String(id)
+        );
+
+    if(!taak) return;
+
+    taak.title =
+        document.getElementById(
+            "editTaskTitle"
+        ).value;
+
+    taak.status =
+        document.getElementById(
+            "editTaskStatus"
+        ).value;
+
+    await DataService.saveTasks(
+        taken
+    );
+
+    openTask(id);
+
 }
 
 async function openMeeting(id){
@@ -26243,16 +26354,117 @@ async function openMeeting(id){
                 ${meeting.description || "Geen beschrijving"}
             </p>
 
-            <button
-                class="btn"
-                onclick="renderAgenda()"
+            <div
+    style="
+        display:flex;
+        gap:10px;
+        margin-top:20px;
+    "
+>
+
+    <button
+        class="btn btn-warning"
+        onclick="editMeeting('${meeting.id}')"
+    >
+        ✏ Bewerken
+    </button>
+
+    <button
+        class="btn"
+        onclick="renderAgenda()"
+    >
+        ← Terug naar agenda
+    </button>
+
+</div>
+
+        </div>
+
+    `;
+
+}
+
+async function editMeeting(id){
+
+    const meetings =
+        await DataService.loadMeetings();
+
+    const meeting =
+        meetings.find(
+            m => String(m.id) === String(id)
+        );
+
+    if(!meeting){
+        alert("Vergadering niet gevonden");
+        return;
+    }
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+        <div class="card">
+
+            <h2>
+                ✏ Vergadering bewerken
+            </h2>
+
+            <input
+                id="editMeetingTitle"
+                value="${meeting.title || ''}"
+                style="width:100%;"
             >
-                ← Terug naar agenda
+
+            <br><br>
+
+            <input
+                id="editMeetingLocation"
+                value="${meeting.location || ''}"
+                style="width:100%;"
+            >
+
+            <br><br>
+
+            <button
+                class="btn btn-success"
+                onclick="saveMeetingEdit('${meeting.id}')"
+            >
+                💾 Opslaan
             </button>
 
         </div>
 
     `;
+
+}
+
+async function saveMeetingEdit(id){
+
+    const meetings =
+        await DataService.loadMeetings();
+
+    const meeting =
+        meetings.find(
+            m => String(m.id) === String(id)
+        );
+
+    if(!meeting) return;
+
+    meeting.title =
+        document.getElementById(
+            "editMeetingTitle"
+        ).value;
+
+    meeting.location =
+        document.getElementById(
+            "editMeetingLocation"
+        ).value;
+
+    await DataService.saveMeetings(
+        meetings
+    );
+
+    openMeeting(id);
 
 }
 
@@ -26321,16 +26533,117 @@ async function openProject(id){
                 ${(project.meetings || []).length}
             </p>
 
-            <button
-                class="btn"
-                onclick="renderAgenda()"
+            <div
+    style="
+        display:flex;
+        gap:10px;
+        margin-top:20px;
+    "
+>
+
+    <button
+        class="btn btn-warning"
+        onclick="editProject('${project.id}')"
+    >
+        ✏ Bewerken
+    </button>
+
+    <button
+        class="btn"
+        onclick="renderAgenda()"
+    >
+        ← Terug naar agenda
+    </button>
+
+</div>
+
+        </div>
+
+    `;
+
+}
+
+async function editProject(id){
+
+    const projecten =
+        await DataService.loadProjects();
+
+    const project =
+        projecten.find(
+            p => String(p.id) === String(id)
+        );
+
+    if(!project){
+        alert("Project niet gevonden");
+        return;
+    }
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+        <div class="card">
+
+            <h2>
+                ✏ Project bewerken
+            </h2>
+
+            <input
+                id="editProjectTitle"
+                value="${project.title || ''}"
+                style="width:100%;"
             >
-                ← Terug naar agenda
+
+            <br><br>
+
+            <input
+                id="editProjectStatus"
+                value="${project.status || ''}"
+                style="width:100%;"
+            >
+
+            <br><br>
+
+            <button
+                class="btn btn-success"
+                onclick="saveProjectEdit('${project.id}')"
+            >
+                💾 Opslaan
             </button>
 
         </div>
 
     `;
+
+}
+
+async function saveProjectEdit(id){
+
+    const projecten =
+        await DataService.loadProjects();
+
+    const project =
+        projecten.find(
+            p => String(p.id) === String(id)
+        );
+
+    if(!project) return;
+
+    project.title =
+        document.getElementById(
+            "editProjectTitle"
+        ).value;
+
+    project.status =
+        document.getElementById(
+            "editProjectStatus"
+        ).value;
+
+    await DataService.saveProjects(
+        projecten
+    );
+
+    openProject(id);
 
 }
 

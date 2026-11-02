@@ -3044,7 +3044,6 @@ class="tab-content">
       <button class="tab-btn" onclick="switchCCVTab(event,'werkgroepen')">👥 Werkgroepen</button>
       <button class="tab-btn" onclick="switchCCVTab(event,'vergaderingen')">🗓️ Vergaderingen</button>
       <button class="tab-btn" onclick="switchCCVTab(event,'projecten')">📁 Projecten</button>
-      <button class="tab-btn" onclick="switchCCVTab(event,'knowledge')">🧠 Knowledge Graph</button>
       <button class="tab-btn" onclick="switchCCVTab(event,'agenda')">📅 Agenda</button>
       <button class="tab-btn" onclick="switchCCVTab(event,'archief')">📦 Archief</button>
       <button class="tab-btn" onclick="switchCCVTab(event,'documenten')">📄 Documenten</button>
@@ -15352,125 +15351,6 @@ function openAgendaItem(id){
     }
 }
 
-async function renderKnowledgeGraph(){
-
-    const projects =
-        await DataService.loadProjects();
-
-    let html = `
-
-<h2>
-
-    🧠 Knowledge Graph
-
-</h2>
-
-<div
-    class="card"
-    style="
-        margin-bottom:15px;
-        max-width:320px;
-        line-height:2;
-    ">
-
-    <h4>
-
-        📖 Legenda
-
-    </h4>
-
-    <div>
-
-        🟢 Categorie
-
-    </div>
-
-    <div>
-
-        🟡 Document
-
-    </div>
-
-    <div>
-
-        🔴 Externe bron
-
-    </div>
-
-    <div>
-
-        🔵 Werkgroep
-
-    </div>
-
-    <div>
-
-        🟣 Kennisitem
-
-    </div>
-
-</div>
-
-`;
-
-    projects.forEach(project=>{
-
-        html += `
-
-        <div class="card">
-
-            <h3>${project.title}</h3>
-
-            📁 Project<br>
-
-            📋 Taken:
-            ${(project.tasks || []).length}
-            <br>
-
-            🗓️ Vergaderingen:
-            ${(project.meetings || []).length}
-            <br>
-
-            📄 Documenten:
-            ${(project.documents || []).length}
-
-        </div>
-
-        `;
-    });
-
-    document.getElementById(
-        "ccvContent"
-    ).innerHTML = html;
-}
-
-async function archiveProject(projectId){
-
-    const projects =
-        await DataService.loadProjects();
-
-    const project =
-        projects.find(
-            p => p.id == projectId
-        );
-
-    if(!project) return;
-
-    const archive =
-        await loadArchive();
-
-    archive.unshift(project);
-
-    await saveArchive(archive);
-
-    await saveProjects(
-        projects.filter(
-            p => p.id != projectId
-        )
-    );
-    await renderProjects();
-}
-
 async function renderArchive(){
     console.log("ARCHIEF GESTART");
 
@@ -26259,21 +26139,16 @@ const users =
 
 async function openTask(id){
 
-    await renderTaken();
-
-    console.log(
-        "Open taak:",
-        id
+    alert(
+        "Taak geopend: " + id
     );
+
 }
 
 async function openMeeting(id){
 
-    await renderMeetings();
-
-    console.log(
-        "Open vergadering:",
-        id
+    alert(
+        "Vergadering geopend: " + id
     );
 
 }
@@ -26290,12 +26165,10 @@ async function openGroup(id){
 
 async function openProject(id){
 
-    await renderProjectDashboard();
-
-    console.log(
-        "Open project:",
-        id
+    alert(
+        "Project geopend: " + id
     );
+
 }
 
 async function renderNieuw(){

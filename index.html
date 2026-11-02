@@ -26137,7 +26137,49 @@ const users =
 `;
 }
 
+function restoreAgendaLayout(){
+
+    const form =
+        document.getElementById(
+            "ccvFormWrapper"
+        );
+
+    if(form){
+        form.style.display = "block";
+    }
+
+    const search =
+        document.getElementById(
+            "ccvSearchInput"
+        );
+
+    if(search){
+        search.style.display = "block";
+    }
+
+    renderAgenda();
+
+}
+
 async function openTask(id){
+
+    const form =
+        document.getElementById(
+            "ccvFormWrapper"
+        );
+
+    if(form){
+        form.style.display = "none";
+    }
+
+    const search =
+        document.getElementById(
+            "ccvSearchInput"
+        );
+
+    if(search){
+        search.style.display = "none";
+    }
 
     const taken =
         await DataService.loadTasks();
@@ -26203,7 +26245,7 @@ async function openTask(id){
 
     <button
         class="btn"
-        onclick="renderAgenda()"
+        onclick="restoreAgendaLayout()"
     >
         ← Terug naar agenda
     </button>
@@ -26247,6 +26289,31 @@ async function editTask(id){
                 value="${taak.title || ''}"
                 style="width:100%;"
             >
+
+            <br><br>
+
+<label>Deadline</label>
+
+<input
+    type="date"
+    id="editTaskDeadline"
+    value="${taak.deadline || ''}"
+    style="width:100%;"
+>
+
+<br><br>
+
+<label>Beschrijving</label>
+
+<textarea
+    id="editTaskDescription"
+    style="
+        width:100%;
+        min-height:120px;
+    "
+>${taak.description || ''}</textarea>
+
+<br><br>
 
             <br><br>
 
@@ -26326,6 +26393,16 @@ async function saveTaskEdit(id){
             "editTaskStatus"
         ).value;
 
+taak.deadline =
+    document.getElementById(
+        "editTaskDeadline"
+    ).value;
+
+taak.description =
+    document.getElementById(
+        "editTaskDescription"
+    ).value;
+
     await DataService.saveTasks(
         taken
     );
@@ -26401,6 +26478,24 @@ async function deleteTask(id){
 
 async function openMeeting(id){
 
+    const form =
+        document.getElementById(
+            "ccvFormWrapper"
+        );
+
+    if(form){
+        form.style.display = "none";
+    }
+
+    const search =
+        document.getElementById(
+            "ccvSearchInput"
+        );
+
+    if(search){
+        search.style.display = "none";
+    }
+
     const meetings =
         await DataService.loadMeetings();
 
@@ -26430,43 +26525,54 @@ async function openMeeting(id){
 
             <p>
                 <b>Datum:</b>
-                ${meeting.date || "-"}
+                ${
+                    meeting.date ||
+                    meeting.startDate ||
+                    "-"
+                }
             </p>
 
             <p>
                 <b>Locatie:</b>
-                ${meeting.location || "-"}
+                ${
+                    meeting.location ||
+                    "-"
+                }
             </p>
 
             <p>
                 <b>Beschrijving:</b>
                 <br>
-                ${meeting.description || "Geen beschrijving"}
+                ${
+                    meeting.description ||
+                    meeting.notes ||
+                    "Geen beschrijving"
+                }
             </p>
 
             <div
-    style="
-        display:flex;
-        gap:10px;
-        margin-top:20px;
-    "
->
+                style="
+                    display:flex;
+                    gap:10px;
+                    margin-top:20px;
+                "
+            >
 
-    <button
-        class="btn btn-warning"
-        onclick="editMeeting('${meeting.id}')"
-    >
-        ✏ Bewerken
-    </button>
+                <button
+                    class="btn btn-warning"
+                    onclick="editMeeting('${meeting.id}')"
+                >
+                    ✏ Bewerken
+                </button>
 
-    <button
-        class="btn"
-        onclick="renderAgenda()"
-    >
-        ← Terug naar agenda
-    </button>
+                <button
+                    class="btn"
+                    onclick="restoreAgendaLayout()"
+                >
+                    ← Terug naar agenda
+                </button>
 
-</div>
+            </div>
 
         </div>
 
@@ -26512,7 +26618,30 @@ async function editMeeting(id){
                 value="${meeting.location || ''}"
                 style="width:100%;"
             >
+<br><br>
 
+<label>Datum</label>
+
+<input
+    type="date"
+    id="editMeetingDate"
+    value="${meeting.date || ''}"
+    style="width:100%;"
+>
+
+<br><br>
+
+<label>Beschrijving</label>
+
+<textarea
+    id="editMeetingDescription"
+    style="
+        width:100%;
+        min-height:120px;
+    "
+>${meeting.description || ''}</textarea>
+
+<br><br>
             <br><br>
 
             <div
@@ -26581,6 +26710,16 @@ async function saveMeetingEdit(id){
         document.getElementById(
             "editMeetingLocation"
         ).value;
+
+        meeting.date =
+    document.getElementById(
+        "editMeetingDate"
+    ).value;
+
+meeting.description =
+    document.getElementById(
+        "editMeetingDescription"
+    ).value;
 
     await DataService.saveMeetings(
         meetings
@@ -26669,6 +26808,24 @@ async function openGroup(id){
 
 async function openProject(id){
 
+    const form =
+        document.getElementById(
+            "ccvFormWrapper"
+        );
+
+    if(form){
+        form.style.display = "none";
+    }
+
+    const search =
+        document.getElementById(
+            "ccvSearchInput"
+        );
+
+    if(search){
+        search.style.display = "none";
+    }
+
     const projecten =
         await DataService.loadProjects();
 
@@ -26703,13 +26860,21 @@ async function openProject(id){
 
             <p>
                 <b>Deadline:</b>
-                ${project.deadline || "-"}
+                ${
+                    project.deadline ||
+                    project.date ||
+                    "-"
+                }
             </p>
 
             <p>
                 <b>Beschrijving:</b>
                 <br>
-                ${project.description || "Geen beschrijving"}
+                ${
+                    project.description ||
+                    project.notes ||
+                    "Geen beschrijving"
+                }
             </p>
 
             <p>
@@ -26723,28 +26888,28 @@ async function openProject(id){
             </p>
 
             <div
-    style="
-        display:flex;
-        gap:10px;
-        margin-top:20px;
-    "
->
+                style="
+                    display:flex;
+                    gap:10px;
+                    margin-top:20px;
+                "
+            >
 
-    <button
-        class="btn btn-warning"
-        onclick="editProject('${project.id}')"
-    >
-        ✏ Bewerken
-    </button>
+                <button
+                    class="btn btn-warning"
+                    onclick="editProject('${project.id}')"
+                >
+                    ✏ Bewerken
+                </button>
 
-    <button
-        class="btn"
-        onclick="renderAgenda()"
-    >
-        ← Terug naar agenda
-    </button>
+                <button
+                    class="btn"
+                    onclick="restoreAgendaLayout()"
+                >
+                    ← Terug naar agenda
+                </button>
 
-</div>
+            </div>
 
         </div>
 
@@ -26782,6 +26947,31 @@ async function editProject(id){
                 value="${project.title || ''}"
                 style="width:100%;"
             >
+
+<br><br>
+
+<label>Deadline</label>
+
+<input
+    type="date"
+    id="editProjectDeadline"
+    value="${project.deadline || ''}"
+    style="width:100%;"
+>
+
+<br><br>
+
+<label>Beschrijving</label>
+
+<textarea
+    id="editProjectDescription"
+    style="
+        width:100%;
+        min-height:120px;
+    "
+>${project.description || ''}</textarea>
+
+<br><br>
 
             <br><br>
 
@@ -26859,6 +27049,16 @@ async function saveProjectEdit(id){
         document.getElementById(
             "editProjectStatus"
         ).value;
+
+        project.deadline =
+    document.getElementById(
+        "editProjectDeadline"
+    ).value;
+
+project.description =
+    document.getElementById(
+        "editProjectDescription"
+    ).value;
 
     await DataService.saveProjects(
         projecten

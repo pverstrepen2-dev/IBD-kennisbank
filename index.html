@@ -26503,10 +26503,7 @@ async function openMeeting(id){
         meetings.find(
             m => String(m.id) === String(id)
         );
-console.log(
-    "OPEN MEETING",
-    meeting
-);
+
     if(!meeting){
 
         alert(
@@ -26515,10 +26512,7 @@ console.log(
 
         return;
     }
-console.log(
-    "MEETING OBJECT:",
-    meeting
-);
+
     document.getElementById(
         "ccvContent"
     ).innerHTML = `
@@ -26529,26 +26523,52 @@ console.log(
                 🗓 ${meeting.title || "Vergadering"}
             </h2>
 
-            <div class="card">
+            <p>
+                <b>📅 Datum</b><br>
+                ${
+                    meeting.date ||
+                    "-"
+                }
+            </p>
 
-    <h3>Debug gegevens</h3>
+            <p>
+                <b>📍 Locatie</b><br>
+                ${
+                    meeting.location ||
+                    "-"
+                }
+            </p>
 
-    <pre style="
-        white-space:pre-wrap;
-        background:#f5f5f5;
-        padding:10px;
-        border-radius:8px;
-        color:black;
-    ">
-${JSON.stringify(meeting, null, 2)}
-    </pre>
+            <p>
+                <b>📝 Agenda / Notities</b>
+            </p>
 
-</div>
+            <div
+                style="
+                    white-space:pre-wrap;
+                    max-height:400px;
+                    overflow:auto;
+                    padding:12px;
+                    border:1px solid #ddd;
+                    border-radius:8px;
+                    background:#fafafa;
+                    color:#222;
+                    margin-bottom:20px;
+                "
+            >
+                ${
+                    meeting.agenda ||
+                    meeting.notes ||
+                    meeting.description ||
+                    "Geen agenda beschikbaar"
+                }
+            </div>
 
             <div
                 style="
                     display:flex;
                     gap:10px;
+                    flex-wrap:wrap;
                     margin-top:20px;
                 "
             >
@@ -26558,6 +26578,20 @@ ${JSON.stringify(meeting, null, 2)}
                     onclick="editMeeting('${meeting.id}')"
                 >
                     ✏ Bewerken
+                </button>
+
+                <button
+                    class="btn btn-secondary"
+                    onclick="duplicateMeeting('${meeting.id}')"
+                >
+                    📋 Dupliceren
+                </button>
+
+                <button
+                    class="btn btn-danger"
+                    onclick="deleteMeeting('${meeting.id}')"
+                >
+                    🗑 Verwijderen
                 </button>
 
                 <button

@@ -26503,7 +26503,10 @@ async function openMeeting(id){
         meetings.find(
             m => String(m.id) === String(id)
         );
-
+console.log(
+    "OPEN MEETING",
+    meeting
+);
     if(!meeting){
 
         alert(
@@ -26512,7 +26515,10 @@ async function openMeeting(id){
 
         return;
     }
-
+console.log(
+    "MEETING OBJECT:",
+    meeting
+);
     document.getElementById(
         "ccvContent"
     ).innerHTML = `

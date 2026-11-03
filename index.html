@@ -13542,6 +13542,24 @@ await renderCCVDashboard(); // ✅ HIER
 
 }
 
+function toggleTaskForm(){
+
+    const form =
+        document.getElementById(
+            "taskFormContainer"
+        );
+
+    if(!form){
+        return;
+    }
+
+    form.style.display =
+        form.style.display === "none"
+            ? "block"
+            : "none";
+
+}
+
 async function saveTask(){
 
     const data =
@@ -13580,9 +13598,9 @@ createdAt:
 
     });
 
-    await saveTasks(
-        data
-    );
+    await DataService.saveTasks(
+    data
+);
 
     await renderTaken();
 
@@ -13653,18 +13671,16 @@ const memberOptions =
 `;
 
   data.forEach(d=>{
-   html += `
-<div class="card">
+  html += `
+<div
+    class="card"
+    style="cursor:pointer;"
+    onclick="openGroup('${d.id}')"
+>
 
     <b>${d.name}</b><br>
 
-    👤 ${
-        members.find(
-            m => String(m.id) === String(d.leaderId)
-        )?.name || 'Onbekend'
-    }<br>
-
-    👥 ${d.members}
+    ...
 
 </div>`;
   });
@@ -14018,14 +14034,14 @@ return {
 async function renderProjects(){
 
   const data =
-    await DataService.loadProjects()
+    await DataService.loadProjects();
 
-   const docs =
-        await DataService.loadDocuments()
+const docs =
+    await DataService.loadDocuments();
 
 const documentOptions =
 
-    documents.map(d => `
+    docs.map(d => `
 
         <option value="${d.id}">
 
@@ -14126,8 +14142,12 @@ calculateProjectScore(p);
 const aiAnalyse =
 analyseProject(p);
 
-    html += `
-      <div class="card">
+   html += `
+      <div
+          class="card"
+          style="cursor:pointer;"
+          onclick="openProject('${p.id}')"
+      >
 
         <b>${p.title}</b><br>
 
@@ -14168,11 +14188,11 @@ ${
     (() => {
 
         const doc =
-            documents.find(
-                d =>
-                    String(d.id) ===
-                    String(p.documentId)
-            );
+    docs.find(
+        d =>
+            String(d.id) ===
+            String(p.documentId)
+    );
 
         return doc
 
@@ -26904,12 +26924,77 @@ async function deleteMeeting(id){
 
 async function openGroup(id){
 
-    await renderWG();
+    const groepen =
+        await DataService.loadGroups();
 
-    console.log(
-        "Open werkgroep:",
-        id
-    );
+    const groep =
+        groepen.find(
+            g => String(g.id) === String(id)
+        );
+
+    if(!groep){
+
+        alert(
+            "Werkgroep niet gevonden"
+        );
+
+        return;
+    }
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+        <div class="card">
+
+            <h2>
+                🤝 ${groep.name || "Werkgroep"}
+            </h2>
+
+            <p>
+                <b>👤 Verantwoordelijke</b><br>
+                ${groep.leaderId || "-"}
+            </p>
+
+            <p>
+                <b>👥 Leden</b><br>
+                ${groep.members || "-"}
+            </p>
+
+            <div
+                style="
+                    display:flex;
+                    gap:10px;
+                    flex-wrap:wrap;
+                "
+            >
+
+                <button
+                    class="btn btn-warning"
+                    onclick="editGroup('${groep.id}')"
+                >
+                    ✏ Bewerken
+                </button>
+
+                <button
+                    class="btn btn-danger"
+                    onclick="deleteGroup('${groep.id}')"
+                >
+                    🗑 Verwijderen
+                </button>
+
+                <button
+                    class="btn"
+                    onclick="renderWG()"
+                >
+                    ← Terug
+                </button>
+
+            </div>
+
+        </div>
+
+    `;
 }
 
 async function openProject(id){

@@ -13691,13 +13691,13 @@ const memberOptions =
 async function saveWG(){
 
     const data =
-       await DataService.loadGroups()
+       await DataService.loadGroups();
 
     data.unshift({
 
         id: Date.now(),
-createdAt:
-    new Date().toISOString(),
+        createdAt:
+            new Date().toISOString(),
         type: 'werkgroepen',
 
         name: wg_name.value,
@@ -13708,7 +13708,7 @@ createdAt:
 
     });
 
-    await saveGroups(
+    await DataService.saveGroups(
         data
     );
 
@@ -13722,7 +13722,7 @@ createdAt:
 
 async function renderMeetings(){
   const data =
-    await loadMeetings();
+    await DataService.loadMeetings();
 
 const komendeVergaderingen =
 
@@ -14246,13 +14246,13 @@ async function saveProject(){
     );
 
   const data =
-    await DataService.loadProjects()
+    await DataService.loadProjects();
 
-data.unshift({
+  data.unshift({
 
     id: Date.now(),
-createdAt:
-    new Date().toISOString(),
+    createdAt:
+        new Date().toISOString(),
     type: 'projecten',
 
     title: p_title.value,
@@ -14267,29 +14267,26 @@ createdAt:
 
     status: p_status.value,
 
-notes: p_notes.value,
+    notes: p_notes.value,
 
-documentId:
-    p_document.value,
+    documentId: p_document.value,
 
-tasks: [],
-
-documents: [],
-
-meetings: [],
+    tasks: [],
+    documents: [],
+    meetings: [],
 
     attachments:
         files.map(
             f => f.name
         )
 
-});
+  });
 
-await saveProjects(
-    data
-);
+  await DataService.saveProjects(
+      data
+  );
 
-await renderProjects();
+  await renderProjects();
 
 }
 
@@ -14345,7 +14342,7 @@ async function saveMeeting(){
     );
 
   const data =
-    await loadMeetings();
+        await DataService.loadMeetings();
 
   data.unshift({
 
@@ -14387,9 +14384,9 @@ location: m_location.value,
 
   });
 
-  await saveMeetings(
+  await DataService.saveMeetings(
     data
-  );
+);
 
 const aiTasks =
 await generateTasksFromMeeting(
@@ -14401,7 +14398,9 @@ await DataService.loadTasks();
 
 allTasks.unshift(...aiTasks);
 
-await saveTasks(allTasks);
+await DataService.saveTasks(
+    allTasks
+);
 
   await renderMeetings();
 

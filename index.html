@@ -3264,6 +3264,10 @@ async function renderCCV(tab){
     await renderDashboard();
     break;
 
+case 'gebruikers':
+    await renderUsers();
+    break;
+
 case 'agendaoverzicht':
     await renderAgenda();
     break;
@@ -3572,6 +3576,482 @@ async function renderMembers(){
     </div>
 
     `;
+}
+
+async function renderUsers(){
+
+    const users =
+
+        await DataService
+            .loadUsers();
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+    <div class="page-title">
+
+        👤 Gebruikersbeheer
+
+    </div>
+
+    <button
+
+        class="action-btn"
+
+        onclick="
+            showNewUserForm()
+        "
+
+    >
+
+        ➕ Nieuwe gebruiker
+
+    </button>
+
+    <br><br>
+
+    <div
+        id="userForm"
+        style="
+            display:none;
+        "
+    >
+
+        <div class="card">
+
+            <input
+
+                id="newUserName"
+
+                placeholder="Naam"
+
+            >
+
+            <br><br>
+
+            <input
+
+                id="newUserEmail"
+
+                placeholder="Email"
+
+            >
+
+            <br><br>
+
+            <select
+                id="newUserRole"
+            >
+
+                <option>
+                    viewer
+                </option>
+
+                <option>
+                    editor
+                </option>
+
+                <option>
+                    admin
+                </option>
+
+            </select>
+
+            <br><br>
+
+            <button
+
+                class="action-btn"
+
+                onclick="
+                    saveUser()
+                "
+
+            >
+
+                💾 Opslaan
+
+            </button>
+
+        </div>
+
+    </div>
+
+    <br>
+
+    <div class="panel">
+
+       ${users.map(u=>`
+
+<div
+    class="list-item"
+>
+
+    <b>
+
+        ${u.name}
+
+    </b>
+
+    <br>
+
+    ${u.email}
+
+    <br>
+
+    Rol:
+
+    ${u.role}
+
+    <br>
+
+    Status:
+
+    ${
+        u.active
+        ?
+        "✅ Actief"
+        :
+        "❌ Inactief"
+    }
+
+    <br><br>
+
+    <button
+
+        class="action-btn"
+
+        onclick="
+            editUser(
+                ${u.id}
+            )
+        "
+
+    >
+
+        ✏ Bewerken
+
+    </button>
+
+    <button
+
+        class="action-btn"
+
+        onclick="
+            toggleUserStatus(
+                ${u.id}
+            )
+        "
+
+    >
+
+        ${
+            u.active
+            ?
+            "⛔ Deactiveren"
+            :
+            "✅ Activeren"
+        }
+
+    </button>
+
+</div>
+
+`).join("")}
+
+    </div>
+
+    `;
+
+}
+
+function showNewUserForm(){
+
+    const form =
+
+        document.getElementById(
+            "userForm"
+        );
+
+    if(!form){
+        return;
+    }
+
+    form.style.display =
+
+        form.style.display
+        ===
+        "none"
+
+        ?
+
+        "block"
+
+        :
+
+        "none";
+
+}
+
+async function saveUser(){
+
+    const users =
+
+        await DataService
+            .loadUsers();
+
+    users.unshift({
+
+        id:
+            Date.now(),
+
+        name:
+            document.getElementById(
+                "newUserName"
+            ).value,
+
+        email:
+            document.getElementById(
+                "newUserEmail"
+            ).value,
+
+        role:
+            document.getElementById(
+                "newUserRole"
+            ).value,
+
+        active:true
+
+    });
+
+    await DataService
+        .saveUsers(
+            users
+        );
+
+    renderUsers();
+
+}
+
+async function toggleUserStatus(
+    userId
+){
+
+    const users =
+
+        await DataService
+            .loadUsers();
+
+    const user =
+
+        users.find(
+            u => u.id == userId
+        );
+
+    if(
+        !user
+    ){
+        return;
+    }
+
+    user.active =
+        !user.active;
+
+    await DataService
+        .saveUsers(
+            users
+        );
+
+    renderUsers();
+
+}
+
+async function editUser(
+    userId
+){
+
+    const users =
+
+        await DataService
+            .loadUsers();
+
+    const user =
+
+        users.find(
+            u => u.id == userId
+        );
+
+    if(
+        !user
+    ){
+        return;
+    }
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+    <div class="page-title">
+
+        ✏ Gebruiker Bewerken
+
+    </div>
+
+    <div class="card">
+
+        <input
+
+            id="editUserName"
+
+            value="${user.name}"
+
+        >
+
+        <br><br>
+
+        <input
+
+            id="editUserEmail"
+
+            value="${user.email}"
+
+        >
+
+        <br><br>
+
+        <select
+            id="editUserRole"
+        >
+
+            <option
+                ${
+                    user.role === "viewer"
+                    ?
+                    "selected"
+                    :
+                    ""
+                }
+            >
+
+                viewer
+
+            </option>
+
+            <option
+                ${
+                    user.role === "editor"
+                    ?
+                    "selected"
+                    :
+                    ""
+                }
+            >
+
+                editor
+
+            </option>
+
+            <option
+                ${
+                    user.role === "admin"
+                    ?
+                    "selected"
+                    :
+                    ""
+                }
+            >
+
+                admin
+
+            </option>
+
+        </select>
+
+        <br><br>
+
+        <button
+
+            class="action-btn"
+
+            onclick="
+                updateUser(
+                    ${user.id}
+                )
+            "
+
+        >
+
+            💾 Opslaan
+
+        </button>
+
+        <button
+
+            class="action-btn"
+
+            onclick="
+                renderUsers()
+            "
+
+        >
+
+            Annuleren
+
+        </button>
+
+    </div>
+
+    `;
+
+}
+
+async function updateUser(
+    userId
+){
+
+    const users =
+
+        await DataService
+            .loadUsers();
+
+    const user =
+
+        users.find(
+            u => u.id == userId
+        );
+
+    if(
+        !user
+    ){
+        return;
+    }
+
+    user.name =
+
+        document.getElementById(
+            "editUserName"
+        ).value;
+
+    user.email =
+
+        document.getElementById(
+            "editUserEmail"
+        ).value;
+
+    user.role =
+
+        document.getElementById(
+            "editUserRole"
+        ).value;
+
+    await DataService
+        .saveUsers(
+            users
+        );
+
+    renderUsers();
+
 }
 
 async function renderDashboard(){

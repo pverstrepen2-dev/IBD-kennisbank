@@ -1672,6 +1672,8 @@ async saveUsers(data){
     this.cache.users =
         data;
 
+    return true;
+
 },
 
 async saveMembers(data){
@@ -1881,6 +1883,19 @@ function generateKnowledgeRelations(
     });
 
     return relations;
+
+}
+
+async function testUsers(){
+
+    const users =
+
+        await DataService
+            .loadUsers();
+
+    console.log(
+        users
+    );
 
 }
 
@@ -3723,6 +3738,32 @@ async function renderUsers(){
                 placeholder="Email"
 
             >
+
+            <br><br>
+
+<select
+    id="newUserRole"
+>
+
+    <option
+        value="viewer"
+    >
+        Viewer
+    </option>
+
+    <option
+        value="editor"
+    >
+        Editor
+    </option>
+
+    <option
+        value="admin"
+    >
+        Admin
+    </option>
+
+</select>
 
             <br><br>
 

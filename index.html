@@ -579,6 +579,47 @@ body{
 
 </div>
 
+<div
+    style="
+        padding:10px;
+    "
+>
+
+    <button
+
+        class="action-btn"
+
+        onclick="login()"
+
+        style="
+            width:100%;
+            margin-bottom:5px;
+        "
+
+    >
+
+        🔐 Aanmelden
+
+    </button>
+
+    <button
+
+        class="action-btn"
+
+        onclick="logout()"
+
+        style="
+            width:100%;
+        "
+
+    >
+
+        🚪 Afmelden
+
+    </button>
+
+</div>
+
 <div class="menu-section">
 <div
     class="menu-title"
@@ -997,13 +1038,13 @@ const msalConfig = {
     auth:{
 
         clientId:
-            "JOUW-APP-ID",
+            "d4d940de-49a5-4328-bb87-c0b65aeea942",
 
         authority:
             "https://login.microsoftonline.com/common",
 
         redirectUri:
-            window.location.origin
+            "https://pverstrepen2-dev.github.io/IBD-kennisbank/"
 
     }
 
@@ -1112,6 +1153,18 @@ async function initializeMSAL(){
             );
 
         await msalInstance.initialize();
+        const accounts =
+    msalInstance.getAllAccounts();
+
+if(
+    accounts.length > 0
+){
+
+    msalInstance.setActiveAccount(
+        accounts[0]
+    );
+
+}
 
         msalReady = true;
 
@@ -1155,7 +1208,10 @@ async function login(){
         alert(
             "Succesvol aangemeld"
         );
-
+console.log(
+    "LOGIN ACCOUNT",
+    result.account
+);
     }
     catch(error){
 
@@ -2815,22 +2871,62 @@ async function openDriveFile(
 
 async function getAccessToken(){
 
-    const account =
-        msalInstance.getActiveAccount();
+    let account =
+
+        msalInstance
+            .getActiveAccount();
+
+    if(
+        !account
+    ){
+
+        const accounts =
+
+            msalInstance
+                .getAllAccounts();
+
+        if(
+            accounts.length > 0
+        ){
+
+            account =
+                accounts[0];
+
+            msalInstance
+                .setActiveAccount(
+                    account
+                );
+
+        }
+
+    }
+
+    if(
+        !account
+    ){
+
+        throw new Error(
+            "Geen Microsoft-account aangemeld"
+        );
+
+    }
 
     const result =
-        await msalInstance.acquireTokenSilent({
 
-            account,
+        await msalInstance
+            .acquireTokenSilent({
 
-            scopes:[
+                account,
 
-                "Files.ReadWrite.All",
-                "Sites.ReadWrite.All"
+                scopes:[
 
-            ]
+                    "Files.ReadWrite.All",
 
-        });
+                    "Sites.ReadWrite.All"
+
+                ]
+
+            });
 
     return result.accessToken;
 

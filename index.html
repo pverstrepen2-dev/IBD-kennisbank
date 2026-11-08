@@ -1201,6 +1201,9 @@ if(
 }
 
 async function login(){
+    console.log(
+    "LOGIN GESTART"
+);
 
     try{
 
@@ -1216,7 +1219,10 @@ async function login(){
                 ]
 
             });
-
+console.log(
+    "LOGIN RESULT",
+    result
+);
         msalInstance.setActiveAccount(
             result.account
         );

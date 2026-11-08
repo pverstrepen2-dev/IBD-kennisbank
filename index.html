@@ -1201,13 +1201,15 @@ if(
 }
 
 async function login(){
+
     console.log(
-    "LOGIN GESTART"
-);
+        "LOGIN START"
+    );
 
     try{
 
         const result =
+
             await msalInstance.loginPopup({
 
                 scopes:[
@@ -1219,31 +1221,32 @@ async function login(){
                 ]
 
             });
-console.log(
-    "LOGIN RESULT",
-    result
-);
+
+        console.log(
+            "LOGIN SUCCESS",
+            result
+        );
+
         msalInstance.setActiveAccount(
             result.account
         );
 
-await loadCurrentUser(
-
-    result.account.username
-
-);
+        console.log(
+            "ACTIVE ACCOUNT",
+            msalInstance.getActiveAccount()
+        );
 
         alert(
             "Succesvol aangemeld"
         );
-console.log(
-    "LOGIN ACCOUNT",
-    result.account
-);
+
     }
     catch(error){
 
-        console.error(error);
+        console.error(
+            "LOGIN ERROR",
+            error
+        );
 
         alert(
             "Login mislukt"
@@ -1252,7 +1255,6 @@ console.log(
     }
 
 }
-
 async function logout(){
 
     await msalInstance.logoutPopup();

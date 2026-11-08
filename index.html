@@ -1299,6 +1299,34 @@ function hasRole(
 
 }
 
+function hasPermission(
+    permission
+){
+
+    if(
+        !currentUser
+    ){
+        return false;
+    }
+
+    const rolePermissions =
+
+        ROLE_PERMISSIONS[
+            currentUser.role
+        ];
+
+    if(
+        !rolePermissions
+    ){
+        return false;
+    }
+
+    return !!rolePermissions[
+        permission
+    ];
+
+}
+
 function createKnowledgeConcept(
     title
 ){
@@ -1327,6 +1355,64 @@ function createKnowledgeConcept(
     };
 
 }
+
+const ROLE_PERMISSIONS = {
+
+    admin:{
+
+        dashboard:true,
+
+        projecten:true,
+
+        vergaderingen:true,
+
+        documenten:true,
+
+        websites:true,
+
+        users:true,
+
+        instellingen:true
+
+    },
+
+    editor:{
+
+        dashboard:true,
+
+        projecten:true,
+
+        vergaderingen:true,
+
+        documenten:true,
+
+        websites:true,
+
+        users:false,
+
+        instellingen:false
+
+    },
+
+    viewer:{
+
+        dashboard:true,
+
+        projecten:false,
+
+        vergaderingen:false,
+
+        documenten:true,
+
+        websites:true,
+
+        users:false,
+
+        instellingen:false
+
+    }
+
+};
 
 const DataService = {
 
@@ -3700,9 +3786,13 @@ async function renderUsers(){
 
     <br>
 
-    Rol:
+    🛡 Rol:
 
-    ${u.role}
+<b>
+
+${u.role}
+
+</b>
 
     <br>
 
@@ -3733,6 +3823,22 @@ async function renderUsers(){
         ✏ Bewerken
 
     </button>
+
+<button
+
+    class="action-btn"
+
+    onclick="
+        editPermissions(
+            ${u.id}
+        )
+    "
+
+>
+
+    🔒 Rechten
+
+</button>
 
     <button
 
@@ -3803,27 +3909,35 @@ async function saveUser(){
 
     users.unshift({
 
-        id:
-            Date.now(),
+    id:
+        Date.now(),
 
-        name:
-            document.getElementById(
-                "newUserName"
-            ).value,
+    name:
+        document.getElementById(
+            "newUserName"
+        ).value,
 
-        email:
-            document.getElementById(
-                "newUserEmail"
-            ).value,
+    email:
+        document.getElementById(
+            "newUserEmail"
+        ).value,
 
-        role:
-            document.getElementById(
-                "newUserRole"
-            ).value,
+    role:
+        document.getElementById(
+            "newUserRole"
+        ).value,
 
-        active:true
+    active:true,
 
-    });
+    permissions:
+
+    ROLE_PERMISSIONS[
+        document.getElementById(
+            "newUserRole"
+        ).value
+    ]
+
+});
 
     await DataService
         .saveUsers(
@@ -4044,6 +4158,204 @@ async function updateUser(
         document.getElementById(
             "editUserRole"
         ).value;
+
+user.permissions =
+
+    ROLE_PERMISSIONS[
+        user.role
+    ];
+
+    await DataService
+        .saveUsers(
+            users
+        );
+
+    renderUsers();
+
+}
+
+function buildPermissionRow(
+    name,
+    permissions
+){
+
+    return `
+
+    <div
+        class="list-item"
+    >
+
+        <label>
+
+            <input
+
+                type="checkbox"
+
+                class="permissionCheck"
+
+                data-name="${name}"
+
+                ${
+                    permissions[name]
+                    ?
+                    "checked"
+                    :
+                    ""
+                }
+
+            >
+
+            ${name}
+
+        </label>
+
+    </div>
+
+    `;
+
+}
+
+async function editPermissions(
+    userId
+){
+
+    const users =
+
+        await DataService
+            .loadUsers();
+
+    const user =
+
+        users.find(
+            u => u.id == userId
+        );
+
+    if(
+        !user
+    ){
+        return;
+    }
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+    <div class="page-title">
+
+        🔒 Rechtenmatrix
+
+    </div>
+
+    <div class="card">
+
+        <h3>
+
+            ${user.name}
+
+        </h3>
+
+        <br>
+
+        🛡 Rol:
+
+        <b>
+
+            ${user.role}
+
+        </b>
+
+        <br><br>
+
+        ${Object.entries(
+
+            ROLE_PERMISSIONS[
+                user.role
+            ]
+
+        ).map(
+
+            ([naam,waarde]) => `
+
+                <div
+                    class="list-item"
+                >
+
+                    ${
+                        waarde
+                        ?
+                        "✅"
+                        :
+                        "❌"
+                    }
+
+                    ${naam}
+
+                </div>
+
+            `
+
+        ).join("")}
+
+        <br>
+
+        <button
+
+            class="action-btn"
+
+            onclick="
+                renderUsers()
+            "
+
+        >
+
+            Terug
+
+        </button>
+
+    </div>
+
+    `;
+
+}
+
+async function savePermissions(
+    userId
+){
+
+    const users =
+
+        await DataService
+            .loadUsers();
+
+    const user =
+
+        users.find(
+            u => u.id == userId
+        );
+
+    if(
+        !user
+    ){
+        return;
+    }
+
+    const permissions =
+        {};
+
+    document
+        .querySelectorAll(
+            ".permissionCheck"
+        )
+        .forEach(x=>{
+
+            permissions[
+                x.dataset.name
+            ] = x.checked;
+
+        });
+
+    user.permissions =
+        permissions;
 
     await DataService
         .saveUsers(

@@ -1169,18 +1169,28 @@ async function initializeMSAL(){
             );
 
         await msalInstance.initialize();
-        const accounts =
-    msalInstance.getAllAccounts();
 
-if(
-    accounts.length > 0
-){
+        const response =
 
-    msalInstance.setActiveAccount(
-        accounts[0]
-    );
+            await msalInstance
+                .handleRedirectPromise();
 
-}
+        if(
+            response
+            &&
+            response.account
+        ){
+
+            msalInstance.setActiveAccount(
+                response.account
+            );
+
+            console.log(
+                "LOGIN COMPLETE",
+                response.account
+            );
+
+        }
 
         msalReady = true;
 
@@ -1203,42 +1213,22 @@ if(
 async function login(){
 
     console.log(
-        "LOGIN START"
+        "LOGIN GESTART"
     );
 
     try{
 
-        const result =
+        await msalInstance.loginRedirect({
 
-            await msalInstance.loginPopup({
+            scopes:[
 
-                scopes:[
+                "Files.ReadWrite.All",
+                "Sites.ReadWrite.All",
+                "User.Read"
 
-                    "Files.ReadWrite.All",
-                    "Sites.ReadWrite.All",
-                    "User.Read"
+            ]
 
-                ]
-
-            });
-
-        console.log(
-            "LOGIN SUCCESS",
-            result
-        );
-
-        msalInstance.setActiveAccount(
-            result.account
-        );
-
-        console.log(
-            "ACTIVE ACCOUNT",
-            msalInstance.getActiveAccount()
-        );
-
-        alert(
-            "Succesvol aangemeld"
-        );
+        });
 
     }
     catch(error){
@@ -1255,6 +1245,7 @@ async function login(){
     }
 
 }
+
 async function logout(){
 
     await msalInstance.logoutPopup();

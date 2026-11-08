@@ -877,6 +877,22 @@ body{
 🏠 Dashboard
 </div>
 
+<div
+
+    class="menu-item"
+
+    onclick="
+        renderCCV(
+            'gebruikers'
+        )
+    "
+
+>
+
+👤 Gebruikersbeheer
+
+</div>
+
 <div class="cards">
 
 <div class="card"><h3>Documenten</h3><div class="value">2202</div></div>
@@ -1030,9 +1046,9 @@ const STORAGE_KEY = 'ibd_kennisbank_multilang';
     const FAVORITES_KEY = 'ibd_favorites';
     const CCV_KEY = 'ccv_module_data';
     let knowledgeGraph = {};
+    let currentUser = null;
     let msalInstance;
 let msalReady = false;
-
 const msalConfig = {
 
     auth:{
@@ -1205,6 +1221,12 @@ async function login(){
             result.account
         );
 
+await loadCurrentUser(
+
+    result.account.username
+
+);
+
         alert(
             "Succesvol aangemeld"
         );
@@ -1228,6 +1250,52 @@ console.log(
 async function logout(){
 
     await msalInstance.logoutPopup();
+
+}
+
+async function loadCurrentUser(
+    email
+){
+
+    const users =
+
+        await DataService.loadUsers();
+
+    currentUser =
+
+        users.find(
+
+            u =>
+
+            u.email
+                .toLowerCase()
+
+            ===
+
+            email
+                .toLowerCase()
+
+        );
+
+    return currentUser;
+
+}
+
+function hasRole(
+    role
+){
+
+    if(
+        !currentUser
+    ){
+
+        return false;
+
+    }
+
+    return (
+        currentUser.role === role
+    );
 
 }
 
@@ -1280,7 +1348,9 @@ const DataService = {
 
         aiKnowledge: null,
 
-        knowledgeConcepts: null
+        knowledgeConcepts: null,
+
+        users: null
 
     },
 
@@ -1480,6 +1550,41 @@ async loadMembers(){
         );
 
     return this.cache.members;
+
+},
+
+async loadUsers(){
+
+    if(
+        this.cache.users
+    ){
+
+        return this.cache.users;
+
+    }
+
+    this.cache.users =
+
+        await loadEntity(
+            USERS_FILE_ID
+        );
+
+    return this.cache.users;
+
+},
+
+async saveUsers(data){
+
+    await saveEntity(
+
+        USERS_FILE_ID,
+
+        data
+
+    );
+
+    this.cache.users =
+        data;
 
 },
 

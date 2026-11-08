@@ -3076,6 +3076,15 @@ async function openDriveFile(
 }
 
 async function getAccessToken(){
+console.log(
+    "ACTIVE ACCOUNT",
+    msalInstance.getActiveAccount()
+);
+
+console.log(
+    "ALL ACCOUNTS",
+    msalInstance.getAllAccounts()
+);
 
     let account =
 

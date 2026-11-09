@@ -968,6 +968,22 @@ currentItems =
 
             </div>
 
+<div
+    style="
+        margin-bottom:15px;
+        color:#666;
+        font-size:14px;
+    "
+>
+
+    ${folderPath
+        .map(
+            p => p.name
+        )
+        .join(" > ")}
+
+</div>
+
             <div class="card">
 
                 <button
@@ -1067,6 +1083,14 @@ async function openDriveItem(
         currentFolderName =
             folderName;
 
+folderPath.push({
+
+    id:id,
+
+    name:folderName
+
+});
+
         currentItems =
             data.value || [];
 
@@ -1087,12 +1111,10 @@ async function openDriveItem(
             >
 
                 <button
-                    onclick="openOneDrive()"
-                >
-
-                    ⬅ Terug
-
-                </button>
+    onclick="goBack()"
+>
+    ⬅ Vorige map
+</button>
 
                 <br><br>
 
@@ -1328,6 +1350,23 @@ async function goBack(){
     }
 
     folderPath.pop();
+    if(
+    folderPath.length > 0
+){
+
+    currentFolderName =
+
+        folderPath[
+            folderPath.length - 1
+        ].name;
+
+}
+else{
+
+    currentFolderName =
+        "Hoofdmap";
+
+}
 
     const previous =
 
@@ -1381,7 +1420,41 @@ async function goBack(){
 
         </div>
 
+        <div
+    style="
+        margin-bottom:15px;
+        color:#666;
+        font-size:14px;
+    "
+>
+
+    ${folderPath
+        .map(
+            p => p.name
+        )
+        .join(" > ")}
+
+</div>
+
         <div class="card">
+          
+            <input
+
+    id="searchBox"
+
+    type="text"
+
+    placeholder="Zoek in deze map..."
+
+    onkeyup="searchFolder()"
+
+    style="
+        width:100%;
+        padding:10px;
+        margin-bottom:15px;
+    "
+
+>
 
             <button
                 onclick="goRoot()"
@@ -1389,10 +1462,10 @@ async function goBack(){
                 🏠 Hoofdmap
             </button>
 
-            <button onclick="openOneDrive()">
-
-    🏠 Hoofdmap
-
+           <button
+    onclick="goBack()"
+>
+    ⬅ Vorige map
 </button>
 
             <br><br>
@@ -1409,49 +1482,80 @@ async function goBack(){
 
 function renderFolderItems(items){
 
-    return items.map(item => `
+    return items.map(item => {
 
-        <div
-            style="
-                padding:12px;
-                border-bottom:1px solid #ddd;
-                cursor:pointer;
-            "
-            onclick="
-    ${
-        item.folder
+        if(item.folder){
 
-        ?
+            return `
 
-        `openDriveItem('${item.id}','${item.name}')`
+                <div
+                    style="
+                        padding:12px;
+                        border-bottom:1px solid #ddd;
+                        cursor:pointer;
+                    "
+                    onclick="
+                        openDriveItem(
+                            '${item.id}',
+                            '${item.name}'
+                        )
+                    "
+                >
 
-        :
+                    📁 ${item.name}
 
-        `showFile('${item.id}')`
+                </div>
 
-    }
-"
-        >
+            `;
 
-            ${
+        }
 
-                item.folder
+        return `
 
-                ?
+            <div
+                style="
+                    display:flex;
+                    justify-content:space-between;
+                    align-items:center;
+                    padding:12px;
+                    border-bottom:1px solid #ddd;
+                "
+            >
 
-                "📁"
+                <span
+                    onclick="
+                        openFile(
+                            '${item.id}'
+                        )
+                    "
+                    style="
+                        cursor:pointer;
+                        flex:1;
+                    "
+                >
 
-                :
+                    📄 ${item.name}
 
-                "📄"
+                </span>
 
-            }
+                <button
+                    onclick="
+                        event.stopPropagation();
+                        showFile(
+                            '${item.id}'
+                        );
+                    "
+                >
 
-            ${item.name}
+                    ℹ️
 
-        </div>
+                </button>
 
-    `).join("");
+            </div>
+
+        `;
+
+    }).join("");
 
 }
 

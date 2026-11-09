@@ -578,10 +578,13 @@ async function buildSearchIndex(){
     globalIndex = [];
 
     await buildKnowledgeIndex();
+    await buildWebsiteIndex();
 
     if(currentUser){
 
         await buildOneDriveIndex();
+
+
 
     }
 
@@ -621,6 +624,50 @@ async function buildKnowledgeIndex(){
         record
 
 });
+
+    });
+
+}
+
+async function buildWebsiteIndex(){
+
+    const websites =
+        await loadWebsites();
+
+    websites.forEach(site => {
+
+        globalIndex.push({
+
+            source:"website",
+
+            id:site.id,
+
+            title:
+                site.titel ||
+                site.title ||
+                "",
+
+            country:
+                site.land || "",
+
+            category:
+                site.subcategorie ||
+                site.category ||
+                "",
+
+            tags:
+                site.tags || [],
+
+            description:
+                site.beschrijving || "",
+
+            url:
+                site.url || "",
+
+            data:
+                site
+
+        });
 
     });
 
@@ -816,8 +863,10 @@ async function openSearchResult(
 
         const record =
             records.find(
-                r => String(r.id)
-                    === String(id)
+                r =>
+                String(r.id)
+                ===
+                String(id)
             );
 
         if(!record){
@@ -841,16 +890,18 @@ async function openSearchResult(
                     record.title &&
 
                     item.title.toLowerCase()
-                        ===
+                    ===
                     record.title.toLowerCase()
 
             );
 
         if(fileMatch){
-console.log(
-    "MATCH",
-    fileMatch
-);
+
+            console.log(
+                "MATCH",
+                fileMatch
+            );
+
             openFile(
                 fileMatch.id
             );
@@ -862,6 +913,37 @@ console.log(
         alert(
             "Bestand niet gevonden in OneDrive"
         );
+
+        return;
+
+    }
+
+    if(source === "website"){
+
+        const website =
+
+            globalIndex.find(
+
+                item =>
+
+                    item.source === "website" &&
+
+                    String(item.id)
+                    ===
+                    String(id)
+
+            );
+
+        if(website){
+
+            window.open(
+                website.url,
+                "_blank"
+            );
+
+        }
+
+        return;
 
     }
 
@@ -1520,6 +1602,28 @@ async function renderWebsites(){
 
 </select>
 
+<select
+
+    id="websiteSubCategory"
+
+    onchange="filterWebsites()"
+
+    style="
+        width:100%;
+        padding:10px;
+        margin-bottom:15px;
+    "
+
+>
+
+    <option value="">
+
+        Alle subcategorieën
+
+    </option>
+
+</select>
+
 <label>
 
     <input
@@ -1573,6 +1677,10 @@ async function renderWebsites(){
     );
 
 populateCategoryFilter(
+    websites
+);
+
+populateSubCategoryFilter(
     websites
 );
 
@@ -1673,6 +1781,50 @@ function populateCategoryFilter(
 
 }
 
+function populateSubCategoryFilter(
+    websites
+){
+
+    const select =
+
+        document.getElementById(
+            "websiteSubCategory"
+        );
+
+    const categories =
+
+        [...new Set(
+
+            websites.map(
+
+                site =>
+
+                    site.subcategorie || ""
+
+            )
+
+        )]
+
+        .filter(Boolean)
+
+        .sort();
+
+    categories.forEach(category => {
+
+        select.innerHTML += `
+
+            <option value="${category}">
+
+                ${category}
+
+            </option>
+
+        `;
+
+    });
+
+}
+
 function renderWebsiteList(
     websites
 ){
@@ -1727,6 +1879,26 @@ function renderWebsiteList(
 
                     "-"
                 }
+
+            <br>
+
+🏷
+
+${
+
+    Array.isArray(
+        site.tags
+    )
+
+        ?
+
+    site.tags.join(", ")
+
+        :
+
+    site.tags || "-"
+
+}
 
                 <br>
 
@@ -1867,6 +2039,12 @@ const categoryMatch =
 
     site.category === category;
 
+const subCategoryMatch =
+
+    !subCategory ||
+
+    site.subcategorie === subCategory;
+
 const favoriteMatch =
 
     !favoritesOnly ||
@@ -1880,6 +2058,8 @@ return(
     countryMatch &&
 
     categoryMatch &&
+
+    subCategoryMatch &&
 
     favoriteMatch
 

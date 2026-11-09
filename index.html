@@ -571,7 +571,11 @@ async function buildSearchIndex(){
 
     await buildKnowledgeIndex();
 
-    await buildOneDriveIndex();
+    if(currentUser){
+
+        await buildOneDriveIndex();
+
+    }
 
     searchInitialized = true;
 
@@ -579,7 +583,6 @@ async function buildSearchIndex(){
         "SEARCH INDEX",
         globalIndex
     );
-
 }
 
 async function buildKnowledgeIndex(){
@@ -591,22 +594,25 @@ async function buildKnowledgeIndex(){
 
         globalIndex.push({
 
-            source:
-                "knowledge",
+    source:
+        "knowledge",
 
-            title:
-                record.title || "",
+    id:
+        record.id,
 
-            category:
-                record.category || "",
+    title:
+        record.title || "",
 
-            tags:
-                record.tags || [],
+    category:
+        record.category || "",
 
-            data:
-                record
+    tags:
+        record.tags || [],
 
-        });
+    data:
+        record
+
+});
 
     });
 
@@ -692,22 +698,110 @@ function renderResults(results){
         results.map(item => `
 
             <div
-                style="
-                    padding:10px;
-                    border-bottom:1px solid #ddd;
-                "
-            >
+    class="card"
+    style="
+        margin-bottom:10px;
+        cursor:pointer;
+    "
+    onclick="
+        openSearchResult(
+            '${item.source}',
+            '${item.id || ""}'
+        )
+    "
+>
 
-                ${item.source}
+    <b>${item.title}</b>
+    <br>
 
-                :
+    ${item.source}
 
-                ${item.title}
-
-            </div>
+</div>
 
         `).join("");
+}
 
+function openSearchResult(
+    source,
+    id
+){
+
+    if(source === "file"){
+
+        openFile(id);
+        return;
+
+    }
+
+    if(source === "folder"){
+
+        openDriveItem(id);
+        return;
+
+    }
+
+    if(source === "knowledge"){
+
+        openKnowledgeRecord(id);
+        return;
+
+    }
+
+}
+
+async function openKnowledgeRecord(id){
+
+    const records =
+        await getKnowledgeData();
+
+    const record =
+        records.find(
+            r => String(r.id)
+                === String(id)
+        );
+
+    if(!record){
+
+        alert(
+            "Record niet gevonden"
+        );
+
+        return;
+    }
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+        <div class="page-title">
+
+            ${record.title}
+
+        </div>
+
+        <div class="card">
+
+            <b>Categorie:</b>
+            ${record.category || "-"}
+
+            <br><br>
+
+            <b>Tags:</b>
+            ${(record.tags || []).join(", ")}
+
+            <br><br>
+
+            <pre>
+${JSON.stringify(
+    record,
+    null,
+    2
+)}
+            </pre>
+
+        </div>
+
+    `;
 }
 
 function runSearch(){
@@ -1942,13 +2036,11 @@ document.addEventListener(
 
             }
 
-            if(
-                !searchInitialized
-            ){
+           if(!searchInitialized){
 
-                await buildSearchIndex();
+    await buildSearchIndex();
 
-            }
+}
 
             renderDashboard();
 

@@ -1214,23 +1214,98 @@ function showFile(id){
 
         <div class="card">
 
-            <b>Naam:</b>
+            <b>📄 Naam:</b>
+
+            <br>
 
             ${file.name}
 
             <br><br>
 
-            <button
-    onclick="
-        openFile(
-            '${file.id}'
-        )
-    "
+            <b>📏 Grootte:</b>
+
+            <br>
+
+            ${Math.round(
+                (file.size || 0) / 1024
+            )} KB
+
+            <br><br>
+
+            <b>📅 Laatst gewijzigd:</b>
+
+            <br>
+
+            ${file.lastModifiedDateTime || "-"}
+
+            <br><br>
+
+            <b>🆔 ID:</b>
+
+            <br>
+
+            ${file.id}
+
+            <br><br>
+
+            <b>📄 Bestandstype:</b>
+
+            <br>
+
+            ${file.file?.mimeType || "-"}
+
+            <br><br>
+
+            <b>🔗 OneDrive URL:</b>
+
+<br>
+
+<a
+    href="${file.webUrl}"
+    target="_blank"
 >
 
-    📂 Openen
+    Open in OneDrive
 
-</button>
+</a>
+
+<br><br>
+
+            <button
+                onclick="
+                    openFile(
+                        '${file.id}'
+                    )
+                "
+            >
+
+                📂 Openen
+
+            </button>
+
+            <button
+                onclick="
+                    downloadFile(
+                        '${file.id}'
+                    )
+                "
+            >
+
+                ⬇ Downloaden
+
+            </button>
+
+            <button
+                onclick="
+                    copyFileLink(
+                        '${file.id}'
+                    )
+                "
+            >
+
+                🔗 Link kopiëren
+
+            </button>
 
             <button
                 onclick="
@@ -1276,11 +1351,11 @@ async function downloadFile(id){
 
     window.open(
 
-    file.webUrl,
+        file["@microsoft.graph.downloadUrl"],
 
-    "_blank"
+        "_blank"
 
-);
+    );
 
 }
 
@@ -1330,6 +1405,58 @@ async function openFile(id){
 
         console.error(
             "OPEN FILE FOUT",
+            error
+        );
+
+    }
+
+}
+
+
+async function copyFileLink(id){
+
+    try{
+
+        const token =
+            await getAccessToken();
+
+        const response =
+            await fetch(
+
+                `https://graph.microsoft.com/v1.0/me/drive/items/${id}`,
+
+                {
+
+                    headers:{
+
+                        Authorization:
+                            "Bearer " + token
+
+                    }
+
+                }
+
+            );
+
+        const file =
+            await response.json();
+
+        await navigator.clipboard.writeText(
+
+            file.webUrl
+
+        );
+
+        alert(
+
+            "✅ OneDrive-link gekopieerd"
+
+        );
+
+    }
+    catch(error){
+
+        console.error(
             error
         );
 

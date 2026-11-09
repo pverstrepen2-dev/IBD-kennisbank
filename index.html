@@ -3982,7 +3982,9 @@ function renderKnowledgeMap(){
 
     `;
 
-    buildKnowledgeNetwork();
+    buildSemanticRelations();
+
+buildKnowledgeNetwork();
 
 }
 
@@ -4091,19 +4093,28 @@ edges.push({
 
                 edges.push({
 
-                    from:
-                        item.source +
-                        "_" +
-                        item.id,
+    from:
+        item.source +
+        "_" +
+        item.id,
 
-                    to:
-                        rel.type +
-                        "_" +
-                        rel.id
+    to:
+        rel.type +
+        "_" +
+        rel.id,
 
-                });
+    width:
 
-            });
+        Math.max(
+
+            1,
+
+            item.semanticScore || 1
+
+        )
+        });
+
+});
 
         }
 
@@ -4244,6 +4255,20 @@ if(
 
     };
 
+const clusterColors = {
+
+    Crohn:"#1565c0",
+
+    CU:"#00897b",
+
+    Medicatie:"#ef6c00",
+
+    Voeding:"#2e7d32",
+
+    Onderzoek:"#8e24aa"
+
+};
+
     const options = {
 
         nodes:{
@@ -4260,14 +4285,20 @@ if(
 
 },
 layout:{
+    improvedLayout:true
+},
 
-    hierarchical:{
+physics:{
 
-        enabled:true,
+    enabled:true,
 
-        direction:"UD",
+    barnesHut:{
 
-        sortMethod:"directed"
+        gravitationalConstant:-3000,
+
+        springLength:150,
+
+        springConstant:0.04
 
     }
 
@@ -4355,6 +4386,70 @@ layout:{
 
 }
 
+function buildSemanticRelations(){
+
+    globalIndex.forEach(item => {
+
+        const tags =
+
+            item.tags || [];
+
+        globalIndex.forEach(other => {
+
+            if(
+                item === other
+            ){
+
+                return;
+
+            }
+
+            const otherTags =
+
+                other.tags || [];
+
+            const commonTags =
+
+                tags.filter(
+
+                    tag =>
+
+                        otherTags.includes(
+                            tag
+                        )
+
+                );
+
+            if(
+                commonTags.length >= 2
+            ){
+
+                if(
+                    !item.relationships
+                ){
+
+                    item.relationships = [];
+
+                }
+
+                item.relationships.push({
+
+                    id:other.id,
+
+                    type:other.source,
+
+                    automatic:true
+
+                });
+
+            }
+
+        });
+
+    });
+
+}
+
 function openKnowledgeNode(
     nodeId
 ){
@@ -4409,58 +4504,177 @@ function showKnowledgeNodeDetails(
 
     }
 
+   document.getElementById(
+    "knowledgeDetails"
+).innerHTML = `
+
+    <h2>
+
+        ${item.title || "-"}
+
+    </h2>
+
+    ${
+
+    item.id === "concept_crohn"
+
+        ?
+
+    `
+
+    <button
+
+        onclick="showCrohnCluster()"
+
+    >
+
+        Toon alle gekoppelde items
+
+    </button>
+
+    <br><br>
+
+    `
+
+        :
+
+    ""
+
+}
+
+    <hr>
+
+    <b>Type</b>
+
+    <br>
+
+    ${item.source}
+
+    <br><br>
+
+    <b>ID</b>
+
+    <br>
+
+    ${item.id}
+
+    <br><br>
+
+    <b>Tags</b>
+
+    <br>
+
+    ${
+
+        Array.isArray(item.tags)
+
+            ?
+
+        item.tags.join(", ")
+
+            :
+
+        "-"
+
+    }
+
+    <br><br>
+
+    <b>Relaties</b>
+
+    <br>
+
+    ${
+
+        item.relationships
+
+            ?
+
+        item.relationships.length
+
+            :
+
+        0
+
+    }
+
+    <br><br>
+
+    <b>Semantische score</b>
+
+    <br>
+
+    ${
+
+        item.semanticScore || 0
+
+    }
+
+    <br><br>
+
+    <button
+
+        onclick="
+            openSearchResult(
+                '${item.source}',
+                '${item.id}'
+            )
+        "
+
+    >
+
+        Open
+
+    </button>
+
+`;
+
+}
+
+function showCrohnCluster(){
+
+    const items =
+
+        globalIndex.filter(
+
+            item =>
+
+                (item.tags || [])
+
+                .some(
+
+                    tag =>
+
+                        tag
+                        .toLowerCase()
+                        .includes(
+                            "crohn"
+                        )
+
+                )
+
+        );
+
     document.getElementById(
         "knowledgeDetails"
-    ).innerHTML = `
+    ).innerHTML =
 
-        <h2>
+        items.map(item => `
 
-            ${item.title || "-"}
+            <div
+                class="card"
+                style="
+                    margin-bottom:5px;
+                "
+            >
 
-        </h2>
+                ${item.title}
 
-        <br>
+            </div>
 
-        <b>Type:</b>
+        `)
 
-        ${item.source}
-
-        <br><br>
-
-        <b>Relaties:</b>
-
-        ${
-
-            item.relationships
-
-                ?
-
-            item.relationships.length
-
-                :
-
-            0
-
-        }
-
-        <br><br>
-
-        <button
-
-            onclick="
-                openSearchResult(
-                    '${item.source}',
-                    '${item.id}'
-                )
-            "
-
-        >
-
-            Open
-
-        </button>
-
-    `;
+        .join("");
 
 }
 

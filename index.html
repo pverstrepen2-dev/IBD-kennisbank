@@ -4018,360 +4018,255 @@ function buildKnowledgeNetwork(){
 
     window.selectedKnowledgeNode = null;
 
-const concepts = [
+    const concepts = [
 
-    {
-        id:"concept_crohn",
-        label:"📚 Crohn"
-    },
+        {
+            id:"concept_crohn",
+            label:"📚 Crohn"
+        },
 
-    {
-        id:"concept_crohn_symptomen",
-        label:"🩺 Symptomen"
-    },
+        {
+            id:"concept_crohn_symptomen",
+            label:"🩺 Symptomen"
+        },
 
-    {
-        id:"concept_crohn_voeding",
-        label:"🥗 Voeding"
-    },
+        {
+            id:"concept_crohn_voeding",
+            label:"🥗 Voeding"
+        },
 
-    {
-        id:"concept_crohn_medicatie",
-        label:"💊 Medicatie"
-    },
+        {
+            id:"concept_crohn_medicatie",
+            label:"💊 Medicatie"
+        },
 
-    {
-        id:"concept_crohn_onderzoek",
-        label:"🧪 Onderzoek"
-    }
+        {
+            id:"concept_crohn_onderzoek",
+            label:"🧪 Onderzoek"
+        }
 
-];
+    ];
 
-concepts.forEach(concept => {
+    concepts.forEach(concept => {
 
-    nodes.push({
+        nodes.push({
 
-        id:concept.id,
+            id:concept.id,
 
-        label:concept.label,
+            label:concept.label,
 
-        group:"concept"
+            group:"concept"
+
+        });
 
     });
 
-});
+    edges.push({
 
-edges.push({
+        from:"concept_crohn",
 
-    from:"concept_crohn",
+        to:"concept_crohn_symptomen"
 
-    to:"concept_crohn_symptomen"
+    });
 
-});
+    edges.push({
 
-edges.push({
+        from:"concept_crohn",
 
-    from:"concept_crohn",
+        to:"concept_crohn_voeding"
 
-    to:"concept_crohn_voeding"
+    });
 
-});
+    edges.push({
 
-edges.push({
+        from:"concept_crohn",
 
-    from:"concept_crohn",
+        to:"concept_crohn_medicatie"
 
-    to:"concept_crohn_medicatie"
+    });
 
-});
+    edges.push({
 
-edges.push({
+        from:"concept_crohn",
 
-    from:"concept_crohn",
+        to:"concept_crohn_onderzoek"
 
-    to:"concept_crohn_onderzoek"
-
-});
+    });
 
     globalIndex.forEach(item => {
 
-    nodes.push({
+        nodes.push({
 
-        id:item.source + "_" + item.id,
-
-        label:
-            item.title ||
-            item.name ||
-            item.id,
-
-        group:
-            item.source
-
-    });
-
-    const tags =
-
-        Array.isArray(item.tags)
-
-            ?
-
-        item.tags
-
-            :
-
-        [];
-
-    if(
-
-        tags.some(
-
-            tag =>
-
-                tag
-                .toLowerCase()
-                .includes("crohn")
-
-        )
-
-    ){
-
-        edges.push({
-
-            from:"concept_crohn",
-
-            to:
+            id:
                 item.source +
                 "_" +
-                item.id
+                item.id,
+
+            label:
+
+                item.title ||
+
+                item.name ||
+
+                item.id,
+
+            group:
+                item.source
 
         });
 
-    }
+        const tags =
 
-    if(
+            Array.isArray(item.tags)
 
-        tags.some(
+                ?
 
-            tag =>
+            item.tags
 
-                tag
-                .toLowerCase()
-                .includes("medicatie")
+                :
 
-        )
+            [];
 
-    ){
+        if(
 
-        edges.push({
+            tags.some(
 
-            from:"concept_crohn_medicatie",
+                tag =>
 
-            to:
-                item.source +
-                "_" +
-                item.id
+                    tag
+                        .toLowerCase()
+                        .includes("crohn")
 
-        });
+            )
 
-    }
-
-    if(
-
-        tags.some(
-
-            tag =>
-
-                tag
-                .toLowerCase()
-                .includes("voeding")
-
-        )
-
-    ){
-
-        edges.push({
-
-            from:"concept_crohn_voeding",
-
-            to:
-                item.source +
-                "_" +
-                item.id
-
-        });
-
-    }
-
-    if(item.relationships){
-
-        item.relationships.forEach(rel => {
+        ){
 
             edges.push({
 
-                from:
-                    item.source +
-                    "_" +
-                    item.id,
+                from:"concept_crohn",
 
                 to:
-
-                    rel.id.includes("_")
-
-                        ?
-
-                    rel.id
-
-                        :
-
-                    rel.type +
+                    item.source +
                     "_" +
-                    rel.id,
-
-                width:
-
-                    Math.max(
-                        1,
-                        item.semanticScore || 1
-                    ),
-
-                color:{
-
-                    color:
-
-                        rel.automatic
-
-                            ?
-
-                        "#4caf50"
-
-                            :
-
-                        "#2196f3"
-
-                }
+                    item.id
 
             });
 
-        });
+        }
 
-    }
+        if(
 
-});
+            tags.some(
 
-    const tags =
+                tag =>
 
-    item.tags || [];
+                    tag
+                        .toLowerCase()
+                        .includes("medicatie")
 
-if(
+            )
 
-    tags.some(
+        ){
 
-        tag =>
+            edges.push({
 
-        tag
-        .toLowerCase()
-        .includes("crohn")
+                from:"concept_crohn_medicatie",
 
-    )
+                to:
+                    item.source +
+                    "_" +
+                    item.id
 
-){
+            });
 
-    edges.push({
+        }
 
-        from:
-            "concept_crohn",
+        if(
 
-        to:
-            item.source +
-            "_" +
-            item.id
+            tags.some(
 
-    });
+                tag =>
 
-}
-if(
+                    tag
+                        .toLowerCase()
+                        .includes("voeding")
 
-    tags.some(
+            )
 
-        tag =>
+        ){
 
-        tag
-        .toLowerCase()
-        .includes("medicatie")
+            edges.push({
 
-    )
+                from:"concept_crohn_voeding",
 
-){
+                to:
+                    item.source +
+                    "_" +
+                    item.id
 
-    edges.push({
+            });
 
-        from:
-            "concept_medicatie",
+        }
 
-        to:
-            item.source +
-            "_" +
-            item.id
+        if(item.relationships){
 
-    });
+            item.relationships.forEach(rel => {
 
-}
+                edges.push({
 
-if(
+                    from:
+                        item.source +
+                        "_" +
+                        item.id,
 
-    tags.some(
+                    to:
 
-        tag =>
+                        rel.id &&
+                        rel.id.includes("_")
 
-        tag
-        .toLowerCase()
-        .includes("medicatie")
+                            ?
 
-    )
+                        rel.id
 
-){
+                            :
 
-    edges.push({
+                        rel.type +
+                        "_" +
+                        rel.id,
 
-        from:
-            "concept_medicatie",
+                    width:
 
-        to:
-            item.source +
-            "_" +
-            item.id
+                        Math.max(
 
-    });
+                            1,
 
-}
+                            item.semanticScore || 1
 
-if(
+                        ),
 
-    tags.some(
+                    color:{
 
-        tag =>
+                        color:
 
-        tag
-        .toLowerCase()
-        .includes("voeding")
+                            rel.automatic
 
-    )
+                                ?
 
-){
+                            "#4caf50"
 
-    edges.push({
+                                :
 
-        from:
-            "concept_voeding",
+                            "#2196f3"
 
-        to:
-            item.source +
-            "_" +
-            item.id
+                    }
+
+                });
+
+            });
+
+        }
 
     });
-
-}
 
     const container =
 
@@ -4379,110 +4274,101 @@ if(
             "knowledgeNetwork"
         );
 
+    if(!container){
+
+        return;
+
+    }
+
     const data = {
 
         nodes:
-            new vis.DataSet(
-                nodes
-            ),
+            new vis.DataSet(nodes),
 
         edges:
-            new vis.DataSet(
-                edges
-            )
+            new vis.DataSet(edges)
 
     };
-
-const clusterColors = {
-
-    Crohn:"#1565c0",
-
-    CU:"#00897b",
-
-    Medicatie:"#ef6c00",
-
-    Voeding:"#2e7d32",
-
-    Onderzoek:"#8e24aa"
-
-};
 
     const options = {
 
         nodes:{
 
-    shape:"dot",
+            shape:"dot",
 
-    size:18,
+            size:18,
 
-    font:{
+            font:{
 
-        size:14
+                size:14
 
-    }
+            }
 
-},
-layout:{
-    improvedLayout:true
-},
+        },
 
-physics:{
+        layout:{
 
-    enabled:true,
+            improvedLayout:true
 
-    barnesHut:{
+        },
 
-        gravitationalConstant:-3000,
+        physics:{
 
-        springLength:150,
+            enabled:true,
 
-        springConstant:0.04
+            barnesHut:{
 
-    }
+                gravitationalConstant:-3000,
 
-},
-        physics:true,
+                springLength:150,
+
+                springConstant:0.04
+
+            }
+
+        },
+
         edges:{
 
-    width:2,
+            width:2,
 
-    color:"#999",
+            color:"#999",
 
-    smooth:true
+            smooth:true
 
-},
+        },
 
         groups:{
 
-    concept:{
-    color:"#8e24aa"
-},
+            concept:{
+                color:"#8e24aa"
+            },
 
-    website:{
-        color:"#42a5f5"
-    },
+            website:{
+                color:"#42a5f5"
+            },
 
-    knowledge:{
-        color:"#66bb6a"
-    },
+            knowledge:{
+                color:"#66bb6a"
+            },
 
-    file:{
-        color:"#ffca28"
-    },
+            file:{
+                color:"#ffca28"
+            },
 
-    meeting:{
-        color:"#ef5350"
-    },
+            meeting:{
+                color:"#ef5350"
+            },
 
-    person:{
-        color:"#ab47bc"
-    },
+            person:{
+                color:"#ab47bc"
+            },
 
-    project:{
-        color:"#26a69a"
-    }
+            project:{
+                color:"#26a69a"
+            }
 
-    }
+        }
 
     };
 
@@ -4498,53 +4384,56 @@ physics:{
 
         );
 
-        window.knowledgeNetwork.on(
+    window.knowledgeNetwork.on(
 
-    "click",
+        "click",
 
-    function(params){
+        function(params){
 
-        if(
-            params.nodes.length === 0
-        ){
+            if(
+                params.nodes.length === 0
+            ){
 
-            return;
+                return;
 
-        }
+            }
 
-        const nodeId =
-            params.nodes[0];
+            const nodeId =
 
-        if(
-            !window.selectedKnowledgeNode
-        ){
+                params.nodes[0];
 
-            window.selectedKnowledgeNode =
-                nodeId;
+            if(
 
-        }
-        else{
+                !window.selectedKnowledgeNode
 
-            createManualRelation(
+            ){
 
-                window.selectedKnowledgeNode,
+                window.selectedKnowledgeNode =
+                    nodeId;
 
+            }
+            else{
+
+                createManualRelation(
+
+                    window.selectedKnowledgeNode,
+
+                    nodeId
+
+                );
+
+                window.selectedKnowledgeNode =
+                    null;
+
+            }
+
+            showKnowledgeNodeDetails(
                 nodeId
-
             );
 
-            window.selectedKnowledgeNode =
-                null;
-
         }
 
-        showKnowledgeNodeDetails(
-            nodeId
-        );
-
-    }
-
-);
+    );
 
 }
 

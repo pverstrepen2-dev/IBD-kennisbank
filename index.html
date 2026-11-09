@@ -1378,6 +1378,9 @@ async function renderUsers(){
 
 async function renderWebsites(){
 
+    const websites =
+        await loadWebsites();
+
     document.getElementById(
         "ccvContent"
     ).innerHTML = `
@@ -1390,11 +1393,242 @@ async function renderWebsites(){
 
         <div class="card">
 
-            Websites module in ontwikkeling
+            <input
+
+                id="websiteSearch"
+
+                type="text"
+
+                placeholder="Zoek websites..."
+
+                onkeyup="filterWebsites()"
+
+                style="
+                    width:100%;
+                    padding:10px;
+                    margin-bottom:15px;
+                "
+
+            >
+
+            <select
+
+                id="websiteCountry"
+
+                onchange="filterWebsites()"
+
+                style="
+                    width:100%;
+                    padding:10px;
+                    margin-bottom:15px;
+                "
+
+            >
+
+                <option value="">
+
+                    Alle landen
+
+                </option>
+
+            </select>
+
+            <div id="websiteList">
+
+            </div>
 
         </div>
 
     `;
+
+    populateCountryFilter(
+        websites
+    );
+
+    renderWebsiteList(
+        websites
+    );
+
+}
+
+function populateCountryFilter(
+    websites
+){
+
+    const select =
+
+        document.getElementById(
+            "websiteCountry"
+        );
+
+    const countries =
+
+        [...new Set(
+
+            websites
+
+                .map(
+                    w =>
+                    w.land || ""
+                )
+
+                .filter(Boolean)
+
+        )]
+
+        .sort();
+
+    countries.forEach(country => {
+
+        select.innerHTML += `
+
+            <option value="${country}">
+
+                ${country}
+
+            </option>
+
+        `;
+
+    });
+
+}
+
+function renderWebsiteList(
+    websites
+){
+
+    document.getElementById(
+        "websiteList"
+    ).innerHTML =
+
+        websites.map(site => `
+
+            <div
+
+                class="card"
+
+                style="
+                    margin-bottom:10px;
+                "
+
+            >
+
+                <h3>
+
+                    🌐
+
+                    ${
+
+                        site.titel ||
+
+                        site.title ||
+
+                        "Geen titel"
+
+                    }
+
+                </h3>
+
+                <br>
+
+                🌍
+
+                ${site.land || "-"}
+
+                <br>
+
+                📂
+
+                ${
+
+                    site.subcategorie ||
+
+                    site.category ||
+
+                    "-"
+                }
+
+                <br>
+
+                🔗
+
+                <a
+
+                    href="${site.url}"
+
+                    target="_blank"
+
+                >
+
+                    Open website
+
+                </a>
+
+            </div>
+
+        `)
+
+        .join("");
+
+}
+
+async function filterWebsites(){
+
+    const websites =
+        await loadWebsites();
+
+    const search =
+
+        document
+            .getElementById(
+                "websiteSearch"
+            )
+            .value
+            .toLowerCase();
+
+    const country =
+
+        document
+            .getElementById(
+                "websiteCountry"
+            )
+            .value;
+
+    const filtered =
+
+        websites.filter(site => {
+
+            const text =
+
+                JSON.stringify(site)
+                .toLowerCase();
+
+            const searchMatch =
+
+                text.includes(
+                    search
+                );
+
+            const countryMatch =
+
+                !country ||
+
+                site.land === country;
+
+            return(
+
+                searchMatch &&
+
+                countryMatch
+
+            );
+
+        });
+
+    renderWebsiteList(
+        filtered
+    );
 
 }
 

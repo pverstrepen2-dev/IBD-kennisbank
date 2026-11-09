@@ -2321,6 +2321,10 @@ const tags =
 
         website.tags = tags;
 
+        website.semanticScore =
+
+    tags.length;
+
     }
 
     window.currentWebsiteEditId =
@@ -2350,6 +2354,9 @@ else{
             "Organisaties",
 
         tags:tags,
+
+        semanticScore:
+    tags.length,
 
         favorite:false,
 
@@ -3985,6 +3992,81 @@ function buildKnowledgeNetwork(){
 
     const edges = [];
 
+const concepts = [
+
+    {
+        id:"concept_crohn",
+        label:"📚 Crohn"
+    },
+
+    {
+        id:"concept_crohn_symptomen",
+        label:"🩺 Symptomen"
+    },
+
+    {
+        id:"concept_crohn_voeding",
+        label:"🥗 Voeding"
+    },
+
+    {
+        id:"concept_crohn_medicatie",
+        label:"💊 Medicatie"
+    },
+
+    {
+        id:"concept_crohn_onderzoek",
+        label:"🧪 Onderzoek"
+    }
+
+];
+
+concepts.forEach(concept => {
+
+    nodes.push({
+
+        id:concept.id,
+
+        label:concept.label,
+
+        group:"concept"
+
+    });
+
+});
+
+edges.push({
+
+    from:"concept_crohn",
+
+    to:"concept_crohn_symptomen"
+
+});
+
+edges.push({
+
+    from:"concept_crohn",
+
+    to:"concept_crohn_voeding"
+
+});
+
+edges.push({
+
+    from:"concept_crohn",
+
+    to:"concept_crohn_medicatie"
+
+});
+
+edges.push({
+
+    from:"concept_crohn",
+
+    to:"concept_crohn_onderzoek"
+
+});
+
     globalIndex.forEach(item => {
 
         nodes.push({
@@ -4027,6 +4109,121 @@ function buildKnowledgeNetwork(){
 
     });
 
+    const tags =
+
+    item.tags || [];
+
+if(
+
+    tags.some(
+
+        tag =>
+
+        tag
+        .toLowerCase()
+        .includes("crohn")
+
+    )
+
+){
+
+    edges.push({
+
+        from:
+            "concept_crohn",
+
+        to:
+            item.source +
+            "_" +
+            item.id
+
+    });
+
+}
+if(
+
+    tags.some(
+
+        tag =>
+
+        tag
+        .toLowerCase()
+        .includes("medicatie")
+
+    )
+
+){
+
+    edges.push({
+
+        from:
+            "concept_medicatie",
+
+        to:
+            item.source +
+            "_" +
+            item.id
+
+    });
+
+}
+
+if(
+
+    tags.some(
+
+        tag =>
+
+        tag
+        .toLowerCase()
+        .includes("medicatie")
+
+    )
+
+){
+
+    edges.push({
+
+        from:
+            "concept_medicatie",
+
+        to:
+            item.source +
+            "_" +
+            item.id
+
+    });
+
+}
+
+if(
+
+    tags.some(
+
+        tag =>
+
+        tag
+        .toLowerCase()
+        .includes("voeding")
+
+    )
+
+){
+
+    edges.push({
+
+        from:
+            "concept_voeding",
+
+        to:
+            item.source +
+            "_" +
+            item.id
+
+    });
+
+}
+
     const container =
 
         document.getElementById(
@@ -4062,6 +4259,19 @@ function buildKnowledgeNetwork(){
     }
 
 },
+layout:{
+
+    hierarchical:{
+
+        enabled:true,
+
+        direction:"UD",
+
+        sortMethod:"directed"
+
+    }
+
+},
         physics:true,
         edges:{
 
@@ -4074,6 +4284,10 @@ function buildKnowledgeNetwork(){
 },
 
         groups:{
+
+    concept:{
+    color:"#8e24aa"
+},
 
     website:{
         color:"#42a5f5"

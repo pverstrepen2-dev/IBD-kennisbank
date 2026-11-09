@@ -475,8 +475,6 @@ console.log(
     }
 }
 
-let databaseFileId = null;
-
 async function getKnowledgeData(){
 
     if(!databaseCache){
@@ -614,7 +612,28 @@ async function initializeMSAL(){
             ).style.display = "inline-block";
 
         }
+else {
 
+    const accounts =
+        msalInstance.getAllAccounts();
+
+    if(accounts.length > 0){
+
+        currentUser = {
+
+            name:
+                accounts[0].name,
+
+            email:
+                accounts[0].username
+
+        };
+
+        updateUserInfo();
+
+    }
+
+}
     }
     catch(error){
 
@@ -624,25 +643,65 @@ async function initializeMSAL(){
 
 }
 
-function renderDashboard(){
+async function renderDashboard(){
 
-    document.getElementById(
-        "ccvContent"
-    ).innerHTML = `
+    try{
 
-        <div class="page-title">
+        const db =
+            await loadDatabaseJson();
 
-            Dashboard
+        console.log(
+            "DASHBOARD DATABASE",
+            db
+        );
 
-        </div>
+        const records =
+            db?.knowledgeData?.length || 0;
 
-        <div class="card">
+        document.getElementById(
+            "ccvContent"
+        ).innerHTML = `
 
-            ✅ V3.1 actief
+            <div class="page-title">
 
-        </div>
+                Dashboard
 
-    `;
+            </div>
+
+            <div class="card">
+
+                ✅ Database geladen
+
+                <br><br>
+
+                Records:
+
+                <b>${records}</b>
+
+            </div>
+
+        `;
+
+    }
+    catch(error){
+
+        document.getElementById(
+            "ccvContent"
+        ).innerHTML = `
+
+            <div class="card">
+
+                ❌ Database fout
+
+                <br><br>
+
+                ${error.message}
+
+            </div>
+
+        `;
+
+    }
 
 }
 
@@ -670,30 +729,64 @@ function renderUsers(){
 
 async function openOneDrive(){
 
-    if(!currentUser){
-
-        alert(
-            "Meld eerst aan"
-        );
-
-        return;
-
-    }
-
     try{
 
         const token =
             await getAccessToken();
 
+        const response =
+            await fetch(
+
+                "https://graph.microsoft.com/v1.0/me/drive/root/children",
+
+                {
+
+                    headers:{
+
+                        Authorization:
+                            "Bearer " + token
+
+                    }
+
+                }
+
+            );
+
+        const data =
+            await response.json();
+
         console.log(
-            "TOKEN OK",
-            token
+            "ONEDRIVE DATA",
+            data
         );
+
+        document.getElementById(
+            "ccvContent"
+        ).innerHTML = `
+
+            <div class="page-title">
+
+                OneDrive
+
+            </div>
+
+            <div class="card">
+
+                Bestanden gevonden:
+
+                ${data.value?.length || 0}
+
+            </div>
+
+        `;
 
     }
     catch(error){
 
-        console.error(error);
+        console.error(
+            "ONEDRIVE FOUT",
+            error
+        );
 
     }
 

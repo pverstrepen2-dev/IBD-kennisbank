@@ -1014,22 +1014,34 @@ async function openKnowledgeRecord(id){
 
 function runSearch(){
 
+    const searchBox =
+
+    document.getElementById(
+        "globalSearch"
+    );
+
+const filterBox =
+
+    document.getElementById(
+        "searchFilter"
+    );
+
+if(
+    !searchBox ||
+    !filterBox
+){
+
+    return;
+
+}
+
     const term =
 
-        document
-            .getElementById(
-                "globalSearch"
-            )
-            .value
-            .toLowerCase();
+    searchBox.value
+    .toLowerCase();
 
     const filter =
-
-        document
-            .getElementById(
-                "searchFilter"
-            )
-            .value;
+    filterBox.value;
 
     let results =
 
@@ -3847,11 +3859,7 @@ function renderSearchPage(){
 
         <div class="card">
 
-            <input
-
-                id="globalSearch"
-
-<select
+           <select
 
     id="searchFilter"
 
@@ -3860,25 +3868,39 @@ function renderSearchPage(){
     style="
         width:100%;
         padding:10px;
-        margin-bottom:20px;
+        margin-bottom:15px;
     "
 
 >
 
     <option value="all">
+
         Alles
+
     </option>
 
     <option value="knowledge">
+
         Knowledge
+
     </option>
 
     <option value="file">
+
         Bestanden
+
     </option>
 
     <option value="folder">
+
         Mappen
+
+    </option>
+
+    <option value="website">
+
+        Websites
+
     </option>
 
 </select>
@@ -3895,8 +3917,8 @@ function renderSearchPage(){
 
     style="
         width:100%;
-        padding:12px;
-        margin-bottom:20px;
+        padding:10px;
+        margin-bottom:15px;
     "
 
 >
@@ -3994,6 +4016,8 @@ function buildKnowledgeNetwork(){
 
     const edges = [];
 
+    window.selectedKnowledgeNode = null;
+
 const concepts = [
 
     {
@@ -4089,35 +4113,60 @@ edges.push({
 
         if(item.relationships){
 
-            item.relationships.forEach(rel => {
+    item.relationships.forEach(rel => {
 
-                edges.push({
+        edges.push({
 
-    from:
-        item.source +
-        "_" +
-        item.id,
+            from:
+                item.source +
+                "_" +
+                item.id,
 
-    to:
-        rel.type +
-        "_" +
-        rel.id,
+            to:
 
-    width:
+                rel.id.includes("_")
 
-        Math.max(
+                    ?
 
-            1,
+                rel.id
 
-            item.semanticScore || 1
+                    :
 
-        )
+                rel.type +
+                "_" +
+                rel.id,
+
+            width:
+
+                Math.max(
+
+                    1,
+
+                    item.semanticScore || 1
+
+                ),
+
+            color:{
+
+                color:
+
+                    rel.automatic
+
+                        ?
+
+                    "#4caf50"
+
+                        :
+
+                    "#2196f3"
+
+            }
+
         });
 
-});
+    });
 
-        }
-
+}
     });
 
     const tags =
@@ -4374,11 +4423,35 @@ physics:{
 
         }
 
+        const nodeId =
+            params.nodes[0];
+
+        if(
+            !window.selectedKnowledgeNode
+        ){
+
+            window.selectedKnowledgeNode =
+                nodeId;
+
+        }
+        else{
+
+            createManualRelation(
+
+                window.selectedKnowledgeNode,
+
+                nodeId
+
+            );
+
+            window.selectedKnowledgeNode =
+                null;
+
+        }
+
         showKnowledgeNodeDetails(
-
-    params.nodes[0]
-
-);
+            nodeId
+        );
 
     }
 
@@ -4627,7 +4700,105 @@ function showKnowledgeNodeDetails(
 
     </button>
 
+    <button
+
+    onclick="
+        startRelationMode(
+            '${nodeId}'
+        )
+    "
+
+>
+
+    🔗 Relatie maken
+
+</button>
+
 `;
+
+}
+
+function createManualRelation(
+
+    sourceNode,
+
+    targetNode
+
+){
+
+    if(
+        sourceNode === targetNode
+    ){
+
+        return;
+
+    }
+
+    const sourceParts =
+        sourceNode.split("_");
+
+    const sourceType =
+        sourceParts[0];
+
+    const sourceId =
+        sourceParts.slice(1).join("_");
+
+    const sourceItem =
+
+        globalIndex.find(
+
+            item =>
+
+                item.source === sourceType &&
+
+                String(item.id)
+                ===
+                String(sourceId)
+
+        );
+
+    if(!sourceItem){
+
+        return;
+
+    }
+
+    if(
+        !sourceItem.relationships
+    ){
+
+        sourceItem.relationships = [];
+
+    }
+
+    sourceItem.relationships.push({
+
+        id:targetNode,
+
+        type:"manual",
+
+        created:
+            new Date()
+            .toISOString()
+
+    });
+
+    buildKnowledgeNetwork();
+
+}
+
+function startRelationMode(
+    nodeId
+){
+
+    window.selectedKnowledgeNode =
+        nodeId;
+
+    alert(
+
+        "Selecteer nu een tweede node"
+
+    );
 
 }
 

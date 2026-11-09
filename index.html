@@ -1478,7 +1478,25 @@ async function renderWebsites(){
 
             <select
 
-                id="websiteCountry"
+    id="websiteCountry"
+
+    onchange="filterWebsites()"
+
+    style="
+        width:100%;
+        padding:10px;
+        margin-bottom:15px;
+    "
+
+>
+
+    <option value="">
+
+        Alle landen
+
+    </option>
+
+</select>
 
 <select
 
@@ -1502,29 +1520,51 @@ async function renderWebsites(){
 
 </select>
 
-                onchange="filterWebsites()"
+<label>
 
-                style="
-                    width:100%;
-                    padding:10px;
-                    margin-bottom:15px;
-                "
+    <input
 
-            >
+        type="checkbox"
 
-                <option value="">
+        id="favoritesOnly"
 
-                    Alle landen
+        onchange="filterWebsites()"
 
-                </option>
+    >
 
-            </select>
+    ⭐ Alleen favorieten
 
-            <div id="websiteList">
+</label>
 
-            </div>
+<label>
+...
+</label>
 
-        </div>
+<br><br>
+
+<div id="websiteList">
+
+</div>
+
+</div>
+
+        <label>
+
+    <input
+
+        type="checkbox"
+
+        id="favoritesOnly"
+
+        onchange="filterWebsites()"
+
+    >
+
+    ⭐ Alleen favorieten
+
+</label>
+
+<br><br>
 
     `;
 
@@ -1790,6 +1830,14 @@ async function filterWebsites(){
         )
         .value;
 
+const favoritesOnly =
+
+    document
+        .getElementById(
+            "favoritesOnly"
+        )
+        .checked;
+
     const filtered =
 
         websites.filter(site => {
@@ -1819,13 +1867,21 @@ const categoryMatch =
 
     site.category === category;
 
+const favoriteMatch =
+
+    !favoritesOnly ||
+
+    site.favorite === true;
+
 return(
 
     searchMatch &&
 
     countryMatch &&
 
-    categoryMatch
+    categoryMatch &&
+
+    favoriteMatch
 
 );
 
@@ -1876,6 +1932,38 @@ async function createWebsite(){
 
     }
 
+   if(window.currentWebsiteEditId){
+
+    const website =
+
+        websitesCache.find(
+
+            w =>
+
+                String(w.id)
+                ===
+                String(
+                    window.currentWebsiteEditId
+                )
+
+        );
+
+    if(website){
+
+        website.titel = title;
+
+        website.url = url;
+
+        website.land = country;
+
+    }
+
+    window.currentWebsiteEditId =
+        null;
+
+}
+else{
+
     websitesCache.unshift({
 
         id:
@@ -1905,6 +1993,8 @@ async function createWebsite(){
             .toISOString()
 
     });
+
+}
 
     await saveWebsites();
 
@@ -1943,6 +2033,175 @@ async function toggleWebsiteFavorite(
     renderWebsites();
 
 }
+
+function showWebsiteDetails(id){
+
+    const site =
+
+        websitesCache.find(
+
+            w =>
+            String(w.id)
+            ===
+            String(id)
+
+        );
+
+    if(!site){
+
+        return;
+
+    }
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+        <div class="page-title">
+
+            🌐 Website Details
+
+        </div>
+
+        <div class="card">
+
+            <h2>
+
+                ${site.titel || site.title}
+
+            </h2>
+
+            <br>
+
+            🌍 ${site.land || "-"}
+
+            <br><br>
+
+            📂 ${site.subcategorie || "-"}
+
+            <br><br>
+
+            🏷 ${
+                Array.isArray(site.tags)
+                ? site.tags.join(", ")
+                : site.tags || "-"
+            }
+
+            <br><br>
+
+            📝
+
+            ${
+                site.beschrijving ||
+                "-"
+            }
+
+            <br><br>
+
+            <a
+                href="${site.url}"
+                target="_blank"
+            >
+
+                Open Website
+
+            </a>
+
+            <br><br>
+
+            <button
+
+                onclick="renderWebsites()"
+
+            >
+
+                ⬅ Terug
+
+            </button>
+
+        </div>
+
+    `;
+
+}
+
+async function deleteWebsite(id){
+
+    const antwoord =
+
+        confirm(
+            "Website verwijderen?"
+        );
+
+    if(!antwoord){
+
+        return;
+
+    }
+
+    websitesCache =
+
+        websitesCache.filter(
+
+            website =>
+
+                String(website.id)
+                !==
+                String(id)
+
+        );
+
+    await saveWebsites();
+
+    renderWebsites();
+
+}
+
+function editWebsite(id){
+
+    const website =
+
+        websitesCache.find(
+
+            w =>
+
+                String(w.id)
+                ===
+                String(id)
+
+        );
+
+    if(!website){
+
+        return;
+
+    }
+
+    document.getElementById(
+        "newWebsiteTitle"
+    ).value =
+
+        website.titel ||
+        website.title ||
+        "";
+
+    document.getElementById(
+        "newWebsiteUrl"
+    ).value =
+
+        website.url || "";
+
+    document.getElementById(
+        "newWebsiteCountry"
+    ).value =
+
+        website.land || "";
+
+    window.currentWebsiteEditId =
+        id;
+
+}
+
 
 async function openOneDrive(){
 

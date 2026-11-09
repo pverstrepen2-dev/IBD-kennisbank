@@ -729,7 +729,7 @@ function renderResults(results){
         `).join("");
 }
 
-function openSearchResult(
+async function openSearchResult(
     source,
     id
 ){
@@ -750,8 +750,57 @@ function openSearchResult(
 
     if(source === "knowledge"){
 
-        openKnowledgeRecord(id);
-        return;
+        const records =
+            await getKnowledgeData();
+
+        const record =
+            records.find(
+                r => String(r.id)
+                    === String(id)
+            );
+
+        if(!record){
+
+            alert(
+                "Record niet gevonden"
+            );
+
+            return;
+
+        }
+
+        const fileMatch =
+            globalIndex.find(
+
+                item =>
+
+                    item.source === "file" &&
+
+                    item.title &&
+                    record.title &&
+
+                    item.title.toLowerCase()
+                        ===
+                    record.title.toLowerCase()
+
+            );
+
+        if(fileMatch){
+console.log(
+    "MATCH",
+    fileMatch
+);
+            openFile(
+                fileMatch.id
+            );
+
+            return;
+
+        }
+
+        alert(
+            "Bestand niet gevonden in OneDrive"
+        );
 
     }
 
@@ -764,8 +813,7 @@ async function openKnowledgeRecord(id){
 
     const record =
         records.find(
-            r => String(r.id)
-                === String(id)
+            r => String(r.id) === String(id)
         );
 
     if(!record){
@@ -777,39 +825,31 @@ async function openKnowledgeRecord(id){
         return;
     }
 
-    document.getElementById(
-        "ccvContent"
-    ).innerHTML = `
+    const fileMatch =
+        globalIndex.find(
 
-        <div class="page-title">
+            item =>
 
-            ${record.title}
+                item.source === "file" &&
 
-        </div>
+                item.title.toLowerCase() ===
+                record.title.toLowerCase()
 
-        <div class="card">
+        );
 
-            <b>Categorie:</b>
-            ${record.category || "-"}
+    if(fileMatch){
 
-            <br><br>
+        openFile(
+            fileMatch.id
+        );
 
-            <b>Tags:</b>
-            ${(record.tags || []).join(", ")}
+        return;
+    }
 
-            <br><br>
+    alert(
+        "Bestand niet gevonden in OneDrive-index"
+    );
 
-            <pre>
-${JSON.stringify(
-    record,
-    null,
-    2
-)}
-            </pre>
-
-        </div>
-
-    `;
 }
 
 function runSearch(){

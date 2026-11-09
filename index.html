@@ -1513,6 +1513,20 @@ async function renderWebsites(){
 
     id="newWebsiteCountry"
 
+    <input
+
+    id="newWebsiteTags"
+
+    placeholder="IBD, ECCO, Voeding"
+
+    style="
+        width:100%;
+        padding:10px;
+        margin-bottom:10px;
+    "
+
+>
+
     placeholder="🇧🇪 België"
 
     style="
@@ -1645,6 +1659,19 @@ async function renderWebsites(){
 </label>
 
 <br><br>
+
+<div
+
+    id="websiteCounter"
+
+    style="
+        margin-bottom:10px;
+        font-weight:bold;
+    "
+
+>
+
+</div>
 
 <div id="websiteList">
 
@@ -1828,6 +1855,14 @@ function populateSubCategoryFilter(
 function renderWebsiteList(
     websites
 ){
+
+    document.getElementById(
+    "websiteCounter"
+).innerHTML =
+
+    websites.length +
+
+    " websites gevonden";
 
     document.getElementById(
         "websiteList"
@@ -2016,8 +2051,39 @@ const favoritesOnly =
 
             const text =
 
-                JSON.stringify(site)
-                .toLowerCase();
+    `
+
+        ${site.titel || ""}
+
+        ${site.title || ""}
+
+        ${site.land || ""}
+
+        ${site.categorie || ""}
+
+        ${site.subcategorie || ""}
+
+        ${site.beschrijving || ""}
+
+        ${
+
+            Array.isArray(
+                site.tags
+            )
+
+                ?
+
+            site.tags.join(" ")
+
+                :
+
+            site.tags || ""
+
+        }
+
+    `
+
+    .toLowerCase();
 
             const searchMatch =
 
@@ -2114,6 +2180,25 @@ async function createWebsite(){
 
    if(window.currentWebsiteEditId){
 
+    const tags =
+
+    document
+        .getElementById(
+            "newWebsiteTags"
+        )
+        .value
+        .split(",")
+
+        .map(
+
+            tag =>
+
+            tag.trim()
+
+        )
+
+        .filter(Boolean);
+
     const website =
 
         websitesCache.find(
@@ -2135,6 +2220,8 @@ async function createWebsite(){
         website.url = url;
 
         website.land = country;
+
+        website.tags = tags;
 
     }
 
@@ -2164,7 +2251,7 @@ else{
         subcategorie:
             "Organisaties",
 
-        tags:[],
+        tags:tags,
 
         favorite:false,
 
@@ -2376,6 +2463,21 @@ function editWebsite(id){
     ).value =
 
         website.land || "";
+
+    document.getElementById(
+    "newWebsiteTags"
+).value =
+
+    Array.isArray(
+        website.tags
+    )
+        ?
+
+    website.tags.join(", ")
+
+        :
+
+    website.tags || "";
 
     window.currentWebsiteEditId =
         id;

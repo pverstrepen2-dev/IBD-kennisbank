@@ -1391,6 +1391,71 @@ async function renderWebsites(){
 
         </div>
 
+<h3>
+
+    ➕ Nieuwe website
+
+</h3>
+
+<br>
+
+<input
+
+    id="newWebsiteTitle"
+
+    placeholder="Titel"
+
+    style="
+        width:100%;
+        padding:10px;
+        margin-bottom:10px;
+    "
+
+>
+
+<input
+
+    id="newWebsiteUrl"
+
+    placeholder="https://..."
+
+    style="
+        width:100%;
+        padding:10px;
+        margin-bottom:10px;
+    "
+
+>
+
+<input
+
+    id="newWebsiteCountry"
+
+    placeholder="🇧🇪 België"
+
+    style="
+        width:100%;
+        padding:10px;
+        margin-bottom:10px;
+    "
+
+>
+
+<button
+
+    onclick="createWebsite()"
+
+    class="action-btn"
+
+>
+
+    Opslaan
+
+</button>
+
+<hr style="margin:20px 0;">
+
+
         <div class="card">
 
             <input
@@ -1414,6 +1479,28 @@ async function renderWebsites(){
             <select
 
                 id="websiteCountry"
+
+<select
+
+    id="websiteCategory"
+
+    onchange="filterWebsites()"
+
+    style="
+        width:100%;
+        padding:10px;
+        margin-bottom:15px;
+    "
+
+>
+
+    <option value="">
+
+        Alle categorieën
+
+    </option>
+
+</select>
 
                 onchange="filterWebsites()"
 
@@ -1444,6 +1531,10 @@ async function renderWebsites(){
     populateCountryFilter(
         websites
     );
+
+populateCategoryFilter(
+    websites
+);
 
     renderWebsiteList(
         websites
@@ -1494,6 +1585,54 @@ function populateCountryFilter(
 
 }
 
+function populateCategoryFilter(
+    websites
+){
+
+    const select =
+
+        document.getElementById(
+            "websiteCategory"
+        );
+
+    const categories =
+
+        [...new Set(
+
+            websites.map(
+
+                w =>
+
+                    w.subcategorie ||
+
+                    w.category ||
+
+                    ""
+
+            )
+
+        )]
+
+        .filter(Boolean)
+
+        .sort();
+
+    categories.forEach(cat => {
+
+        select.innerHTML += `
+
+            <option value="${cat}">
+
+                ${cat}
+
+            </option>
+
+        `;
+
+    });
+
+}
+
 function renderWebsiteList(
     websites
 ){
@@ -1516,19 +1655,19 @@ function renderWebsiteList(
 
                 <h3>
 
-                    🌐
+    ${site.favorite ? "⭐" : "🌐"}
 
-                    ${
+    ${
 
-                        site.titel ||
+        site.titel ||
 
-                        site.title ||
+        site.title ||
 
-                        "Geen titel"
+        "Geen titel"
 
-                    }
+    }
 
-                </h3>
+</h3>
 
                 <br>
 
@@ -1553,17 +1692,65 @@ function renderWebsiteList(
 
                 🔗
 
-                <a
+<a
+    href="${site.url}"
+    target="_blank"
+>
 
-                    href="${site.url}"
+    Open website
 
-                    target="_blank"
+</a>
 
-                >
+<br><br>
 
-                    Open website
+<button
 
-                </a>
+    onclick="
+        event.stopPropagation();
+        toggleWebsiteFavorite(
+            '${site.id}'
+        );
+    "
+
+>
+
+    ⭐ Favoriet
+
+</button>
+<button
+
+    onclick="
+        event.stopPropagation();
+        editWebsite(
+            '${site.id}'
+        );
+    "
+
+>
+
+    ✏ Bewerken
+
+</button>
+
+<button
+
+    onclick="
+        event.stopPropagation();
+        deleteWebsite(
+            '${site.id}'
+        );
+    "
+
+>
+
+    🗑 Verwijderen
+
+</button>
+>
+
+    Open website
+
+</a>
 
             </div>
 
@@ -1595,6 +1782,14 @@ async function filterWebsites(){
             )
             .value;
 
+        const category =
+
+    document
+        .getElementById(
+            "websiteCategory"
+        )
+        .value;
+
     const filtered =
 
         websites.filter(site => {
@@ -1606,29 +1801,146 @@ async function filterWebsites(){
 
             const searchMatch =
 
-                text.includes(
-                    search
-                );
+    text.includes(
+        search
+    );
 
-            const countryMatch =
+const countryMatch =
 
-                !country ||
+    !country ||
 
-                site.land === country;
+    site.land === country;
 
-            return(
+const categoryMatch =
 
-                searchMatch &&
+    !category ||
 
-                countryMatch
+    site.subcategorie === category ||
 
-            );
+    site.category === category;
+
+return(
+
+    searchMatch &&
+
+    countryMatch &&
+
+    categoryMatch
+
+);
 
         });
 
     renderWebsiteList(
         filtered
     );
+
+}
+
+async function createWebsite(){
+
+    const title =
+
+        document
+            .getElementById(
+                "newWebsiteTitle"
+            )
+            .value
+            .trim();
+
+    const url =
+
+        document
+            .getElementById(
+                "newWebsiteUrl"
+            )
+            .value
+            .trim();
+
+    const country =
+
+        document
+            .getElementById(
+                "newWebsiteCountry"
+            )
+            .value
+            .trim();
+
+    if(!title){
+
+        alert(
+            "Titel ontbreekt"
+        );
+
+        return;
+
+    }
+
+    websitesCache.unshift({
+
+        id:
+            Date.now(),
+
+        titel:
+            title,
+
+        url:
+            url,
+
+        land:
+            country,
+
+        categorie:
+            "Websites",
+
+        subcategorie:
+            "Organisaties",
+
+        tags:[],
+
+        favorite:false,
+
+        created:
+            new Date()
+            .toISOString()
+
+    });
+
+    await saveWebsites();
+
+    renderWebsites();
+
+}
+
+async function toggleWebsiteFavorite(
+    id
+){
+
+    const website =
+
+        websitesCache.find(
+
+            w =>
+
+                String(w.id)
+                ===
+                String(id)
+
+        );
+
+    if(!website){
+
+        return;
+
+    }
+
+    website.favorite =
+
+    !(website.favorite || false);
+
+    await saveWebsites();
+
+    renderWebsites();
 
 }
 

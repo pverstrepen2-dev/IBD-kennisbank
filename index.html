@@ -4465,7 +4465,31 @@ function buildSemanticRelations(){
 
         const tags =
 
-            item.tags || [];
+    Array.isArray(item.tags)
+
+        ?
+
+    item.tags
+
+        :
+
+    typeof item.tags === "string"
+
+        ?
+
+    item.tags
+
+        .split(",")
+
+        .map(
+            tag => tag.trim()
+        )
+
+        .filter(Boolean)
+
+        :
+
+    [];
 
         globalIndex.forEach(other => {
 
@@ -4479,7 +4503,31 @@ function buildSemanticRelations(){
 
             const otherTags =
 
-                other.tags || [];
+    Array.isArray(other.tags)
+
+        ?
+
+    other.tags
+
+        :
+
+    typeof other.tags === "string"
+
+        ?
+
+    other.tags
+
+        .split(",")
+
+        .map(
+            tag => tag.trim()
+        )
+
+        .filter(Boolean)
+
+        :
+
+    [];
 
             const commonTags =
 

@@ -17,6 +17,19 @@
 console.log("VIS TEST", typeof vis);
 </script>
 
+<script>
+console.log("PDFJS =", window.pdfjsLib);
+
+if (window.pdfjsLib) {
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+}
+
+console.log("PDF TEST", window.pdfjsLib);
+</script>
+
+<script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
+
 <style>
 
 :root{
@@ -4020,7 +4033,7 @@ buildKnowledgeNetwork();
 
 function buildKnowledgeNetwork(){
 
-    const nodes = [];
+    const nodeMap = new Map();
 
     const edges = [];
 

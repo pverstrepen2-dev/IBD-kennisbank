@@ -656,24 +656,35 @@ async function buildOneDriveIndex(){
 
         globalIndex.push({
 
-            source:
-                item.folder
-                    ? "folder"
-                    : "file",
+    source:
+        item.folder
+            ? "folder"
+            : "file",
 
-            id:
-                item.id,
+    id:
+        item.id,
 
-            title:
-                item.name,
+    title:
+        item.name,
 
-            webUrl:
-                item.webUrl,
+    webUrl:
+        item.webUrl,
 
-            data:
-                item
+    location:
+        item.parentReference?.path || "",
 
-        });
+    modified:
+        item.lastModifiedDateTime || "",
+
+    size:
+        item.size || 0,
+
+    fileType:
+        item.file?.mimeType || "",
+
+    data:
+        item
+});
 
     });
 
@@ -705,12 +716,16 @@ function renderResults(results){
 
         results.map(item => `
 
-            <div
+<div
+
     class="card"
+
     style="
-        margin-bottom:10px;
+        margin-bottom:12px;
         cursor:pointer;
+        border-left:4px solid #2563eb;
     "
+
     onclick="
         openSearchResult(
             '${item.source}',
@@ -719,14 +734,60 @@ function renderResults(results){
     "
 >
 
-    <b>${item.title}</b>
+    <h3>
+
+    ${
+        item.source === "folder"
+        ? "📁"
+        : item.title?.endsWith(".pdf")
+            ? "📄"
+            : item.title?.endsWith(".docx")
+                ? "📘"
+                : item.title?.endsWith(".xlsx")
+                    ? "📊"
+                    : item.title?.endsWith(".pptx")
+                        ? "📽️"
+                        : "📄"
+    }
+
+    ${item.title}
+
+</h3>
+
     <br>
+
+    <b>Type:</b>
 
     ${item.source}
 
+    <br>
+
+    <b>Locatie:</b>
+
+    ${item.location || "-"}
+
+    <br>
+
+    <b>Laatst gewijzigd:</b>
+
+    ${item.modified || "-"}
+
+    <br>
+
+    <b>Grootte:</b>
+
+    ${item.size
+        ?
+        Math.round(
+            item.size / 1024
+        ) + " KB"
+        :
+        "-"
+    }
+
 </div>
 
-        `).join("");
+`), join("");
 }
 
 async function openSearchResult(
@@ -860,11 +921,30 @@ function runSearch(){
             .getElementById(
                 "globalSearch"
             )
+            .value
+            .toLowerCase();
+
+    const filter =
+
+        document
+            .getElementById(
+                "searchFilter"
+            )
             .value;
 
-    const results =
+    let results =
 
         globalSearch(term);
+
+    if(filter !== "all"){
+
+        results =
+            results.filter(
+                r =>
+                    r.source === filter
+            );
+
+    }
 
     renderResults(results);
 
@@ -2114,6 +2194,34 @@ function renderSearchPage(){
             <input
 
                 id="globalSearch"
+
+<select
+    id="searchFilter"
+    onchange="runSearch()"
+    style="
+        width:100%;
+        padding:10px;
+        margin-bottom:20px;
+    "
+>
+
+    <option value="all">
+        Alles
+    </option>
+
+    <option value="knowledge">
+        Knowledge
+    </option>
+
+    <option value="file">
+        Bestanden
+    </option>
+
+    <option value="folder">
+        Mappen
+    </option>
+
+</select>
 
                 type="text"
 

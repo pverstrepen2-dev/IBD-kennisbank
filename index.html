@@ -243,6 +243,25 @@ let databaseCache = null;
 
 let oneDriveIndexLoaded = false;
 
+/* OneDrive Explorer */
+
+let currentFolderId = "root";
+
+let currentFolderName = "Hoofdmap";
+
+let folderHistory = [];
+
+let currentItems = [];
+
+let folderPath = [
+
+    {
+        id:"root",
+        name:"Hoofdmap"
+    }
+
+];
+
 const msalConfig = {
 
     auth: {
@@ -916,10 +935,31 @@ async function openOneDrive(){
         const data =
             await response.json();
 
+        currentFolderName =
+    folderName;
+
+currentItems =
+    data.value || [];
+
         console.log(
             "ONEDRIVE DATA",
             data
         );
+currentFolderId = "root";
+
+currentFolderName = "Hoofdmap";
+
+folderHistory = [];
+
+folderPath = [
+    {
+        id:"root",
+        name:"Hoofdmap"
+    }
+];
+
+currentItems =
+    data.value || [];
 
         document.getElementById(
             "ccvContent"
@@ -933,36 +973,46 @@ async function openOneDrive(){
 
             <div class="card">
 
-                ${data.value.map(item => `
+                <button
+    onclick="goRoot()"
+>
+    🏠 Hoofdmap
+</button>
 
-                    <div
-                        style="
-                            padding:12px;
-                            border-bottom:1px solid #ddd;
-                            cursor:pointer;
-                        "
-                        onclick="
-                            openDriveItem(
-                                '${item.id}'
-                            )
-                        "
-                    >
+<button
+    onclick="goBack()"
+>
+    ⬅ Terug
+</button>
 
-                        ${
-                            item.folder
+<br><br>
 
-                            ? "📁"
+<input
 
-                            : "📄"
+    id="searchBox"
 
-                        }
+    type="text"
 
-                        ${item.name}
+    placeholder="Zoek mappen of bestanden..."
 
-                    </div>
+    style="
+        width:100%;
+        padding:10px;
+        margin-bottom:15px;
+    "
 
-                `).join("")}
+    onkeyup="searchFolder()"
 
+>
+
+                <div id="folderResults">
+
+${renderFolderItems(
+    currentItems
+)}
+
+</div>
+                   
             </div>
 
         `;
@@ -979,7 +1029,10 @@ async function openOneDrive(){
 
 }
 
-async function openDriveItem(id){
+async function openDriveItem(
+    id,
+    folderName = "Map"
+){ 
 
     try{
 
@@ -1007,13 +1060,28 @@ async function openDriveItem(id){
         const data =
             await response.json();
 
+        folderHistory.push(
+            currentFolderId
+        );
+
+        currentFolderId =
+            id;
+
+        currentFolderName =
+            folderName;
+
+        currentItems =
+            data.value || [];
+
         document.getElementById(
             "ccvContent"
         ).innerHTML = `
 
+
             <div class="page-title">
 
-                📁 Mapinhoud
+                📁 ${currentFolderName}
+
 
             </div>
 
@@ -1032,43 +1100,20 @@ async function openDriveItem(id){
                 <br><br>
 
                 ${
+    currentItems.length > 0
 
-                    data.value
+    ?
 
-                    ?
+    renderFolderItems(
+        currentItems
+    )
 
-                    data.value.map(item => `
+    :
 
-                        <div
-                            style="
-                                padding:10px;
-                                border-bottom:1px solid #ddd;
-                            "
-                        >
-
-                            ${
-                                item.folder
-
-                                ? "📁"
-
-                                : "📄"
-
-                            }
-
-                            ${item.name}
-
-                        </div>
-
-                    `).join("")
-
-                    :
-
-                    "Geen inhoud"
-
-                }
+    "Geen inhoud"
+}
 
             </div>
-
         `;
 
     }
@@ -1077,8 +1122,289 @@ async function openDriveItem(id){
         console.error(error);
 
     }
+}
+
+function goRoot(){
+
+    openOneDrive();
 
 }
+
+function searchFolder(){
+
+    const term =
+
+        document
+            .getElementById(
+                "searchBox"
+            )
+            .value
+            .toLowerCase();
+
+    const filtered =
+
+        currentItems.filter(
+
+            item =>
+
+                item.name
+                    .toLowerCase()
+                    .includes(term)
+
+        );
+
+    document
+        .getElementById(
+            "folderResults"
+        )
+        .innerHTML =
+
+        renderFolderItems(
+            filtered
+        );
+
+}
+
+function showFile(id){
+
+    const file =
+
+        currentItems.find(
+
+            item =>
+
+                item.id === id
+
+        );
+
+    if(!file){
+
+        return;
+
+    }
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+        <div class="page-title">
+
+            📄 Bestand
+
+        </div>
+
+        <div class="card">
+
+            <b>Naam:</b>
+
+            ${file.name}
+
+            <br><br>
+
+            <button
+                onclick="
+                    downloadFile(
+                        '${file.id}'
+                    )
+                "
+            >
+
+                ⬇ Download
+
+            </button>
+
+            <button
+                onclick="
+                    goBack()
+                "
+            >
+
+                ⬅ Terug
+
+            </button>
+
+        </div>
+
+    `;
+
+}
+
+async function downloadFile(id){
+
+    const token =
+        await getAccessToken();
+
+    const response =
+        await fetch(
+
+            `https://graph.microsoft.com/v1.0/me/drive/items/${id}`,
+
+            {
+
+                headers:{
+
+                    Authorization:
+                        "Bearer " + token
+
+                }
+
+            }
+
+        );
+
+    const file =
+        await response.json();
+
+    window.open(
+
+        file["@microsoft.graph.downloadUrl"],
+
+        "_blank"
+
+    );
+
+}
+
+async function goBack(){
+
+    if(
+        folderHistory.length === 0
+    ){
+
+        openOneDrive();
+
+        return;
+
+    }
+
+    folderPath.pop();
+
+    const previous =
+
+        folderHistory.pop();
+
+    currentFolderId =
+        previous;
+
+    if(previous === "root"){
+
+        openOneDrive();
+
+        return;
+
+    }
+
+    const token =
+        await getAccessToken();
+
+    const response =
+        await fetch(
+
+        `https://graph.microsoft.com/v1.0/me/drive/items/${previous}/children`,
+
+        {
+
+            headers:{
+
+                Authorization:
+                    "Bearer " + token
+
+            }
+
+        }
+
+    );
+
+    const data =
+        await response.json();
+
+    currentItems =
+        data.value || [];
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+        <div class="page-title">
+
+            📁 ${currentFolderName}
+
+        </div>
+
+        <div class="card">
+
+            <button
+                onclick="goRoot()"
+            >
+                🏠 Hoofdmap
+            </button>
+
+            <button onclick="openOneDrive()">
+
+    🏠 Hoofdmap
+
+</button>
+
+            <br><br>
+
+            ${renderFolderItems(
+                currentItems
+            )}
+
+        </div>
+
+    `;
+
+}
+
+function renderFolderItems(items){
+
+    return items.map(item => `
+
+        <div
+            style="
+                padding:12px;
+                border-bottom:1px solid #ddd;
+                cursor:pointer;
+            "
+            onclick="
+                ${
+                    item.folder
+
+                    ?
+
+                    `openDriveItem('${item.id}','${item.name}')`
+
+                    :
+
+                    `showFile('${item.id}')`
+
+                }
+            "
+        >
+
+            ${
+
+                item.folder
+
+                ?
+
+                "📁"
+
+                :
+
+                "📄"
+
+            }
+
+            ${item.name}
+
+        </div>
+
+    `).join("");
+
+}
+
 
 /* =====================================================
    OPSTART

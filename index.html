@@ -4095,79 +4095,168 @@ edges.push({
 
     globalIndex.forEach(item => {
 
-        nodes.push({
+    nodes.push({
 
-            id:item.source + "_" + item.id,
+        id:item.source + "_" + item.id,
 
-            label:
-                item.title ||
+        label:
+            item.title ||
+            item.name ||
+            item.id,
 
-                item.name ||
+        group:
+            item.source
 
-                item.id,
+    });
 
-            group:
-                item.source
+    const tags =
 
-        });
+        Array.isArray(item.tags)
 
-        if(item.relationships){
+            ?
 
-    item.relationships.forEach(rel => {
+        item.tags
+
+            :
+
+        [];
+
+    if(
+
+        tags.some(
+
+            tag =>
+
+                tag
+                .toLowerCase()
+                .includes("crohn")
+
+        )
+
+    ){
 
         edges.push({
 
-            from:
-                item.source +
-                "_" +
-                item.id,
+            from:"concept_crohn",
 
             to:
-
-                rel.id.includes("_")
-
-                    ?
-
-                rel.id
-
-                    :
-
-                rel.type +
+                item.source +
                 "_" +
-                rel.id,
-
-            width:
-
-                Math.max(
-
-                    1,
-
-                    item.semanticScore || 1
-
-                ),
-
-            color:{
-
-                color:
-
-                    rel.automatic
-
-                        ?
-
-                    "#4caf50"
-
-                        :
-
-                    "#2196f3"
-
-            }
+                item.id
 
         });
 
-    });
+    }
 
-}
-    });
+    if(
+
+        tags.some(
+
+            tag =>
+
+                tag
+                .toLowerCase()
+                .includes("medicatie")
+
+        )
+
+    ){
+
+        edges.push({
+
+            from:"concept_crohn_medicatie",
+
+            to:
+                item.source +
+                "_" +
+                item.id
+
+        });
+
+    }
+
+    if(
+
+        tags.some(
+
+            tag =>
+
+                tag
+                .toLowerCase()
+                .includes("voeding")
+
+        )
+
+    ){
+
+        edges.push({
+
+            from:"concept_crohn_voeding",
+
+            to:
+                item.source +
+                "_" +
+                item.id
+
+        });
+
+    }
+
+    if(item.relationships){
+
+        item.relationships.forEach(rel => {
+
+            edges.push({
+
+                from:
+                    item.source +
+                    "_" +
+                    item.id,
+
+                to:
+
+                    rel.id.includes("_")
+
+                        ?
+
+                    rel.id
+
+                        :
+
+                    rel.type +
+                    "_" +
+                    rel.id,
+
+                width:
+
+                    Math.max(
+                        1,
+                        item.semanticScore || 1
+                    ),
+
+                color:{
+
+                    color:
+
+                        rel.automatic
+
+                            ?
+
+                        "#4caf50"
+
+                            :
+
+                        "#2196f3"
+
+                }
+
+            });
+
+        });
+
+    }
+
+});
 
     const tags =
 

@@ -1509,16 +1509,10 @@ async function renderWebsites(){
 
 >
 
-<input
+<select
 
     id="newWebsiteCountry"
 
-    <input
-
-    id="newWebsiteTags"
-
-    placeholder="IBD, ECCO, Voeding"
-
     style="
         width:100%;
         padding:10px;
@@ -1527,15 +1521,13 @@ async function renderWebsites(){
 
 >
 
-    placeholder="🇧🇪 België"
+    <option value="">
 
-    style="
-        width:100%;
-        padding:10px;
-        margin-bottom:10px;
-    "
+        Kies land
 
->
+    </option>
+
+</select>
 
 <button
 
@@ -1703,6 +1695,8 @@ async function renderWebsites(){
         websites
     );
 
+populateCountryEditor();
+
 populateCategoryFilter(
     websites
 );
@@ -1743,6 +1737,52 @@ function populateCountryFilter(
         )]
 
         .sort();
+
+    countries.forEach(country => {
+
+        select.innerHTML += `
+
+            <option value="${country}">
+
+                ${country}
+
+            </option>
+
+        `;
+
+    });
+
+}
+
+function populateCountryEditor(){
+
+    const select =
+
+        document.getElementById(
+            "newWebsiteCountry"
+        );
+
+    if(!select){
+
+        return;
+
+    }
+
+    const countries = [
+
+        "🇧🇪 België",
+        "🇳🇱 Nederland",
+        "🇫🇷 Frankrijk",
+        "🇩🇪 Duitsland",
+        "🇬🇧 Verenigd Koninkrijk",
+        "🇮🇪 Ierland",
+        "🇺🇸 USA",
+        "🇨🇦 Canada",
+        "🇦🇺 Australië",
+        "🇪🇺 Europees",
+        "🌍 Internationaal"
+
+    ];
 
     countries.forEach(country => {
 
@@ -1856,13 +1896,20 @@ function renderWebsiteList(
     websites
 ){
 
-    document.getElementById(
-    "websiteCounter"
-).innerHTML =
+   const counter =
 
+    document.getElementById(
+        "websiteCounter"
+    );
+
+if(counter){
+
+    counter.innerHTML =
+       
     websites.length +
 
     " websites gevonden";
+}
 
     document.getElementById(
         "websiteList"
@@ -1993,11 +2040,21 @@ ${
     🗑 Verwijderen
 
 </button>
+
+<button
+
+    onclick="
+        event.stopPropagation();
+        showWebsiteDetails(
+            '${site.id}'
+        );
+    "
+
 >
 
-    Open website
+    ℹ Details
 
-</a>
+</button>
 
             </div>
 
@@ -2036,6 +2093,14 @@ async function filterWebsites(){
             "websiteCategory"
         )
         .value;
+
+const subCategory =
+
+    document
+        .getElementById(
+            "websiteSubCategory"
+        )
+        ?.value || "";
 
 const favoritesOnly =
 
@@ -2168,6 +2233,22 @@ async function createWebsite(){
             .value
             .trim();
 
+const tags =
+
+    document
+        .getElementById(
+            "newWebsiteTags"
+        )
+        .value
+
+        .split(",")
+
+        .map(
+            tag => tag.trim()
+        )
+
+        .filter(Boolean);
+
     if(!title){
 
         alert(
@@ -2179,26 +2260,7 @@ async function createWebsite(){
     }
 
    if(window.currentWebsiteEditId){
-
-    const tags =
-
-    document
-        .getElementById(
-            "newWebsiteTags"
-        )
-        .value
-        .split(",")
-
-        .map(
-
-            tag =>
-
-            tag.trim()
-
-        )
-
-        .filter(Boolean);
-
+       
     const website =
 
         websitesCache.find(
@@ -2254,6 +2316,8 @@ else{
         tags:tags,
 
         favorite:false,
+
+        relationships:[],
 
         created:
             new Date()
@@ -2362,6 +2426,24 @@ function showWebsiteDetails(id){
                 site.beschrijving ||
                 "-"
             }
+
+            <br><br>
+
+🔗 Relaties
+
+<br><br>
+
+${
+    site.relationships
+        ?
+
+    site.relationships.length
+
+    : 0
+
+}
+
+ gekoppelde items
 
             <br><br>
 
@@ -2484,6 +2566,45 @@ function editWebsite(id){
 
 }
 
+function addWebsiteRelationship(
+    websiteId,
+    targetId,
+    type
+){
+
+    const website =
+
+        websitesCache.find(
+
+            w =>
+
+                String(w.id)
+                ===
+                String(websiteId)
+
+        );
+
+    if(!website){
+
+        return;
+
+    }
+
+    if(!website.relationships){
+
+        website.relationships = [];
+
+    }
+
+    website.relationships.push({
+
+        id:targetId,
+
+        type:type
+
+    });
+
+}
 
 async function openOneDrive(){
 
@@ -3283,13 +3404,17 @@ function renderSearchPage(){
                 id="globalSearch"
 
 <select
+
     id="searchFilter"
+
     onchange="runSearch()"
+
     style="
         width:100%;
         padding:10px;
         margin-bottom:20px;
     "
+
 >
 
     <option value="all">
@@ -3310,19 +3435,23 @@ function renderSearchPage(){
 
 </select>
 
-                type="text"
+<input
 
-                placeholder="Zoek overal..."
+    id="globalSearch"
 
-                onkeyup="runSearch()"
+    type="text"
 
-                style="
-                    width:100%;
-                    padding:12px;
-                    margin-bottom:20px;
-                "
+    placeholder="Zoek overal..."
 
-            >
+    onkeyup="runSearch()"
+
+    style="
+        width:100%;
+        padding:12px;
+        margin-bottom:20px;
+    "
+
+>
 
             <div
                 id="searchResults"

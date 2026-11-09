@@ -187,6 +187,18 @@ body{
     🌐 Websites
 </button>
 
+<button
+
+    class="menu-button"
+
+    onclick="renderKnowledgeMap()"
+
+>
+
+    🧠 Kenniskaart
+
+</button>
+
         <button
             class="menu-button"
             onclick="openOneDrive()"
@@ -623,6 +635,8 @@ async function buildKnowledgeIndex(){
     data:
         record
 
+
+        
 });
 
     });
@@ -663,6 +677,9 @@ async function buildWebsiteIndex(){
 
             url:
                 site.url || "",
+
+            relationships:
+    site.relationships || [],
 
             data:
                 site
@@ -1966,6 +1983,25 @@ if(counter){
 
 🏷
 
+<br>
+
+🔗
+
+${
+
+    site.relationships
+        ?
+
+    site.relationships.length
+
+        :
+
+    0
+
+}
+
+ relaties
+
 ${
 
     Array.isArray(
@@ -2317,7 +2353,9 @@ else{
 
         favorite:false,
 
-        relationships:[],
+       relationships:[],
+
+semanticScore:0,
 
         created:
             new Date()
@@ -2444,6 +2482,22 @@ ${
 }
 
  gekoppelde items
+
+ <br><br>
+
+<button
+
+    onclick="
+        openRelationshipEditor(
+            '${site.id}'
+        )
+    "
+
+>
+
+    🔗 Relaties beheren
+
+</button>
 
             <br><br>
 
@@ -2603,6 +2657,393 @@ function addWebsiteRelationship(
         type:type
 
     });
+
+}
+
+function openRelationshipEditor(
+    websiteId
+){
+
+    const website =
+
+        websitesCache.find(
+
+            w =>
+
+                String(w.id)
+                ===
+                String(websiteId)
+
+        );
+
+    if(!website){
+
+        return;
+
+    }
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+        <div class="page-title">
+
+            🔗 Relaties
+
+        </div>
+
+        <div class="card">
+
+            <h3>
+
+                ${website.titel}
+
+            </h3>
+
+            <br>
+
+           <select
+
+    id="relationshipTarget"
+
+    style="
+        width:100%;
+        padding:10px;
+        margin-bottom:10px;
+    "
+
+>
+
+</select>
+            <select
+
+                id="relationshipType"
+
+                style="
+                    width:100%;
+                    padding:10px;
+                    margin-bottom:10px;
+                "
+
+            >
+
+                <option value="knowledge">
+
+                    Knowledge
+
+                </option>
+
+                <option value="document">
+
+                    Document
+
+                </option>
+
+                <option value="meeting">
+
+                    Meeting
+
+                </option>
+
+            </select>
+
+            <button
+
+                onclick="
+                    saveRelationship(
+                        '${website.id}'
+                    )
+                "
+
+            >
+
+                Opslaan
+
+            </button>
+
+            <hr>
+
+            <div id="relationshipList">
+
+            </div>
+
+            <br>
+
+            <button
+
+                onclick="
+                    showWebsiteDetails(
+                        '${website.id}'
+                    )
+                "
+
+            >
+
+                ⬅ Terug
+
+            </button>
+
+        </div>
+
+    `;
+    populateRelationshipTargets();
+
+    renderRelationshipList(
+        website.id
+    );
+
+}
+
+function renderRelationshipList(
+    websiteId
+){
+
+    const website =
+
+        websitesCache.find(
+
+            w =>
+
+                String(w.id)
+                ===
+                String(websiteId)
+
+        );
+
+    if(!website){
+
+        return;
+
+    }
+
+    document.getElementById(
+        "relationshipList"
+    ).innerHTML =
+
+        (website.relationships || [])
+
+        .map(rel => {
+
+    const item =
+
+        globalIndex.find(
+
+            x =>
+
+                String(x.id)
+                ===
+                String(rel.id)
+
+        );
+
+    const title =
+
+        item
+
+            ?
+
+        item.title
+
+            :
+
+        rel.id;
+
+    return `
+
+        <div
+
+    class="card"
+
+    style="
+        margin-bottom:5px;
+        cursor:pointer;
+    "
+
+    onclick="
+        openRelationshipItem(
+            '${rel.id}'
+        )
+    "
+
+>
+            ${getRelationIcon(rel.type)}
+
+            ${title}
+
+        </div>
+
+    `;
+
+})
+
+        .join("");
+
+}
+
+function getRelationIcon(
+    type
+){
+
+    switch(type){
+
+        case "knowledge":
+
+            return "📚";
+
+        case "document":
+
+            return "📄";
+
+        case "meeting":
+
+            return "📅";
+
+        case "website":
+
+            return "🌐";
+
+        default:
+
+            return "🔗";
+
+    }
+
+}
+
+function populateRelationshipTargets(){
+
+    const select =
+
+        document.getElementById(
+            "relationshipTarget"
+        );
+
+    if(!select){
+
+        return;
+
+    }
+
+    select.innerHTML =
+
+        globalIndex
+
+        .map(item => `
+
+            <option
+                value="${item.id}"
+            >
+
+                ${item.title}
+
+            </option>
+
+        `)
+
+        .join("");
+
+}
+
+function openRelationshipItem(
+    id
+){
+
+    const item =
+
+        globalIndex.find(
+
+            x =>
+
+                String(x.id)
+                ===
+                String(id)
+
+        );
+
+    if(!item){
+
+        return;
+
+    }
+
+    openSearchResult(
+
+        item.source,
+
+        item.id
+
+    );
+
+}
+
+async function saveRelationship(
+    websiteId
+){
+
+    const id =
+
+        document
+            .getElementById(
+                "relationshipTarget"
+            )
+            .value
+            .trim();
+
+    const type =
+
+        document
+            .getElementById(
+                "relationshipType"
+            )
+            .value;
+
+    if(!id){
+
+        return;
+
+    }
+
+    const website =
+
+        websitesCache.find(
+
+            w =>
+
+                String(w.id)
+                ===
+                String(websiteId)
+
+        );
+
+    if(!website){
+
+        return;
+
+    }
+
+    if(!website.relationships){
+
+        website.relationships = [];
+
+    }
+
+    website.relationships.push({
+
+        id:id,
+
+        type:type,
+
+        created:
+            new Date()
+            .toISOString()
+
+    });
+
+    await saveWebsites();
+
+    renderRelationshipList(
+        websiteId
+    );
 
 }
 
@@ -3471,6 +3912,339 @@ function renderSearchPage(){
             </div>
 
         </div>
+
+    `;
+
+}
+
+function renderKnowledgeMap(){
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+        <div class="page-title">
+
+            🧠 Kenniskaart
+
+        </div>
+
+        <div class="card">
+
+            <div
+    style="
+        display:flex;
+        gap:15px;
+    "
+>
+
+    <div
+
+        id="knowledgeNetwork"
+
+        style="
+            flex:3;
+            height:700px;
+            border:1px solid #ddd;
+        "
+
+    >
+
+    </div>
+
+    <div
+
+        id="knowledgeDetails"
+
+        style="
+            flex:1;
+            border:1px solid #ddd;
+            padding:15px;
+            overflow:auto;
+        "
+
+    >
+
+        Selecteer een node
+
+    </div>
+
+</div>
+
+        </div>
+
+    `;
+
+    buildKnowledgeNetwork();
+
+}
+
+function buildKnowledgeNetwork(){
+
+    const nodes = [];
+
+    const edges = [];
+
+    globalIndex.forEach(item => {
+
+        nodes.push({
+
+            id:item.source + "_" + item.id,
+
+            label:
+                item.title ||
+
+                item.name ||
+
+                item.id,
+
+            group:
+                item.source
+
+        });
+
+        if(item.relationships){
+
+            item.relationships.forEach(rel => {
+
+                edges.push({
+
+                    from:
+                        item.source +
+                        "_" +
+                        item.id,
+
+                    to:
+                        rel.type +
+                        "_" +
+                        rel.id
+
+                });
+
+            });
+
+        }
+
+    });
+
+    const container =
+
+        document.getElementById(
+            "knowledgeNetwork"
+        );
+
+    const data = {
+
+        nodes:
+            new vis.DataSet(
+                nodes
+            ),
+
+        edges:
+            new vis.DataSet(
+                edges
+            )
+
+    };
+
+    const options = {
+
+        nodes:{
+
+    shape:"dot",
+
+    size:18,
+
+    font:{
+
+        size:14
+
+    }
+
+},
+        physics:true,
+        edges:{
+
+    width:2,
+
+    color:"#999",
+
+    smooth:true
+
+},
+
+        groups:{
+
+    website:{
+        color:"#42a5f5"
+    },
+
+    knowledge:{
+        color:"#66bb6a"
+    },
+
+    file:{
+        color:"#ffca28"
+    },
+
+    meeting:{
+        color:"#ef5350"
+    },
+
+    person:{
+        color:"#ab47bc"
+    },
+
+    project:{
+        color:"#26a69a"
+    }
+
+    }
+
+    };
+
+    window.knowledgeNetwork =
+
+        new vis.Network(
+
+            container,
+
+            data,
+
+            options
+
+        );
+
+        window.knowledgeNetwork.on(
+
+    "click",
+
+    function(params){
+
+        if(
+            params.nodes.length === 0
+        ){
+
+            return;
+
+        }
+
+        showKnowledgeNodeDetails(
+
+    params.nodes[0]
+
+);
+
+    }
+
+);
+
+}
+
+function openKnowledgeNode(
+    nodeId
+){
+
+    const parts =
+
+        nodeId.split("_");
+
+    const source =
+        parts[0];
+
+    const id =
+        parts.slice(1).join("_");
+
+    openSearchResult(
+        source,
+        id
+    );
+
+}
+
+function showKnowledgeNodeDetails(
+    nodeId
+){
+
+    const parts =
+        nodeId.split("_");
+
+    const source =
+        parts[0];
+
+    const id =
+        parts.slice(1).join("_");
+
+    const item =
+
+        globalIndex.find(
+
+            x =>
+
+                x.source === source &&
+
+                String(x.id)
+                ===
+                String(id)
+
+        );
+
+    if(!item){
+
+        return;
+
+    }
+
+    document.getElementById(
+        "knowledgeDetails"
+    ).innerHTML = `
+
+        <h2>
+
+            ${item.title || "-"}
+
+        </h2>
+
+        <br>
+
+        <b>Type:</b>
+
+        ${item.source}
+
+        <br><br>
+
+        <b>Relaties:</b>
+
+        ${
+
+            item.relationships
+
+                ?
+
+            item.relationships.length
+
+                :
+
+            0
+
+        }
+
+        <br><br>
+
+        <button
+
+            onclick="
+                openSearchResult(
+                    '${item.source}',
+                    '${item.id}'
+                )
+            "
+
+        >
+
+            Open
+
+        </button>
 
     `;
 

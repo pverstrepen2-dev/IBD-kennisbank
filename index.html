@@ -374,8 +374,29 @@ async function logoutMicrosoft(){
 
 async function loadCurrentRole(){
 
+    const users =
+        await loadUsers();
+
+    const user =
+        users.find(
+
+            u =>
+
+                currentUser &&
+
+                u.email.toLowerCase()
+
+                ===
+
+                currentUser.email.toLowerCase()
+
+        );
+
     currentRole =
-        "Administrator";
+
+        user?.role ||
+
+        "Lezen";
 
 }
 
@@ -546,6 +567,125 @@ async function saveDatabaseJson(){
     );
 }
 
+/* ===================================
+   USER SERVICE
+   =================================== */
+
+const USERS_CONFIG = {
+
+    fileId:
+
+        "HIER_FILEID_VAN_USERS_JSON"
+
+};
+let usersCache = [];
+/* ===================================
+   DATABASE SERVICE
+   =================================== */
+
+const DatabaseService = {
+
+    cache : null,
+
+    loaded : false
+
+};
+
+DatabaseService.load =
+async function(){
+
+    if(DatabaseService.loaded){
+
+        return DatabaseService.cache;
+
+    }
+
+    const db =
+        await loadDatabaseJson();
+
+    DatabaseService.cache =
+        db;
+
+    DatabaseService.loaded =
+        true;
+
+    return db;
+
+};
+
+DatabaseService.save =
+async function(){
+
+    databaseCache =
+        DatabaseService.cache;
+
+    await saveDatabaseJson();
+
+};
+
+async function loadUsers(){
+
+    return [
+
+        {
+
+            email:
+
+                "ccv_vzw@outlook.com",
+
+            role:
+
+                "Administrator"
+
+        }
+
+    ];
+
+}
+
+async function saveUsers(){
+
+    const token =
+        await getAccessToken();
+
+    await fetch(
+
+        `https://graph.microsoft.com/v1.0/me/drive/items/${USERS_CONFIG.fileId}/content`,
+
+        {
+
+            method:"PUT",
+
+            headers:{
+
+                Authorization:
+
+                    "Bearer " + token,
+
+                "Content-Type":
+
+                    "application/json"
+
+            },
+
+            body:
+
+                JSON.stringify(
+
+                    usersCache,
+
+                    null,
+
+                    2
+
+                )
+
+        }
+
+    );
+
+}
+
 /* =====================================================
    HIER PLAATS JE ONGEWIJZIGD DE WERKENDE CODE
    ===================================================== */
@@ -601,6 +741,8 @@ async function initializeMSAL(){
 
             };
 
+            await loadCurrentRole();
+
             updateUserInfo();
 
             document.getElementById(
@@ -619,19 +761,21 @@ else {
 
     if(accounts.length > 0){
 
-        currentUser = {
+    currentUser = {
 
-            name:
-                accounts[0].name,
+        name:
+            accounts[0].name,
 
-            email:
-                accounts[0].username
+        email:
+            accounts[0].username
 
-        };
+    };
 
-        updateUserInfo();
+    await loadCurrentRole();
 
-    }
+    updateUserInfo();
+
+}
 
 }
     }
@@ -648,7 +792,7 @@ async function renderDashboard(){
     try{
 
         const db =
-            await loadDatabaseJson();
+    await DatabaseService.load();
 
         console.log(
             "DASHBOARD DATABASE",
@@ -657,7 +801,10 @@ async function renderDashboard(){
 
         const records =
             db?.knowledgeData?.length || 0;
-
+console.log(
+    "DATABASE KEYS",
+    Object.keys(db)
+);
         document.getElementById(
             "ccvContent"
         ).innerHTML = `
@@ -705,7 +852,10 @@ async function renderDashboard(){
 
 }
 
-function renderUsers(){
+async function renderUsers(){
+
+    const users =
+        await loadUsers();
 
     document.getElementById(
         "ccvContent"
@@ -719,7 +869,18 @@ function renderUsers(){
 
         <div class="card">
 
-            Module volgt in V3.2
+            Gebruikers:
+
+            <br><br>
+
+            ${users.map(
+
+                u =>
+
+                `${u.email}
+                (${u.role})`
+
+            ).join("<br>")}
 
         </div>
 
@@ -766,15 +927,41 @@ async function openOneDrive(){
 
             <div class="page-title">
 
-                OneDrive
+                OneDrive Verkenner
 
             </div>
 
             <div class="card">
 
-                Bestanden gevonden:
+                ${data.value.map(item => `
 
-                ${data.value?.length || 0}
+                    <div
+                        style="
+                            padding:12px;
+                            border-bottom:1px solid #ddd;
+                            cursor:pointer;
+                        "
+                        onclick="
+                            openDriveItem(
+                                '${item.id}'
+                            )
+                        "
+                    >
+
+                        ${
+                            item.folder
+
+                            ? "📁"
+
+                            : "📄"
+
+                        }
+
+                        ${item.name}
+
+                    </div>
+
+                `).join("")}
 
             </div>
 
@@ -787,6 +974,107 @@ async function openOneDrive(){
             "ONEDRIVE FOUT",
             error
         );
+
+    }
+
+}
+
+async function openDriveItem(id){
+
+    try{
+
+        const token =
+            await getAccessToken();
+
+        const response =
+            await fetch(
+
+                `https://graph.microsoft.com/v1.0/me/drive/items/${id}/children`,
+
+                {
+
+                    headers:{
+
+                        Authorization:
+                            "Bearer " + token
+
+                    }
+
+                }
+
+            );
+
+        const data =
+            await response.json();
+
+        document.getElementById(
+            "ccvContent"
+        ).innerHTML = `
+
+            <div class="page-title">
+
+                📁 Mapinhoud
+
+            </div>
+
+            <div
+                class="card"
+            >
+
+                <button
+                    onclick="openOneDrive()"
+                >
+
+                    ⬅ Terug
+
+                </button>
+
+                <br><br>
+
+                ${
+
+                    data.value
+
+                    ?
+
+                    data.value.map(item => `
+
+                        <div
+                            style="
+                                padding:10px;
+                                border-bottom:1px solid #ddd;
+                            "
+                        >
+
+                            ${
+                                item.folder
+
+                                ? "📁"
+
+                                : "📄"
+
+                            }
+
+                            ${item.name}
+
+                        </div>
+
+                    `).join("")
+
+                    :
+
+                    "Geen inhoud"
+
+                }
+
+            </div>
+
+        `;
+
+    }
+    catch(error){
+
+        console.error(error);
 
     }
 

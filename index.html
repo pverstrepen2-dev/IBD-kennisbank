@@ -657,6 +657,7 @@ async function buildSearchIndex(){
 
     }
 
+    linkKnowledgeDocuments();
     searchInitialized = true;
 
     console.log(
@@ -897,6 +898,68 @@ async function buildKnowledgeIndex(){
                 )
             )
         ]
+    );
+
+}
+
+function findKnowledgeByOneDriveId(
+    oneDriveId
+){
+
+    return globalIndex.find(
+
+        item =>
+
+            item.source === "knowledge" &&
+
+            item.oneDriveId ===
+            oneDriveId
+
+    );
+
+}
+
+function linkKnowledgeDocuments(){
+
+    let linked = 0;
+
+    globalIndex
+        .filter(
+            item =>
+                item.source === "knowledge"
+        )
+        .forEach(knowledge => {
+
+            const file =
+
+                globalIndex.find(
+
+                    item =>
+
+                        item.source === "file" &&
+
+                        knowledge.fileName &&
+
+                        item.title.toLowerCase()
+                        ===
+                        knowledge.fileName.toLowerCase()
+
+                );
+
+            if(file){
+
+                knowledge.oneDriveId =
+                    file.id;
+
+                linked++;
+
+            }
+
+        });
+
+    console.log(
+        "Documenten gekoppeld:",
+        linked
     );
 
 }
@@ -1343,93 +1406,23 @@ async function openSearchResult(
     id
 ){
 
+    console.log(
+        "Open resultaat:",
+        source,
+        id
+    );
+
     if(source === "file"){
 
-        openFile(id);
+        await openFile(id);
+
         return;
 
     }
 
     if(source === "folder"){
 
-        openDriveItem(id);
-        return;
-
-    }
-
-    if(source === "knowledge"){
-
-        const records =
-            await getKnowledgeData();
-
-        const record =
-            records.find(
-                r =>
-                String(r.id)
-                ===
-                String(id)
-            );
-
-        if(!record){
-
-            alert(
-                "Record niet gevonden"
-            );
-
-            return;
-
-        }
-
-        const fileMatch =
-            globalIndex.find(
-
-                item =>
-
-                    item.source === "file" &&
-
-                    item.title &&
-                    record.title &&
-
-                    item.title.toLowerCase()
-                    ===
-                    record.title.toLowerCase()
-
-            );
-
-            console.log(
-    "Knowledge titel:",
-    record.title
-);
-
-console.log(
-    "Alle files:",
-    globalIndex
-        .filter(
-            x => x.source === "file"
-        )
-        .map(
-            x => x.title
-        )
-);
-
-        if(fileMatch){
-
-            console.log(
-                "MATCH",
-                fileMatch
-            );
-
-            openFile(
-                fileMatch.id
-            );
-
-            return;
-
-        }
-
-        alert(
-            "Bestand niet gevonden in OneDrive"
-        );
+        await openDriveItem(id);
 
         return;
 
@@ -1451,7 +1444,7 @@ console.log(
 
             );
 
-        if(website){
+        if(website?.url){
 
             window.open(
                 website.url,
@@ -1464,8 +1457,57 @@ console.log(
 
     }
 
-}
+    if(source === "knowledge"){
 
+        const knowledgeItem =
+
+            globalIndex.find(
+
+                item =>
+
+                    item.source === "knowledge" &&
+
+                    String(item.id)
+                    ===
+                    String(id)
+
+            );
+
+        if(!knowledgeItem){
+
+            alert(
+                "Knowledge-item niet gevonden"
+            );
+
+            return;
+
+        }
+
+        console.log(
+            "Knowledge item:",
+            knowledgeItem
+        );
+
+        if(
+            knowledgeItem.oneDriveId &&
+            knowledgeItem.oneDriveId.trim()
+        ){
+
+            await openFile(
+                knowledgeItem.oneDriveId
+            );
+
+            return;
+
+        }
+
+        alert(
+            "Geen OneDrive-bestand gekoppeld"
+        );
+
+    }
+
+}
 async function openKnowledgeRecord(id){
 
     const records =
@@ -5712,7 +5754,64 @@ ${item.location || "-"}
 
 <p>
 
+<b>Document</b><br>
+
+${item.fileName || "-"}
+
+</p>
+
+<p>
+
+<b>OneDrive ID</b><br>
+
+${item.oneDriveId || "-"}
+
+</p>
+
+${
+item.oneDriveId
+
+? `
+
+<button
+class="action-btn"
+onclick="
+openFile(
+'${item.oneDriveId}'
+)
+"
+>
+
+📂 Open gekoppeld document
+
+</button>
+
+<br><br>
+
+`
+
+: `
+
+<div
+style="
+padding:10px;
+background:#fff3cd;
+border-radius:6px;
+margin-bottom:10px;
+"
+>
+
+⚠ Geen OneDrive-bestand gekoppeld
+
+</div>
+
+`
+}
+
+<p>
+
 <b>Relaties</b><br>
+
 ${(item.relationships || []).length}
 
 </p>

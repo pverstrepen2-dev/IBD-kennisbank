@@ -316,7 +316,7 @@ let folderPath = [
    =================================== */
 
 let globalIndex = [];
-
+let documentConnections = [];
 /* =====================================================
    KNOWLEDGE HUB V4
    ===================================================== */
@@ -3983,7 +3983,7 @@ async function renderKnowledgeMap(){
 
 <div class="page-title">
 
-    🧠 Kenniskaart
+    🧠 Knowledge Hub
 
 </div>
 
@@ -3991,7 +3991,7 @@ async function renderKnowledgeMap(){
 
     <input
         id="knowledgeSearch"
-        placeholder="🔍 Zoek node, document, website of tag..."
+        placeholder="🔍 Zoek document, website, tag, concept..."
         style="
             width:100%;
             padding:10px;
@@ -4005,36 +4005,36 @@ async function renderKnowledgeMap(){
     <div
         style="
             display:flex;
-            gap:10px;
             flex-wrap:wrap;
+            gap:10px;
             margin-bottom:15px;
         "
     >
 
         <button
             class="action-btn"
-            onclick="focusTagCluster('crohn')"
+            onclick="focusConcept('crohn')"
         >
             📚 Crohn
         </button>
 
         <button
             class="action-btn"
-            onclick="focusTagCluster('voeding')"
+            onclick="focusConcept('voeding')"
         >
             🥗 Voeding
         </button>
 
         <button
             class="action-btn"
-            onclick="focusTagCluster('medicatie')"
+            onclick="focusConcept('medicatie')"
         >
             💊 Medicatie
         </button>
 
         <button
             class="action-btn"
-            onclick="focusTagCluster('onderzoek')"
+            onclick="focusConcept('onderzoek')"
         >
             🧪 Onderzoek
         </button>
@@ -4063,8 +4063,9 @@ async function renderKnowledgeMap(){
             id="knowledgeNetwork"
             style="
                 flex:3;
-                height:750px;
+                height:800px;
                 border:1px solid #ddd;
+                border-radius:8px;
             "
         ></div>
 
@@ -4073,6 +4074,7 @@ async function renderKnowledgeMap(){
             style="
                 flex:1;
                 border:1px solid #ddd;
+                border-radius:8px;
                 padding:15px;
                 overflow:auto;
             "
@@ -4090,30 +4092,6 @@ async function renderKnowledgeMap(){
 
     buildKnowledgeNetwork();
 
-}
-
-function calculateSemanticScore(item){
-
-    let score = 0;
-
-    if(item.tags){
-
-        score += Array.isArray(item.tags)
-            ? item.tags.length
-            : 1;
-    }
-
-    if(item.relationships){
-
-        score += item.relationships.length * 2;
-    }
-
-    if(item.description){
-
-        score += 1;
-    }
-
-    return score;
 }
 
 function buildSemanticRelations(){
@@ -4179,39 +4157,13 @@ function buildSemanticRelations(){
 
 }
 
-function normalizeTags(tags){
-
-    if(!tags){
-
-        return [];
-    }
-
-    if(Array.isArray(tags)){
-
-        return tags
-            .map(t=>t.toLowerCase().trim());
-    }
-
-    return String(tags)
-
-        .split(",")
-
-        .map(t=>t.toLowerCase().trim())
-
-        .filter(Boolean);
-}
-
 function buildKnowledgeNetwork(){
 
     buildConceptClusters();
+buildSemanticRelations();
 
-    buildSemanticRelations();
-
-    KnowledgeHub.nodes = [];
-    KnowledgeHub.edges = [];
-
-    const addedNodes =
-        new Set();
+    const nodes = [];
+    const edges = [];
 
     globalIndex.forEach(item=>{
 
@@ -4221,82 +4173,96 @@ function buildKnowledgeNetwork(){
             "_" +
             item.id;
 
-        if(!addedNodes.has(nodeId)){
+        nodes.push({
 
-            KnowledgeHub.nodes.push({
+            id:nodeId,
 
-                id:nodeId,
+            label:
 
-                label:
+                item.title ||
 
-                    item.title ||
+                item.name ||
 
-                    item.name ||
+                item.id,
 
-                    String(item.id),
+            group:item.source,
 
-                group:item.source,
-
-                value:
-                    calculateSemanticScore(
-                        item
-                    )
-
-            });
-
-            addedNodes.add(nodeId);
-
-        }
-
-        (item.relationships || [])
-
-        .forEach(rel=>{
-
-            KnowledgeHub.edges.push({
-
-                from:nodeId,
-
-                to:
-                    rel.source +
-                    "_" +
-                    rel.id,
-
-                width:
-                    rel.weight || 1,
-
-                color:
-
-                    rel.automatic
-
-                        ? "#4caf50"
-
-                        : "#2196f3"
-
-            });
+            value:
+                calculateSemanticScore(
+                    item
+                )
 
         });
 
+        (item.relationships || [])
+
+.forEach(rel=>{
+
+    const targetItem =
+
+    globalIndex.find(
+
+        x =>
+
+            String(x.id)
+            ===
+            String(rel.id)
+
+            ||
+
+            (
+                x.source +
+                "_" +
+                x.id
+            ) === String(rel.id)
+
+    );
+
+    if(!targetItem){
+
+        return;
+
+    }
+
+    edges.push({
+
+        from:nodeId,
+
+        to:
+            targetItem.source +
+            "_" +
+            targetItem.id,
+
+        width:
+            rel.weight || 1,
+
+        color:
+
+            rel.automatic
+
+            ? "#4caf50"
+
+            : "#2196f3"
+
     });
 
-    const container =
+});
 
-        document.getElementById(
-            "knowledgeNetwork"
-        );
+    });
 
     window.knowledgeNetwork =
 
         new vis.Network(
 
-            container,
+            document.getElementById(
+                "knowledgeNetwork"
+            ),
 
             {
 
-                nodes:
-                    KnowledgeHub.nodes,
+                nodes:new vis.DataSet(nodes),
 
-                edges:
-                    KnowledgeHub.edges
+                edges:new vis.DataSet(edges)
 
             },
 
@@ -4314,29 +4280,7 @@ function buildKnowledgeNetwork(){
 
                 physics:{
 
-                    enabled:true,
-
                     stabilization:true
-
-                },
-
-                groups:{
-
-                    knowledge:{
-                        color:"#4caf50"
-                    },
-
-                    website:{
-                        color:"#ff9800"
-                    },
-
-                    file:{
-                        color:"#2196f3"
-                    },
-
-                    folder:{
-                        color:"#9c27b0"
-                    }
 
                 }
 
@@ -4352,17 +4296,19 @@ function buildKnowledgeNetwork(){
 
             if(
 
-                params.nodes.length
+                !params.nodes.length
 
             ){
 
-                showKnowledgeExplorer(
-
-                    params.nodes[0]
-
-                );
+                return;
 
             }
+
+            showKnowledgeExplorer(
+
+                params.nodes[0]
+
+            );
 
         }
 
@@ -4388,10 +4334,11 @@ function showKnowledgeExplorer(
         globalIndex.find(
 
             x =>
+                x.source === source &&
 
-                x.source===source &&
-
-                String(x.id)===String(id)
+                String(x.id)
+                ===
+                String(id)
 
         );
 
@@ -4402,8 +4349,8 @@ function showKnowledgeExplorer(
     }
 
     document.getElementById(
-        "knowledgeDetails"
-    ).innerHTML = `
+    "knowledgeDetails"
+).innerHTML = `
 
 <h2>
 
@@ -4413,278 +4360,166 @@ ${item.title || "-"}
 
 <hr>
 
-<b>Type</b>
+<p>
 
-<br>
-
+<b>Type</b><br>
 ${item.source}
 
-<br><br>
+</p>
 
-<b>Tags</b>
+<p>
 
-<br>
+<b>Tags</b><br>
 
-${normalizeTags(item.tags).join(", ")}
+${normalizeTags(
+    item.tags
+).join(", ") || "-"}
 
-<br><br>
+</p>
 
-<b>Relaties</b>
+<p>
 
-<br>
-
-${
-
-(item.relationships || []).length
-
-}
-
-<br><br>
-
-<b>Locatie</b>
+<b>Semantische score</b>
 
 <br>
+
+${calculateSemanticScore(item)}
+
+</p>
+
+<p>
+
+<b>Locatie</b><br>
 
 ${item.location || "-"}
 
-<br><br>
+</p>
+
+<p>
+
+<b>Relaties</b><br>
+${(item.relationships || []).length}
+
+</p>
+
+<hr>
+
+<h3>
+
+🔗 Verbonden items
+
+</h3>
+
+<div
+style="
+max-height:250px;
+overflow:auto;
+"
+>
+
+${
+(item.relationships || []).length === 0
+
+? `
+
+<div
+style="
+padding:10px;
+background:#f9fafb;
+border-radius:6px;
+"
+>
+
+Geen relaties gevonden
+
+</div>
+
+`
+
+: (item.relationships || [])
+
+.map(rel=>{
+
+    const relatedItem =
+
+    globalIndex.find(
+
+        x =>
+
+            String(x.id)
+            ===
+            String(rel.id)
+
+            ||
+
+            (
+                x.source +
+                "_" +
+                x.id
+            ) === rel.id
+
+    );
+
+    return `
+
+<div
+style="
+padding:8px;
+margin-bottom:6px;
+background:#f3f4f6;
+border-radius:6px;
+cursor:pointer;
+"
+onclick="
+openRelationshipItem(
+'${rel.id}'
+)
+"
+>
+
+<b>
+
+${relatedItem?.title || rel.id}
+
+</b>
+
+<br>
+
+Type:
+${rel.source || rel.type || "-"}
+
+<br>
+
+Score:
+${rel.weight || 1}
+
+</div>
+
+`;
+
+})
+
+.join("")
+}
+
+</div>
 
 <button
-
+class="action-btn"
 onclick="
 openSearchResult(
 '${item.source}',
 '${item.id}'
 )
 "
-
 >
 
-Open item
+📂 Open item
 
 </button>
 
 `;
 
-}
-
-
-
-function focusTagCluster(tag){
-
-    const ids = [];
-
-    globalIndex.forEach(item=>{
-
-        const tags =
-
-            normalizeTags(item.tags);
-
-        if(
-            tags.includes(
-                tag.toLowerCase()
-            )
-        ){
-
-            ids.push(
-
-                item.source +
-                "_" +
-                item.id
-
-            );
-
-        }
-
-    });
-
-    knowledgeNetwork.selectNodes(ids);
-
-    knowledgeNetwork.fit({
-
-        nodes:ids,
-
-        animation:true
-
-    });
-
-}
-
-function searchKnowledgeNode(){
-
-    const term =
-
-        document
-        .getElementById(
-            "knowledgeSearch"
-        )
-        .value
-        .toLowerCase()
-        .trim();
-
-    if(!term){
-
-        return;
-
-    }
-
-    const node =
-
-        globalIndex.find(item=>{
-
-            return JSON.stringify(item)
-
-                .toLowerCase()
-
-                .includes(term);
-
-        });
-
-    if(!node){
-
-        return;
-
-    }
-
-    const nodeId =
-
-        node.source +
-        "_" +
-        node.id;
-
-    knowledgeNetwork.focus(
-
-        nodeId,
-
-        {
-
-            scale:1.5,
-
-            animation:true
-
-        }
-
-    );
-
-    knowledgeNetwork.selectNodes(
-        [nodeId]
-    );
-
-    showKnowledgeExplorer(
-        nodeId
-    );
-
-}
-
-function buildSemanticRelations(){
-
-    globalIndex.forEach(item => {
-
-        const tags =
-
-    Array.isArray(item.tags)
-
-        ?
-
-    item.tags
-
-        :
-
-    typeof item.tags === "string"
-
-        ?
-
-    item.tags
-
-        .split(",")
-
-        .map(
-            tag => tag.trim()
-        )
-
-        .filter(Boolean)
-
-        :
-
-    [];
-
-        globalIndex.forEach(other => {
-
-            if(
-                item === other
-            ){
-
-                return;
-
-            }
-
-            const otherTags =
-
-    Array.isArray(other.tags)
-
-        ?
-
-    other.tags
-
-        :
-
-    typeof other.tags === "string"
-
-        ?
-
-    other.tags
-
-        .split(",")
-
-        .map(
-            tag => tag.trim()
-        )
-
-        .filter(Boolean)
-
-        :
-
-    [];
-
-            const commonTags =
-
-                tags.filter(
-
-                    tag =>
-
-                        otherTags.includes(
-                            tag
-                        )
-
-                );
-
-            if(
-                commonTags.length >= 2
-            ){
-
-                if(
-                    !item.relationships
-                ){
-
-                    item.relationships = [];
-
-                }
-
-                item.relationships.push({
-
-                    id:other.id,
-
-                    type:other.source,
-
-                    automatic:true
-
-                });
-
-            }
-
-        });
-
-    });
 
 }
 
@@ -4706,104 +4541,6 @@ function openKnowledgeNode(
         source,
         id
     );
-
-}
-
-function showKnowledgeNodeDetails(
-    nodeId
-){
-
-    const parts =
-        nodeId.split("_");
-
-    const source =
-        parts[0];
-
-    const id =
-        parts.slice(1).join("_");
-
-    const item =
-        globalIndex.find(x=>
-
-            x.source === source &&
-
-            String(x.id)
-            ===
-            String(id)
-
-        );
-
-    if(!item){
-
-        return;
-    }
-
-    const relationships =
-
-        item.relationships || [];
-
-    document.getElementById(
-        "knowledgeDetails"
-    ).innerHTML = `
-
-<h2>
-${item.title || "-"}
-</h2>
-
-<hr>
-
-<b>Type</b><br>
-${item.source}
-
-<br><br>
-
-<b>Tags</b><br>
-
-${normalizeTags(item.tags).join(", ")}
-
-<br><br>
-
-<b>Relaties</b><br>
-
-${relationships.length}
-
-<br><br>
-
-${relationships.map(rel=>`
-
-<div
-style="
-padding:5px;
-margin:4px;
-background:#f5f5f5;
-border-radius:4px;
-"
->
-
-🔗
-
-${rel.type}
-
-</div>
-
-`).join("")}
-
-<br>
-
-<button
-onclick="
-openSearchResult(
-'${item.source}',
-'${item.id}'
-)
-"
->
-
-Open
-
-</button>
-
-`;
 
 }
 
@@ -4891,99 +4628,6 @@ function startRelationMode(
 
 }
 
-function showCrohnCluster(){
-
-    const items =
-
-        globalIndex.filter(
-
-            item =>
-
-                (item.tags || [])
-
-                .some(
-
-                    tag =>
-
-                        tag
-                        .toLowerCase()
-                        .includes(
-                            "crohn"
-                        )
-
-                )
-
-        );
-
-    document.getElementById(
-        "knowledgeDetails"
-    ).innerHTML =
-
-        items.map(item => `
-
-            <div
-                class="card"
-                style="
-                    margin-bottom:5px;
-                "
-            >
-
-                ${item.title}
-
-            </div>
-
-        `)
-
-        .join("");
-
-}
-
-function normalizeTags(tags){
-
-    if(!tags){
-        return [];
-    }
-
-    if(Array.isArray(tags)){
-
-        return tags
-            .map(tag=>tag.toLowerCase().trim())
-            .filter(Boolean);
-
-    }
-
-    return String(tags)
-
-        .split(",")
-
-        .map(tag=>tag.toLowerCase().trim())
-
-        .filter(Boolean);
-
-}
-
-function calculateSemanticScore(item){
-
-    let score = 1;
-
-    score += normalizeTags(
-        item.tags
-    ).length;
-
-    score +=
-
-        item.relationships
-            ? item.relationships.length
-            : 0;
-
-    if(item.description){
-        score += 2;
-    }
-
-    return score;
-
-}
-
 const RELATIONS = {
 
     RELATED:"related",
@@ -5046,6 +4690,174 @@ function buildConceptClusters(){
 
 }
 
+function normalizeTags(tags){
+
+    if(!tags){
+
+        return [];
+
+    }
+
+    if(Array.isArray(tags)){
+
+        return tags
+        .map(x=>x.toLowerCase().trim())
+        .filter(Boolean);
+
+    }
+
+    return String(tags)
+
+        .split(",")
+
+        .map(x=>x.toLowerCase().trim())
+
+        .filter(Boolean);
+
+}
+
+function calculateSemanticScore(item){
+
+    let score = 1;
+
+    score += normalizeTags(
+        item.tags
+    ).length;
+
+    score +=
+        item.relationships
+            ? item.relationships.length
+            : 0;
+
+    if(item.description){
+
+        score += 2;
+
+    }
+
+    return score;
+
+}
+
+function focusConcept(tag){
+
+    const nodeIds = [];
+
+    globalIndex.forEach(item=>{
+
+        const tags =
+
+            normalizeTags(
+                item.tags
+            );
+
+        if(
+
+            tags.includes(
+
+                tag.toLowerCase()
+
+            )
+
+        ){
+
+            nodeIds.push(
+
+                item.source +
+                "_" +
+                item.id
+
+            );
+
+        }
+
+    });
+
+    if(!nodeIds.length){
+
+        return;
+
+    }
+
+    knowledgeNetwork.selectNodes(
+        nodeIds
+    );
+
+    knowledgeNetwork.fit({
+
+        nodes:nodeIds,
+
+        animation:true
+
+    });
+
+}
+
+function searchKnowledgeNode(){
+
+    const term =
+
+        document
+        .getElementById(
+            "knowledgeSearch"
+        )
+        .value
+        .toLowerCase()
+        .trim();
+
+    if(!term){
+
+        return;
+
+    }
+
+    const node =
+
+        globalIndex.find(item=>
+
+            JSON.stringify(item)
+
+            .toLowerCase()
+
+            .includes(term)
+
+        );
+
+    if(!node){
+
+        return;
+
+    }
+
+    const nodeId =
+
+        node.source +
+        "_" +
+        node.id;
+
+    knowledgeNetwork.focus(
+
+        nodeId,
+
+        {
+
+            scale:1.5,
+
+            animation:true
+
+        }
+
+    );
+
+    knowledgeNetwork.selectNodes(
+        [nodeId]
+    );
+
+    showKnowledgeExplorer(
+        nodeId
+    );
+
+}
 
 /* =====================================================
    OPSTART

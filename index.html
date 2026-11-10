@@ -745,191 +745,192 @@ async function buildWebsiteIndex(){
 
 async function buildOneDriveIndex(){
 
-    const token =
-        await getAccessToken();
+    try{
 
-    const response =
-        await fetch(
+        const token =
+            await getAccessToken();
 
-            "https://graph.microsoft.com/v1.0/me/drive/root/search(q='*')",
+        const response =
+            await fetch(
 
-            {
+                "https://graph.microsoft.com/v1.0/me/drive/root/search(q='*')",
 
-                headers:{
+                {
 
-                    Authorization:
-                        "Bearer " + token
+                    headers:{
+
+                        Authorization:
+                            "Bearer " + token
+
+                    }
+
+                }
+
+            );
+
+        const data =
+            await response.json();
+
+        console.log(
+            "OneDrive index",
+            data
+        );
+
+        for(const item of (data.value || [])){
+
+            let contentText = "";
+
+            try{
+
+                if(
+
+                    item.file &&
+                    item.name.toLowerCase().endsWith(".pdf")
+
+                ){
+
+                    contentText =
+                        await extractPdfContent(
+                            item.id
+                        );
+
+                }
+                else if(
+
+                    item.file &&
+                    item.name.toLowerCase().endsWith(".docx")
+
+                ){
+
+                    contentText =
+                        await extractWordContent(
+                            item.id
+                        );
 
                 }
 
             }
+            catch(error){
 
+                console.error(
+                    "Extract fout",
+                    item.name,
+                    error
+                );
+
+            }
+
+            const nodeId =
+
+                (item.folder ? "folder" : "file")
+                +
+                "_"
+                +
+                item.id;
+
+            const exists =
+
+                globalIndex.some(
+
+                    x =>
+
+                        x.source +
+                        "_" +
+                        x.id
+
+                        ===
+
+                        nodeId
+
+                );
+
+            if(exists){
+
+                continue;
+
+            }
+
+            globalIndex.push({
+
+                source:
+
+                    item.folder
+                        ? "folder"
+                        : "file",
+
+                id:
+                    item.id,
+
+                title:
+                    item.name,
+
+                tags:
+
+                    item.name
+
+                    .replace(
+                        /\.[^/.]+$/,
+                        ""
+                    )
+
+                    .split(
+                        /[\s_\-]+/
+                    )
+
+                    .filter(Boolean),
+
+                content:
+                    contentText,
+
+                webUrl:
+                    item.webUrl,
+
+                location:
+
+                    item.parentReference?.path
+
+                    ||
+
+                    "",
+
+                modified:
+
+                    item.lastModifiedDateTime
+
+                    ||
+
+                    "",
+
+                size:
+                    item.size || 0,
+
+                fileType:
+
+                    item.file?.mimeType
+
+                    ||
+
+                    "",
+
+                data:item
+
+            });
+
+        }
+
+        console.log(
+            "OneDrive items toegevoegd:",
+            globalIndex.length
         );
 
-    const data =
-        await response.json();
+    }
+    catch(error){
 
-    for(const item of (data.value || [])){
+        console.error(
+            "buildOneDriveIndex fout",
+            error
+        );
 
-        let contentText = "";
-
-        try{
-
-            if(
-
-                item.file &&
-
-                item.name
-                .toLowerCase()
-                .endsWith(".pdf")
-
-            ){
-
-                contentText =
-
-                    await extractPdfContent(
-                        item.id
-                    );
-
-            }
-
-            else if(
-
-                item.file &&
-
-                item.name
-                .toLowerCase()
-                .endsWith(".docx")
-
-            ){
-
-                contentText =
-
-                    await extractWordContent(
-                        item.id
-                    );
-
-            }
-
-            else if(
-
-                item.file &&
-
-                item.name
-                .toLowerCase()
-                .endsWith(".pptx")
-
-            ){
-
-                contentText =
-
-                    await extractPowerPointContent(
-                        item.id
-                    );
-
-            }
-
-        }
-        catch(error){
-
-            console.error(
-
-                "Content extract fout",
-
-                item.name,
-
-                error
-
-            );
-
-        }
-
-        const nodeId =
-
-    (
-        item.folder
-            ? "folder"
-            : "file"
-    )
-
-    + "_"
-
-    + item.id;
-
-const exists =
-
-    globalIndex.some(
-
-        x =>
-
-            x.source +
-            "_" +
-            x.id
-
-            ===
-
-            nodeId
-
-    );
-
-if(!exists){
-
-    globalIndex.push({
-
-        source:
-
-            item.folder
-
-                ? "folder"
-
-                : "file",
-
-        id:item.id,
-
-        title:item.name,
-
-        tags:
-
-            item.name
-
-            .replace(/\.[^/.]+$/, "")
-
-            .split(/[\s_\-]+/)
-
-            .filter(Boolean),
-
-        content:
-            contentText,
-
-        webUrl:
-            item.webUrl,
-
-        location:
-
-            item.parentReference?.path ||
-
-            "",
-
-        modified:
-
-            item.lastModifiedDateTime ||
-
-            "",
-
-        size:
-
-            item.size || 0,
-
-        fileType:
-
-            item.file?.mimeType ||
-
-            "",
-
-        data:item
-
-    });
-}
     }
 
 }
@@ -947,10 +948,14 @@ async function extractPdfContent(fileId){
                 `https://graph.microsoft.com/v1.0/me/drive/items/${fileId}/content`,
 
                 {
+
                     headers:{
+
                         Authorization:
                             "Bearer " + token
+
                     }
+
                 }
 
             );
@@ -960,11 +965,13 @@ async function extractPdfContent(fileId){
 
         const pdf =
 
-            await pdfjsLib.getDocument({
+            await pdfjsLib
+            .getDocument({
 
                 data:buffer
 
-            }).promise;
+            })
+            .promise;
 
         let text = "";
 
@@ -979,13 +986,11 @@ async function extractPdfContent(fileId){
         ){
 
             const page =
-
                 await pdf.getPage(
                     pageNumber
                 );
 
             const content =
-
                 await page.getTextContent();
 
             text +=
@@ -1029,10 +1034,14 @@ async function extractWordContent(fileId){
                 `https://graph.microsoft.com/v1.0/me/drive/items/${fileId}/content`,
 
                 {
+
                     headers:{
+
                         Authorization:
                             "Bearer " + token
+
                     }
+
                 }
 
             );
@@ -1054,7 +1063,7 @@ async function extractWordContent(fileId){
     catch(error){
 
         console.error(
-            "WORD extract fout",
+            "Word extract fout",
             error
         );
 

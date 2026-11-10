@@ -275,6 +275,18 @@ let databaseCache = null;
 
 let oneDriveIndexLoaded = false;
 
+/* Scan beveiliging */
+
+let visitedFolders = new Set();
+
+let scannedPaths = new Set();
+
+let scannedFolderNames = new Map();
+
+/* Versiebeheer */
+
+let documentVersions = {};
+
 /* OneDrive Explorer */
 
 let currentFolderId = "root";
@@ -1050,28 +1062,49 @@ async function buildWebsiteIndex(){
 async function scanDriveFolder(
     token,
     folderId,
-    path = "",
-    visitedFolders = new Set()
+    path = ""
 ){
+
+    /* ==========================
+       Folder-ID controle
+       ========================== */
 
     if(visitedFolders.has(folderId)){
 
         console.warn(
-            "Map reeds verwerkt:",
-            folderId
+            "FOLDER ID REEDS GESCAND:",
+            folderId,
+            path
         );
 
         return [];
+
     }
 
     visitedFolders.add(folderId);
+
+    /* ==========================
+       Pad controle
+       ========================== */
+
+    if(scannedPaths.has(path)){
+
+        console.warn(
+            "PAD REEDS GESCAND:",
+            path
+        );
+
+        return [];
+
+    }
+
+    scannedPaths.add(path);
 
     let results = [];
 
     try{
 
         let nextUrl =
-
             `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children?$top=999`;
 
         while(nextUrl){
@@ -1096,6 +1129,7 @@ async function scanDriveFolder(
                 );
 
                 break;
+
             }
 
             const data =
@@ -1156,7 +1190,10 @@ async function scanDriveFolder(
                         item.createdDateTime || "",
 
                     lastModifiedDateTime :
-                        item.lastModifiedDateTime || ""
+                        item.lastModifiedDateTime || "",
+
+                    childCount :
+                        item.folder?.childCount || 0
 
                 };
 
@@ -1164,7 +1201,52 @@ async function scanDriveFolder(
                     normalizedItem
                 );
 
+                /* ==========================
+                   Submappen verwerken
+                   ========================== */
+
                 if(item.folder){
+
+                    const folderSignature =
+
+                        item.name
+                            .toLowerCase()
+                            .trim()
+
+                        +
+
+                        "|"
+
+                        +
+
+                        (
+                            item.folder?.childCount || 0
+                        );
+
+                    if(
+                        scannedFolderNames.has(
+                            folderSignature
+                        )
+                    ){
+
+                        console.warn(
+                            "MOGELIJKE DUBBELE MAP:",
+                            currentPath,
+                            "bestaat al als:",
+                            scannedFolderNames.get(
+                                folderSignature
+                            )
+                        );
+
+                    }
+                    else{
+
+                        scannedFolderNames.set(
+                            folderSignature,
+                            currentPath
+                        );
+
+                    }
 
                     try{
 
@@ -1176,9 +1258,7 @@ async function scanDriveFolder(
 
                                 item.id,
 
-                                currentPath,
-
-                                visitedFolders
+                                currentPath
 
                             );
 
@@ -1190,13 +1270,9 @@ async function scanDriveFolder(
                     catch(error){
 
                         console.error(
-
                             "Submap fout:",
-
                             currentPath,
-
                             error
-
                         );
 
                     }
@@ -1220,24 +1296,25 @@ async function scanDriveFolder(
 
         console.log({
 
-            totaal: results.length,
+            totaal :
+                results.length,
 
-            folders:
+            folders :
                 results.filter(
                     x => x.folder
                 ).length,
 
-            files:
+            files :
                 results.filter(
                     x => !x.folder
                 ).length,
 
-            shared:
+            shared :
                 results.filter(
                     x => x.shared
                 ).length,
 
-            remote:
+            remote :
                 results.filter(
                     x => x.remoteItem
                 ).length
@@ -1261,6 +1338,7 @@ async function scanDriveFolder(
         );
 
         return results;
+
     }
 
 }
@@ -1524,6 +1602,14 @@ function chooseNewestVersion(items){
 
 
 async function buildOneDriveIndex(){
+
+    visitedFolders.clear();
+
+    scannedPaths.clear();
+
+    scannedFolderNames.clear();
+
+    documentVersions = {};
 
     console.log(
         "Start volledige OneDrive scan..."

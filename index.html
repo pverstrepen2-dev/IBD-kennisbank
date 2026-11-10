@@ -185,54 +185,33 @@ body{
 
         </div>
 
-        <button
-            class="menu-button"
-            onclick="renderDashboard()"
-        >
-        
-            🏠 Dashboard
-        </button>
-<button
-    class="menu-button"
-    onclick="renderSearchPage()"
->
-
-    🔍 Zoeken
-
+        <button class="menu-button" onclick="renderDashboard()">
+    🏠 Dashboard
 </button>
 
-<button
-    class="menu-button"
-    onclick="renderWebsites()"
->
+<button class="menu-button" onclick="renderSearchPage()">
+    🔍 Slim Zoeken
+</button>
+
+<button class="menu-button" onclick="renderKnowledgeCenter()">
+    📚 Kenniscentrum
+</button>
+
+<button class="menu-button" onclick="renderKnowledgeMap()">
+    🧠 Kenniskaart
+</button>
+
+<button class="menu-button" onclick="openOneDrive()">
+    📂 Documenten
+</button>
+
+<button class="menu-button" onclick="renderWebsites()">
     🌐 Websites
 </button>
 
-<button
-
-    class="menu-button"
-
-    onclick="renderKnowledgeMap()"
-
->
-
-    🧠 Kenniskaart
-
+<button class="menu-button" onclick="renderUsers()">
+    👥 Gebruikers
 </button>
-
-        <button
-            class="menu-button"
-            onclick="openOneDrive()"
-        >
-            ☁ OneDrive
-        </button>
-
-        <button
-            class="menu-button"
-            onclick="renderUsers()"
-        >
-            👤 Gebruikers
-        </button>
 
     </aside>
 
@@ -4283,6 +4262,386 @@ function renderSearchPage(){
         </div>
 
     `;
+
+}
+
+async function renderKnowledgeCenter(){
+
+    if(!searchInitialized){
+
+        await buildSearchIndex();
+
+    }
+
+    const knowledgeItems =
+
+        globalIndex.filter(
+
+            item =>
+                item.source === "knowledge"
+        );
+
+    const categories = [
+
+        ...new Set(
+
+            knowledgeItems.map(
+
+                item =>
+
+                    item.data?.mainCategory ||
+
+                    item.mainCategory ||
+
+                    "Overig"
+
+            )
+
+        )
+
+    ].sort();
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+
+    📚 Kenniscentrum
+
+</div>
+
+<div
+style="
+display:grid;
+grid-template-columns:
+repeat(
+auto-fit,
+minmax(260px,1fr)
+);
+gap:20px;
+"
+>
+
+${categories.map(category=>{
+
+    const count =
+
+        knowledgeItems.filter(
+
+            item=>
+
+                (
+                    item.data?.mainCategory ||
+
+                    item.mainCategory ||
+
+                    "Overig"
+
+                )
+
+                === category
+
+        ).length;
+
+    return `
+
+<div
+class="card"
+style="
+cursor:pointer;
+border-left:6px solid #2563eb;
+"
+onclick="
+renderKnowledgeCategory(
+'${category}'
+)
+"
+>
+
+<h2>
+
+${getCategoryIcon(category)}
+
+${category}
+
+</h2>
+
+<br>
+
+${count} items
+
+</div>
+
+`;
+
+}).join("")}
+
+</div>
+
+`;
+
+}
+
+async function renderKnowledgeCategory(
+    category
+){
+
+    const items =
+
+        globalIndex.filter(item=>{
+
+            if(
+                item.source !==
+                "knowledge"
+            ){
+                return false;
+            }
+
+            return (
+
+                item.data?.mainCategory ||
+
+                item.mainCategory ||
+
+                "Overig"
+
+            ) === category;
+
+        });
+
+    const subCategories = [
+
+        ...new Set(
+
+            items.map(item=>
+
+                item.data?.subCategory ||
+
+                item.subCategory ||
+
+                "Algemeen"
+
+            )
+
+        )
+
+    ].sort();
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+
+${getCategoryIcon(category)}
+${category}
+
+</div>
+
+<button
+class="action-btn"
+onclick="
+renderKnowledgeCenter()
+"
+>
+
+⬅ Terug
+
+</button>
+
+<br><br>
+
+<div
+style="
+display:grid;
+grid-template-columns:
+repeat(
+auto-fit,
+minmax(240px,1fr)
+);
+gap:15px;
+"
+>
+
+${subCategories.map(sub=>{
+
+    const count =
+
+        items.filter(item=>
+
+            (
+
+                item.data?.subCategory ||
+
+                item.subCategory ||
+
+                "Algemeen"
+
+            )
+
+            === sub
+
+        ).length;
+
+    return `
+
+<div
+class="card"
+style="
+cursor:pointer;
+"
+onclick="
+renderKnowledgeSubCategory(
+'${category}',
+'${sub}'
+)
+"
+>
+
+<h3>
+
+📂 ${sub}
+
+</h3>
+
+<br>
+
+${count} items
+
+</div>
+
+`;
+
+}).join("")}
+
+</div>
+
+`;
+
+}
+
+async function renderKnowledgeSubCategory(
+    category,
+    subCategory
+){
+
+    const items =
+
+        globalIndex.filter(item=>{
+
+            if(
+                item.source !==
+                "knowledge"
+            ){
+                return false;
+            }
+
+            const itemCategory =
+
+                item.data?.mainCategory ||
+
+                item.mainCategory ||
+
+                "";
+
+            const itemSubCategory =
+
+                item.data?.subCategory ||
+
+                item.subCategory ||
+
+                "";
+
+            return (
+
+                itemCategory === category &&
+
+                itemSubCategory === subCategory
+
+            );
+
+        });
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+
+📂 ${subCategory}
+
+</div>
+
+<button
+class="action-btn"
+onclick="
+renderKnowledgeCategory(
+'${category}'
+)
+"
+>
+
+⬅ Terug
+
+</button>
+
+<br><br>
+
+${items.map(item=>`
+
+<div
+class="card"
+style="
+margin-bottom:12px;
+cursor:pointer;
+"
+onclick="
+openSearchResult(
+'${item.source}',
+'${item.id}'
+)
+"
+>
+
+<h3>
+
+${item.title || "-"}
+
+</h3>
+
+<br>
+
+🏷
+
+${normalizeTags(
+    item.tags
+).join(", ")}
+
+</div>
+
+`).join("")}
+
+`;
+
+}
+
+function getCategoryIcon(category){
+
+    const icons = {
+
+        "Ziekten":"🩺",
+        "Behandeling":"💊",
+        "Voeding":"🥗",
+        "Zorg":"👨‍⚕️",
+        "Sociale Rechten":"⚖",
+        "Onderzoek":"🔬",
+        "Welzijn":"🧘",
+        "CCV-VZW":"🏛"
+
+    };
+
+    return icons[category] || "📚";
 
 }
 

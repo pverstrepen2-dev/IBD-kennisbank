@@ -1045,8 +1045,9 @@ async function buildDocumentKeywordIndex(){
         const text = `
 
             ${item.title || ""}
+            ${item.category || ""}
             ${item.description || ""}
-            ${item.content || ""}
+            ${item.location || ""}
             ${normalizeTags(item.tags).join(" ")}
 
         `
@@ -1062,37 +1063,9 @@ async function buildDocumentKeywordIndex(){
 
             .filter(word=>
 
-                word.length > 4
+                word.length > 3
 
             );
-
-        const frequency = {};
-
-        words.forEach(word=>{
-
-            frequency[word] =
-
-                (frequency[word] || 0) + 1;
-
-        });
-
-        const keywords =
-
-            Object.entries(
-                frequency
-            )
-
-            .sort(
-
-                (a,b)=>
-
-                    b[1] - a[1]
-
-            )
-
-            .slice(0,20)
-
-            .map(x=>x[0]);
 
         documentKeywordIndex[
 
@@ -1100,26 +1073,15 @@ async function buildDocumentKeywordIndex(){
             "_" +
             item.id
 
-        ] = keywords;
+        ] = words;
 
     });
 
-}
-
-function globalSearch(term){
-
-    const query =
-
-        term.toLowerCase();
-
-    return globalIndex.filter(item =>
-
-        JSON.stringify(item)
-
-        .toLowerCase()
-
-        .includes(query)
-
+    console.log(
+        "Keyword index:",
+        Object.keys(
+            documentKeywordIndex
+        ).length
     );
 
 }
@@ -4560,6 +4522,11 @@ function buildSemanticRelations(){
 
 function buildDocumentConnections(){
 
+    console.log(
+    "DocumentConnections:",
+    documentConnections
+);
+
     documentConnections = [];
 
     const existingConnections = new Set();
@@ -4609,7 +4576,7 @@ function buildDocumentConnections(){
 
             /* Veel strenger filter */
 
-           if(score < 5){
+           if(score < 2){
     return;
 }
 
@@ -4669,11 +4636,12 @@ async function buildKnowledgeNetwork(){
 
     buildConceptClusters();
 
-    // await buildDocumentKeywordIndex();
+await buildDocumentKeywordIndex();
 
 buildSemanticRelations();
 
-// buildDocumentConnections();
+buildDocumentConnections();
+
     const nodes = [];
     const edges = [];
     const edgeSet = new Set();
@@ -5373,7 +5341,7 @@ const words2 =
 words1.forEach(word=>{
 
     if(
-        word.length > 3 &&
+        word.length > 2 &&
         words2.includes(word)
     ){
 

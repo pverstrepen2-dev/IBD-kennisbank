@@ -1271,14 +1271,9 @@ async function scanDriveFolder(
                         )
                     ){
 
-                        console.warn(
-                            "MOGELIJKE DUBBELE MAP:",
-                            currentPath,
-                            "bestaat al als:",
-                            scannedFolderNames.get(
+                        get(
                                 folderSignature
                             )
-                        );
 
                     }
                     else{
@@ -1335,33 +1330,7 @@ async function scanDriveFolder(
             }
 
         }
-
-        console.log({
-
-            totaal :
-                results.length,
-
-            folders :
-                results.filter(
-                    x => x.folder
-                ).length,
-
-            files :
-                results.filter(
-                    x => !x.folder
-                ).length,
-
-            shared :
-                results.filter(
-                    x => x.shared
-                ).length,
-
-            remote :
-                results.filter(
-                    x => x.remoteItem
-                ).length
-
-        });
+      
 
         // console.log("SCAN VOLTOOID:", path, results.length);
 

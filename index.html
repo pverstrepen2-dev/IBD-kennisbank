@@ -4486,6 +4486,8 @@ async function renderKnowledgeMap(){
 
 function buildSemanticRelations(){
 
+    const processedPairs = new Set();
+
     globalIndex.forEach(item=>{
 
         item.relationships = [];
@@ -4494,40 +4496,113 @@ function buildSemanticRelations(){
 
     globalIndex.forEach(item=>{
 
+        const tempRelations = [];
+
         globalIndex.forEach(other=>{
 
-            if(item === other){
+            const sourceId =
+                item.source + "_" + item.id;
+
+            const targetId =
+                other.source + "_" + other.id;
+
+            /* Zelfde item overslaan */
+
+            if(sourceId === targetId){
+                return;
+            }
+
+            /* Dubbele combinaties voorkomen */
+
+            const pairKey =
+                [sourceId,targetId]
+                .sort()
+                .join("|");
+
+            if(
+                processedPairs.has(
+                    pairKey
+                )
+            ){
+                return;
+            }
+
+            processedPairs.add(
+                pairKey
+            );
+
+            /* Alleen Knowledge en Website */
+
+            if(
+                (
+                    item.source !== "knowledge" &&
+                    item.source !== "website"
+                )
+                ||
+                (
+                    other.source !== "knowledge" &&
+                    other.source !== "website"
+                )
+            ){
                 return;
             }
 
             const similarity =
-
                 calculateSimilarity(
                     item,
                     other
                 );
 
-            if(similarity >= 2){
+            const semanticScore =
+                calculateContentSimilarity(
+                    item,
+                    other
+                );
 
-                item.relationships.push({
+            /* Strengere filter */
 
-                    id:other.id,
+            const totalScore =
+                similarity * 5 +
+                semanticScore;
 
-                    source:other.source,
-
-                    type:"related",
-
-                    automatic:true,
-
-                    weight:similarity
-
-                });
-
+            if(totalScore < 20){
+                return;
             }
+
+            tempRelations.push({
+
+                id:other.id,
+
+                source:other.source,
+
+                type:"related",
+
+                automatic:true,
+
+                weight:totalScore
+
+            });
 
         });
 
+        /* Enkel sterkste relaties bewaren */
+
+        item.relationships =
+
+            tempRelations
+
+            .sort(
+                (a,b)=>
+                    b.weight - a.weight
+            )
+
+            .slice(0,10);
+
     });
+
+    console.log(
+        "Semantische relaties opgebouwd"
+    );
 
 }
 
@@ -4535,54 +4610,66 @@ function buildDocumentConnections(){
 
     documentConnections = [];
 
+    const existingConnections = new Set();
+
     globalIndex.forEach(item=>{
 
         globalIndex.forEach(other=>{
 
+            const sourceId =
+                item.source + "_" + item.id;
+
+            const targetId =
+                other.source + "_" + other.id;
+
+            /* Zelfde document */
+
+            if(sourceId === targetId){
+                return;
+            }
+
+            /* Eén richting */
+
+            if(sourceId > targetId){
+                return;
+            }
+
+            /* Duplicaten vermijden */
+
+            const connectionKey =
+                [sourceId,targetId]
+                .sort()
+                .join("|");
+
             if(
-
-                item === other ||
-
-                (
-                    item.source +
-                    "_" +
-                    item.id
+                existingConnections.has(
+                    connectionKey
                 )
-
-                >
-
-                (
-                    other.source +
-                    "_" +
-                    other.id
-                )
-
             ){
                 return;
             }
 
             const score =
-
                 calculateContentSimilarity(
                     item,
                     other
                 );
 
-            if(score < 10){
+            /* Veel strenger filter */
+
+            if(score < 50){
     return;
 }
 
+            existingConnections.add(
+                connectionKey
+            );
+
             documentConnections.push({
 
-                source:
-                    item.source +
-                    "_" +
-                    item.id,
+                source:sourceId,
 
-                target:
-                    other.source +
-                    "_" +
-                    other.id,
+                target:targetId,
 
                 score:score,
 
@@ -4593,6 +4680,25 @@ function buildDocumentConnections(){
         });
 
     });
+
+    /* Sterkste relaties eerst */
+
+    documentConnections.sort(
+        (a,b)=>b.score-a.score
+    );
+
+    /* Veiligheidslimiet */
+
+    documentConnections =
+        documentConnections.slice(
+            0,
+            1000
+        );
+
+    console.log(
+        "Document connecties:",
+        documentConnections.length
+    );
 
 }
 
@@ -4619,6 +4725,7 @@ async function buildKnowledgeNetwork(){
 
     const nodes = [];
     const edges = [];
+    const edgeSet = new Set();
 
     globalIndex
 
@@ -4713,27 +4820,44 @@ async function buildKnowledgeNetwork(){
 
             }
 
-            edges.push({
+            const edgeKey =
 
-                from:nodeId,
+    [
+        nodeId,
+        targetItem.source +
+        "_" +
+        targetItem.id
+    ]
+    .sort()
+    .join("|");
 
-                to:
-                    targetItem.source +
-                    "_" +
-                    targetItem.id,
+if(!edgeSet.has(edgeKey)){
 
-                width:
-                    rel.weight || 1,
+    edgeSet.add(edgeKey);
 
-                color:
+    edges.push({
 
-                    rel.automatic
+        from:nodeId,
 
-                    ? "#4caf50"
+        to:
+            targetItem.source +
+            "_" +
+            targetItem.id,
 
-                    : "#2196f3"
+        width:
+            Math.min(
+                rel.weight || 1,
+                10
+            ),
 
-            });
+        color:
+            rel.automatic
+            ? "#4caf50"
+            : "#2196f3"
+
+    });
+
+}
 
         });
 
@@ -4827,22 +4951,38 @@ async function buildKnowledgeNetwork(){
 
                 physics:{
 
-                    enabled:true,
+    enabled:true,
 
-                    stabilization:{
+    stabilization:{
 
-                        enabled:true,
+        enabled:true,
 
-                        iterations:100
+        iterations:300
 
-                    }
+    }
 
-                }
+}
 
             }
 
         );
 
+knowledgeNetwork.once(
+    "stabilizationIterationsDone",
+    function(){
+
+        knowledgeNetwork.setOptions({
+
+            physics:false
+
+        });
+
+        console.log(
+            "VIS gestabiliseerd"
+        );
+
+    }
+);
     knowledgeNetwork.on(
 
         "click",

@@ -518,11 +518,13 @@ async function getAccessToken(){
 
     if(!account){
 
-        throw new Error(
-            "Geen Microsoft-account gevonden"
-        );
+    console.warn(
+        "Geen Microsoft-account gevonden"
+    );
 
-    }
+    return null;
+
+}
 
     const response =
         await msalInstance.acquireTokenSilent({
@@ -556,6 +558,12 @@ if(!msalReady){
 
         const token =
     await getAccessToken();
+
+if(!token){
+
+    return null;
+
+}
 
         const fileId =
     "2B4CCFD79FF4714A!s3f1f25570cb946bfb3321950e9c2abe3";
@@ -2789,7 +2797,14 @@ async function loadWebsites(){
     }
 
     const token =
-        await getAccessToken();
+    await getAccessToken();
+
+if(!token){
+
+    return [];
+
+}
+
 
     const response =
         await fetch(
@@ -2907,34 +2922,83 @@ async function initializeMSAL(){
 
     try{
 
+        console.log(
+            "MSAL initialiseren..."
+        );
+
         await msalInstance.initialize();
 
         msalReady = true;
 
+        console.log(
+            "MSAL klaar"
+        );
+
         const response =
             await msalInstance.handleRedirectPromise();
 
-        console.log(
-            "REDIRECT RESPONSE",
-            response
-        );
+        if(response && response.account){
 
-        console.log(
-            "ACCOUNTS",
-            msalInstance.getAllAccounts()
-        );
-
-        if(response){
+            console.log(
+                "Redirect login succesvol:",
+                response.account
+            );
 
             currentUser = {
 
                 name:
-                    response.account.name,
+                    response.account.name ||
+
+                    response.account.username,
 
                 email:
                     response.account.username
 
             };
+
+            msalInstance.setActiveAccount(
+                response.account
+            );
+
+        }
+        else{
+
+            const accounts =
+                msalInstance.getAllAccounts();
+
+            console.log(
+                "Bestaande accounts:",
+                accounts
+            );
+
+            if(accounts.length > 0){
+
+                msalInstance.setActiveAccount(
+                    accounts[0]
+                );
+
+                currentUser = {
+
+                    name:
+                        accounts[0].name ||
+
+                        accounts[0].username,
+
+                    email:
+                        accounts[0].username
+
+                };
+
+            }
+
+        }
+
+        if(currentUser){
+
+            console.log(
+                "Aangemeld als:",
+                currentUser
+            );
 
             await loadCurrentRole();
 
@@ -2942,41 +3006,64 @@ async function initializeMSAL(){
 
             document.getElementById(
                 "loginBtn"
-            ).style.display = "none";
+            ).style.display =
+                "none";
 
             document.getElementById(
                 "logoutBtn"
-            ).style.display = "inline-block";
+            ).style.display =
+                "inline-block";
+
+            try{
+
+                console.log(
+                    "Zoekindex bouwen..."
+                );
+
+                await buildSearchIndex();
+
+                console.log(
+                    "Zoekindex gebouwd"
+                );
+
+            }
+            catch(error){
+
+                console.error(
+                    "Index fout:",
+                    error
+                );
+
+            }
 
         }
-else {
+        else{
 
-    const accounts =
-        msalInstance.getAllAccounts();
+            console.warn(
+                "Geen gebruiker aangemeld"
+            );
 
-    if(accounts.length > 0){
+            document.getElementById(
+                "loginBtn"
+            ).style.display =
+                "inline-block";
 
-    currentUser = {
+            document.getElementById(
+                "logoutBtn"
+            ).style.display =
+                "none";
 
-        name:
-            accounts[0].name,
+            updateUserInfo();
 
-        email:
-            accounts[0].username
+        }
 
-    };
-
-    await loadCurrentRole();
-
-    updateUserInfo();
-
-}
-
-}
     }
     catch(error){
 
-        console.error(error);
+        console.error(
+            "MSAL initialisatie fout:",
+            error
+        );
 
     }
 
@@ -7966,23 +8053,9 @@ document.addEventListener(
 
         try{
 
-            if(
-                typeof initializeMSAL
-                ===
-                "function"
-            ){
+            await initializeMSAL();
 
-                await initializeMSAL();
-
-            }
-
-           if(!searchInitialized){
-
-    await buildSearchIndex();
-
-}
-
-            renderDashboard();
+            await renderDashboard();
 
         }
         catch(error){

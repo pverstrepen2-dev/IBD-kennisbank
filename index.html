@@ -508,39 +508,53 @@ function applyRolePermissions(){
 
 async function getAccessToken(){
 
+    const accounts =
+        msalInstance.getAllAccounts();
+
     console.log(
         "ALL ACCOUNTS:",
-        msalInstance.getAllAccounts()
+        accounts
     );
 
-    const account =
-        msalInstance.getAllAccounts()[0];
+    if(!accounts.length){
 
-    if(!account){
+        console.warn(
+            "Geen Microsoft-account gevonden"
+        );
 
-    console.warn(
-        "Geen Microsoft-account gevonden"
-    );
+        return null;
 
-    return null;
+    }
 
-}
+    const account = accounts[0];
 
-    const response =
-        await msalInstance.acquireTokenSilent({
+    try{
 
-            account,
+        const response =
+            await msalInstance.acquireTokenSilent({
 
-            scopes:[
+                account,
 
-                "User.Read",
-                "Files.Read"
+                scopes:[
+                    "User.Read",
+                    "Files.Read"
+                ]
 
-            ]
+            });
 
-        });
+        return response.accessToken;
 
-    return response.accessToken;
+    }
+    catch(error){
+
+        console.error(
+            "Token fout:",
+            error
+        );
+
+        return null;
+
+    }
 
 }
 

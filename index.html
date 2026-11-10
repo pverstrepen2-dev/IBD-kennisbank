@@ -981,6 +981,17 @@ async function extractPdfContent(fileId){
                 }
 
             );
+        if(!response.ok){
+
+    console.warn(
+        "PDF niet leesbaar:",
+        fileId,
+        response.status
+    );
+
+    return "";
+
+}
 
         const buffer =
             await response.arrayBuffer();
@@ -1414,6 +1425,16 @@ async function openKnowledgeRecord(id){
                 record.title.toLowerCase()
 
         );
+
+    console.log(
+    "Record:",
+    record.title
+);
+
+console.log(
+    "FileMatch:",
+    fileMatch
+);
 
     if(fileMatch){
 
@@ -3933,6 +3954,11 @@ async function downloadFile(id){
 
 async function openFile(id){
 
+    console.log(
+        "OPEN FILE:",
+        id
+    );
+
     try{
 
         const token =
@@ -4657,7 +4683,7 @@ function buildDocumentConnections(){
 
             /* Veel strenger filter */
 
-            if(score < 50){
+           if(score < 5){
     return;
 }
 
@@ -5012,7 +5038,10 @@ knowledgeNetwork.once(
 function showKnowledgeExplorer(
     nodeId
 ){
-
+console.log(
+    "Node geselecteerd:",
+    nodeId
+);
     const parts =
         nodeId.split("_");
 
@@ -5040,6 +5069,10 @@ function showKnowledgeExplorer(
         return;
 
     }
+console.log(
+    "Item gevonden:",
+    item
+);
 
     document.getElementById(
     "knowledgeDetails"

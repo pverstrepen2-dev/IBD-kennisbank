@@ -3978,21 +3978,98 @@ async function renderKnowledgeMap(){
 
 <div class="card">
 
-    <div
-        id="knowledgeNetwork"
+    <input
+        id="knowledgeSearch"
+        placeholder="🔍 Zoek node, document, website of tag..."
         style="
-            height:750px;
+            width:100%;
+            padding:10px;
+            margin-bottom:15px;
             border:1px solid #ddd;
+            border-radius:8px;
         "
-    ></div>
-
-    <br>
-
-    <div
-        id="knowledgeDetails"
+        onkeyup="searchKnowledgeNode()"
     >
 
-        Selecteer een node
+    <div
+        style="
+            display:flex;
+            gap:10px;
+            flex-wrap:wrap;
+            margin-bottom:15px;
+        "
+    >
+
+        <button
+            class="action-btn"
+            onclick="focusTagCluster('crohn')"
+        >
+            📚 Crohn
+        </button>
+
+        <button
+            class="action-btn"
+            onclick="focusTagCluster('voeding')"
+        >
+            🥗 Voeding
+        </button>
+
+        <button
+            class="action-btn"
+            onclick="focusTagCluster('medicatie')"
+        >
+            💊 Medicatie
+        </button>
+
+        <button
+            class="action-btn"
+            onclick="focusTagCluster('onderzoek')"
+        >
+            🧪 Onderzoek
+        </button>
+
+        <button
+            class="action-btn"
+            onclick="
+                if(window.knowledgeNetwork){
+                    knowledgeNetwork.fit();
+                }
+            "
+        >
+            🌍 Toon alles
+        </button>
+
+    </div>
+
+    <div
+        style="
+            display:flex;
+            gap:15px;
+        "
+    >
+
+        <div
+            id="knowledgeNetwork"
+            style="
+                flex:3;
+                height:750px;
+                border:1px solid #ddd;
+            "
+        ></div>
+
+        <div
+            id="knowledgeDetails"
+            style="
+                flex:1;
+                border:1px solid #ddd;
+                padding:15px;
+                overflow:auto;
+            "
+        >
+
+            Selecteer een node
+
+        </div>
 
     </div>
 
@@ -4004,15 +4081,129 @@ async function renderKnowledgeMap(){
 
 }
 
+function calculateSemanticScore(item){
+
+    let score = 0;
+
+    if(item.tags){
+
+        score += Array.isArray(item.tags)
+            ? item.tags.length
+            : 1;
+    }
+
+    if(item.relationships){
+
+        score += item.relationships.length * 2;
+    }
+
+    if(item.description){
+
+        score += 1;
+    }
+
+    return score;
+}
+
+function buildSemanticRelations(){
+
+    globalIndex.forEach(item=>{
+
+        if(!item.relationships){
+
+            item.relationships = [];
+        }
+
+        const itemTags = normalizeTags(item.tags);
+
+        globalIndex.forEach(other=>{
+
+            if(item === other){
+                return;
+            }
+
+            const otherTags =
+                normalizeTags(other.tags);
+
+            const commonTags =
+                itemTags.filter(tag=>
+
+                    otherTags.includes(tag)
+
+                );
+
+            if(commonTags.length >= 2){
+
+                const exists =
+                    item.relationships.some(rel=>
+
+                        String(rel.id)
+                        ===
+                        String(other.id)
+
+                    );
+
+                if(!exists){
+
+                    item.relationships.push({
+
+                        id:other.id,
+
+                        source:other.source,
+
+                        type:"semantic",
+
+                        weight:
+                            commonTags.length,
+
+                        automatic:true,
+
+                        tags:commonTags
+
+                    });
+
+                }
+
+            }
+
+        });
+
+    });
+
+}
+
+function normalizeTags(tags){
+
+    if(!tags){
+
+        return [];
+    }
+
+    if(Array.isArray(tags)){
+
+        return tags
+            .map(t=>t.toLowerCase().trim());
+    }
+
+    return String(tags)
+
+        .split(",")
+
+        .map(t=>t.toLowerCase().trim())
+
+        .filter(Boolean);
+}
+
 function buildKnowledgeNetwork(){
 
     const nodes = [];
     const edges = [];
 
-    const addedNodes =
-        new Set();
+    const nodeIds = new Set();
 
-    globalIndex.forEach(item => {
+    buildSemanticRelations();
+
+    globalIndex.forEach(item=>{
 
         const nodeId =
 
@@ -4020,105 +4211,127 @@ function buildKnowledgeNetwork(){
             "_" +
             item.id;
 
-        if(!addedNodes.has(nodeId)){
-
-            nodes.push({
-
-                id: nodeId,
-
-                label:
-                    item.title ||
-                    item.name ||
-                    String(item.id),
-
-                group:
-                    item.source
-
-            });
-
-            addedNodes.add(nodeId);
+        if(nodeIds.has(nodeId)){
+            return;
         }
 
-        const tags =
+        nodeIds.add(nodeId);
 
-            Array.isArray(item.tags)
+        const score =
+            calculateSemanticScore(
+                item
+            );
 
-            ? item.tags
+        nodes.push({
 
-            : typeof item.tags === "string"
+            id:nodeId,
 
-                ? item.tags.split(",")
+            label:
+                item.title ||
+                item.name ||
+                String(item.id),
 
-                : [];
+            group:
+                item.source,
 
-        tags.forEach(tag => {
+            value:
+                Math.max(
+                    10,
+                    score * 5
+                ),
 
-            const tagId =
+            title:
 
-                "tag_" +
-                tag.trim();
+                item.title ||
 
-            if(
-                !addedNodes.has(tagId)
-            ){
+                String(item.id)
 
-                nodes.push({
+        });
 
-                    id: tagId,
+        if(item.relationships){
 
-                    label:
-                        "🏷 " +
-                        tag.trim(),
+            item.relationships.forEach(rel=>{
 
-                    group:"tag"
+                edges.push({
+
+                    from:nodeId,
+
+                    to:
+                        rel.source
+
+                        ? rel.source +
+                          "_" +
+                          rel.id
+
+                        : rel.id,
+
+                    color:
+
+                        rel.automatic
+
+                        ? "#4caf50"
+
+                        : "#2196f3",
+
+                    width:
+
+                        rel.weight || 1
 
                 });
 
-                addedNodes.add(tagId);
-
-            }
-
-            edges.push({
-
-                from: nodeId,
-
-                to: tagId
-
             });
 
-        });
+        }
 
     });
 
     const container =
-
         document.getElementById(
             "knowledgeNetwork"
         );
 
-    const network =
-
+    window.knowledgeNetwork =
         new vis.Network(
 
             container,
 
             {
 
-                nodes:
-                    new vis.DataSet(
-                        nodes
-                    ),
+                nodes:new vis.DataSet(
+                    nodes
+                ),
 
-                edges:
-                    new vis.DataSet(
-                        edges
-                    )
+                edges:new vis.DataSet(
+                    edges
+                )
 
             },
 
             {
 
-                physics:true,
+                interaction:{
+
+                    hover:true,
+
+                    navigationButtons:true,
+
+                    multiselect:true
+
+                },
+
+                physics:{
+
+                    enabled:true,
+
+                    barnesHut:{
+
+                        springLength:150,
+
+                        avoidOverlap:1
+
+                    }
+
+                },
 
                 groups:{
 
@@ -4131,15 +4344,11 @@ function buildKnowledgeNetwork(){
                     },
 
                     file:{
-                        color:"#03a9f4"
+                        color:"#2196f3"
                     },
 
                     folder:{
                         color:"#9c27b0"
-                    },
-
-                    tag:{
-                        color:"#e91e63"
                     }
 
                 }
@@ -4148,26 +4357,140 @@ function buildKnowledgeNetwork(){
 
         );
 
-    network.on(
+    knowledgeNetwork.on(
+
         "click",
-        params => {
+
+        function(params){
 
             if(
                 !params.nodes.length
             ){
-
                 return;
-
             }
 
-            const nodeId =
-                params.nodes[0];
-
             showKnowledgeNodeDetails(
-                nodeId
+                params.nodes[0]
             );
 
         }
+
+    );
+
+    knowledgeNetwork.on(
+
+        "doubleClick",
+
+        function(params){
+
+            if(
+                !params.nodes.length
+            ){
+                return;
+            }
+
+            openKnowledgeNode(
+                params.nodes[0]
+            );
+
+        }
+
+    );
+
+}
+
+function focusTagCluster(tag){
+
+    const ids = [];
+
+    globalIndex.forEach(item=>{
+
+        const tags =
+
+            normalizeTags(item.tags);
+
+        if(
+            tags.includes(
+                tag.toLowerCase()
+            )
+        ){
+
+            ids.push(
+
+                item.source +
+                "_" +
+                item.id
+
+            );
+
+        }
+
+    });
+
+    knowledgeNetwork.selectNodes(ids);
+
+    knowledgeNetwork.fit({
+
+        nodes:ids,
+
+        animation:true
+
+    });
+
+}
+
+function searchKnowledgeNode(){
+
+    const term =
+        document.getElementById(
+            "knowledgeSearch"
+        )
+        .value
+        .toLowerCase()
+        .trim();
+
+    if(!term){
+
+        return;
+
+    }
+
+    const node = globalIndex.find(item => {
+
+        const title =
+            (item.title || "")
+            .toLowerCase();
+
+        return title.includes(term);
+
+    });
+
+    if(!node){
+
+        return;
+
+    }
+
+    const nodeId =
+
+        node.source +
+        "_" +
+        node.id;
+
+    knowledgeNetwork.selectNodes([
+        nodeId
+    ]);
+
+    knowledgeNetwork.focus(
+        nodeId,
+        {
+            scale:1.5,
+            animation:true
+        }
+    );
+
+    showKnowledgeNodeDetails(
+        nodeId
     );
 
 }
@@ -4305,79 +4628,97 @@ function openKnowledgeNode(
 
 }
 
-function showKnowledgeNodeDetails(nodeId){
+function showKnowledgeNodeDetails(
+    nodeId
+){
 
-    const details =
+    const parts =
+        nodeId.split("_");
 
-        document.getElementById(
-            "knowledgeDetails"
-        );
+    const source =
+        parts[0];
+
+    const id =
+        parts.slice(1).join("_");
 
     const item =
+        globalIndex.find(x=>
 
-        globalIndex.find(x =>
+            x.source === source &&
 
-            (
-                x.source +
-                "_" +
-                x.id
-            ) === nodeId
+            String(x.id)
+            ===
+            String(id)
 
         );
 
     if(!item){
 
-        details.innerHTML =
-
-            "<b>Tag node</b>";
-
         return;
     }
 
-    details.innerHTML = `
+    const relationships =
+
+        item.relationships || [];
+
+    document.getElementById(
+        "knowledgeDetails"
+    ).innerHTML = `
 
 <h2>
-
-    ${item.title || "-"}
-
+${item.title || "-"}
 </h2>
 
-<br>
+<hr>
 
-<b>Bron:</b>
-
+<b>Type</b><br>
 ${item.source}
 
 <br><br>
 
-<b>ID:</b>
+<b>Tags</b><br>
 
-${item.id}
-
-<br><br>
-
-<b>Tags:</b>
-
-${
-    Array.isArray(item.tags)
-
-    ? item.tags.join(", ")
-
-    : "-"
-}
+${normalizeTags(item.tags).join(", ")}
 
 <br><br>
 
-<button
-    onclick="
-        openSearchResult(
-            '${item.source}',
-            '${item.id}'
-        )
-    "
+<b>Relaties</b><br>
+
+${relationships.length}
+
+<br><br>
+
+${relationships.map(rel=>`
+
+<div
+style="
+padding:5px;
+margin:4px;
+background:#f5f5f5;
+border-radius:4px;
+"
 >
 
-    Open item
+🔗
+
+${rel.type}
+
+</div>
+
+`).join("")}
+
+<br>
+
+<button
+onclick="
+openSearchResult(
+'${item.source}',
+'${item.id}'
+)
+"
+>
+
+Open
 
 </button>
 

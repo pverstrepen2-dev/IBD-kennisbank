@@ -1504,11 +1504,11 @@ async function renderWebsites(){
         "ccvContent"
     ).innerHTML = `
 
-        <div class="page-title">
+<div class="page-title">
 
-            🌐 Websites
+    🌐 Websites
 
-        </div>
+</div>
 
 <h3>
 
@@ -1519,43 +1519,42 @@ async function renderWebsites(){
 <br>
 
 <input
-
     id="newWebsiteTitle"
-
     placeholder="Titel"
-
     style="
         width:100%;
         padding:10px;
         margin-bottom:10px;
     "
-
 >
 
 <input
-
     id="newWebsiteUrl"
-
     placeholder="https://..."
-
     style="
         width:100%;
         padding:10px;
         margin-bottom:10px;
     "
+>
 
+<input
+    id="newWebsiteTags"
+    placeholder="Crohn, voeding, medicatie"
+    style="
+        width:100%;
+        padding:10px;
+        margin-bottom:10px;
+    "
 >
 
 <select
-
     id="newWebsiteCountry"
-
     style="
         width:100%;
         padding:10px;
         margin-bottom:10px;
     "
-
 >
 
     <option value="">
@@ -1567,11 +1566,8 @@ async function renderWebsites(){
 </select>
 
 <button
-
     onclick="createWebsite()"
-
     class="action-btn"
-
 >
 
     Opslaan
@@ -1580,177 +1576,117 @@ async function renderWebsites(){
 
 <hr style="margin:20px 0;">
 
-
-        <div class="card">
-
-            <input
-
-                id="websiteSearch"
-
-                <input
-    id="newWebsiteTags"
-    placeholder="Crohn, voeding, medicatie"
-    style="
-        width:100%;
-        padding:10px;
-        margin-bottom:10px;
-    "
->
-
-                type="text"
-
-                placeholder="Zoek websites..."
-
-                onkeyup="filterWebsites()"
-
-                style="
-                    width:100%;
-                    padding:10px;
-                    margin-bottom:15px;
-                "
-
-            >
-
-            <select
-
-    id="websiteCountry"
-
-    onchange="filterWebsites()"
-
-    style="
-        width:100%;
-        padding:10px;
-        margin-bottom:15px;
-    "
-
->
-
-    <option value="">
-
-        Alle landen
-
-    </option>
-
-</select>
-
-<select
-
-    id="websiteCategory"
-
-    onchange="filterWebsites()"
-
-    style="
-        width:100%;
-        padding:10px;
-        margin-bottom:15px;
-    "
-
->
-
-    <option value="">
-
-        Alle categorieën
-
-    </option>
-
-</select>
-
-<select
-
-    id="websiteSubCategory"
-
-    onchange="filterWebsites()"
-
-    style="
-        width:100%;
-        padding:10px;
-        margin-bottom:15px;
-    "
-
->
-
-    <option value="">
-
-        Alle subcategorieën
-
-    </option>
-
-</select>
-
-<label>
+<div class="card">
 
     <input
-
-        type="checkbox"
-
-        id="favoritesOnly"
-
-        onchange="filterWebsites()"
-
+        id="websiteSearch"
+        type="text"
+        placeholder="Zoek websites..."
+        onkeyup="filterWebsites()"
+        style="
+            width:100%;
+            padding:10px;
+            margin-bottom:15px;
+        "
     >
 
-    ⭐ Alleen favorieten
-
-</label>
-
-<label>
-...
-</label>
-
-<br><br>
-
-<div
-
-    id="websiteCounter"
-
-    style="
-        margin-bottom:10px;
-        font-weight:bold;
-    "
-
->
-
-</div>
-
-<div id="websiteList">
-
-</div>
-
-</div>
-
-        <label>
-
-    <input
-
-        type="checkbox"
-
-        id="favoritesOnly"
-
+    <select
+        id="websiteCountry"
         onchange="filterWebsites()"
-
+        style="
+            width:100%;
+            padding:10px;
+            margin-bottom:15px;
+        "
     >
 
-    ⭐ Alleen favorieten
+        <option value="">
 
-</label>
+            Alle landen
 
-<br><br>
+        </option>
 
-    `;
+    </select>
+
+    <select
+        id="websiteCategory"
+        onchange="filterWebsites()"
+        style="
+            width:100%;
+            padding:10px;
+            margin-bottom:15px;
+        "
+    >
+
+        <option value="">
+
+            Alle categorieën
+
+        </option>
+
+    </select>
+
+    <select
+        id="websiteSubCategory"
+        onchange="filterWebsites()"
+        style="
+            width:100%;
+            padding:10px;
+            margin-bottom:15px;
+        "
+    >
+
+        <option value="">
+
+            Alle subcategorieën
+
+        </option>
+
+    </select>
+
+    <label>
+
+        <input
+            type="checkbox"
+            id="favoritesOnly"
+            onchange="filterWebsites()"
+        >
+
+        ⭐ Alleen favorieten
+
+    </label>
+
+    <br><br>
+
+    <div
+        id="websiteCounter"
+        style="
+            font-weight:bold;
+            margin-bottom:10px;
+        "
+    ></div>
+
+    <div
+        id="websiteList"
+    ></div>
+
+</div>
+
+`;
 
     populateCountryFilter(
         websites
     );
 
-populateCountryEditor();
+    populateCountryEditor();
 
-populateCategoryFilter(
-    websites
-);
+    populateCategoryFilter(
+        websites
+    );
 
-populateSubCategoryFilter(
-    websites
-);
+    populateSubCategoryFilter(
+        websites
+    );
 
     renderWebsiteList(
         websites

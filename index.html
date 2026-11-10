@@ -1344,47 +1344,58 @@ console.log(
 function runSearch(){
 
     const searchBox =
+        document.getElementById(
+            "globalSearch"
+        );
 
-    document.getElementById(
-        "globalSearch"
-    );
+    const filterBox =
+        document.getElementById(
+            "searchFilter"
+        );
 
-const filterBox =
-
-    document.getElementById(
-        "searchFilter"
-    );
-
-if(
-    !searchBox ||
-    !filterBox
-){
-
-    return;
-
-}
+    if(
+        !searchBox ||
+        !filterBox
+    ){
+        return;
+    }
 
     const term =
-
-    searchBox.value
-    .toLowerCase();
+        searchBox.value
+        .trim()
+        .toLowerCase();
 
     const filter =
-    filterBox.value;
+        filterBox.value;
 
     let results =
-
         globalSearch(term);
 
     if(filter !== "all"){
 
         results =
             results.filter(
-                r =>
-                    r.source === filter
+                item =>
+                    item.source === filter
             );
 
     }
+
+    results.sort((a,b)=>{
+
+        const aTitle =
+            (a.title || "")
+            .toLowerCase();
+
+        const bTitle =
+            (b.title || "")
+            .toLowerCase();
+
+        return aTitle.localeCompare(
+            bTitle
+        );
+
+    });
 
     renderResults(results);
 
@@ -4282,7 +4293,10 @@ async function renderKnowledgeMap(){
         await buildSearchIndex();
 
     }
-
+console.log(
+    "GLOBAL INDEX",
+    globalIndex
+);
     document.getElementById(
         "ccvContent"
     ).innerHTML = `
@@ -5539,6 +5553,44 @@ function normalizeTags(tags){
         .map(x=>x.toLowerCase().trim())
 
         .filter(Boolean);
+
+}
+
+function globalSearch(term){
+
+    if(!term){
+
+        return globalIndex;
+    }
+
+    term =
+        term.toLowerCase().trim();
+
+    return globalIndex.filter(item => {
+
+        const searchable = `
+
+            ${item.title || ""}
+            ${item.category || ""}
+            ${item.description || ""}
+            ${item.location || ""}
+            ${item.country || ""}
+            ${item.fileType || ""}
+            ${normalizeTags(item.tags)
+                .join(" ")}
+
+        `
+        .toLowerCase();
+
+        const words =
+            term.split(/\s+/);
+
+        return words.every(
+            word =>
+                searchable.includes(word)
+        );
+
+    });
 
 }
 

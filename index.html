@@ -1184,11 +1184,7 @@ async function scanDriveFolder(
             const items =
                 data.value || [];
 
-            console.log(
-                "Pagina geladen:",
-                items.length,
-                "items"
-            );
+            // console.log("Pagina geladen:", items.length);
 
             for(const item of items){
 
@@ -1367,11 +1363,7 @@ async function scanDriveFolder(
 
         });
 
-        console.log(
-            "SCAN VOLTOOID:",
-            path,
-            results.length
-        );
+        // console.log("SCAN VOLTOOID:", path, results.length);
 
         return results;
 
@@ -1566,32 +1558,6 @@ function buildDocumentSignature(item){
 
 }
 
-function chooseNewestVersion(items){
-
-    if(items.length <= 1){
-
-        return items[0];
-
-    }
-
-    return items.sort(
-
-        (a,b)=>
-
-            new Date(
-                b.lastModifiedDateTime || 0
-            )
-
-            -
-
-            new Date(
-                a.lastModifiedDateTime || 0
-            )
-
-    )[0];
-
-}
-
 const IndexSettings = {
 
     keepLatestVersionOnly : true,
@@ -1600,26 +1566,6 @@ const IndexSettings = {
 
 };
 
-function buildDocumentSignature(item){
-
-    return (
-
-        (item.name || "")
-        .toLowerCase()
-        .trim()
-
-        +
-
-        "|"
-
-        +
-
-        (item.size || 0)
-
-    );
-
-}
-
 function chooseNewestVersion(items){
 
     if(items.length <= 1){
@@ -1646,6 +1592,138 @@ function chooseNewestVersion(items){
 
 }
 
+function processDocumentVersions(allItems){
+
+    const groups = {};
+
+    const folders =
+        allItems.filter(
+            item => item.folder
+        );
+
+    const files =
+        allItems.filter(
+            item => !item.folder
+        );
+
+    let keptVersions = 0;
+    let removedVersions = 0;
+
+    documentVersions = {};
+
+    files.forEach(item => {
+
+        const signature =
+
+            (
+                item.name || ""
+            )
+            .toLowerCase()
+            .trim()
+
+            +
+
+            "|"
+
+            +
+
+            (
+                item.size || 0
+            );
+
+        if(!groups[signature]){
+
+            groups[signature] = [];
+
+        }
+
+        groups[signature].push(
+            item
+        );
+
+    });
+
+    const filteredFiles = [];
+
+    Object.values(groups)
+    .forEach(group => {
+
+        const newest =
+            chooseNewestVersion(
+                group
+            );
+
+        filteredFiles.push(
+            newest
+        );
+
+        const versionKey =
+
+            (
+                newest.name || ""
+            )
+            .toLowerCase()
+            .trim()
+
+            +
+
+            "|"
+
+            +
+
+            (
+                newest.size || 0
+            );
+
+        documentVersions[
+            versionKey
+        ] =
+
+            group.sort(
+
+                (a,b)=>
+
+                    new Date(
+                        b.lastModifiedDateTime || 0
+                    )
+
+                    -
+
+                    new Date(
+                        a.lastModifiedDateTime || 0
+                    )
+
+            );
+
+        if(group.length > 1){
+
+            keptVersions++;
+
+            removedVersions +=
+                group.length - 1;
+
+        }
+
+    });
+
+    console.log(
+        "VERSIEGROEPEN:",
+        keptVersions
+    );
+
+    console.log(
+        "UITGEFILTERDE VERSIES:",
+        removedVersions
+    );
+
+    return [
+
+        ...folders,
+        ...filteredFiles
+
+    ];
+
+}
 
 async function buildOneDriveIndex(){
 
@@ -1726,157 +1804,16 @@ async function buildOneDriveIndex(){
     /* ======================================
        VERSIEDETECTIE
        ====================================== */
+   if(
+    IndexSettings.keepLatestVersionOnly
+){
 
-    if(
-        IndexSettings.keepLatestVersionOnly
-    ){
-
-        const groups = {};
-
-        allItems.forEach(item=>{
-
-            if(item.folder){
-
-                return;
-            }
-
-            const signature =
-                buildDocumentSignature(
-                    item
-                );
-
-            if(
-                !groups[signature]
-            ){
-
-                groups[signature] = [];
-
-            }
-
-            groups[signature].push(
-                item
-            );
-
-        });
-
-        let filteredItems = [];
-
-        let keptVersions = 0;
-        let removedVersions = 0;
-
-        Object.values(groups)
-        .forEach(group=>{
-
-            if(group.length === 1){
-
-                filteredItems.push(
-                    group[0]
-                );
-
-                return;
-            }
-
-            const newest =
-
-                chooseNewestVersion(
-                    group
-                );
-
-            filteredItems.push(
-                newest
-            );
-
-            keptVersions++;
-
-            console.group(
-                "VERSIEGROEP"
-            );
-
-            console.log(
-                "✅ BEHOUDEN:"
-            );
-
-            console.log({
-
-                naam:
-                    newest.name,
-
-                modified:
-                    newest.lastModifiedDateTime,
-
-                size:
-                    newest.size,
-
-                pad:
-                    newest.fullPath
-
-            });
-
-            group
-            .filter(
-                item =>
-                    item !== newest
-            )
-            .forEach(oldVersion=>{
-
-                removedVersions++;
-
-                console.log(
-                    "❌ UITGEFILTERD:"
-                );
-
-                console.log({
-
-                    naam:
-                        oldVersion.name,
-
-                    modified:
-                        oldVersion.lastModifiedDateTime,
-
-                    size:
-                        oldVersion.size,
-
-                    pad:
-                        oldVersion.fullPath
-
-                });
-
-            });
-
-            console.groupEnd();
-
-        });
-
-        const folders =
-
-            allItems.filter(
-                x => x.folder
-            );
-
-        allItems = [
-
-            ...folders,
-
-            ...filteredItems
-
-        ];
-
-        console.log(
-            "VERSIEGROEPEN:",
-            keptVersions
+    allItems =
+        processDocumentVersions(
+            allItems
         );
 
-        console.log(
-            "UITGEFILTERDE VERSIES:",
-            removedVersions
-        );
-
-        console.log(
-            "NA VERSIEFILTER:",
-            allItems.length
-        );
-
-    }
+}
 
     /* ======================================
        DEDUPLICATIE
@@ -7019,9 +6956,13 @@ async function buildKnowledgeNetwork(){
 
 await buildDocumentKeywordIndex();
 
-buildSemanticRelations();
+if(globalIndex.length < 500){
 
-buildDocumentConnections();
+    buildSemanticRelations();
+
+    buildDocumentConnections();
+
+}
 
     const nodes = [];
     const edges = [];

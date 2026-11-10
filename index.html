@@ -642,13 +642,37 @@ async function buildSearchIndex(){
 
     KnowledgeHub.edges = [];
 
-    await buildKnowledgeIndex();
+    try{
+        await buildKnowledgeIndex();
+    }
+    catch(error){
+        console.error(
+            "Knowledge index fout",
+            error
+        );
+    }
 
-    await buildWebsiteIndex();
+    try{
+        await buildWebsiteIndex();
+    }
+    catch(error){
+        console.error(
+            "Website index fout",
+            error
+        );
+    }
 
     if(currentUser){
 
-        await buildOneDriveIndex();
+        try{
+            await buildOneDriveIndex();
+        }
+        catch(error){
+            console.error(
+                "OneDrive index fout",
+                error
+            );
+        }
 
     }
 
@@ -656,7 +680,8 @@ async function buildSearchIndex(){
 
     console.log(
         "SEARCH INDEX",
-        globalIndex
+        globalIndex.length,
+        "items"
     );
 
 }
@@ -666,31 +691,28 @@ async function buildKnowledgeIndex(){
     const records =
         await getKnowledgeData();
 
-    records.forEach(record => {
+    if(!Array.isArray(records)){
+
+        console.error(
+            "Geen knowledgeData gevonden",
+            records
+        );
+
+        return;
+    }
+
+    records.forEach(record=>{
 
         globalIndex.push({
 
-    source:
-        "knowledge",
+            source:"knowledge",
+            id:record.id,
+            title:record.title || "",
+            category:record.category || "",
+            tags:record.tags || [],
+            data:record
 
-    id:
-        record.id,
-
-    title:
-        record.title || "",
-
-    category:
-        record.category || "",
-
-    tags:
-        record.tags || [],
-
-    data:
-        record
-
-
-        
-});
+        });
 
     });
 

@@ -1422,6 +1422,107 @@ function determineLibraryType(
 
 }
 
+function buildDocumentSignature(item){
+
+    return (
+
+        (item.name || "")
+        .toLowerCase()
+        .trim()
+
+        +
+
+        "|"
+
+        +
+
+        (item.size || 0)
+
+    );
+
+}
+
+function chooseNewestVersion(items){
+
+    if(items.length <= 1){
+
+        return items[0];
+
+    }
+
+    return items.sort(
+
+        (a,b)=>
+
+            new Date(
+                b.lastModifiedDateTime || 0
+            )
+
+            -
+
+            new Date(
+                a.lastModifiedDateTime || 0
+            )
+
+    )[0];
+
+}
+
+const IndexSettings = {
+
+    keepLatestVersionOnly : true,
+
+    detectVersions : true
+
+};
+
+function buildDocumentSignature(item){
+
+    return (
+
+        (item.name || "")
+        .toLowerCase()
+        .trim()
+
+        +
+
+        "|"
+
+        +
+
+        (item.size || 0)
+
+    );
+
+}
+
+function chooseNewestVersion(items){
+
+    if(items.length <= 1){
+
+        return items[0];
+
+    }
+
+    return items.sort(
+
+        (a,b)=>
+
+            new Date(
+                b.lastModifiedDateTime || 0
+            )
+
+            -
+
+            new Date(
+                a.lastModifiedDateTime || 0
+            )
+
+    )[0];
+
+}
+
+
 async function buildOneDriveIndex(){
 
     console.log(
@@ -1450,32 +1551,16 @@ async function buildOneDriveIndex(){
             kennisbankFolder.id
         );
 
-        const kennisbankItems =
+        allItems.push(
 
-            await scanDriveFolder(
+            ...(await scanDriveFolder(
 
                 token,
-
                 kennisbankFolder.id,
-
                 "CCV-VZW/Kennisbank"
 
-            );
+            ))
 
-        console.log(
-            "Kennisbank items:",
-            kennisbankItems.length
-        );
-
-        allItems.push(
-            ...kennisbankItems
-        );
-
-    }
-    else{
-
-        console.warn(
-            "Kennisbank niet gevonden"
         );
 
     }
@@ -1487,115 +1572,341 @@ async function buildOneDriveIndex(){
             documentenFolder.id
         );
 
-        const documentenItems =
+        allItems.push(
 
-            await scanDriveFolder(
+            ...(await scanDriveFolder(
 
                 token,
-
                 documentenFolder.id,
-
                 "CCV-VZW/Documenten"
 
-            );
+            ))
 
-        console.log(
-            "Documenten items:",
-            documentenItems.length
-        );
-
-        allItems.push(
-            ...documentenItems
-        );
-
-    }
-    else{
-
-        console.warn(
-            "Documenten niet gevonden"
         );
 
     }
 
     console.log(
-        "TOTAAL GEVONDEN:",
+        "TOTAAL GESCAND:",
         allItems.length
     );
 
-    console.log({
+    /* ======================================
+       VERSIEDETECTIE
+       ====================================== */
 
-        folders:
+    if(
+        IndexSettings.keepLatestVersionOnly
+    ){
+
+        const groups = {};
+
+        allItems.forEach(item=>{
+
+            if(item.folder){
+
+                return;
+            }
+
+            const signature =
+                buildDocumentSignature(
+                    item
+                );
+
+            if(
+                !groups[signature]
+            ){
+
+                groups[signature] = [];
+
+            }
+
+            groups[signature].push(
+                item
+            );
+
+        });
+
+        let filteredItems = [];
+
+        let keptVersions = 0;
+        let removedVersions = 0;
+
+        Object.values(groups)
+        .forEach(group=>{
+
+            if(group.length === 1){
+
+                filteredItems.push(
+                    group[0]
+                );
+
+                return;
+            }
+
+            const newest =
+
+                chooseNewestVersion(
+                    group
+                );
+
+            filteredItems.push(
+                newest
+            );
+
+            keptVersions++;
+
+            console.group(
+                "VERSIEGROEP"
+            );
+
+            console.log(
+                "✅ BEHOUDEN:"
+            );
+
+            console.log({
+
+                naam:
+                    newest.name,
+
+                modified:
+                    newest.lastModifiedDateTime,
+
+                size:
+                    newest.size,
+
+                pad:
+                    newest.fullPath
+
+            });
+
+            group
+            .filter(
+                item =>
+                    item !== newest
+            )
+            .forEach(oldVersion=>{
+
+                removedVersions++;
+
+                console.log(
+                    "❌ UITGEFILTERD:"
+                );
+
+                console.log({
+
+                    naam:
+                        oldVersion.name,
+
+                    modified:
+                        oldVersion.lastModifiedDateTime,
+
+                    size:
+                        oldVersion.size,
+
+                    pad:
+                        oldVersion.fullPath
+
+                });
+
+            });
+
+            console.groupEnd();
+
+        });
+
+        const folders =
+
             allItems.filter(
                 x => x.folder
-            ).length,
+            );
 
-        files:
-            allItems.filter(
-                x => !x.folder
-            ).length,
+        allItems = [
 
-        shared:
-            allItems.filter(
-                x => x.shared
-            ).length,
+            ...folders,
 
-        remote:
-            allItems.filter(
-                x => x.remoteItem
-            ).length
+            ...filteredItems
 
-    });
+        ];
+
+        console.log(
+            "VERSIEGROEPEN:",
+            keptVersions
+        );
+
+        console.log(
+            "UITGEFILTERDE VERSIES:",
+            removedVersions
+        );
+
+        console.log(
+            "NA VERSIEFILTER:",
+            allItems.length
+        );
+
+    }
+
+    /* ======================================
+       DEDUPLICATIE
+       ====================================== */
 
     const existingIds =
-        new Set(
+        new Set();
 
-            globalIndex.map(
-
-                item =>
-
-                    item.source +
-                    "_" +
-                    item.id
-
-            )
-
-        );
+    const existingFiles =
+        new Set();
 
     let indexedFiles = 0;
     let indexedFolders = 0;
-    let skippedDuplicates = 0;
+    let duplicateIds = 0;
+    let duplicateFiles = 0;
 
-    allItems.forEach(item => {
+    allItems.forEach(item=>{
 
         const source =
 
             item.folder
+                ? "folder"
+                : "file";
 
-            ? "folder"
-
-            : "file";
-
-        const uniqueKey =
+        const idKey =
 
             source +
             "_" +
             item.id;
 
+        const fileKey =
+
+            (
+                item.name || ""
+            )
+            .toLowerCase()
+            .trim()
+
+            +
+
+            "|"
+
+            +
+
+            (
+                item.size || 0
+            )
+
+            +
+
+            "|"
+
+            +
+
+            (
+                item.lastModifiedDateTime || ""
+            );
+
         if(
             existingIds.has(
-                uniqueKey
+                idKey
             )
         ){
 
-            skippedDuplicates++;
+            duplicateIds++;
+
+            return;
+
+        }
+
+        if(
+            source === "file"
+            &&
+            existingFiles.has(
+                fileKey
+            )
+        ){
+
+            duplicateFiles++;
+
+            console.log(
+
+                "DUBBEL BESTAND:",
+
+                item.name,
+
+                item.fullPath
+
+            );
 
             return;
 
         }
 
         existingIds.add(
-            uniqueKey
+            idKey
         );
+
+        if(source === "file"){
+
+            existingFiles.add(
+                fileKey
+            );
+
+        }
+
+        globalIndex.push({
+
+            source:
+                source,
+
+            libraryType:
+                determineLibraryType(
+                    item.fullPath
+                ),
+
+            managementCategory:
+                determineManagementCategory(
+                    item.fullPath
+                ),
+
+            managementSubCategory:
+                determineManagementSubCategory(
+                    item.fullPath
+                ),
+
+            id:
+                item.id,
+
+            title:
+                item.name || "",
+
+            location:
+                item.fullPath || "",
+
+            modified:
+                item.lastModifiedDateTime || "",
+
+            size:
+                item.size || 0,
+
+            webUrl:
+                item.webUrl || "",
+
+            fileType:
+                item.file?.mimeType || "",
+
+            shared:
+                !!item.shared,
+
+            remote:
+                !!item.remoteItem,
+
+            tags:[],
+
+            relationships:[],
+
+            content:"",
+
+            data:item
+
+        });
 
         if(source === "file"){
 
@@ -1608,126 +1919,38 @@ async function buildOneDriveIndex(){
 
         }
 
-        globalIndex.push({
-
-            source :
-
-                source,
-
-            libraryType :
-
-                determineLibraryType(
-                    item.fullPath
-                ),
-
-            managementCategory :
-
-                determineManagementCategory(
-                    item.fullPath
-                ),
-
-            managementSubCategory :
-
-                determineManagementSubCategory(
-                    item.fullPath
-                ),
-
-            id :
-
-                item.id,
-
-            title :
-
-                item.name ||
-
-                "",
-
-            location :
-
-                item.fullPath ||
-
-                "",
-
-            modified :
-
-                item.lastModifiedDateTime ||
-
-                "",
-
-            size :
-
-                item.size ||
-
-                0,
-
-            webUrl :
-
-                item.webUrl ||
-
-                "",
-
-            fileType :
-
-                item.file?.mimeType ||
-
-                "",
-
-            shared :
-
-                !!item.shared,
-
-            remote :
-
-                !!item.remoteItem,
-
-            tags : [],
-
-            relationships : [],
-
-            content : "",
-
-            data : item
-
-        });
-
     });
 
     console.log(
-        "Files geïndexeerd:",
+        "FILES GEINDEXEERD:",
         indexedFiles
     );
 
     console.log(
-        "Folders geïndexeerd:",
+        "FOLDERS GEINDEXEERD:",
         indexedFolders
     );
 
     console.log(
-        "Duplicaten overgeslagen:",
-        skippedDuplicates
+        "DUBBELE ID'S:",
+        duplicateIds
     );
 
     console.log(
-        "OneDrive index totaal:",
-        globalIndex.filter(
-            x =>
-                x.source === "file"
-        ).length
+        "DUBBELE BESTANDEN:",
+        duplicateFiles
     );
 
     console.log(
-        "Folder index totaal:",
-        globalIndex.filter(
-            x =>
-                x.source === "folder"
-        ).length
+        "GLOBALINDEX TOTAAL:",
+        globalIndex.length
     );
 
     console.log(
-        "Bronoverzicht:",
+        "BRONOVERZICHT:",
         globalIndex.reduce(
 
-            (acc,item) => {
+            (acc,item)=>{
 
                 acc[item.source] =
                     (acc[item.source] || 0) + 1;
@@ -1739,7 +1962,77 @@ async function buildOneDriveIndex(){
             {}
 
         )
+
     );
+
+}
+
+function analyzeDuplicates(){
+
+    const groups = {};
+
+    globalIndex
+    .filter(
+        item => item.source === "file"
+    )
+    .forEach(item=>{
+
+        const key =
+
+            (
+                item.title || ""
+            )
+            .toLowerCase()
+            .trim()
+
+            +
+
+            "|"
+
+            +
+
+            (
+                item.size || 0
+            )
+
+            +
+
+            "|"
+
+            +
+
+            (
+                item.modified || ""
+            );
+
+        if(!groups[key]){
+
+            groups[key] = [];
+
+        }
+
+        groups[key].push(item);
+
+    });
+
+    const duplicates =
+
+        Object.values(groups)
+
+        .filter(
+            items => items.length > 1
+        );
+
+    console.log(
+        "DUBBELE GROEPEN:",
+        duplicates.length
+    );
+
+    console.log(
+        duplicates
+    );
+
+    return duplicates;
 
 }
 

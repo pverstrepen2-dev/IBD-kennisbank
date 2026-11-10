@@ -1046,8 +1046,43 @@ async function buildWebsiteIndex(){
 async function scanDriveFolder(
     token,
     folderId = "root",
-    path = ""
+    path = "",
+    visitedFolders = new Set()
 ){
+
+    if(
+        visitedFolders.has(
+            folderId
+        )
+    ){
+
+        console.log(
+            "SKIP DUPLICATE:",
+            path
+        );
+
+        return [];
+
+    }
+
+    visitedFolders.add(
+        folderId
+    );
+
+    console.log(
+        "SCAN:",
+        path || "ROOT"
+    );
+
+    if(
+    visitedFolders.size > 5000
+){
+
+    throw new Error(
+        "OneDrive scan limiet bereikt"
+    );
+
+}
 
     const endpoint =
 
@@ -1060,11 +1095,6 @@ async function scanDriveFolder(
         :
 
         `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`;
-
-console.log(
-    "SCAN:",
-    path || "ROOT"
-);
 
     const response =
         await fetch(
@@ -1087,14 +1117,20 @@ console.log(
         const currentPath =
 
             path
-                ? path + "/" + item.name
-                : item.name;
+
+            ?
+
+            path + "/" + item.name
+
+            :
+
+            item.name;
 
         results.push({
 
             ...item,
 
-            fullPath:
+            fullPath :
                 currentPath
 
         });
@@ -1104,13 +1140,16 @@ console.log(
             try{
 
                 const children =
+
                     await scanDriveFolder(
 
                         token,
 
                         item.id,
 
-                        currentPath
+                        currentPath,
+
+                        visitedFolders
 
                     );
 
@@ -1125,7 +1164,7 @@ console.log(
 
                     "Map scan fout:",
 
-                    item.name,
+                    currentPath,
 
                     error
 
@@ -1152,14 +1191,23 @@ async function buildOneDriveIndex(){
         await getAccessToken();
 
     const allItems =
-        await scanDriveFolder(
-            token
-        );
+    await scanDriveFolder(
+        token,
+        "root",
+        "",
+        new Set()
+    );
 
     console.log(
         "Totaal gevonden:",
         allItems.length
     );
+
+    console.log(
+    "Items gevonden:",
+    allItems.length
+);
+
 
     let fileCount = 0;
     let folderCount = 0;

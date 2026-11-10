@@ -197,6 +197,10 @@ body{
     📚 Kenniscentrum
 </button>
 
+<button class="menu-button" onclick="renderManagementCenter()">
+🏛 Verenigingsbeheer
+</button>
+
 <button class="menu-button" onclick="renderKnowledgeMap()">
     🧠 Kenniskaart
 </button>
@@ -1045,7 +1049,7 @@ async function buildWebsiteIndex(){
 
 async function scanDriveFolder(
     token,
-    folderId = "root",
+    folderId,
     path = "",
     visitedFolders = new Set()
 ){
@@ -1056,11 +1060,6 @@ async function scanDriveFolder(
         )
     ){
 
-        console.log(
-            "SKIP DUPLICATE:",
-            path
-        );
-
         return [];
 
     }
@@ -1069,42 +1068,18 @@ async function scanDriveFolder(
         folderId
     );
 
-    console.log(
-        "SCAN:",
-        path || "ROOT"
-    );
-
-    if(
-    visitedFolders.size > 5000
-){
-
-    throw new Error(
-        "OneDrive scan limiet bereikt"
-    );
-
-}
-
-    const endpoint =
-
-        folderId === "root"
-
-        ?
-
-        "https://graph.microsoft.com/v1.0/me/drive/root/children"
-
-        :
-
-        `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`;
-
     const response =
         await fetch(
-            endpoint,
+
+            `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`,
+
             {
                 headers:{
                     Authorization:
                         "Bearer " + token
                 }
             }
+
         );
 
     const data =
@@ -1120,11 +1095,50 @@ async function scanDriveFolder(
 
             ?
 
-            path + "/" + item.name
+            `${path}/${item.name}`
 
             :
 
             item.name;
+
+        if(
+            item.remoteItem
+        ){
+
+            console.warn(
+                "REMOTE ITEM OVERGESLAGEN:",
+                currentPath
+            );
+
+            continue;
+
+        }
+
+        if(
+            item.shared
+        ){
+
+            console.warn(
+                "SHARED ITEM OVERGESLAGEN:",
+                currentPath
+            );
+
+            continue;
+
+        }
+
+        if(
+            item.package
+        ){
+
+            console.warn(
+                "PACKAGE OVERGESLAGEN:",
+                currentPath
+            );
+
+            continue;
+
+        }
 
         results.push({
 
@@ -1137,40 +1151,23 @@ async function scanDriveFolder(
 
         if(item.folder){
 
-            try{
+            const children =
 
-                const children =
+                await scanDriveFolder(
 
-                    await scanDriveFolder(
+                    token,
 
-                        token,
-
-                        item.id,
-
-                        currentPath,
-
-                        visitedFolders
-
-                    );
-
-                results.push(
-                    ...children
-                );
-
-            }
-            catch(error){
-
-                console.error(
-
-                    "Map scan fout:",
+                    item.id,
 
                     currentPath,
 
-                    error
+                    visitedFolders
 
                 );
 
-            }
+            results.push(
+                ...children
+            );
 
         }
 
@@ -1180,34 +1177,230 @@ async function scanDriveFolder(
 
 }
 
+async function getFolderByPath(
+    folderName
+){
+
+    const token =
+        await getAccessToken();
+
+    const response =
+        await fetch(
+
+            "https://graph.microsoft.com/v1.0/me/drive/root/children",
+
+            {
+                headers:{
+                    Authorization:
+                        "Bearer " + token
+                }
+            }
+
+        );
+
+    const data =
+        await response.json();
+
+    const rootFolder =
+
+        (data.value || []).find(
+
+            item =>
+
+                item.folder &&
+
+                item.name === "CCV-VZW"
+
+        );
+
+    if(
+        !rootFolder
+    ){
+
+        console.error(
+            "CCV-VZW niet gevonden"
+        );
+
+        return null;
+
+    }
+
+    const childrenResponse =
+        await fetch(
+
+            `https://graph.microsoft.com/v1.0/me/drive/items/${rootFolder.id}/children`,
+
+            {
+                headers:{
+                    Authorization:
+                        "Bearer " + token
+                }
+            }
+
+        );
+
+    const childrenData =
+        await childrenResponse.json();
+
+    const targetFolder =
+
+        (childrenData.value || []).find(
+
+            item =>
+
+                item.folder &&
+
+                item.name === folderName
+
+        );
+
+    return targetFolder || null;
+
+}
+
+function determineLibraryType(
+    path
+){
+
+    const p =
+        (path || "")
+        .toLowerCase();
+
+    if(
+        p.includes(
+            "/kennisbank/"
+        )
+    ){
+        return "knowledge";
+    }
+
+    if(
+        p.includes(
+            "/documenten/"
+        )
+    ){
+        return "knowledge";
+    }
+
+    if(
+        p.includes(
+            "/ledenbeheer/"
+        )
+    ){
+        return "members";
+    }
+
+    if(
+        p.includes(
+            "/projecten/"
+        )
+    ){
+        return "projects";
+    }
+
+    if(
+        p.includes(
+            "/vergaderingen/"
+        )
+    ){
+        return "meetings";
+    }
+
+    if(
+        p.includes(
+            "/onkosten/"
+        )
+    ){
+        return "finance";
+    }
+
+    if(
+        p.includes(
+            "/kasboek/"
+        )
+    ){
+        return "finance";
+    }
+
+    if(
+        p.includes(
+            "/admin_ccv/"
+        )
+    ){
+        return "administration";
+    }
+
+    return "general";
+
+}
 
 async function buildOneDriveIndex(){
 
     console.log(
-        "Start OneDrive scan..."
+        "Start beperkte OneDrive scan..."
     );
 
     const token =
         await getAccessToken();
 
-    const allItems =
-    await scanDriveFolder(
-        token,
-        "root",
-        "",
-        new Set()
-    );
+    const kennisbankFolder =
+        await getFolderByPath(
+            "Kennisbank"
+        );
+
+    const documentenFolder =
+        await getFolderByPath(
+            "Documenten"
+        );
+
+    let allItems = [];
+
+    if(kennisbankFolder){
+
+        console.log(
+            "SCAN KENNISBANK:",
+            kennisbankFolder.id
+        );
+
+        const kennisbankItems =
+
+            await scanDriveFolder(
+                token,
+                kennisbankFolder.id,
+                "CCV-VZW/Kennisbank"
+            );
+
+        allItems.push(
+            ...kennisbankItems
+        );
+
+    }
+
+    if(documentenFolder){
+
+        console.log(
+            "SCAN DOCUMENTEN:",
+            documentenFolder.id
+        );
+
+        const documentenItems =
+
+            await scanDriveFolder(
+                token,
+                documentenFolder.id,
+                "CCV-VZW/Documenten"
+            );
+
+        allItems.push(
+            ...documentenItems
+        );
+
+    }
 
     console.log(
-        "Totaal gevonden:",
+        "TOTAAL GEVONDEN:",
         allItems.length
     );
-
-    console.log(
-    "Items gevonden:",
-    allItems.length
-);
-
 
     let fileCount = 0;
     let folderCount = 0;
@@ -1216,10 +1409,13 @@ async function buildOneDriveIndex(){
         new Set(
 
             globalIndex.map(
+
                 item =>
+
                     item.source +
                     "_" +
                     item.id
+
             )
 
         );
@@ -1230,11 +1426,15 @@ async function buildOneDriveIndex(){
 
             item.folder
 
-                ? "folder"
+            ?
 
-                : "file";
+            "folder"
 
-        const uniqueId =
+            :
+
+            "file";
+
+        const uniqueKey =
 
             source +
             "_" +
@@ -1242,7 +1442,7 @@ async function buildOneDriveIndex(){
 
         if(
             existingIds.has(
-                uniqueId
+                uniqueKey
             )
         ){
 
@@ -1251,16 +1451,17 @@ async function buildOneDriveIndex(){
         }
 
         existingIds.add(
-            uniqueId
+            uniqueKey
         );
 
-        if(source === "file"){
+        if(
+            source === "file"
+        ){
 
             fileCount++;
 
         }
-
-        if(source === "folder"){
+        else{
 
             folderCount++;
 
@@ -1268,27 +1469,67 @@ async function buildOneDriveIndex(){
 
         globalIndex.push({
 
-            source : source,
+            source :
 
-            id : item.id,
+                source,
+
+            libraryType :
+
+    determineLibraryType(
+        item.fullPath
+    ),
+
+    managementCategory :
+
+    determineManagementCategory(
+        item.fullPath
+    ),
+
+managementSubCategory :
+
+    determineManagementSubCategory(
+        item.fullPath
+    ),
+
+            id :
+
+                item.id,
 
             title :
-                item.name || "",
 
-            webUrl :
-                item.webUrl || "",
+                item.name ||
+
+                "",
 
             location :
-                item.fullPath || "",
+
+                item.fullPath ||
+
+                "",
 
             modified :
-                item.lastModifiedDateTime || "",
+
+                item.lastModifiedDateTime ||
+
+                "",
 
             size :
-                item.size || 0,
+
+                item.size ||
+
+                0,
+
+            webUrl :
+
+                item.webUrl ||
+
+                "",
 
             fileType :
-                item.file?.mimeType || "",
+
+                item.file?.mimeType ||
+
+                "",
 
             tags : [],
 
@@ -1315,8 +1556,7 @@ async function buildOneDriveIndex(){
     console.log(
         "OneDrive index:",
         globalIndex.filter(
-            item =>
-                item.source === "file"
+            x => x.source === "file"
         ).length
     );
 
@@ -3580,6 +3820,588 @@ function openRelationshipEditor(
     renderRelationshipList(
         website.id
     );
+
+}
+
+function renderManagementCenter(){
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+
+🏛 Verenigingsbeheer
+
+</div>
+
+<div
+style="
+display:grid;
+grid-template-columns:
+repeat(
+auto-fit,
+minmax(240px,1fr)
+);
+gap:20px;
+"
+>
+
+${renderManagementCard(
+    "👥",
+    "Ledenbeheer",
+    "members"
+)}
+
+${renderManagementCard(
+    "📋",
+    "Projecten",
+    "projects"
+)}
+
+${renderManagementCard(
+    "📅",
+    "Vergaderingen",
+    "meetings"
+)}
+
+${renderManagementCard(
+    "💰",
+    "Onkosten",
+    "finance"
+)}
+
+${renderManagementCard(
+    "📒",
+    "Kasboek",
+    "finance"
+)}
+
+${renderManagementCard(
+    "🏢",
+    "Administratie",
+    "administration"
+)}
+
+</div>
+
+`;
+
+}
+
+function renderManagementCard(
+    icon,
+    title,
+    libraryType
+){
+
+    const count =
+
+        globalIndex.filter(
+
+            item =>
+
+                item.libraryType ===
+                libraryType
+
+        ).length;
+
+    return `
+
+<div
+class="card"
+style="
+cursor:pointer;
+"
+onclick="
+renderManagementCategory(
+'${libraryType}'
+)
+"
+>
+
+<h2>
+
+${icon}
+
+${title}
+
+</h2>
+
+<br>
+
+${count} documenten
+
+</div>
+
+`;
+
+}
+
+function renderManagementCategory(
+    type
+){
+
+    const items =
+
+        globalIndex.filter(
+
+            item =>
+
+                item.libraryType ===
+                type
+
+        );
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+
+🏛 ${type}
+
+</div>
+
+<button
+class="action-btn"
+onclick="
+renderManagementCenter()
+"
+>
+
+⬅ Terug
+
+</button>
+
+<br><br>
+
+${items.map(item=>`
+
+<div
+class="card"
+style="
+margin-bottom:10px;
+cursor:pointer;
+"
+onclick="
+openSearchResult(
+'${item.source}',
+'${item.id}'
+)
+"
+>
+
+<h3>
+
+${item.title}
+
+</h3>
+
+<small>
+
+${item.location}
+
+</small>
+
+</div>
+
+`).join("")}
+
+`;
+
+}
+
+function determineManagementCategory(
+    path
+){
+
+    const p =
+        (path || "")
+        .toLowerCase();
+
+    if(
+        p.includes(
+            "/ledenbeheer/"
+        )
+    ){
+        return "members";
+    }
+
+    if(
+        p.includes(
+            "/projecten/"
+        )
+    ){
+        return "projects";
+    }
+
+    if(
+        p.includes(
+            "/vergaderingen/"
+        )
+    ){
+        return "meetings";
+    }
+
+    if(
+        p.includes(
+            "/kasboek/"
+        )
+    ){
+        return "finance";
+    }
+
+    if(
+        p.includes(
+            "/onkosten/"
+        )
+    ){
+        return "finance";
+    }
+
+    if(
+        p.includes(
+            "/post_verzendingen/"
+        )
+    ){
+        return "shipping";
+    }
+
+    if(
+        p.includes(
+            "/admin_ccv/"
+        )
+    ){
+        return "administration";
+    }
+
+    return "";
+
+}
+
+function determineManagementSubCategory(
+    path
+){
+
+    const parts =
+        (path || "")
+        .split("/");
+
+    const baseFolders = [
+
+        "ledenbeheer",
+        "projecten",
+        "vergaderingen",
+        "onkosten",
+        "kasboek",
+        "admin_ccv",
+        "post_verzendingen"
+
+    ];
+
+    const matchIndex =
+
+        parts.findIndex(
+
+            part =>
+
+                baseFolders.includes(
+                    part.toLowerCase()
+                )
+
+        );
+
+    if(
+        matchIndex >= 0 &&
+
+        parts.length >
+        matchIndex + 1
+    ){
+
+        return parts[
+            matchIndex + 1
+        ];
+
+    }
+
+    return "Algemeen";
+
+}
+
+function renderManagementCenter(){
+
+    const categories = [
+
+        {
+            id:"members",
+            icon:"👥",
+            title:"Ledenbeheer"
+        },
+
+        {
+            id:"projects",
+            icon:"📋",
+            title:"Projecten"
+        },
+
+        {
+            id:"meetings",
+            icon:"📅",
+            title:"Vergaderingen"
+        },
+
+        {
+            id:"finance",
+            icon:"💰",
+            title:"Financieel"
+        },
+
+        {
+            id:"shipping",
+            icon:"📦",
+            title:"Verzendingen"
+        },
+
+        {
+            id:"administration",
+            icon:"🏢",
+            title:"Administratie"
+        }
+
+    ];
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+
+🏛 Verenigingsbeheer
+
+</div>
+
+<div
+style="
+display:grid;
+grid-template-columns:
+repeat(
+auto-fit,
+minmax(250px,1fr)
+);
+gap:20px;
+"
+>
+
+${categories.map(cat=>{
+
+    const count =
+
+        globalIndex.filter(
+
+            item =>
+
+                item.managementCategory ===
+                cat.id
+
+        ).length;
+
+    return `
+
+<div
+class="card"
+style="
+cursor:pointer;
+"
+onclick="
+renderManagementCategory(
+'${cat.id}'
+)
+"
+>
+
+<h2>
+
+${cat.icon}
+${cat.title}
+
+</h2>
+
+<br>
+
+${count} documenten
+
+</div>
+
+`;
+
+}).join("")}
+
+</div>
+
+`;
+
+}
+
+function renderManagementCategory(
+    category
+){
+
+    const items =
+
+        globalIndex.filter(
+
+            item =>
+
+                item.managementCategory ===
+                category
+
+        );
+
+    const subCategories =
+
+        [
+
+            ...new Set(
+
+                items.map(
+
+                    item =>
+
+                        item.managementSubCategory
+
+                )
+
+            )
+
+        ]
+
+        .sort();
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+
+🏛 ${category}
+
+</div>
+
+<button
+class="action-btn"
+onclick="
+renderManagementCenter()
+"
+>
+⬅ Terug
+</button>
+
+<br><br>
+
+${subCategories.map(sub=>`
+
+<div
+class="card"
+style="
+margin-bottom:10px;
+cursor:pointer;
+"
+onclick="
+renderManagementSubCategory(
+'${category}',
+'${sub}'
+)
+"
+>
+
+📂 ${sub}
+
+</div>
+
+`).join("")}
+
+`;
+
+}
+
+function renderManagementSubCategory(
+    category,
+    subCategory
+){
+
+    const items =
+
+        globalIndex.filter(
+
+            item =>
+
+                item.managementCategory ===
+                category
+
+                &&
+
+                item.managementSubCategory ===
+                subCategory
+
+        );
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+
+📂 ${subCategory}
+
+</div>
+
+<button
+class="action-btn"
+onclick="
+renderManagementCategory(
+'${category}'
+)
+"
+>
+⬅ Terug
+</button>
+
+<br><br>
+
+${items.map(item=>`
+
+<div
+class="card"
+style="
+margin-bottom:10px;
+cursor:pointer;
+"
+onclick="
+openSearchResult(
+'${item.source}',
+'${item.id}'
+)
+"
+>
+
+<h3>
+
+${item.title}
+
+</h3>
+
+<small>
+
+${item.location}
+
+</small>
+
+</div>
+
+`).join("")}
+
+`;
 
 }
 

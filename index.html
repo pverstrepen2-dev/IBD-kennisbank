@@ -315,6 +315,8 @@ let folderPath = [
    SEARCH ENGINE
    =================================== */
 
+let minimumRelationScore = 5;
+   
 let globalIndex = [];
 
 let documentConnections = [];
@@ -4308,6 +4310,63 @@ async function renderKnowledgeMap(){
 
     <div
         style="
+            margin-bottom:15px;
+            padding:15px;
+            border:1px solid #ddd;
+            border-radius:8px;
+            background:#f9fafb;
+        "
+    >
+
+        <label>
+
+            🔎 Zoekgevoeligheid
+
+        </label>
+
+        <br><br>
+
+        <input
+            type="range"
+            min="1"
+            max="50"
+            value="5"
+            id="relationSlider"
+            oninput="
+                updateRelationSensitivity(
+                    this.value
+                )
+            "
+            style="
+                width:250px;
+            "
+        >
+
+        <span
+            id="relationScoreLabel"
+            style="
+                margin-left:10px;
+                font-weight:bold;
+            "
+        >
+
+            Minimumscore: 5
+
+        </span>
+
+        <br><br>
+
+        <button
+            class="action-btn"
+            onclick="rebuildNetwork()"
+        >
+            🔄 Kenniskaart genereren
+        </button>
+
+    </div>
+
+    <div
+        style="
             display:flex;
             flex-wrap:wrap;
             gap:10px;
@@ -4360,8 +4419,36 @@ async function renderKnowledgeMap(){
         style="
             display:flex;
             gap:15px;
+            margin-bottom:15px;
         "
     >
+
+        <div
+            style="
+                min-width:180px;
+                padding:10px;
+                border:1px solid #ddd;
+                border-radius:8px;
+            "
+        >
+
+            <h3>🗺 Legenda</h3>
+
+            <br>
+
+            🟢 Knowledge<br><br>
+
+            🟠 Website<br><br>
+
+            🔵 Bestand<br><br>
+
+            🟣 Map<br><br>
+
+            🟡 Automatische relatie<br><br>
+
+            ⚪ Handmatige relatie
+
+        </div>
 
         <div
             id="knowledgeNetwork"
@@ -4393,6 +4480,30 @@ async function renderKnowledgeMap(){
 </div>
 
 `;
+
+    await buildKnowledgeNetwork();
+
+}
+
+function updateRelationSensitivity(value){
+
+    minimumRelationScore =
+        parseInt(value);
+
+    document.getElementById(
+        "relationScoreLabel"
+    ).innerHTML =
+        "Minimumscore: " + value;
+
+    rebuildNetwork();
+
+}
+
+async function rebuildNetwork(){
+
+    documentConnections = [];
+
+    buildDocumentConnections();
 
     await buildKnowledgeNetwork();
 
@@ -4576,7 +4687,10 @@ function buildDocumentConnections(){
 
             /* Veel strenger filter */
 
-           if(score < 2){
+          if(
+    score <
+    minimumRelationScore
+){
     return;
 }
 

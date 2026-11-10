@@ -1061,6 +1061,11 @@ async function scanDriveFolder(
 
         `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`;
 
+console.log(
+    "SCAN:",
+    path || "ROOT"
+);
+
     const response =
         await fetch(
             endpoint,

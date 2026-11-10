@@ -316,7 +316,11 @@ let folderPath = [
    =================================== */
 
 let globalIndex = [];
+
 let documentConnections = [];
+
+let documentKeywordIndex = {};
+
 /* =====================================================
    KNOWLEDGE HUB V4
    ===================================================== */
@@ -757,39 +761,358 @@ async function buildOneDriveIndex(){
     const data =
         await response.json();
 
-    data.value.forEach(item => {
+    for(const item of (data.value || [])){
+
+        let contentText = "";
+
+        try{
+
+            if(
+
+                item.file &&
+
+                item.name
+                .toLowerCase()
+                .endsWith(".pdf")
+
+            ){
+
+                contentText =
+
+                    await extractPdfContent(
+                        item.id
+                    );
+
+            }
+
+            else if(
+
+                item.file &&
+
+                item.name
+                .toLowerCase()
+                .endsWith(".docx")
+
+            ){
+
+                contentText =
+
+                    await extractWordContent(
+                        item.id
+                    );
+
+            }
+
+            else if(
+
+                item.file &&
+
+                item.name
+                .toLowerCase()
+                .endsWith(".pptx")
+
+            ){
+
+                contentText =
+
+                    await extractPowerPointContent(
+                        item.id
+                    );
+
+            }
+
+        }
+        catch(error){
+
+            console.error(
+
+                "Content extract fout",
+
+                item.name,
+
+                error
+
+            );
+
+        }
 
         globalIndex.push({
 
-    source:
-        item.folder
-            ? "folder"
-            : "file",
+            source:
 
-    id:
-        item.id,
+                item.folder
 
-    title:
-        item.name,
+                    ? "folder"
 
-    webUrl:
-        item.webUrl,
+                    : "file",
 
-    location:
-        item.parentReference?.path || "",
+            id:
+                item.id,
 
-    modified:
-        item.lastModifiedDateTime || "",
+            title:
+                item.name,
 
-    size:
-        item.size || 0,
+           tags:
 
-    fileType:
-        item.file?.mimeType || "",
+    item.name
 
-    data:
-        item
-});
+    .replace(/\.[^/.]+$/, "")
+
+    .split(/[\s_\-]+/)
+
+    .filter(Boolean),
+
+            content:
+                contentText,
+
+            webUrl:
+                item.webUrl,
+
+            location:
+
+                item.parentReference?.path ||
+
+                "",
+
+            modified:
+
+                item.lastModifiedDateTime ||
+
+                "",
+
+            size:
+
+                item.size || 0,
+
+            fileType:
+
+                item.file?.mimeType ||
+
+                "",
+
+            data:item
+
+        });
+
+    }
+
+}
+
+async function extractPdfContent(fileId){
+
+    try{
+
+        const token =
+            await getAccessToken();
+
+        const response =
+            await fetch(
+
+                `https://graph.microsoft.com/v1.0/me/drive/items/${fileId}/content`,
+
+                {
+                    headers:{
+                        Authorization:
+                            "Bearer " + token
+                    }
+                }
+
+            );
+
+        const buffer =
+            await response.arrayBuffer();
+
+        const pdf =
+
+            await pdfjsLib.getDocument({
+
+                data:buffer
+
+            }).promise;
+
+        let text = "";
+
+        for(
+
+            let pageNumber = 1;
+
+            pageNumber <= pdf.numPages;
+
+            pageNumber++
+
+        ){
+
+            const page =
+
+                await pdf.getPage(
+                    pageNumber
+                );
+
+            const content =
+
+                await page.getTextContent();
+
+            text +=
+
+                content.items
+
+                .map(
+                    item => item.str
+                )
+
+                .join(" ");
+
+        }
+
+        return text;
+
+    }
+    catch(error){
+
+        console.error(
+            "PDF extract fout",
+            error
+        );
+
+        return "";
+
+    }
+
+}
+
+async function extractWordContent(fileId){
+
+    try{
+
+        const token =
+            await getAccessToken();
+
+        const response =
+            await fetch(
+
+                `https://graph.microsoft.com/v1.0/me/drive/items/${fileId}/content`,
+
+                {
+                    headers:{
+                        Authorization:
+                            "Bearer " + token
+                    }
+                }
+
+            );
+
+        const buffer =
+            await response.arrayBuffer();
+
+        const result =
+
+            await mammoth.extractRawText({
+
+                arrayBuffer:buffer
+
+            });
+
+        return result.value || "";
+
+    }
+    catch(error){
+
+        console.error(
+            "WORD extract fout",
+            error
+        );
+
+        return "";
+
+    }
+
+}
+
+async function extractPowerPointContent(fileId){
+
+    try{
+
+        return "";
+
+    }
+    catch(error){
+
+        console.error(
+            "PPT extract fout",
+            error
+        );
+
+        return "";
+
+    }
+
+}
+
+async function buildDocumentKeywordIndex(){
+
+    documentKeywordIndex = {};
+
+    globalIndex.forEach(item=>{
+
+        const text = `
+
+            ${item.title || ""}
+            ${item.description || ""}
+            ${item.content || ""}
+            ${normalizeTags(item.tags).join(" ")}
+
+        `
+        .toLowerCase();
+
+        const words =
+
+            text
+
+            .replace(/[^\w\s]/g," ")
+
+            .split(/\s+/)
+
+            .filter(word=>
+
+                word.length > 4
+
+            );
+
+        const frequency = {};
+
+        words.forEach(word=>{
+
+            frequency[word] =
+
+                (frequency[word] || 0) + 1;
+
+        });
+
+        const keywords =
+
+            Object.entries(
+                frequency
+            )
+
+            .sort(
+
+                (a,b)=>
+
+                    b[1] - a[1]
+
+            )
+
+            .slice(0,20)
+
+            .map(x=>x[0]);
+
+        documentKeywordIndex[
+
+            item.source +
+            "_" +
+            item.id
+
+        ] = keywords;
 
     });
 
@@ -4090,7 +4413,7 @@ async function renderKnowledgeMap(){
 
 `;
 
-    buildKnowledgeNetwork();
+    await buildKnowledgeNetwork();
 
 }
 
@@ -4157,10 +4480,80 @@ function buildSemanticRelations(){
 
 }
 
-function buildKnowledgeNetwork(){
+function buildDocumentConnections(){
+
+    documentConnections = [];
+
+    globalIndex.forEach(item=>{
+
+        globalIndex.forEach(other=>{
+
+            if(
+
+                item === other ||
+
+                (
+                    item.source +
+                    "_" +
+                    item.id
+                )
+
+                >
+
+                (
+                    other.source +
+                    "_" +
+                    other.id
+                )
+
+            ){
+                return;
+            }
+
+            const score =
+
+                calculateContentSimilarity(
+                    item,
+                    other
+                );
+
+            if(score < 3){
+                return;
+            }
+
+            documentConnections.push({
+
+                source:
+                    item.source +
+                    "_" +
+                    item.id,
+
+                target:
+                    other.source +
+                    "_" +
+                    other.id,
+
+                score:score,
+
+                automatic:true
+
+            });
+
+        });
+
+    });
+
+}
+
+async function buildKnowledgeNetwork(){
 
     buildConceptClusters();
-buildSemanticRelations();
+
+    buildSemanticRelations();
+
+    await buildDocumentKeywordIndex();
+
+    buildDocumentConnections();
 
     const nodes = [];
     const edges = [];
@@ -4196,57 +4589,83 @@ buildSemanticRelations();
 
         (item.relationships || [])
 
-.forEach(rel=>{
+        .forEach(rel=>{
 
-    const targetItem =
+            const targetItem =
 
-    globalIndex.find(
+                globalIndex.find(
 
-        x =>
+                    x =>
 
-            String(x.id)
-            ===
-            String(rel.id)
+                        String(x.id)
+                        ===
+                        String(rel.id)
 
-            ||
+                        ||
 
-            (
-                x.source +
-                "_" +
-                x.id
-            ) === String(rel.id)
+                        (
+                            x.source +
+                            "_" +
+                            x.id
+                        )
+                        ===
+                        String(rel.id)
 
-    );
+                );
 
-    if(!targetItem){
+            if(!targetItem){
 
-        return;
+                return;
 
-    }
+            }
 
-    edges.push({
+            edges.push({
 
-        from:nodeId,
+                from:nodeId,
 
-        to:
-            targetItem.source +
-            "_" +
-            targetItem.id,
+                to:
+                    targetItem.source +
+                    "_" +
+                    targetItem.id,
 
-        width:
-            rel.weight || 1,
+                width:
+                    rel.weight || 1,
 
-        color:
+                color:
 
-            rel.automatic
+                    rel.automatic
 
-            ? "#4caf50"
+                    ? "#4caf50"
 
-            : "#2196f3"
+                    : "#2196f3"
+
+            });
+
+        });
 
     });
 
-});
+    documentConnections.forEach(connection=>{
+
+        edges.push({
+
+            from:
+                connection.source,
+
+            to:
+                connection.target,
+
+            width:
+                Math.min(
+                    connection.score,
+                    8
+                ),
+
+            color:"#ff9800",
+
+            dashes:true
+
+        });
 
     });
 
@@ -4260,9 +4679,15 @@ buildSemanticRelations();
 
             {
 
-                nodes:new vis.DataSet(nodes),
+                nodes:
+                    new vis.DataSet(
+                        nodes
+                    ),
 
-                edges:new vis.DataSet(edges)
+                edges:
+                    new vis.DataSet(
+                        edges
+                    )
 
             },
 
@@ -4295,9 +4720,7 @@ buildSemanticRelations();
         params=>{
 
             if(
-
                 !params.nodes.length
-
             ){
 
                 return;
@@ -4668,6 +5091,92 @@ function calculateSimilarity(
             tags2.includes(tag)
 
     ).length;
+
+}
+
+function calculateContentSimilarity(
+    item,
+    other
+){
+
+    let score = 0;
+
+    const text1 = `
+
+    ${item.title || ""}
+    ${item.description || ""}
+    ${item.category || ""}
+    ${item.content || ""}
+    ${normalizeTags(item.tags).join(" ")}
+
+`
+.toLowerCase();
+
+const text2 = `
+
+    ${other.title || ""}
+    ${other.description || ""}
+    ${other.category || ""}
+    ${other.content || ""}
+    ${normalizeTags(other.tags).join(" ")}
+
+`
+.toLowerCase();
+
+    const words1 =
+
+    text1
+    .split(/\s+/)
+    .filter(Boolean);
+
+const words2 =
+
+    text2
+    .split(/\s+/)
+    .filter(Boolean);
+
+words1.forEach(word=>{
+
+    if(
+        word.length > 3 &&
+        words2.includes(word)
+    ){
+
+        score++;
+
+    }
+
+});
+
+const key1 =
+
+    documentKeywordIndex[
+        item.source +
+        "_" +
+        item.id
+    ] || [];
+
+const key2 =
+
+    documentKeywordIndex[
+        other.source +
+        "_" +
+        other.id
+    ] || [];
+
+key1.forEach(keyword=>{
+
+    if(
+        key2.includes(keyword)
+    ){
+
+        score += 2;
+
+    }
+
+});
+
+    return score;
 
 }
 

@@ -792,9 +792,17 @@ async function buildOneDriveIndex(){
         await response.json();
 
     console.log(
-        "OneDrive zoekresultaten:",
+        "ONEDRIVE SEARCH RESULT:",
+        data
+    );
+
+    console.log(
+        "Aantal Graph items:",
         data.value?.length || 0
     );
+
+    let fileCount = 0;
+    let folderCount = 0;
 
     (data.value || []).forEach(item=>{
 
@@ -804,26 +812,12 @@ async function buildOneDriveIndex(){
                 ? "folder"
                 : "file";
 
-        const nodeId =
-            source + "_" + item.id;
+        if(source === "file"){
+            fileCount++;
+        }
 
-        const exists =
-            globalIndex.some(
-
-                x =>
-
-                    x.source === source &&
-
-                    String(x.id)
-                    ===
-                    String(item.id)
-
-            );
-
-        if(exists){
-
-            return;
-
+        if(source === "folder"){
+            folderCount++;
         }
 
         globalIndex.push({
@@ -861,29 +855,14 @@ async function buildOneDriveIndex(){
 
     });
 
-    const stats =
-
-        globalIndex.reduce(
-
-            (acc,item)=>{
-
-                acc[item.source] =
-
-                    (acc[item.source] || 0)
-
-                    + 1;
-
-                return acc;
-
-            },
-
-            {}
-
-        );
+    console.log(
+        "Files in Graph:",
+        fileCount
+    );
 
     console.log(
-        "OneDrive index statistieken:",
-        stats
+        "Folders in Graph:",
+        folderCount
     );
 
 }
@@ -1285,7 +1264,8 @@ console.log(
         )
         .map(
             x => x.title
-        );
+        )
+);
 
         if(fileMatch){
 
@@ -4689,12 +4669,11 @@ async function buildKnowledgeNetwork(){
 
     buildConceptClusters();
 
-    await buildDocumentKeywordIndex();
+    // await buildDocumentKeywordIndex();
 
-    buildSemanticRelations();
+buildSemanticRelations();
 
-    buildDocumentConnections();
-
+// buildDocumentConnections();
     const nodes = [];
     const edges = [];
     const edgeSet = new Set();

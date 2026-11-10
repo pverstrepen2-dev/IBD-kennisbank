@@ -317,6 +317,26 @@ let folderPath = [
 
 let globalIndex = [];
 
+/* =====================================================
+   KNOWLEDGE HUB V4
+   ===================================================== */
+
+const KnowledgeHub = {
+
+    nodes : [],
+
+    edges : [],
+
+    concepts : [],
+
+    clusters : [],
+
+    relationships : [],
+
+    selectedNode : null
+
+};
+
 let searchInitialized = false;
 
 const msalConfig = {
@@ -4103,9 +4123,8 @@ function buildSemanticRelations(){
         if(!item.relationships){
 
             item.relationships = [];
-        }
 
-        const itemTags = normalizeTags(item.tags);
+        }
 
         globalIndex.forEach(other=>{
 
@@ -4113,24 +4132,24 @@ function buildSemanticRelations(){
                 return;
             }
 
-            const otherTags =
-                normalizeTags(other.tags);
+            const similarity =
 
-            const commonTags =
-                itemTags.filter(tag=>
-
-                    otherTags.includes(tag)
-
+                calculateSimilarity(
+                    item,
+                    other
                 );
 
-            if(commonTags.length >= 2){
+            if(similarity >= 2){
 
                 const exists =
-                    item.relationships.some(rel=>
 
-                        String(rel.id)
-                        ===
-                        String(other.id)
+                    item.relationships.some(
+
+                        rel =>
+
+                            String(rel.id)
+                            ===
+                            String(other.id)
 
                     );
 
@@ -4142,14 +4161,11 @@ function buildSemanticRelations(){
 
                         source:other.source,
 
-                        type:"semantic",
-
-                        weight:
-                            commonTags.length,
+                        type:RELATIONS.RELATED,
 
                         automatic:true,
 
-                        tags:commonTags
+                        weight:similarity
 
                     });
 
@@ -4187,12 +4203,15 @@ function normalizeTags(tags){
 
 function buildKnowledgeNetwork(){
 
-    const nodes = [];
-    const edges = [];
-
-    const nodeIds = new Set();
+    buildConceptClusters();
 
     buildSemanticRelations();
+
+    KnowledgeHub.nodes = [];
+    KnowledgeHub.edges = [];
+
+    const addedNodes =
+        new Set();
 
     globalIndex.forEach(item=>{
 
@@ -4202,99 +4221,82 @@ function buildKnowledgeNetwork(){
             "_" +
             item.id;
 
-        if(nodeIds.has(nodeId)){
-            return;
-        }
+        if(!addedNodes.has(nodeId)){
 
-        nodeIds.add(nodeId);
+            KnowledgeHub.nodes.push({
 
-        const score =
-            calculateSemanticScore(
-                item
-            );
+                id:nodeId,
 
-        nodes.push({
+                label:
 
-            id:nodeId,
+                    item.title ||
 
-            label:
-                item.title ||
-                item.name ||
-                String(item.id),
+                    item.name ||
 
-            group:
-                item.source,
+                    String(item.id),
 
-            value:
-                Math.max(
-                    10,
-                    score * 5
-                ),
+                group:item.source,
 
-            title:
-
-                item.title ||
-
-                String(item.id)
-
-        });
-
-        if(item.relationships){
-
-            item.relationships.forEach(rel=>{
-
-                edges.push({
-
-                    from:nodeId,
-
-                    to:
-                        rel.source
-
-                        ? rel.source +
-                          "_" +
-                          rel.id
-
-                        : rel.id,
-
-                    color:
-
-                        rel.automatic
-
-                        ? "#4caf50"
-
-                        : "#2196f3",
-
-                    width:
-
-                        rel.weight || 1
-
-                });
+                value:
+                    calculateSemanticScore(
+                        item
+                    )
 
             });
 
+            addedNodes.add(nodeId);
+
         }
+
+        (item.relationships || [])
+
+        .forEach(rel=>{
+
+            KnowledgeHub.edges.push({
+
+                from:nodeId,
+
+                to:
+                    rel.source +
+                    "_" +
+                    rel.id,
+
+                width:
+                    rel.weight || 1,
+
+                color:
+
+                    rel.automatic
+
+                        ? "#4caf50"
+
+                        : "#2196f3"
+
+            });
+
+        });
 
     });
 
     const container =
+
         document.getElementById(
             "knowledgeNetwork"
         );
 
     window.knowledgeNetwork =
+
         new vis.Network(
 
             container,
 
             {
 
-                nodes:new vis.DataSet(
-                    nodes
-                ),
+                nodes:
+                    KnowledgeHub.nodes,
 
-                edges:new vis.DataSet(
-                    edges
-                )
+                edges:
+                    KnowledgeHub.edges
 
             },
 
@@ -4314,13 +4316,7 @@ function buildKnowledgeNetwork(){
 
                     enabled:true,
 
-                    barnesHut:{
-
-                        springLength:150,
-
-                        avoidOverlap:1
-
-                    }
+                    stabilization:true
 
                 },
 
@@ -4352,43 +4348,127 @@ function buildKnowledgeNetwork(){
 
         "click",
 
-        function(params){
+        params=>{
 
             if(
-                !params.nodes.length
+
+                params.nodes.length
+
             ){
-                return;
+
+                showKnowledgeExplorer(
+
+                    params.nodes[0]
+
+                );
+
             }
-
-            showKnowledgeNodeDetails(
-                params.nodes[0]
-            );
-
-        }
-
-    );
-
-    knowledgeNetwork.on(
-
-        "doubleClick",
-
-        function(params){
-
-            if(
-                !params.nodes.length
-            ){
-                return;
-            }
-
-            openKnowledgeNode(
-                params.nodes[0]
-            );
 
         }
 
     );
 
 }
+
+function showKnowledgeExplorer(
+    nodeId
+){
+
+    const parts =
+        nodeId.split("_");
+
+    const source =
+        parts[0];
+
+    const id =
+        parts.slice(1).join("_");
+
+    const item =
+
+        globalIndex.find(
+
+            x =>
+
+                x.source===source &&
+
+                String(x.id)===String(id)
+
+        );
+
+    if(!item){
+
+        return;
+
+    }
+
+    document.getElementById(
+        "knowledgeDetails"
+    ).innerHTML = `
+
+<h2>
+
+${item.title || "-"}
+
+</h2>
+
+<hr>
+
+<b>Type</b>
+
+<br>
+
+${item.source}
+
+<br><br>
+
+<b>Tags</b>
+
+<br>
+
+${normalizeTags(item.tags).join(", ")}
+
+<br><br>
+
+<b>Relaties</b>
+
+<br>
+
+${
+
+(item.relationships || []).length
+
+}
+
+<br><br>
+
+<b>Locatie</b>
+
+<br>
+
+${item.location || "-"}
+
+<br><br>
+
+<button
+
+onclick="
+openSearchResult(
+'${item.source}',
+'${item.id}'
+)
+"
+
+>
+
+Open item
+
+</button>
+
+`;
+
+}
+
+
 
 function focusTagCluster(tag){
 
@@ -4433,7 +4513,9 @@ function focusTagCluster(tag){
 function searchKnowledgeNode(){
 
     const term =
-        document.getElementById(
+
+        document
+        .getElementById(
             "knowledgeSearch"
         )
         .value
@@ -4446,15 +4528,17 @@ function searchKnowledgeNode(){
 
     }
 
-    const node = globalIndex.find(item => {
+    const node =
 
-        const title =
-            (item.title || "")
-            .toLowerCase();
+        globalIndex.find(item=>{
 
-        return title.includes(term);
+            return JSON.stringify(item)
 
-    });
+                .toLowerCase()
+
+                .includes(term);
+
+        });
 
     if(!node){
 
@@ -4468,19 +4552,25 @@ function searchKnowledgeNode(){
         "_" +
         node.id;
 
-    knowledgeNetwork.selectNodes([
-        nodeId
-    ]);
-
     knowledgeNetwork.focus(
+
         nodeId,
+
         {
+
             scale:1.5,
+
             animation:true
+
         }
+
     );
 
-    showKnowledgeNodeDetails(
+    knowledgeNetwork.selectNodes(
+        [nodeId]
+    );
+
+    showKnowledgeExplorer(
         nodeId
     );
 
@@ -4847,6 +4937,115 @@ function showCrohnCluster(){
         .join("");
 
 }
+
+function normalizeTags(tags){
+
+    if(!tags){
+        return [];
+    }
+
+    if(Array.isArray(tags)){
+
+        return tags
+            .map(tag=>tag.toLowerCase().trim())
+            .filter(Boolean);
+
+    }
+
+    return String(tags)
+
+        .split(",")
+
+        .map(tag=>tag.toLowerCase().trim())
+
+        .filter(Boolean);
+
+}
+
+function calculateSemanticScore(item){
+
+    let score = 1;
+
+    score += normalizeTags(
+        item.tags
+    ).length;
+
+    score +=
+
+        item.relationships
+            ? item.relationships.length
+            : 0;
+
+    if(item.description){
+        score += 2;
+    }
+
+    return score;
+
+}
+
+const RELATIONS = {
+
+    RELATED:"related",
+
+    CONTAINS:"contains",
+
+    REFERENCES:"references",
+
+    SOURCE:"source",
+
+    PARTOF:"partof",
+
+    CHILD:"child",
+
+    PARENT:"parent"
+
+};
+
+function calculateSimilarity(
+    item,
+    other
+){
+
+    const tags1 =
+        normalizeTags(
+            item.tags
+        );
+
+    const tags2 =
+        normalizeTags(
+            other.tags
+        );
+
+    return tags1.filter(
+
+        tag =>
+
+            tags2.includes(tag)
+
+    ).length;
+
+}
+
+function buildConceptClusters(){
+
+    KnowledgeHub.concepts = [
+
+        "Crohn",
+        "Colitis",
+        "Voeding",
+        "Medicatie",
+        "Onderzoek",
+        "Werk",
+        "Rechten",
+        "Psychologie",
+        "Jongeren",
+        "Stoma"
+
+    ];
+
+}
+
 
 /* =====================================================
    OPSTART

@@ -639,41 +639,65 @@ async function buildSearchIndex(){
 
     KnowledgeHub.edges = [];
 
+    const hasAccount =
+
+        msalInstance.getAllAccounts().length > 0;
+
+    if(!hasAccount){
+
+        console.warn(
+            "Geen Microsoft-account aangemeld."
+        );
+
+        searchInitialized = true;
+
+        return;
+    }
+
     try{
+
         await buildKnowledgeIndex();
+
     }
     catch(error){
+
         console.error(
             "Knowledge index fout",
             error
         );
+
     }
 
     try{
+
         await buildWebsiteIndex();
+
     }
     catch(error){
+
         console.error(
             "Website index fout",
             error
         );
+
     }
 
-    if(currentUser){
+    try{
 
-        try{
-            await buildOneDriveIndex();
-        }
-        catch(error){
-            console.error(
-                "OneDrive index fout",
-                error
-            );
-        }
+        await buildOneDriveIndex();
+
+    }
+    catch(error){
+
+        console.error(
+            "OneDrive index fout",
+            error
+        );
 
     }
 
     linkKnowledgeDocuments();
+
     searchInitialized = true;
 
     console.log(

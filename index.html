@@ -682,20 +682,222 @@ async function buildKnowledgeIndex(){
         return;
     }
 
-    records.forEach(record=>{
+    const existingKeys =
+        new Set(
 
-        globalIndex.push({
+            globalIndex
 
-            source:"knowledge",
-            id:record.id,
-            title:record.title || "",
-            category:record.category || "",
-            tags:record.tags || [],
-            data:record
+            .filter(
+                item =>
+                    item.source === "knowledge"
+            )
 
-        });
+            .map(
+                item =>
+                    `knowledge_${
+                        item.id
+                    }`
+            )
+
+        );
+
+    let addedCount = 0;
+
+    let skippedCount = 0;
+
+    records.forEach(record => {
+
+        const recordId =
+
+            record.id ||
+
+            (
+                record.title || ""
+            )
+            .toLowerCase()
+            .trim();
+
+        const uniqueKey =
+            `knowledge_${recordId}`;
+
+        if(
+            existingKeys.has(
+                uniqueKey
+            )
+        ){
+
+            skippedCount++;
+
+            return;
+        }
+
+        existingKeys.add(
+            uniqueKey
+        );
+
+        const item = {
+
+            source : "knowledge",
+
+            id :
+                record.id ||
+                Date.now() +
+                Math.random(),
+
+            title :
+                record.title ||
+                "Naamloos document",
+
+            description :
+                record.description ||
+                "",
+
+            mainCategory :
+                record.mainCategory ||
+                "Overig",
+
+            subCategory :
+                record.subCategory ||
+                "Algemeen",
+
+            category :
+                record.mainCategory ||
+                record.category ||
+                "Overig",
+
+            tags :
+
+                Array.isArray(
+                    record.tags
+                )
+
+                ? record.tags
+
+                : [],
+
+            relationships :
+
+                Array.isArray(
+                    record.relationships
+                )
+
+                ? record.relationships
+
+                : [],
+
+            language :
+                record.language ||
+                "NL",
+
+            audience :
+                record.audience ||
+                "Iedereen",
+
+            type :
+                record.type ||
+                "artikel",
+
+            fileName :
+                record.fileName ||
+                "",
+
+            oneDriveId :
+                record.oneDriveId ||
+                "",
+
+            author :
+                record.author ||
+                "",
+
+            status :
+                record.status ||
+                "Actief",
+
+            created :
+                record.created ||
+                "",
+
+            modified :
+                record.modified ||
+                "",
+
+            semanticScore :
+
+                (
+                    Array.isArray(
+                        record.tags
+                    )
+
+                    ? record.tags.length
+
+                    : 0
+                )
+
+                +
+
+                (
+                    Array.isArray(
+                        record.relationships
+                    )
+
+                    ? record.relationships.length
+
+                    : 0
+                ),
+
+            content : "",
+
+            data : record
+
+        };
+
+        globalIndex.push(
+            item
+        );
+
+        addedCount++;
 
     });
+
+    console.log(
+        "Knowledge records:",
+        records.length
+    );
+
+    console.log(
+        "Toegevoegd:",
+        addedCount
+    );
+
+    console.log(
+        "Overgeslagen duplicaten:",
+        skippedCount
+    );
+
+    console.log(
+        "Knowledge index:",
+        globalIndex.filter(
+            item =>
+                item.source === "knowledge"
+        ).length
+    );
+
+    console.log(
+        "Knowledge categorieën:",
+        [
+            ...new Set(
+                globalIndex
+                .filter(
+                    item =>
+                        item.source === "knowledge"
+                )
+                .map(
+                    item =>
+                        item.mainCategory
+                )
+            )
+        ]
+    );
 
 }
 

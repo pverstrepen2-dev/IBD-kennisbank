@@ -795,22 +795,26 @@ function globalSearch(term){
 
 function renderResults(results){
 
-    document.getElementById(
-        "searchResults"
-    ).innerHTML =
+    const container =
+        document.getElementById(
+            "searchResults"
+        );
 
-        results.map(item => `
+    if(!container){
+        return;
+    }
+
+    container.innerHTML =
+        results
+        .map(item => `
 
 <div
-
     class="card"
-
     style="
         margin-bottom:12px;
         cursor:pointer;
         border-left:4px solid #2563eb;
     "
-
     onclick="
         openSearchResult(
             '${item.source}',
@@ -821,58 +825,41 @@ function renderResults(results){
 
     <h3>
 
-    ${
-        item.source === "folder"
-        ? "📁"
-        : item.title?.endsWith(".pdf")
-            ? "📄"
-            : item.title?.endsWith(".docx")
-                ? "📘"
-                : item.title?.endsWith(".xlsx")
-                    ? "📊"
-                    : item.title?.endsWith(".pptx")
-                        ? "📽️"
-                        : "📄"
-    }
+        ${
+            item.source === "folder"
+                ? "📁"
+                : item.source === "website"
+                    ? "🌐"
+                    : "📄"
+        }
 
-    ${item.title}
+        ${item.title || "-"}
 
-</h3>
+    </h3>
 
     <br>
 
-    <b>Type:</b>
-
-    ${item.source}
-
+    <b>Type:</b> ${item.source}
     <br>
 
-    <b>Locatie:</b>
-
-    ${item.location || "-"}
-
+    <b>Locatie:</b> ${item.location || "-"}
     <br>
 
     <b>Laatst gewijzigd:</b>
-
     ${item.modified || "-"}
-
     <br>
 
     <b>Grootte:</b>
-
-    ${item.size
-        ?
-        Math.round(
-            item.size / 1024
-        ) + " KB"
-        :
-        "-"
+    ${
+        item.size
+            ? Math.round(item.size / 1024) + " KB"
+            : "-"
     }
 
 </div>
 
-`), join("");
+`)
+        .join("");
 }
 
 async function openSearchResult(
@@ -1599,6 +1586,16 @@ async function renderWebsites(){
             <input
 
                 id="websiteSearch"
+
+                <input
+    id="newWebsiteTags"
+    placeholder="Crohn, voeding, medicatie"
+    style="
+        width:100%;
+        padding:10px;
+        margin-bottom:10px;
+    "
+>
 
                 type="text"
 
@@ -2388,14 +2385,11 @@ else{
 
         tags:tags,
 
-        semanticScore:
-    tags.length,
-
         favorite:false,
 
-       relationships:[],
+relationships:[],
 
-semanticScore:0,
+semanticScore: tags.length,
 
         created:
             new Date()
@@ -2953,35 +2947,32 @@ function getRelationIcon(
 function populateRelationshipTargets(){
 
     const select =
-
         document.getElementById(
             "relationshipTarget"
         );
 
     if(!select){
+        return;
+    }
+
+    if(!globalIndex.length){
+
+        select.innerHTML =
+            "<option>Geen data</option>";
 
         return;
-
     }
 
     select.innerHTML =
-
         globalIndex
-
         .map(item => `
 
-            <option
-                value="${item.id}"
-            >
+<option value="${item.id}">
+    ${item.title || item.id}
+</option>
 
-                ${item.title}
-
-            </option>
-
-        `)
-
+`)
         .join("");
-
 }
 
 function openRelationshipItem(
@@ -3967,52 +3958,38 @@ function renderSearchPage(){
 
 }
 
-function renderKnowledgeMap(){
+async function renderKnowledgeMap(){
+
+    if(!searchInitialized){
+
+        await buildSearchIndex();
+
+    }
 
     document.getElementById(
         "ccvContent"
     ).innerHTML = `
 
-        <div class="page-title">
+<div class="page-title">
 
-            🧠 Kenniskaart
+    🧠 Kenniskaart
 
-        </div>
+</div>
 
-        <div class="card">
-
-            <div
-    style="
-        display:flex;
-        gap:15px;
-    "
->
+<div class="card">
 
     <div
-
         id="knowledgeNetwork"
-
         style="
-            flex:3;
-            height:700px;
+            height:750px;
             border:1px solid #ddd;
         "
+    ></div>
 
-    >
-
-    </div>
+    <br>
 
     <div
-
         id="knowledgeDetails"
-
-        style="
-            flex:1;
-            border:1px solid #ddd;
-            padding:15px;
-            overflow:auto;
-        "
-
     >
 
         Selecteer een node
@@ -4021,271 +3998,95 @@ function renderKnowledgeMap(){
 
 </div>
 
-        </div>
+`;
 
-    `;
-
-    buildSemanticRelations();
-
-buildKnowledgeNetwork();
+    buildKnowledgeNetwork();
 
 }
 
 function buildKnowledgeNetwork(){
 
-    const nodeMap = new Map();
-
+    const nodes = [];
     const edges = [];
 
-    window.selectedKnowledgeNode = null;
-
-    const concepts = [
-
-        {
-            id:"concept_crohn",
-            label:"📚 Crohn"
-        },
-
-        {
-            id:"concept_crohn_symptomen",
-            label:"🩺 Symptomen"
-        },
-
-        {
-            id:"concept_crohn_voeding",
-            label:"🥗 Voeding"
-        },
-
-        {
-            id:"concept_crohn_medicatie",
-            label:"💊 Medicatie"
-        },
-
-        {
-            id:"concept_crohn_onderzoek",
-            label:"🧪 Onderzoek"
-        }
-
-    ];
-
-    concepts.forEach(concept => {
-
-        nodes.push({
-
-            id:concept.id,
-
-            label:concept.label,
-
-            group:"concept"
-
-        });
-
-    });
-
-    edges.push({
-
-        from:"concept_crohn",
-
-        to:"concept_crohn_symptomen"
-
-    });
-
-    edges.push({
-
-        from:"concept_crohn",
-
-        to:"concept_crohn_voeding"
-
-    });
-
-    edges.push({
-
-        from:"concept_crohn",
-
-        to:"concept_crohn_medicatie"
-
-    });
-
-    edges.push({
-
-        from:"concept_crohn",
-
-        to:"concept_crohn_onderzoek"
-
-    });
+    const addedNodes =
+        new Set();
 
     globalIndex.forEach(item => {
 
-        nodes.push({
+        const nodeId =
 
-            id:
-                item.source +
-                "_" +
-                item.id,
+            item.source +
+            "_" +
+            item.id;
 
-            label:
+        if(!addedNodes.has(nodeId)){
 
-                item.title ||
+            nodes.push({
 
-                item.name ||
+                id: nodeId,
 
-                item.id,
+                label:
+                    item.title ||
+                    item.name ||
+                    String(item.id),
 
-            group:
-                item.source
+                group:
+                    item.source
 
-        });
+            });
+
+            addedNodes.add(nodeId);
+        }
 
         const tags =
 
             Array.isArray(item.tags)
 
-                ?
+            ? item.tags
 
-            item.tags
+            : typeof item.tags === "string"
 
-                :
+                ? item.tags.split(",")
 
-            [];
+                : [];
 
-        if(
+        tags.forEach(tag => {
 
-            tags.some(
+            const tagId =
 
-                tag =>
+                "tag_" +
+                tag.trim();
 
-                    tag
-                        .toLowerCase()
-                        .includes("crohn")
+            if(
+                !addedNodes.has(tagId)
+            ){
 
-            )
+                nodes.push({
 
-        ){
+                    id: tagId,
 
-            edges.push({
+                    label:
+                        "🏷 " +
+                        tag.trim(),
 
-                from:"concept_crohn",
-
-                to:
-                    item.source +
-                    "_" +
-                    item.id
-
-            });
-
-        }
-
-        if(
-
-            tags.some(
-
-                tag =>
-
-                    tag
-                        .toLowerCase()
-                        .includes("medicatie")
-
-            )
-
-        ){
-
-            edges.push({
-
-                from:"concept_crohn_medicatie",
-
-                to:
-                    item.source +
-                    "_" +
-                    item.id
-
-            });
-
-        }
-
-        if(
-
-            tags.some(
-
-                tag =>
-
-                    tag
-                        .toLowerCase()
-                        .includes("voeding")
-
-            )
-
-        ){
-
-            edges.push({
-
-                from:"concept_crohn_voeding",
-
-                to:
-                    item.source +
-                    "_" +
-                    item.id
-
-            });
-
-        }
-
-        if(item.relationships){
-
-            item.relationships.forEach(rel => {
-
-                edges.push({
-
-                    from:
-                        item.source +
-                        "_" +
-                        item.id,
-
-                    to:
-
-                        rel.id &&
-                        rel.id.includes("_")
-
-                            ?
-
-                        rel.id
-
-                            :
-
-                        rel.type +
-                        "_" +
-                        rel.id,
-
-                    width:
-
-                        Math.max(
-
-                            1,
-
-                            item.semanticScore || 1
-
-                        ),
-
-                    color:{
-
-                        color:
-
-                            rel.automatic
-
-                                ?
-
-                            "#4caf50"
-
-                                :
-
-                            "#2196f3"
-
-                    }
+                    group:"tag"
 
                 });
 
+                addedNodes.add(tagId);
+
+            }
+
+            edges.push({
+
+                from: nodeId,
+
+                to: tagId
+
             });
 
-        }
+        });
 
     });
 
@@ -4295,124 +4096,64 @@ function buildKnowledgeNetwork(){
             "knowledgeNetwork"
         );
 
-    if(!container){
-
-        return;
-
-    }
-
-    const data = {
-
-        nodes:
-            new vis.DataSet(nodes),
-
-        edges:
-            new vis.DataSet(edges)
-
-    };
-
-    const options = {
-
-        nodes:{
-
-            shape:"dot",
-
-            size:18,
-
-            font:{
-
-                size:14
-
-            }
-
-        },
-
-        layout:{
-
-            improvedLayout:true
-
-        },
-
-        physics:{
-
-            enabled:true,
-
-            barnesHut:{
-
-                gravitationalConstant:-3000,
-
-                springLength:150,
-
-                springConstant:0.04
-
-            }
-
-        },
-
-        edges:{
-
-            width:2,
-
-            color:"#999",
-
-            smooth:true
-
-        },
-
-        groups:{
-
-            concept:{
-                color:"#8e24aa"
-            },
-
-            website:{
-                color:"#42a5f5"
-            },
-
-            knowledge:{
-                color:"#66bb6a"
-            },
-
-            file:{
-                color:"#ffca28"
-            },
-
-            meeting:{
-                color:"#ef5350"
-            },
-
-            person:{
-                color:"#ab47bc"
-            },
-
-            project:{
-                color:"#26a69a"
-            }
-
-        }
-
-    };
-
-    window.knowledgeNetwork =
+    const network =
 
         new vis.Network(
 
             container,
 
-            data,
+            {
 
-            options
+                nodes:
+                    new vis.DataSet(
+                        nodes
+                    ),
+
+                edges:
+                    new vis.DataSet(
+                        edges
+                    )
+
+            },
+
+            {
+
+                physics:true,
+
+                groups:{
+
+                    knowledge:{
+                        color:"#4caf50"
+                    },
+
+                    website:{
+                        color:"#ff9800"
+                    },
+
+                    file:{
+                        color:"#03a9f4"
+                    },
+
+                    folder:{
+                        color:"#9c27b0"
+                    },
+
+                    tag:{
+                        color:"#e91e63"
+                    }
+
+                }
+
+            }
 
         );
 
-    window.knowledgeNetwork.on(
-
+    network.on(
         "click",
-
-        function(params){
+        params => {
 
             if(
-                params.nodes.length === 0
+                !params.nodes.length
             ){
 
                 return;
@@ -4420,40 +4161,13 @@ function buildKnowledgeNetwork(){
             }
 
             const nodeId =
-
                 params.nodes[0];
-
-            if(
-
-                !window.selectedKnowledgeNode
-
-            ){
-
-                window.selectedKnowledgeNode =
-                    nodeId;
-
-            }
-            else{
-
-                createManualRelation(
-
-                    window.selectedKnowledgeNode,
-
-                    nodeId
-
-                );
-
-                window.selectedKnowledgeNode =
-                    null;
-
-            }
 
             showKnowledgeNodeDetails(
                 nodeId
             );
 
         }
-
     );
 
 }
@@ -4591,173 +4305,79 @@ function openKnowledgeNode(
 
 }
 
-function showKnowledgeNodeDetails(
-    nodeId
-){
+function showKnowledgeNodeDetails(nodeId){
 
-    const parts =
-        nodeId.split("_");
+    const details =
 
-    const source =
-        parts[0];
-
-    const id =
-        parts.slice(1).join("_");
+        document.getElementById(
+            "knowledgeDetails"
+        );
 
     const item =
 
-        globalIndex.find(
+        globalIndex.find(x =>
 
-            x =>
-
-                x.source === source &&
-
-                String(x.id)
-                ===
-                String(id)
+            (
+                x.source +
+                "_" +
+                x.id
+            ) === nodeId
 
         );
 
     if(!item){
 
-        return;
+        details.innerHTML =
 
+            "<b>Tag node</b>";
+
+        return;
     }
 
-   document.getElementById(
-    "knowledgeDetails"
-).innerHTML = `
+    details.innerHTML = `
 
-    <h2>
+<h2>
 
-        ${item.title || "-"}
+    ${item.title || "-"}
 
-    </h2>
+</h2>
 
-    ${
+<br>
 
-    item.id === "concept_crohn"
+<b>Bron:</b>
 
-        ?
+${item.source}
 
-    `
+<br><br>
 
-    <button
+<b>ID:</b>
 
-        onclick="showCrohnCluster()"
+${item.id}
 
-    >
+<br><br>
 
-        Toon alle gekoppelde items
+<b>Tags:</b>
 
-    </button>
+${
+    Array.isArray(item.tags)
 
-    <br><br>
+    ? item.tags.join(", ")
 
-    `
-
-        :
-
-    ""
-
+    : "-"
 }
 
-    <hr>
+<br><br>
 
-    <b>Type</b>
-
-    <br>
-
-    ${item.source}
-
-    <br><br>
-
-    <b>ID</b>
-
-    <br>
-
-    ${item.id}
-
-    <br><br>
-
-    <b>Tags</b>
-
-    <br>
-
-    ${
-
-        Array.isArray(item.tags)
-
-            ?
-
-        item.tags.join(", ")
-
-            :
-
-        "-"
-
-    }
-
-    <br><br>
-
-    <b>Relaties</b>
-
-    <br>
-
-    ${
-
-        item.relationships
-
-            ?
-
-        item.relationships.length
-
-            :
-
-        0
-
-    }
-
-    <br><br>
-
-    <b>Semantische score</b>
-
-    <br>
-
-    ${
-
-        item.semanticScore || 0
-
-    }
-
-    <br><br>
-
-    <button
-
-        onclick="
-            openSearchResult(
-                '${item.source}',
-                '${item.id}'
-            )
-        "
-
-    >
-
-        Open
-
-    </button>
-
-    <button
-
+<button
     onclick="
-        startRelationMode(
-            '${nodeId}'
+        openSearchResult(
+            '${item.source}',
+            '${item.id}'
         )
     "
-
 >
 
-    🔗 Relatie maken
+    Open item
 
 </button>
 

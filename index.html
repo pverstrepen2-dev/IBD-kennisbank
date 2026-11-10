@@ -634,14 +634,21 @@ async function buildSearchIndex(){
 
     globalIndex = [];
 
+    documentConnections = [];
+
+    documentKeywordIndex = {};
+
+    KnowledgeHub.nodes = [];
+
+    KnowledgeHub.edges = [];
+
     await buildKnowledgeIndex();
+
     await buildWebsiteIndex();
 
     if(currentUser){
 
         await buildOneDriveIndex();
-
-
 
     }
 
@@ -651,6 +658,7 @@ async function buildSearchIndex(){
         "SEARCH INDEX",
         globalIndex
     );
+
 }
 
 async function buildKnowledgeIndex(){
@@ -836,64 +844,92 @@ async function buildOneDriveIndex(){
 
         }
 
-        globalIndex.push({
+        const nodeId =
 
-            source:
+    (
+        item.folder
+            ? "folder"
+            : "file"
+    )
 
-                item.folder
+    + "_"
 
-                    ? "folder"
+    + item.id;
 
-                    : "file",
+const exists =
 
-            id:
-                item.id,
+    globalIndex.some(
 
-            title:
-                item.name,
+        x =>
 
-           tags:
+            x.source +
+            "_" +
+            x.id
 
-    item.name
+            ===
 
-    .replace(/\.[^/.]+$/, "")
+            nodeId
 
-    .split(/[\s_\-]+/)
+    );
 
-    .filter(Boolean),
+if(!exists){
 
-            content:
-                contentText,
+    globalIndex.push({
 
-            webUrl:
-                item.webUrl,
+        source:
 
-            location:
+            item.folder
 
-                item.parentReference?.path ||
+                ? "folder"
 
-                "",
+                : "file",
 
-            modified:
+        id:item.id,
 
-                item.lastModifiedDateTime ||
+        title:item.name,
 
-                "",
+        tags:
 
-            size:
+            item.name
 
-                item.size || 0,
+            .replace(/\.[^/.]+$/, "")
 
-            fileType:
+            .split(/[\s_\-]+/)
 
-                item.file?.mimeType ||
+            .filter(Boolean),
 
-                "",
+        content:
+            contentText,
 
-            data:item
+        webUrl:
+            item.webUrl,
 
-        });
+        location:
 
+            item.parentReference?.path ||
+
+            "",
+
+        modified:
+
+            item.lastModifiedDateTime ||
+
+            "",
+
+        size:
+
+            item.size || 0,
+
+        fileType:
+
+            item.file?.mimeType ||
+
+            "",
+
+        data:item
+
+    });
+}
     }
 
 }
@@ -4566,26 +4602,37 @@ async function buildKnowledgeNetwork(){
             "_" +
             item.id;
 
-        nodes.push({
+       if(
 
-            id:nodeId,
+    !nodes.some(
+        n => n.id === nodeId
+    )
 
-            label:
+){
 
-                item.title ||
+    nodes.push({
 
-                item.name ||
+        id:nodeId,
 
-                item.id,
+        label:
 
-            group:item.source,
+            item.title ||
 
-            value:
-                calculateSemanticScore(
-                    item
-                )
+            item.name ||
 
-        });
+            item.id,
+
+        group:item.source,
+
+        value:
+            calculateSemanticScore(
+                item
+            )
+
+    });
+
+}
+       
 
         (item.relationships || [])
 

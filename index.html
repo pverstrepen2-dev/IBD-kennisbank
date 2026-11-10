@@ -1644,6 +1644,15 @@ async function renderWebsites(){
 
     </select>
 
+    <div
+    style="
+        display:flex;
+        gap:10px;
+        align-items:center;
+        margin-bottom:15px;
+    "
+>
+
     <label>
 
         <input
@@ -1655,6 +1664,26 @@ async function renderWebsites(){
         ⭐ Alleen favorieten
 
     </label>
+
+    <button
+        class="action-btn"
+        onclick="showFavorites()"
+    >
+
+        ⭐ Favorieten
+
+    </button>
+
+    <button
+        class="action-btn"
+        onclick="renderWebsiteList(websitesCache)"
+    >
+
+        🌍 Alles
+
+    </button>
+
+</div>
 
     <br><br>
 
@@ -1887,11 +1916,21 @@ function renderWebsiteList(
 
 if(counter){
 
-    counter.innerHTML =
-       
+   const favoriteCount =
+
+    websites.filter(
+        site => site.favorite
+    ).length;
+
+counter.innerHTML =
+
     websites.length +
 
-    " websites gevonden";
+    " websites gevonden | ⭐ " +
+
+    favoriteCount +
+
+    " favorieten";
 }
 
     document.getElementById(
@@ -2202,6 +2241,22 @@ return(
 
     renderWebsiteList(
         filtered
+    );
+
+}
+
+function showFavorites(){
+
+    const favorites =
+
+        websitesCache.filter(site =>
+
+            site.favorite === true
+
+        );
+
+    renderWebsiteList(
+        favorites
     );
 
 }

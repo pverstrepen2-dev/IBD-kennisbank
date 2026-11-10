@@ -1044,12 +1044,10 @@ async function buildWebsiteIndex(){
 }
 
 async function scanDriveFolder(
+    token,
     folderId = "root",
     path = ""
 ){
-
-    const token =
-        await getAccessToken();
 
     const endpoint =
 
@@ -1101,8 +1099,9 @@ async function scanDriveFolder(
             try{
 
                 const children =
-
                     await scanDriveFolder(
+
+                        token,
 
                         item.id,
 
@@ -1144,8 +1143,13 @@ async function buildOneDriveIndex(){
         "Start OneDrive scan..."
     );
 
+    const token =
+        await getAccessToken();
+
     const allItems =
-        await scanDriveFolder();
+        await scanDriveFolder(
+            token
+        );
 
     console.log(
         "Totaal gevonden:",
@@ -1260,8 +1264,7 @@ async function buildOneDriveIndex(){
         globalIndex.filter(
             item =>
                 item.source === "file"
-        ).length,
-        "bestanden"
+        ).length
     );
 
 }

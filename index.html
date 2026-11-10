@@ -1054,126 +1054,214 @@ async function scanDriveFolder(
     visitedFolders = new Set()
 ){
 
-    if(
-        visitedFolders.has(
+    if(visitedFolders.has(folderId)){
+
+        console.warn(
+            "Map reeds verwerkt:",
             folderId
-        )
-    ){
-
-        return [];
-
-    }
-
-    visitedFolders.add(
-        folderId
-    );
-
-    const response =
-        await fetch(
-
-            `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`,
-
-            {
-                headers:{
-                    Authorization:
-                        "Bearer " + token
-                }
-            }
-
         );
 
-    const data =
-        await response.json();
+        return [];
+    }
+
+    visitedFolders.add(folderId);
 
     let results = [];
 
-    for(const item of (data.value || [])){
+    try{
 
-        const currentPath =
+        let nextUrl =
 
-            path
+            `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children?$top=999`;
 
-            ?
+        while(nextUrl){
 
-            `${path}/${item.name}`
+            const response =
+                await fetch(
+                    nextUrl,
+                    {
+                        headers:{
+                            Authorization:
+                                "Bearer " + token
+                        }
+                    }
+                );
 
-            :
+            if(!response.ok){
 
-            item.name;
+                console.error(
+                    "Graph fout:",
+                    response.status,
+                    nextUrl
+                );
 
-        if(
-            item.remoteItem
-        ){
+                break;
+            }
 
-            console.warn(
-                "REMOTE ITEM OVERGESLAGEN:",
-                currentPath
+            const data =
+                await response.json();
+
+            const items =
+                data.value || [];
+
+            console.log(
+                "Pagina geladen:",
+                items.length,
+                "items"
             );
 
-            continue;
+            for(const item of items){
+
+                const currentPath =
+
+                    path
+
+                    ? `${path}/${item.name}`
+
+                    : item.name;
+
+                const normalizedItem = {
+
+                    id :
+                        item.id,
+
+                    name :
+                        item.name,
+
+                    fullPath :
+                        currentPath,
+
+                    webUrl :
+                        item.webUrl || "",
+
+                    size :
+                        item.size || 0,
+
+                    folder :
+                        item.folder || null,
+
+                    file :
+                        item.file || null,
+
+                    package :
+                        item.package || null,
+
+                    remoteItem :
+                        item.remoteItem || null,
+
+                    shared :
+                        item.shared || null,
+
+                    createdDateTime :
+                        item.createdDateTime || "",
+
+                    lastModifiedDateTime :
+                        item.lastModifiedDateTime || ""
+
+                };
+
+                results.push(
+                    normalizedItem
+                );
+
+                if(item.folder){
+
+                    try{
+
+                        const childItems =
+
+                            await scanDriveFolder(
+
+                                token,
+
+                                item.id,
+
+                                currentPath,
+
+                                visitedFolders
+
+                            );
+
+                        results.push(
+                            ...childItems
+                        );
+
+                    }
+                    catch(error){
+
+                        console.error(
+
+                            "Submap fout:",
+
+                            currentPath,
+
+                            error
+
+                        );
+
+                    }
+
+                }
+
+            }
+
+            nextUrl =
+                data["@odata.nextLink"] || null;
+
+            if(nextUrl){
+
+                console.log(
+                    "➡ Volgende pagina..."
+                );
+
+            }
 
         }
 
-        if(
-            item.shared
-        ){
+        console.log({
 
-            console.warn(
-                "SHARED ITEM OVERGESLAGEN:",
-                currentPath
-            );
+            totaal: results.length,
 
-            continue;
+            folders:
+                results.filter(
+                    x => x.folder
+                ).length,
 
-        }
+            files:
+                results.filter(
+                    x => !x.folder
+                ).length,
 
-        if(
-            item.package
-        ){
+            shared:
+                results.filter(
+                    x => x.shared
+                ).length,
 
-            console.warn(
-                "PACKAGE OVERGESLAGEN:",
-                currentPath
-            );
-
-            continue;
-
-        }
-
-        results.push({
-
-            ...item,
-
-            fullPath :
-                currentPath
+            remote:
+                results.filter(
+                    x => x.remoteItem
+                ).length
 
         });
 
-        if(item.folder){
+        console.log(
+            "SCAN VOLTOOID:",
+            path,
+            results.length
+        );
 
-            const children =
-
-                await scanDriveFolder(
-
-                    token,
-
-                    item.id,
-
-                    currentPath,
-
-                    visitedFolders
-
-                );
-
-            results.push(
-                ...children
-            );
-
-        }
+        return results;
 
     }
+    catch(error){
 
-    return results;
+        console.error(
+            "scanDriveFolder fout:",
+            error
+        );
+
+        return results;
+    }
 
 }
 
@@ -1337,7 +1425,7 @@ function determineLibraryType(
 async function buildOneDriveIndex(){
 
     console.log(
-        "Start beperkte OneDrive scan..."
+        "Start volledige OneDrive scan..."
     );
 
     const token =
@@ -1365,13 +1453,29 @@ async function buildOneDriveIndex(){
         const kennisbankItems =
 
             await scanDriveFolder(
+
                 token,
+
                 kennisbankFolder.id,
+
                 "CCV-VZW/Kennisbank"
+
             );
+
+        console.log(
+            "Kennisbank items:",
+            kennisbankItems.length
+        );
 
         allItems.push(
             ...kennisbankItems
+        );
+
+    }
+    else{
+
+        console.warn(
+            "Kennisbank niet gevonden"
         );
 
     }
@@ -1386,13 +1490,29 @@ async function buildOneDriveIndex(){
         const documentenItems =
 
             await scanDriveFolder(
+
                 token,
+
                 documentenFolder.id,
+
                 "CCV-VZW/Documenten"
+
             );
+
+        console.log(
+            "Documenten items:",
+            documentenItems.length
+        );
 
         allItems.push(
             ...documentenItems
+        );
+
+    }
+    else{
+
+        console.warn(
+            "Documenten niet gevonden"
         );
 
     }
@@ -1402,8 +1522,29 @@ async function buildOneDriveIndex(){
         allItems.length
     );
 
-    let fileCount = 0;
-    let folderCount = 0;
+    console.log({
+
+        folders:
+            allItems.filter(
+                x => x.folder
+            ).length,
+
+        files:
+            allItems.filter(
+                x => !x.folder
+            ).length,
+
+        shared:
+            allItems.filter(
+                x => x.shared
+            ).length,
+
+        remote:
+            allItems.filter(
+                x => x.remoteItem
+            ).length
+
+    });
 
     const existingIds =
         new Set(
@@ -1420,19 +1561,19 @@ async function buildOneDriveIndex(){
 
         );
 
-    allItems.forEach(item=>{
+    let indexedFiles = 0;
+    let indexedFolders = 0;
+    let skippedDuplicates = 0;
+
+    allItems.forEach(item => {
 
         const source =
 
             item.folder
 
-            ?
+            ? "folder"
 
-            "folder"
-
-            :
-
-            "file";
+            : "file";
 
         const uniqueKey =
 
@@ -1446,6 +1587,8 @@ async function buildOneDriveIndex(){
             )
         ){
 
+            skippedDuplicates++;
+
             return;
 
         }
@@ -1454,16 +1597,14 @@ async function buildOneDriveIndex(){
             uniqueKey
         );
 
-        if(
-            source === "file"
-        ){
+        if(source === "file"){
 
-            fileCount++;
+            indexedFiles++;
 
         }
         else{
 
-            folderCount++;
+            indexedFolders++;
 
         }
 
@@ -1475,21 +1616,21 @@ async function buildOneDriveIndex(){
 
             libraryType :
 
-    determineLibraryType(
-        item.fullPath
-    ),
+                determineLibraryType(
+                    item.fullPath
+                ),
 
-    managementCategory :
+            managementCategory :
 
-    determineManagementCategory(
-        item.fullPath
-    ),
+                determineManagementCategory(
+                    item.fullPath
+                ),
 
-managementSubCategory :
+            managementSubCategory :
 
-    determineManagementSubCategory(
-        item.fullPath
-    ),
+                determineManagementSubCategory(
+                    item.fullPath
+                ),
 
             id :
 
@@ -1531,6 +1672,14 @@ managementSubCategory :
 
                 "",
 
+            shared :
+
+                !!item.shared,
+
+            remote :
+
+                !!item.remoteItem,
+
             tags : [],
 
             relationships : [],
@@ -1544,20 +1693,52 @@ managementSubCategory :
     });
 
     console.log(
-        "Files in Graph:",
-        fileCount
+        "Files geïndexeerd:",
+        indexedFiles
     );
 
     console.log(
-        "Folders in Graph:",
-        folderCount
+        "Folders geïndexeerd:",
+        indexedFolders
     );
 
     console.log(
-        "OneDrive index:",
+        "Duplicaten overgeslagen:",
+        skippedDuplicates
+    );
+
+    console.log(
+        "OneDrive index totaal:",
         globalIndex.filter(
-            x => x.source === "file"
+            x =>
+                x.source === "file"
         ).length
+    );
+
+    console.log(
+        "Folder index totaal:",
+        globalIndex.filter(
+            x =>
+                x.source === "folder"
+        ).length
+    );
+
+    console.log(
+        "Bronoverzicht:",
+        globalIndex.reduce(
+
+            (acc,item) => {
+
+                acc[item.source] =
+                    (acc[item.source] || 0) + 1;
+
+                return acc;
+
+            },
+
+            {}
+
+        )
     );
 
 }
@@ -3820,72 +4001,6 @@ function openRelationshipEditor(
     renderRelationshipList(
         website.id
     );
-
-}
-
-function renderManagementCenter(){
-
-    document.getElementById(
-        "ccvContent"
-    ).innerHTML = `
-
-<div class="page-title">
-
-🏛 Verenigingsbeheer
-
-</div>
-
-<div
-style="
-display:grid;
-grid-template-columns:
-repeat(
-auto-fit,
-minmax(240px,1fr)
-);
-gap:20px;
-"
->
-
-${renderManagementCard(
-    "👥",
-    "Ledenbeheer",
-    "members"
-)}
-
-${renderManagementCard(
-    "📋",
-    "Projecten",
-    "projects"
-)}
-
-${renderManagementCard(
-    "📅",
-    "Vergaderingen",
-    "meetings"
-)}
-
-${renderManagementCard(
-    "💰",
-    "Onkosten",
-    "finance"
-)}
-
-${renderManagementCard(
-    "📒",
-    "Kasboek",
-    "finance"
-)}
-
-${renderManagementCard(
-    "🏢",
-    "Administratie",
-    "administration"
-)}
-
-</div>
-
-`;
 
 }
 

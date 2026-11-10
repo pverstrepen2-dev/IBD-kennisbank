@@ -4488,11 +4488,11 @@ function buildSemanticRelations(){
 
     globalIndex.forEach(item=>{
 
-        if(!item.relationships){
+        item.relationships = [];
 
-            item.relationships = [];
+    });
 
-        }
+    globalIndex.forEach(item=>{
 
         globalIndex.forEach(other=>{
 
@@ -4509,35 +4509,19 @@ function buildSemanticRelations(){
 
             if(similarity >= 2){
 
-                const exists =
+                item.relationships.push({
 
-                    item.relationships.some(
+                    id:other.id,
 
-                        rel =>
+                    source:other.source,
 
-                            String(rel.id)
-                            ===
-                            String(other.id)
+                    type:"related",
 
-                    );
+                    automatic:true,
 
-                if(!exists){
+                    weight:similarity
 
-                    item.relationships.push({
-
-                        id:other.id,
-
-                        source:other.source,
-
-                        type:RELATIONS.RELATED,
-
-                        automatic:true,
-
-                        weight:similarity
-
-                    });
-
-                }
+                });
 
             }
 
@@ -4584,9 +4568,9 @@ function buildDocumentConnections(){
                     other
                 );
 
-            if(score < 3){
-                return;
-            }
+            if(score < 10){
+    return;
+}
 
             documentConnections.push({
 
@@ -4614,6 +4598,17 @@ function buildDocumentConnections(){
 
 async function buildKnowledgeNetwork(){
 
+    if(!globalIndex.length){
+
+        document.getElementById(
+            "knowledgeDetails"
+        ).innerHTML =
+            "Geen gegevens gevonden";
+
+        return;
+
+    }
+
     buildConceptClusters();
 
     buildSemanticRelations();
@@ -4625,7 +4620,17 @@ async function buildKnowledgeNetwork(){
     const nodes = [];
     const edges = [];
 
-    globalIndex.forEach(item=>{
+    globalIndex
+
+    .filter(item =>
+
+        item.source === "knowledge" ||
+
+        item.source === "website"
+
+    )
+
+    .forEach(item=>{
 
         const nodeId =
 
@@ -4633,37 +4638,36 @@ async function buildKnowledgeNetwork(){
             "_" +
             item.id;
 
-       if(
+        if(
 
-    !nodes.some(
-        n => n.id === nodeId
-    )
-
-){
-
-    nodes.push({
-
-        id:nodeId,
-
-        label:
-
-            item.title ||
-
-            item.name ||
-
-            item.id,
-
-        group:item.source,
-
-        value:
-            calculateSemanticScore(
-                item
+            !nodes.some(
+                n => n.id === nodeId
             )
 
-    });
+        ){
 
-}
-       
+            nodes.push({
+
+                id:nodeId,
+
+                label:
+
+                    item.title ||
+
+                    item.name ||
+
+                    item.id,
+
+                group:item.source,
+
+                value:
+                    calculateSemanticScore(
+                        item
+                    )
+
+            });
+
+        }
 
         (item.relationships || [])
 
@@ -4697,6 +4701,18 @@ async function buildKnowledgeNetwork(){
 
             }
 
+            if(
+
+                targetItem.source !== "knowledge" &&
+
+                targetItem.source !== "website"
+
+            ){
+
+                return;
+
+            }
+
             edges.push({
 
                 from:nodeId,
@@ -4724,6 +4740,28 @@ async function buildKnowledgeNetwork(){
     });
 
     documentConnections.forEach(connection=>{
+
+        const sourceType =
+            connection.source.split("_")[0];
+
+        const targetType =
+            connection.target.split("_")[0];
+
+        if(
+
+            (sourceType !== "knowledge" &&
+             sourceType !== "website")
+
+             ||
+
+            (targetType !== "knowledge" &&
+             targetType !== "website")
+
+        ){
+
+            return;
+
+        }
 
         edges.push({
 
@@ -4771,6 +4809,12 @@ async function buildKnowledgeNetwork(){
 
             {
 
+                layout:{
+
+                    improvedLayout:false
+
+                },
+
                 interaction:{
 
                     hover:true,
@@ -4783,7 +4827,15 @@ async function buildKnowledgeNetwork(){
 
                 physics:{
 
-                    stabilization:true
+                    enabled:true,
+
+                    stabilization:{
+
+                        enabled:true,
+
+                        iterations:100
+
+                    }
 
                 }
 
@@ -5330,7 +5382,15 @@ function focusConcept(tag){
 
     const nodeIds = [];
 
-    globalIndex.forEach(item=>{
+    globalIndex
+.filter(item=>
+
+    item.source === "knowledge" ||
+
+    item.source === "website"
+
+)
+.forEach(item=>{
 
         const tags =
 

@@ -310,7 +310,7 @@ let folderPath = [
    SEARCH ENGINE
    =================================== */
 
-let minimumRelationScore = 5;
+let minimumRelationScore = 15;
    
 let globalIndex = [];
 
@@ -6773,7 +6773,7 @@ function buildSemanticRelations(){
                 similarity * 5 +
                 semanticScore;
 
-            if(totalScore < 20){
+            if(totalScore < 30){
                 return;
             }
 
@@ -6804,7 +6804,7 @@ function buildSemanticRelations(){
                     b.weight - a.weight
             )
 
-            .slice(0,10);
+            .slice(0,3);
 
     });
 
@@ -6840,6 +6840,10 @@ function buildDocumentConnections(){
             if(sourceId === targetId){
                 return;
             }
+
+            if(item.source !== other.source){
+    return;
+}
 
             /* Eén richting */
 
@@ -6908,7 +6912,7 @@ function buildDocumentConnections(){
     documentConnections =
         documentConnections.slice(
             0,
-            1000
+            150
         );
 
     console.log(

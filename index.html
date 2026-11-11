@@ -986,73 +986,77 @@ function linkKnowledgeDocuments(){
     let linked = 0;
 
     globalIndex
-        .filter(
-            item =>
-                item.source === "knowledge"
-        )
-        .forEach(knowledge=>{
+    .filter(
+        x => x.source === "knowledge"
+    )
+    .forEach(knowledge=>{
 
-            const file =
+        let match = null;
 
-                globalIndex.find(item=>{
+        if(knowledge.fileName){
 
-                    if(
-                        item.source !== "file"
-                    ){
-                        return false;
-                    }
+            const fileName =
 
-                    const knowledgeFile =
+                knowledge.fileName
+                .toLowerCase();
 
-                        (knowledge.fileName || "")
-                        .toLowerCase()
-                        .trim();
+            match = globalIndex.find(file=>
 
-                    const knowledgeTitle =
+                file.source === "file"
 
-                        (knowledge.title || "")
-                        .toLowerCase()
-                        .trim();
+                &&
 
-                    const fileTitle =
+                file.title
+                .toLowerCase()
 
-                        (item.title || "")
-                        .toLowerCase()
-                        .trim();
+                .includes(fileName)
 
-                    return (
+            );
 
-                        fileTitle ===
-                        knowledgeFile
+        }
 
-                        ||
+        if(!match){
 
-                        fileTitle ===
-                        knowledgeTitle
+            const titleWords =
 
-                        ||
+                knowledge.title
+                .toLowerCase()
+                .split(/\s+/)
+                .filter(w=>w.length>3);
 
-                        fileTitle.includes(
-                            knowledgeTitle
-                        )
+            match = globalIndex.find(file=>{
 
-                    );
+                if(file.source !== "file"){
 
-                });
+                    return false;
 
-            if(file){
+                }
 
-                knowledge.oneDriveId =
-                    file.id;
+                const name =
+                    file.title.toLowerCase();
 
-                linked++;
+                return titleWords.every(
+                    word =>
+                        name.includes(word)
+                );
 
-            }
+            });
 
-        });
+        }
+
+        if(match){
+
+            knowledge.oneDriveId =
+                match.id;
+
+            linked++;
+
+        }
+
+    });
 
     console.log(
-        "Documenten gekoppeld:",
+        "Knowledge gekoppeld:",
         linked
     );
 
@@ -1111,41 +1115,6 @@ async function scanDriveFolder(
     path = ""
 ){
 
-    /* ==========================
-       Folder-ID controle
-       ========================== */
-
-    if(visitedFolders.has(folderId)){
-
-        console.warn(
-            "FOLDER ID REEDS GESCAND:",
-            folderId,
-            path
-        );
-
-        return [];
-
-    }
-
-    visitedFolders.add(folderId);
-
-    /* ==========================
-       Pad controle
-       ========================== */
-
-    if(scannedPaths.has(path)){
-
-        console.warn(
-            "PAD REEDS GESCAND:",
-            path
-        );
-
-        return [];
-
-    }
-
-    scannedPaths.add(path);
-
     let results = [];
 
     try{
@@ -1171,11 +1140,10 @@ async function scanDriveFolder(
                 console.error(
                     "Graph fout:",
                     response.status,
-                    nextUrl
+                    response.statusText
                 );
 
                 break;
-
             }
 
             const data =
@@ -1184,17 +1152,12 @@ async function scanDriveFolder(
             const items =
                 data.value || [];
 
-            // console.log("Pagina geladen:", items.length);
-
             for(const item of items){
 
                 const currentPath =
-
                     path
-
-                    ? `${path}/${item.name}`
-
-                    : item.name;
+                        ? `${path}/${item.name}`
+                        : item.name;
 
                 const normalizedItem = {
 
@@ -1249,41 +1212,28 @@ async function scanDriveFolder(
 
                 if(item.folder){
 
-                    const folderSignature =
+    const folderSignature =
+        item.id;
 
-                        item.name
-                            .toLowerCase()
-                            .trim()
+    if(
+        scannedFolderNames.has(
+            folderSignature
+        )
+    ){
 
-                        +
+        console.log(
+            "Map reeds verwerkt:",
+            currentPath
+        );
 
-                        "|"
+        continue;
 
-                        +
+    }
 
-                        (
-                            item.folder?.childCount || 0
-                        );
-
-                    if(
-                        scannedFolderNames.has(
-                            folderSignature
-                        )
-                    ){
-
-                        get(
-                                folderSignature
-                            )
-
-                    }
-                    else{
-
-                        scannedFolderNames.set(
-                            folderSignature,
-                            currentPath
-                        );
-
-                    }
+    scannedFolderNames.set(
+        folderSignature,
+        currentPath
+    );
 
                     try{
 
@@ -1330,9 +1280,6 @@ async function scanDriveFolder(
             }
 
         }
-      
-
-        // console.log("SCAN VOLTOOID:", path, results.length);
 
         return results;
 
@@ -2001,6 +1948,70 @@ async function buildOneDriveIndex(){
 
         )
 
+    );
+
+}
+
+function autoLinkKnowledgeFiles(){
+
+    const files =
+        globalIndex.filter(
+            x => x.source === "file"
+        );
+
+    let linked = 0;
+
+    databaseCache.knowledgeData.forEach(record=>{
+
+        if(record.fileName){
+            return;
+        }
+
+        const titleWords =
+            record.title
+            .toLowerCase()
+            .replace(/[^\w\s]/g," ")
+            .split(/\s+/)
+            .filter(
+                w => w.length > 3
+            );
+
+        const match = files.find(file=>{
+
+            const fileName =
+                file.title.toLowerCase();
+
+            const score =
+                titleWords.filter(
+                    word =>
+                        fileName.includes(word)
+                ).length;
+
+            return score >= 2;
+
+        });
+
+        if(match){
+
+            record.fileName =
+                match.title;
+
+            linked++;
+
+            console.log(
+                "Gekoppeld:",
+                record.title,
+                "=>",
+                match.title
+            );
+
+        }
+
+    });
+
+    console.log(
+        "Automatische koppelingen:",
+        linked
     );
 
 }
@@ -4537,72 +4548,40 @@ ${item.location}
 
 }
 
-function determineManagementCategory(
-    path
-){
+function determineManagementCategory(path){
 
-    const p =
-        (path || "")
+    const p = (path || "")
         .toLowerCase();
 
-    if(
-        p.includes(
-            "/ledenbeheer/"
-        )
-    ){
+    if(p.includes("ledenbeheer")){
         return "members";
     }
 
-    if(
-        p.includes(
-            "/projecten/"
-        )
-    ){
+    if(p.includes("projecten")){
         return "projects";
     }
 
-    if(
-        p.includes(
-            "/vergaderingen/"
-        )
-    ){
+    if(p.includes("vergaderingen")){
         return "meetings";
     }
 
-    if(
-        p.includes(
-            "/kasboek/"
-        )
-    ){
+    if(p.includes("kasboek")){
         return "finance";
     }
 
-    if(
-        p.includes(
-            "/onkosten/"
-        )
-    ){
+    if(p.includes("onkosten")){
         return "finance";
     }
 
-    if(
-        p.includes(
-            "/post_verzendingen/"
-        )
-    ){
+    if(p.includes("post_verzendingen")){
         return "shipping";
     }
 
-    if(
-        p.includes(
-            "/admin_ccv/"
-        )
-    ){
+    if(p.includes("admin_ccv")){
         return "administration";
     }
 
     return "";
-
 }
 
 function determineManagementSubCategory(
@@ -6388,7 +6367,7 @@ renderKnowledgeCategory(
 
 <br><br>
 
-${items.map(item=>`
+${items.map(item => `
 
 <div
 class="card"
@@ -6398,25 +6377,56 @@ cursor:pointer;
 "
 onclick="
 openSearchResult(
-'${item.source}',
+'knowledge',
 '${item.id}'
 )
 "
 >
 
 <h3>
-
 ${item.title || "-"}
-
 </h3>
 
 <br>
 
-🏷
+🏷 ${normalizeTags(item.tags).join(", ")}
 
-${normalizeTags(
-    item.tags
-).join(", ")}
+<br><br>
+
+${item.description || ""}
+
+<br><br>
+
+${
+item.oneDriveId
+
+?
+
+`
+
+<button
+class="action-btn"
+onclick="
+event.stopPropagation();
+openFile('${item.oneDriveId}');
+"
+>
+📂 Open document
+</button>
+
+`
+
+:
+
+`
+
+<div style="color:#999;">
+Geen gekoppeld document
+</div>
+
+`
+
+}
 
 </div>
 

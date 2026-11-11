@@ -7174,11 +7174,6 @@ function renderKnowledgeOverview(){
             "aiSourceFilter"
         )?.value || "all";
 
-    const libraryFilter =
-        document.getElementById(
-            "aiLibraryFilter"
-        )?.value || "all";
-
     const searchText =
         document.getElementById(
             "aiSearchBox"
@@ -7187,91 +7182,56 @@ function renderKnowledgeOverview(){
         .trim() || "";
 
     const filteredItems =
-
         globalIndex.filter(item=>{
 
-            const sourceMatch =
+            if(
+                sourceFilter !== "all" &&
+                item.source !== sourceFilter
+            ){
+                return false;
+            }
 
-                sourceFilter === "all"
+            if(searchText){
 
-                ||
+                const text =
+                    JSON.stringify(item)
+                    .toLowerCase();
 
-                item.source === sourceFilter;
+                if(
+                    !text.includes(searchText)
+                ){
+                    return false;
+                }
 
-            const libraryMatch =
+            }
 
-                libraryFilter === "all"
-
-                ||
-
-                (
-
-                    item.libraryType ||
-
-                    item.managementCategory ||
-
-                    item.source
-
-                )
-
-                ===
-
-                libraryFilter;
-
-            const text =
-
-                JSON.stringify(item)
-                .toLowerCase();
-
-            const searchMatch =
-
-                !searchText
-
-                ||
-
-                text.includes(
-                    searchText
-                );
-
-            return(
-
-                sourceMatch
-
-                &&
-
-                libraryMatch
-
-                &&
-
-                searchMatch
-
-            );
+            return true;
 
         });
 
-    const libraries = {};
+    const counts = {
 
-    filteredItems.forEach(item=>{
+        knowledge:
+            filteredItems.filter(
+                x=>x.source==="knowledge"
+            ).length,
 
-        const library =
+        file:
+            filteredItems.filter(
+                x=>x.source==="file"
+            ).length,
 
-            item.libraryType ||
+        folder:
+            filteredItems.filter(
+                x=>x.source==="folder"
+            ).length,
 
-            item.managementCategory ||
+        website:
+            filteredItems.filter(
+                x=>x.source==="website"
+            ).length
 
-            item.source ||
-
-            "Overig";
-
-        if(!libraries[library]){
-
-            libraries[library] = [];
-
-        }
-
-        libraries[library].push(item);
-
-    });
+    };
 
     document.getElementById(
         "ccvContent"
@@ -7293,7 +7253,7 @@ function renderKnowledgeOverview(){
 
 <br>
 
-Zoek, filter of kies eerst een bibliotheek.
+Zoek door alle kennisbronnen.
 
 <br><br>
 
@@ -7301,7 +7261,7 @@ Zoek, filter of kies eerst een bibliotheek.
 style="
 display:grid;
 grid-template-columns:
-repeat(auto-fit,minmax(220px,1fr));
+repeat(auto-fit,minmax(250px,1fr));
 gap:10px;
 "
 >
@@ -7311,93 +7271,37 @@ id="aiSearchBox"
 placeholder="🔍 Zoek..."
 value="${searchText}"
 onkeyup="renderKnowledgeOverview()"
-style="
-padding:10px;
-"
+style="padding:10px;"
 >
 
 <select
 id="aiSourceFilter"
 onchange="renderKnowledgeOverview()"
-style="
-padding:10px;
-"
+style="padding:10px;"
 >
 
 <option value="all">
-
 Alle bronnen
-
 </option>
 
-<option value="knowledge">
-
+<option value="knowledge"
+${sourceFilter==="knowledge"?"selected":""}>
 Knowledge
-
 </option>
 
-<option value="file">
-
+<option value="file"
+${sourceFilter==="file"?"selected":""}>
 Bestanden
-
 </option>
 
-<option value="folder">
-
+<option value="folder"
+${sourceFilter==="folder"?"selected":""}>
 Mappen
-
 </option>
 
-<option value="website">
-
+<option value="website"
+${sourceFilter==="website"?"selected":""}>
 Websites
-
-</option>
-
-</select>
-
-<select
-id="aiLibraryFilter"
-onchange="renderKnowledgeOverview()"
-style="
-padding:10px;
-"
->
-
-<option value="all">
-
-Alle bibliotheken
-
-</option>
-
-<option value="knowledge">
-
-Kennisbank
-
-</option>
-
-<option value="members">
-
-Ledenbeheer
-
-</option>
-
-<option value="projects">
-
-Projecten
-
-</option>
-
-<option value="meetings">
-
-Vergaderingen
-
-</option>
-
-<option value="finance">
-
-Financiën
-
 </option>
 
 </select>
@@ -7431,139 +7335,73 @@ margin-bottom:25px;
 "
 >
 
-<div class="card">
-
-<h3>
-
-📚 Knowledge
-
-</h3>
-
-<br>
-
-${filteredItems.filter(
-x=>x.source==="knowledge"
-).length}
-
-</div>
-
-<div class="card">
-
-<h3>
-
-📄 Bestanden
-
-</h3>
-
-<br>
-
-${filteredItems.filter(
-x=>x.source==="file"
-).length}
-
-</div>
-
-<div class="card">
-
-<h3>
-
-🌐 Websites
-
-</h3>
-
-<br>
-
-${filteredItems.filter(
-x=>x.source==="website"
-).length}
-
-</div>
-
-<div class="card">
-
-<h3>
-
-📁 Mappen
-
-</h3>
-
-<br>
-
-${filteredItems.filter(
-x=>x.source==="folder"
-).length}
-
-</div>
-
-</div>
-
 <div
-style="
-display:grid;
-grid-template-columns:
-repeat(auto-fit,minmax(280px,1fr));
-gap:20px;
+class="card"
+style="cursor:pointer"
+onclick="
+document.getElementById('aiSourceFilter').value='knowledge';
+renderKnowledgeOverview();
 "
 >
 
-${Object.entries(libraries)
+<h3>📚 Knowledge</h3>
 
-.map(([library,items])=>`
+<br>
+
+${counts.knowledge}
+
+</div>
 
 <div
 class="card"
-style="
-cursor:pointer;
-border-left:6px solid #2563eb;
-"
+style="cursor:pointer"
 onclick="
-renderFolderNavigator(
-'${library}'
-)
+document.getElementById('aiSourceFilter').value='file';
+renderKnowledgeOverview();
 "
 >
 
-<h2>
-
-📚 ${library}
-
-</h2>
+<h3>📄 Bestanden</h3>
 
 <br>
 
-${items.length}
-
- items
-
-<br><br>
-
-Knowledge:
-
-${items.filter(
-x=>x.source==="knowledge"
-).length}
-
-<br>
-
-Bestanden:
-
-${items.filter(
-x=>x.source==="file"
-).length}
-
-<br>
-
-Websites:
-
-${items.filter(
-x=>x.source==="website"
-).length}
+${counts.file}
 
 </div>
 
-`)
+<div
+class="card"
+style="cursor:pointer"
+onclick="
+document.getElementById('aiSourceFilter').value='folder';
+renderKnowledgeOverview();
+"
+>
 
-.join("")}
+<h3>📁 Mappen</h3>
+
+<br>
+
+${counts.folder}
+
+</div>
+
+<div
+class="card"
+style="cursor:pointer"
+onclick="
+document.getElementById('aiSourceFilter').value='website';
+renderKnowledgeOverview();
+"
+>
+
+<h3>🌐 Websites</h3>
+
+<br>
+
+${counts.website}
+
+</div>
 
 </div>
 

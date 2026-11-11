@@ -7123,179 +7123,89 @@ function getKnowledgeMapItems(){
 
 function renderKnowledgeOverview(){
 
-    const groups = {};
+    const sourceFilter =
+        document.getElementById(
+            "aiSourceFilter"
+        )?.value || "all";
 
-    globalIndex.forEach(item=>{
+    const libraryFilter =
+        document.getElementById(
+            "aiLibraryFilter"
+        )?.value || "all";
 
-        let category =
+    const searchText =
+        document.getElementById(
+            "aiSearchBox"
+        )?.value
+        .toLowerCase()
+        .trim() || "";
 
-            item.mainCategory ||
+    const filteredItems =
 
-            item.category ||
+        globalIndex.filter(item=>{
 
-            "Overig";
+            const sourceMatch =
 
-        if(!groups[category]){
+                sourceFilter === "all"
 
-            groups[category] = {
+                ||
 
-                items:[],
-                knowledge:0,
-                files:0,
-                websites:0,
-                folders:0
+                item.source === sourceFilter;
 
-            };
+            const libraryMatch =
 
-        }
+                libraryFilter === "all"
 
-        groups[category].items.push(item);
+                ||
 
-        if(item.source === "knowledge"){
-            groups[category].knowledge++;
-        }
+                (
 
-        if(item.source === "file"){
-            groups[category].files++;
-        }
+                    item.libraryType ||
 
-        if(item.source === "website"){
-            groups[category].websites++;
-        }
+                    item.managementCategory ||
 
-        if(item.source === "folder"){
-            groups[category].folders++;
-        }
+                    item.source
 
-    });
+                )
 
-    document.getElementById(
-        "ccvContent"
-    ).innerHTML = `
+                ===
 
-<div class="page-title">
+                libraryFilter;
 
-🧠 AI Kennisnavigator
+            const text =
 
-</div>
+                JSON.stringify(item)
+                .toLowerCase();
 
-<div class="card">
+            const searchMatch =
 
-<h2>
+                !searchText
 
-Welkom in de AI-kennisnavigator
+                ||
 
-</h2>
+                text.includes(
+                    searchText
+                );
 
-<br>
+            return(
 
-Selecteer eerst een kennisdomein.
+                sourceMatch
 
-<br><br>
+                &&
 
-<button
-class="action-btn"
-onclick="
-renderLibraryNavigator()
-"
->
+                libraryMatch
 
-📚 Bibliotheken
+                &&
 
-</button>
+                searchMatch
 
-<button
-class="action-btn"
-onclick="
-renderKnowledgeMapLauncher()
-"
->
+            );
 
-🧠 Volledige kenniskaart
-
-</button>
-
-</div>
-
-<br>
-
-<div
-style="
-display:grid;
-grid-template-columns:
-repeat(auto-fit,minmax(280px,1fr));
-gap:20px;
-"
->
-
-${Object.entries(groups)
-
-.map(([category,data])=>`
-
-<div
-class="card"
-style="
-cursor:pointer;
-border-left:6px solid #2563eb;
-"
-onclick="
-renderKnowledgeTheme(
-'${category}'
-)
-"
->
-
-<h2>
-
-${getCategoryIcon(category)}
-
-${category}
-
-</h2>
-
-<br>
-
-📚 ${data.knowledge}
-
-<br>
-
-📄 ${data.files}
-
-<br>
-
-🌐 ${data.websites}
-
-<br>
-
-📁 ${data.folders}
-
-<br><br>
-
-<b>
-
-${data.items.length}
-
- items
-
-</b>
-
-</div>
-
-`)
-
-.join("")}
-
-</div>
-
-`;
-
-}
-
-function renderLibraryNavigator(){
+        });
 
     const libraries = {};
 
-    globalIndex.forEach(item=>{
+    filteredItems.forEach(item=>{
 
         const library =
 
@@ -7323,22 +7233,223 @@ function renderLibraryNavigator(){
 
 <div class="page-title">
 
-📚 Bibliotheken
+🧠 AI Kennisnavigator
 
 </div>
+
+<div class="card">
+
+<h2>
+
+🚀 Navigeren door kennis
+
+</h2>
+
+<br>
+
+Zoek, filter of kies eerst een bibliotheek.
+
+<br><br>
+
+<div
+style="
+display:grid;
+grid-template-columns:
+repeat(auto-fit,minmax(220px,1fr));
+gap:10px;
+"
+>
+
+<input
+id="aiSearchBox"
+placeholder="🔍 Zoek..."
+value="${searchText}"
+onkeyup="renderKnowledgeOverview()"
+style="
+padding:10px;
+"
+>
+
+<select
+id="aiSourceFilter"
+onchange="renderKnowledgeOverview()"
+style="
+padding:10px;
+"
+>
+
+<option value="all">
+
+Alle bronnen
+
+</option>
+
+<option value="knowledge">
+
+Knowledge
+
+</option>
+
+<option value="file">
+
+Bestanden
+
+</option>
+
+<option value="folder">
+
+Mappen
+
+</option>
+
+<option value="website">
+
+Websites
+
+</option>
+
+</select>
+
+<select
+id="aiLibraryFilter"
+onchange="renderKnowledgeOverview()"
+style="
+padding:10px;
+"
+>
+
+<option value="all">
+
+Alle bibliotheken
+
+</option>
+
+<option value="knowledge">
+
+Kennisbank
+
+</option>
+
+<option value="members">
+
+Ledenbeheer
+
+</option>
+
+<option value="projects">
+
+Projecten
+
+</option>
+
+<option value="meetings">
+
+Vergaderingen
+
+</option>
+
+<option value="finance">
+
+Financiën
+
+</option>
+
+</select>
+
+</div>
+
+<br>
 
 <button
 class="action-btn"
 onclick="
-renderKnowledgeOverview()
+renderKnowledgeMapLauncher()
 "
 >
 
-⬅ AI Navigator
+🧠 Volledige kenniskaart
 
 </button>
 
-<br><br>
+</div>
+
+<br>
+
+<div
+style="
+display:grid;
+grid-template-columns:
+repeat(auto-fit,minmax(220px,1fr));
+gap:15px;
+margin-bottom:25px;
+"
+>
+
+<div class="card">
+
+<h3>
+
+📚 Knowledge
+
+</h3>
+
+<br>
+
+${filteredItems.filter(
+x=>x.source==="knowledge"
+).length}
+
+</div>
+
+<div class="card">
+
+<h3>
+
+📄 Bestanden
+
+</h3>
+
+<br>
+
+${filteredItems.filter(
+x=>x.source==="file"
+).length}
+
+</div>
+
+<div class="card">
+
+<h3>
+
+🌐 Websites
+
+</h3>
+
+<br>
+
+${filteredItems.filter(
+x=>x.source==="website"
+).length}
+
+</div>
+
+<div class="card">
+
+<h3>
+
+📁 Mappen
+
+</h3>
+
+<br>
+
+${filteredItems.filter(
+x=>x.source==="folder"
+).length}
+
+</div>
+
+</div>
 
 <div
 style="
@@ -7357,6 +7468,7 @@ ${Object.entries(libraries)
 class="card"
 style="
 cursor:pointer;
+border-left:6px solid #2563eb;
 "
 onclick="
 renderFolderNavigator(
@@ -7373,7 +7485,33 @@ renderFolderNavigator(
 
 <br>
 
-${items.length} items
+${items.length}
+
+ items
+
+<br><br>
+
+Knowledge:
+
+${items.filter(
+x=>x.source==="knowledge"
+).length}
+
+<br>
+
+Bestanden:
+
+${items.filter(
+x=>x.source==="file"
+).length}
+
+<br>
+
+Websites:
+
+${items.filter(
+x=>x.source==="website"
+).length}
 
 </div>
 
@@ -7421,6 +7559,8 @@ function renderFolderNavigator(
 
             item.mainCategory ||
 
+            item.subCategory ||
+
             item.category ||
 
             "Algemeen";
@@ -7448,11 +7588,11 @@ function renderFolderNavigator(
 <button
 class="action-btn"
 onclick="
-renderLibraryNavigator()
+renderKnowledgeOverview()
 "
 >
 
-⬅ Bibliotheken
+⬅ AI Navigator
 
 </button>
 
@@ -7462,7 +7602,7 @@ renderLibraryNavigator()
 style="
 display:grid;
 grid-template-columns:
-repeat(auto-fit,minmax(260px,1fr));
+repeat(auto-fit,minmax(280px,1fr));
 gap:15px;
 "
 >

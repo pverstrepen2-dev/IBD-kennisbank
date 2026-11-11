@@ -201,8 +201,8 @@ body{
 🏛 Verenigingsbeheer
 </button>
 
-<button class="menu-button" onclick="renderKnowledgeMap()">
-    🧠 Kenniskaart
+<button class="menu-button" onclick="renderKnowledgeOverview()">
+    🧠 AI Kennisnavigator
 </button>
 
 <button class="menu-button" onclick="openOneDrive()">
@@ -6321,7 +6321,7 @@ ${count} items
 
 }
 
-async function renderKnowledgeSubCategory(
+function renderKnowledgeSubCategory(
     category,
     subCategory
 ){
@@ -6331,37 +6331,137 @@ async function renderKnowledgeSubCategory(
         globalIndex.filter(item=>{
 
             if(
-                item.source !==
-                "knowledge"
+                item.source !== "knowledge"
             ){
                 return false;
             }
 
             const itemCategory =
 
-                item.data?.mainCategory ||
-
                 item.mainCategory ||
 
-                "";
+                item.data?.mainCategory ||
+
+                item.category ||
+
+                "Overig";
 
             const itemSubCategory =
 
-                item.data?.subCategory ||
-
                 item.subCategory ||
 
-                "";
+                item.data?.subCategory ||
+
+                "Algemeen";
 
             return (
 
-                itemCategory === category &&
+                itemCategory === category
+
+                &&
 
                 itemSubCategory === subCategory
 
             );
 
         });
+
+    const linkedDocuments = [];
+
+    const linkedWebsites = [];
+
+    const tagCounter = {};
+
+    items.forEach(item=>{
+
+        normalizeTags(
+            item.tags
+        ).forEach(tag=>{
+
+            if(!tagCounter[tag]){
+
+                tagCounter[tag] = 0;
+
+            }
+
+            tagCounter[tag]++;
+
+        });
+
+        if(item.oneDriveId){
+
+            const file =
+
+                globalIndex.find(
+
+                    x =>
+
+                        x.source === "file"
+
+                        &&
+
+                        String(x.id)
+                        ===
+                        String(
+                            item.oneDriveId
+                        )
+
+                );
+
+            if(file){
+
+                linkedDocuments.push(
+                    file
+                );
+
+            }
+
+        }
+
+    });
+
+    globalIndex
+
+    .filter(
+        item =>
+            item.source === "website"
+    )
+
+    .forEach(site=>{
+
+        const text =
+
+            JSON.stringify(site)
+            .toLowerCase();
+
+        if(
+
+            text.includes(
+                subCategory.toLowerCase()
+            )
+
+        ){
+
+            linkedWebsites.push(
+                site
+            );
+
+        }
+
+    });
+
+    const topTags =
+
+        Object.entries(
+            tagCounter
+        )
+
+        .sort(
+            (a,b)=>
+                b[1]-a[1]
+        )
+
+        .slice(0,20);
 
     document.getElementById(
         "ccvContent"
@@ -6376,24 +6476,157 @@ async function renderKnowledgeSubCategory(
 <button
 class="action-btn"
 onclick="
-renderKnowledgeCategory(
-'${category}'
+renderKnowledgeTheme(
+'${category.replace(/'/g,"\\'")}'
 )
 "
 >
 
-⬅ Terug
+⬅ Thema
+
+</button>
+
+<button
+class="action-btn"
+onclick="
+renderKnowledgeOverview()
+"
+style="
+margin-left:10px;
+"
+>
+
+🧠 AI Overzicht
 
 </button>
 
 <br><br>
 
-${items.map(item => `
+<div
+style="
+display:grid;
+grid-template-columns:
+repeat(auto-fit,minmax(220px,1fr));
+gap:15px;
+margin-bottom:20px;
+"
+>
+
+<div class="card">
+
+<h3>
+
+📚 Kennisitems
+
+</h3>
+
+<br>
+
+${items.length}
+
+</div>
+
+<div class="card">
+
+<h3>
+
+📄 Documenten
+
+</h3>
+
+<br>
+
+${linkedDocuments.length}
+
+</div>
+
+<div class="card">
+
+<h3>
+
+🌐 Websites
+
+</h3>
+
+<br>
+
+${linkedWebsites.length}
+
+</div>
+
+<div class="card">
+
+<h3>
+
+🏷 Tags
+
+</h3>
+
+<br>
+
+${topTags.length}
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h2>
+
+🏷 Belangrijkste tags
+
+</h2>
+
+<br>
 
 <div
-class="card"
 style="
-margin-bottom:12px;
+display:flex;
+flex-wrap:wrap;
+gap:10px;
+"
+>
+
+${topTags.map(tag=>`
+
+<span
+style="
+padding:8px 12px;
+background:#eef4ff;
+border-radius:20px;
+"
+>
+
+${tag[0]}
+(${tag[1]})
+
+</span>
+
+`).join("")}
+
+</div>
+
+</div>
+
+<br>
+
+<div class="card">
+
+<h2>
+
+📚 Kennisitems
+
+</h2>
+
+<br>
+
+${items.map(item=>`
+
+<div
+style="
+padding:12px;
+border-bottom:1px solid #ddd;
 cursor:pointer;
 "
 onclick="
@@ -6404,13 +6637,11 @@ openSearchResult(
 "
 >
 
-<h3>
+<b>
+
 ${item.title || "-"}
-</h3>
 
-<br>
-
-🏷 ${normalizeTags(item.tags).join(", ")}
+</b>
 
 <br><br>
 
@@ -6418,44 +6649,120 @@ ${item.description || ""}
 
 <br><br>
 
-${
-item.oneDriveId
+🏷
 
-?
-
-`
-
-<button
-class="action-btn"
-onclick="
-event.stopPropagation();
-openFile('${item.oneDriveId}');
-"
->
-📂 Open document
-</button>
-
-`
-
-:
-
-`
-
-<div style="color:#999;">
-Geen gekoppeld document
-</div>
-
-`
-
-}
+${normalizeTags(
+    item.tags
+).join(", ")}
 
 </div>
 
 `).join("")}
 
+</div>
+
+<br>
+
+<div class="card">
+
+<h2>
+
+📄 Gekoppelde documenten
+
+</h2>
+
+<br>
+
+${linkedDocuments.length === 0
+
+? `
+
+Geen gekoppelde documenten gevonden
+
+`
+
+: linkedDocuments.map(file=>`
+
+<div
+style="
+padding:10px;
+border-bottom:1px solid #ddd;
+cursor:pointer;
+"
+onclick="
+openSearchResult(
+'file',
+'${file.id}'
+)
+"
+>
+
+📄 ${file.title}
+
+</div>
+
+`)
+
+.join("")
+
+}
+
+</div>
+
+<br>
+
+<div class="card">
+
+<h2>
+
+🌐 Relevante websites
+
+</h2>
+
+<br>
+
+${linkedWebsites.length === 0
+
+? `
+
+Geen websites gevonden
+
+`
+
+: linkedWebsites.map(site=>`
+
+<div
+style="
+padding:10px;
+border-bottom:1px solid #ddd;
+cursor:pointer;
+"
+onclick="
+window.open(
+'${site.url}',
+'_blank'
+)
+"
+>
+
+🌐
+
+${site.titel || site.title}
+
+</div>
+
+`)
+
+.join("")
+
+}
+
+</div>
+
 `;
 
 }
+
 
 function getCategoryIcon(category){
 
@@ -6490,199 +6797,808 @@ async function renderKnowledgeMap(){
 
 <div class="page-title">
 
-    🧠 Knowledge Hub
+🧠 Knowledge Hub
 
 </div>
 
 <div class="card">
 
-    <input
-        id="knowledgeSearch"
-        placeholder="🔍 Zoek document, website, tag, concept..."
+    <div
         style="
-            width:100%;
-            padding:10px;
-            margin-bottom:15px;
-            border:1px solid #ddd;
-            border-radius:8px;
+            display:grid;
+            grid-template-columns:
+            repeat(auto-fit,minmax(220px,1fr));
+            gap:10px;
+            margin-bottom:20px;
         "
-        onkeyup="searchKnowledgeNode()"
     >
+
+        <div>
+
+            <label>
+
+                📦 Bron
+
+            </label>
+
+            <select
+                id="mapSourceFilter"
+                onchange="rebuildNetwork()"
+                style="width:100%;padding:10px;"
+            >
+
+                <option value="all">
+                    Alles
+                </option>
+
+                <option value="knowledge">
+                    Knowledge
+                </option>
+
+                <option value="website">
+                    Websites
+                </option>
+
+                <option value="file">
+                    Bestanden
+                </option>
+
+                <option value="folder">
+                    Mappen
+                </option>
+
+            </select>
+
+        </div>
+
+        <div>
+
+            <label>
+
+                📚 Bibliotheek
+
+            </label>
+
+            <select
+                id="mapLibraryFilter"
+                onchange="rebuildNetwork()"
+                style="width:100%;padding:10px;"
+            >
+
+                <option value="all">
+                    Alles
+                </option>
+
+                <option value="knowledge">
+                    Kennisbank
+                </option>
+
+                <option value="members">
+                    Ledenbeheer
+                </option>
+
+                <option value="projects">
+                    Projecten
+                </option>
+
+                <option value="meetings">
+                    Vergaderingen
+                </option>
+
+                <option value="finance">
+                    Financieel
+                </option>
+
+            </select>
+
+        </div>
+
+        <div>
+
+            <label>
+
+                🏷 Categorie
+
+            </label>
+
+            <select
+                id="mapCategoryFilter"
+                onchange="rebuildNetwork()"
+                style="width:100%;padding:10px;"
+            >
+
+                <option value="all">
+                    Alles
+                </option>
+
+                <option value="Voeding">
+                    Voeding
+                </option>
+
+                <option value="Onderzoek">
+                    Onderzoek
+                </option>
+
+                <option value="Behandeling">
+                    Behandeling
+                </option>
+
+                <option value="Zorg">
+                    Zorg
+                </option>
+
+                <option value="Welzijn">
+                    Welzijn
+                </option>
+
+            </select>
+
+        </div>
+
+        <div>
+
+            <label>
+
+                🔢 Maximum nodes
+
+            </label>
+
+            <select
+                id="mapNodeLimit"
+                onchange="rebuildNetwork()"
+                style="width:100%;padding:10px;"
+            >
+
+                <option value="100">
+                    100
+                </option>
+
+                <option value="250" selected>
+                    250
+                </option>
+
+                <option value="500">
+                    500
+                </option>
+
+                <option value="1000">
+                    1000
+                </option>
+
+                <option value="99999">
+                    Alles
+                </option>
+
+            </select>
+
+        </div>
+
+    </div>
 
     <div
         style="
             margin-bottom:15px;
-            padding:15px;
-            border:1px solid #ddd;
-            border-radius:8px;
-            background:#f9fafb;
         "
     >
 
         <label>
 
-            🔎 Zoekgevoeligheid
+            <input
+                type="checkbox"
+                id="linkedOnly"
+                onchange="rebuildNetwork()"
+            >
+
+            Alleen gekoppelde documenten
 
         </label>
 
         <br><br>
 
-        <input
-            type="range"
-            min="1"
-            max="50"
-            value="5"
-            id="relationSlider"
-            oninput="
-                updateRelationSensitivity(
-                    this.value
-                )
-            "
-            style="
-                width:250px;
-            "
-        >
+        <label>
 
-        <span
-            id="relationScoreLabel"
-            style="
-                margin-left:10px;
-                font-weight:bold;
-            "
-        >
+            <input
+                type="checkbox"
+                id="relatedOnly"
+                onchange="rebuildNetwork()"
+            >
 
-            Minimumscore: 5
+            Alleen documenten met relaties
 
-        </span>
-
-        <br><br>
-
-        <button
-            class="action-btn"
-            onclick="rebuildNetwork()"
-        >
-            🔄 Kenniskaart genereren
-        </button>
+        </label>
 
     </div>
 
     <div
+        id="knowledgeNetwork"
         style="
-            display:flex;
-            flex-wrap:wrap;
-            gap:10px;
-            margin-bottom:15px;
+            height:800px;
+            border:1px solid #ddd;
+            border-radius:8px;
         "
-    >
-
-        <button
-            class="action-btn"
-            onclick="focusConcept('crohn')"
-        >
-            📚 Crohn
-        </button>
-
-        <button
-            class="action-btn"
-            onclick="focusConcept('voeding')"
-        >
-            🥗 Voeding
-        </button>
-
-        <button
-            class="action-btn"
-            onclick="focusConcept('medicatie')"
-        >
-            💊 Medicatie
-        </button>
-
-        <button
-            class="action-btn"
-            onclick="focusConcept('onderzoek')"
-        >
-            🧪 Onderzoek
-        </button>
-
-        <button
-            class="action-btn"
-            onclick="
-                if(window.knowledgeNetwork){
-                    knowledgeNetwork.fit();
-                }
-            "
-        >
-            🌍 Toon alles
-        </button>
-
-    </div>
-
-    <div
-        style="
-            display:flex;
-            gap:15px;
-            margin-bottom:15px;
-        "
-    >
-
-        <div
-            style="
-                min-width:180px;
-                padding:10px;
-                border:1px solid #ddd;
-                border-radius:8px;
-            "
-        >
-
-            <h3>🗺 Legenda</h3>
-
-            <br>
-
-            🟢 Knowledge<br><br>
-
-            🟠 Website<br><br>
-
-            🔵 Bestand<br><br>
-
-            🟣 Map<br><br>
-
-            🟡 Automatische relatie<br><br>
-
-            ⚪ Handmatige relatie
-
-        </div>
-
-        <div
-            id="knowledgeNetwork"
-            style="
-                flex:3;
-                height:800px;
-                border:1px solid #ddd;
-                border-radius:8px;
-            "
-        ></div>
-
-        <div
-            id="knowledgeDetails"
-            style="
-                flex:1;
-                border:1px solid #ddd;
-                border-radius:8px;
-                padding:15px;
-                overflow:auto;
-            "
-        >
-
-            Selecteer een node
-
-        </div>
-
-    </div>
+    ></div>
 
 </div>
 
 `;
 
     await buildKnowledgeNetwork();
+
+}
+
+function getKnowledgeMapItems(){
+
+    const sourceFilter =
+        document.getElementById(
+            "mapSourceFilter"
+        )?.value || "all";
+
+    const libraryFilter =
+        document.getElementById(
+            "mapLibraryFilter"
+        )?.value || "all";
+
+    const categoryFilter =
+        document.getElementById(
+            "mapCategoryFilter"
+        )?.value || "all";
+
+    const linkedOnly =
+        document.getElementById(
+            "linkedOnly"
+        )?.checked;
+
+    const relatedOnly =
+        document.getElementById(
+            "relatedOnly"
+        )?.checked;
+
+    const maxNodes =
+        parseInt(
+            document.getElementById(
+                "mapNodeLimit"
+            )?.value || 250
+        );
+
+    let items = [...globalIndex];
+
+    if(sourceFilter !== "all"){
+
+        items = items.filter(
+            item =>
+                item.source ===
+                sourceFilter
+        );
+
+    }
+
+    if(libraryFilter !== "all"){
+
+        items = items.filter(
+            item =>
+                item.libraryType ===
+                libraryFilter
+        );
+
+    }
+
+    if(categoryFilter !== "all"){
+
+        items = items.filter(
+            item =>
+                item.category ===
+                categoryFilter
+                ||
+                item.mainCategory ===
+                categoryFilter
+        );
+
+    }
+
+    if(linkedOnly){
+
+        items = items.filter(
+            item =>
+                item.oneDriveId
+        );
+
+    }
+
+    if(relatedOnly){
+
+        items = items.filter(
+            item =>
+                item.relationships &&
+                item.relationships.length > 0
+        );
+
+    }
+
+    return items.slice(
+        0,
+        maxNodes
+    );
+
+}
+
+function renderKnowledgeOverview(){
+
+    const groups = {};
+
+    globalIndex.forEach(item=>{
+
+        let category =
+
+            item.mainCategory ||
+
+            item.category ||
+
+            "Overig";
+
+        if(!groups[category]){
+
+            groups[category] = {
+
+                items:[],
+                knowledge:0,
+                files:0,
+                websites:0,
+                folders:0
+
+            };
+
+        }
+
+        groups[category].items.push(item);
+
+        if(item.source === "knowledge"){
+            groups[category].knowledge++;
+        }
+
+        if(item.source === "file"){
+            groups[category].files++;
+        }
+
+        if(item.source === "website"){
+            groups[category].websites++;
+        }
+
+        if(item.source === "folder"){
+            groups[category].folders++;
+        }
+
+    });
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+
+🧠 AI Kennisnavigator
+
+</div>
+
+<div class="card">
+
+<h2>
+
+Welkom in de AI-kennisnavigator
+
+</h2>
+
+<br>
+
+Selecteer eerst een kennisdomein.
+
+<br><br>
+
+<button
+class="action-btn"
+onclick="
+renderKnowledgeMapLauncher()
+"
+>
+
+🧠 Volledige kenniskaart
+
+</button>
+
+</div>
+
+<br>
+
+<div
+style="
+display:grid;
+grid-template-columns:
+repeat(auto-fit,minmax(280px,1fr));
+gap:20px;
+"
+>
+
+${Object.entries(groups)
+
+.map(([category,data])=>`
+
+<div
+class="card"
+style="
+cursor:pointer;
+border-left:6px solid #2563eb;
+"
+onclick="
+renderKnowledgeTheme(
+'${category}'
+)
+"
+>
+
+<h2>
+
+${getCategoryIcon(category)}
+
+${category}
+
+</h2>
+
+<br>
+
+📚 ${data.knowledge}
+
+<br>
+
+📄 ${data.files}
+
+<br>
+
+🌐 ${data.websites}
+
+<br>
+
+📁 ${data.folders}
+
+<br><br>
+
+<b>
+
+${data.items.length}
+
+ items
+
+</b>
+
+</div>
+
+`)
+
+.join("")}
+
+</div>
+
+`;
+
+}
+
+function renderKnowledgeMapLauncher(){
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+
+🧠 Volledige kenniskaart
+
+</div>
+
+<div class="card">
+
+<h2>
+
+Expertmodus
+
+</h2>
+
+<br>
+
+Deze modus visualiseert alle relaties
+tussen documenten, websites,
+knowledge-items en mappen.
+
+<br><br>
+
+Dit kan langer duren bij grote
+kennisbanken.
+
+<br><br>
+
+<button
+class="action-btn"
+onclick="
+loadFullKnowledgeMap()
+"
+>
+
+🧠 Kenniskaart laden
+
+</button>
+
+<button
+class="action-btn"
+onclick="
+renderKnowledgeOverview()
+"
+>
+
+⬅ Terug
+
+</button>
+
+</div>
+
+`;
+
+}
+
+async function loadFullKnowledgeMap(){
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+
+🧠 Kenniskaart laden...
+
+</div>
+
+<div
+id="knowledgeNetwork"
+style="
+height:800px;
+border:1px solid #ddd;
+"
+>
+
+</div>
+
+<div
+id="knowledgeDetails"
+style="
+margin-top:15px;
+"
+>
+
+Selecteer een node
+
+</div>
+
+`;
+
+    await buildKnowledgeNetwork();
+
+}
+
+function renderTopKnowledgeTopics(){
+
+    const tags = {};
+
+    globalIndex.forEach(item=>{
+
+        normalizeTags(
+            item.tags
+        ).forEach(tag=>{
+
+            if(!tags[tag]){
+
+                tags[tag] = 0;
+
+            }
+
+            tags[tag]++;
+
+        });
+
+    });
+
+    const sorted =
+
+        Object.entries(tags)
+
+        .sort(
+            (a,b)=>b[1]-a[1]
+        )
+        .slice(0,50);
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+
+⭐ Belangrijkste Onderwerpen
+
+</div>
+
+<div
+style="
+display:grid;
+grid-template-columns:
+repeat(auto-fit,minmax(220px,1fr));
+gap:15px;
+"
+>
+
+${sorted.map(
+tag=>`
+
+<div
+class="card"
+style="
+cursor:pointer;
+"
+onclick="
+focusConcept(
+'${tag[0]}'
+);
+renderKnowledgeMap();
+"
+>
+
+<h3>
+
+🏷 ${tag[0]}
+
+</h3>
+
+<br>
+
+${tag[1]} vermeldingen
+
+</div>
+
+`
+).join("")}
+
+</div>
+
+`;
+
+}
+
+function renderKnowledgeTheme(
+    category
+){
+
+    const knowledgeItems =
+
+        globalIndex.filter(item=>{
+
+            const currentCategory =
+
+                item.mainCategory ||
+
+                item.data?.mainCategory ||
+
+                item.category ||
+
+                "Overig";
+
+            return(
+
+                item.source === "knowledge"
+
+                &&
+
+                currentCategory === category
+
+            );
+
+        });
+
+    const subCategories =
+
+        [...new Set(
+
+            knowledgeItems.map(item=>
+
+                item.subCategory ||
+
+                item.data?.subCategory ||
+
+                "Algemeen"
+
+            )
+
+        )]
+
+        .sort();
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+
+${getCategoryIcon(category)}
+
+${category}
+
+</div>
+
+<button
+class="action-btn"
+onclick="
+renderKnowledgeOverview()
+"
+>
+
+⬅ Overzicht
+
+</button>
+
+<br><br>
+
+<div
+style="
+display:grid;
+grid-template-columns:
+repeat(auto-fit,minmax(250px,1fr));
+gap:15px;
+"
+>
+
+${subCategories.map(sub=>`
+
+<div
+class="card"
+style="
+cursor:pointer;
+"
+onclick="
+renderKnowledgeSubCategory(
+'${category}',
+'${sub}'
+)
+"
+>
+
+<h3>
+
+📂 ${sub}
+
+</h3>
+
+<br>
+
+${knowledgeItems.filter(item=>
+
+(
+
+item.subCategory ||
+
+item.data?.subCategory ||
+
+"Algemeen"
+
+)
+
+===
+
+sub
+
+).length}
+
+ items
+
+</div>
+
+`).join("")}
+
+</div>
+
+`;
 
 }
 
@@ -6969,7 +7885,10 @@ if(globalIndex.length < 500){
     const edges = [];
     const edgeSet = new Set();
 
-    globalIndex.forEach(item=>{
+    const visibleItems =
+    getKnowledgeMapItems();
+
+visibleItems.forEach(item=>{
 
         const nodeId =
             item.source +

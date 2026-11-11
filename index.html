@@ -7133,10 +7133,37 @@ function getKnowledgeMapItems(){
 
 });
 
-return items.slice(
-    0,
-    maxNodes
-);
+const grouped = {
+
+    knowledge : items.filter(
+        x => x.source === "knowledge"
+    ),
+
+    file : items.filter(
+        x => x.source === "file"
+    ),
+
+    folder : items.filter(
+        x => x.source === "folder"
+    ),
+
+    website : items.filter(
+        x => x.source === "website"
+    )
+
+};
+
+return [
+
+    ...grouped.knowledge.slice(0,50),
+
+    ...grouped.file.slice(0,500),
+
+    ...grouped.folder.slice(0,100),
+
+    ...grouped.website.slice(0,200)
+
+];
 
 }
 

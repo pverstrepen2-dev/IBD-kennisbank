@@ -7114,10 +7114,29 @@ function getKnowledgeMapItems(){
 
     }
 
-    return items.slice(
-        0,
-        maxNodes
+    items.sort((a,b)=>{
+
+    const weight = {
+
+        knowledge:1,
+        folder:2,
+        file:3,
+        website:4
+
+    };
+
+    return (
+        (weight[a.source] || 99)
+        -
+        (weight[b.source] || 99)
     );
+
+});
+
+return items.slice(
+    0,
+    maxNodes
+);
 
 }
 

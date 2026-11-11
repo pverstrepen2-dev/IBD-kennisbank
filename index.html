@@ -318,6 +318,10 @@ let documentConnections = [];
 
 let documentKeywordIndex = {};
 
+let oneDriveScanRunning = false;
+let oneDriveScanCompleted = false;
+
+
 /* =====================================================
    KNOWLEDGE HUB V4
    ===================================================== */
@@ -721,16 +725,11 @@ async function buildSearchIndex(){
     linkKnowledgeDocuments();
 
     searchInitialized = true;
-
-    console.log(
-        "SEARCH INDEX",
-        globalIndex.length,
-        "items"
-    );
-
+    
 }
 
 async function buildKnowledgeIndex(){
+    console.trace("buildKnowledgeIndex gestart");
 
     const records =
         await getKnowledgeData();
@@ -1643,17 +1642,30 @@ function processDocumentVersions(allItems){
 
 async function buildOneDriveIndex(){
 
-    visitedFolders.clear();
+    if(oneDriveScanRunning){
+        console.warn(
+            "OneDrive scan reeds actief"
+        );
+        return;
+    }
 
-    scannedPaths.clear();
+    oneDriveScanRunning = true;
 
-    scannedFolderNames.clear();
+    try{
 
-    documentVersions = {};
+        visitedFolders.clear();
+        scannedPaths.clear();
+        scannedFolderNames.clear();
 
-    console.log(
-        "Start volledige OneDrive scan..."
-    );
+        documentVersions = {};
+
+        console.log(
+            "Start volledige OneDrive scan..."
+        );
+
+        console.trace(
+            "buildOneDriveIndex gestart"
+        );
 
     const token =
         await getAccessToken();
@@ -1667,6 +1679,12 @@ async function buildOneDriveIndex(){
         await getFolderByPath(
             "Documenten"
         );
+
+    globalIndex = globalIndex.filter(
+    item =>
+        item.source !== "file" &&
+        item.source !== "folder"
+);
 
     let allItems = [];
 
@@ -1931,7 +1949,7 @@ async function buildOneDriveIndex(){
         globalIndex.length
     );
 
-    console.log(
+        console.log(
         "BRONOVERZICHT:",
         globalIndex.reduce(
 
@@ -1949,6 +1967,13 @@ async function buildOneDriveIndex(){
         )
 
     );
+
+    }
+    finally{
+
+        oneDriveScanRunning = false;
+
+    }
 
 }
 
@@ -5189,11 +5214,7 @@ async function openOneDrive(){
   
 currentItems =
     data.value || [];
-
-        console.log(
-            "ONEDRIVE DATA",
-            data
-        );
+        
 currentFolderId = "root";
 
 currentFolderName = "Hoofdmap";
@@ -6462,10 +6483,7 @@ async function renderKnowledgeMap(){
         await buildSearchIndex();
 
     }
-console.log(
-    "GLOBAL INDEX",
-    globalIndex
-);
+
     document.getElementById(
         "ccvContent"
     ).innerHTML = `

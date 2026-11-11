@@ -7155,19 +7155,56 @@ const grouped = {
 
 return [
 
-    ...grouped.knowledge.slice(0,50),
+    ...grouped.knowledge.slice(0,100),
 
-    ...grouped.file.slice(0,500),
+    ...grouped.file.slice(0,800),
 
-    ...grouped.folder.slice(0,100),
+    ...grouped.folder.slice(0,200),
 
-    ...grouped.website.slice(0,200)
+    ...grouped.website.slice(0,300)
 
-];
+].slice(0,maxNodes);
 
 }
 
-function renderKnowledgeOverview(){
+async function renderKnowledgeOverview(){
+
+    if(
+    !searchInitialized ||
+    globalIndex.filter(
+        x =>
+            x.source === "file" ||
+            x.source === "folder"
+    ).length === 0
+){
+
+    console.log(
+        "Index opnieuw bouwen..."
+    );
+
+    await buildSearchIndex();
+
+}
+
+     console.log(
+        "AI Navigator geopend"
+    );
+
+    console.log(
+        "GlobalIndex:",
+        globalIndex.length
+    );
+
+    console.log(
+        globalIndex.reduce(
+            (acc,item)=>{
+                acc[item.source] =
+                    (acc[item.source] || 0) + 1;
+                return acc;
+            },
+            {}
+        )
+    );
 
     const sourceFilter =
         document.getElementById(
@@ -7711,40 +7748,7 @@ renderKnowledgeOverview()
 
 async function loadFullKnowledgeMap(){
 
-    document.getElementById(
-        "ccvContent"
-    ).innerHTML = `
-
-<div class="page-title">
-
-🧠 Kenniskaart laden...
-
-</div>
-
-<div
-id="knowledgeNetwork"
-style="
-height:800px;
-border:1px solid #ddd;
-"
->
-
-</div>
-
-<div
-id="knowledgeDetails"
-style="
-margin-top:15px;
-"
->
-
-Selecteer een node
-
-</div>
-
-`;
-
-    await buildKnowledgeNetwork();
+    await renderKnowledgeMap();
 
 }
 

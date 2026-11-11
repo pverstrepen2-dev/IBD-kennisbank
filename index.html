@@ -5632,51 +5632,75 @@ async function downloadFile(id){
 
 }
 
-async function openFile(id){
-
-    console.log(
-        "OPEN FILE:",
-        id
-    );
+async function openFile(fileId){
 
     try{
+
+        const realId =
+            String(fileId || "").trim();
+
+        if(!realId){
+
+            console.error(
+                "Geen bestand-ID ontvangen"
+            );
+
+            return;
+
+        }
+
+        console.log(
+            "OPEN FILE:",
+            realId
+        );
 
         const token =
             await getAccessToken();
 
         const response =
             await fetch(
-
-                `https://graph.microsoft.com/v1.0/me/drive/items/${id}`,
-
+                `https://graph.microsoft.com/v1.0/me/drive/items/${realId}`,
                 {
-
                     headers:{
-
                         Authorization:
                             "Bearer " + token
-
                     }
-
                 }
-
             );
+
+        if(!response.ok){
+
+            console.error(
+                "Bestand niet gevonden",
+                response.status
+            );
+
+            return;
+
+        }
 
         const file =
             await response.json();
 
         console.log(
-            "BESTAND",
+            "BESTAND:",
             file
         );
 
-        window.open(
+        if(file.webUrl){
 
-            file.webUrl,
+            window.open(
+                file.webUrl,
+                "_blank"
+            );
 
-            "_blank"
+        }else{
 
-        );
+            alert(
+                "Geen OneDrive URL gevonden"
+            );
+
+        }
 
     }
     catch(error){
@@ -5689,7 +5713,6 @@ async function openFile(id){
     }
 
 }
-
 
 async function copyFileLink(id){
 
@@ -7010,6 +7033,15 @@ async function renderKnowledgeMap(){
     </div>
 
     <div
+style="
+display:grid;
+grid-template-columns:
+3fr 1fr;
+gap:15px;
+"
+>
+
+    <div
         id="knowledgeNetwork"
         style="
             height:800px;
@@ -7017,6 +7049,21 @@ async function renderKnowledgeMap(){
             border-radius:8px;
         "
     ></div>
+
+    <div
+        id="knowledgeDetails"
+        class="card"
+        style="
+            overflow:auto;
+            max-height:800px;
+        "
+    >
+
+        Selecteer een node
+
+    </div>
+
+</div>
 
 </div>
 
@@ -8556,10 +8603,27 @@ console.log(
 function showKnowledgeExplorer(
     nodeId
 ){
-console.log(
-    "Node geselecteerd:",
-    nodeId
-);
+
+    const detailsPanel =
+        document.getElementById(
+            "knowledgeDetails"
+        );
+
+    if(!detailsPanel){
+
+        console.error(
+            "knowledgeDetails ontbreekt"
+        );
+
+        return;
+
+    }
+
+    console.log(
+        "Node geselecteerd:",
+        nodeId
+    );
+
     const parts =
         nodeId.split("_");
 
@@ -8592,9 +8656,7 @@ console.log(
     item
 );
 
-    document.getElementById(
-    "knowledgeDetails"
-).innerHTML = `
+    detailsPanel.innerHTML = `
 
 <h2>
 
@@ -8656,16 +8718,16 @@ ${item.oneDriveId || "-"}
 </p>
 
 ${
-item.oneDriveId
-
+(item.oneDriveId || item.id)
 ? `
 
 <button
 class="action-btn"
 onclick="
 openFile(
-'${item.oneDriveId}'
+'${item.oneDriveId || item.id}'
 )
+
 "
 >
 

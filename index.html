@@ -7196,6 +7196,17 @@ Selecteer eerst een kennisdomein.
 <button
 class="action-btn"
 onclick="
+renderLibraryNavigator()
+"
+>
+
+📚 Bibliotheken
+
+</button>
+
+<button
+class="action-btn"
+onclick="
 renderKnowledgeMapLauncher()
 "
 >
@@ -7275,6 +7286,339 @@ ${data.items.length}
 .join("")}
 
 </div>
+
+`;
+
+}
+
+function renderLibraryNavigator(){
+
+    const libraries = {};
+
+    globalIndex.forEach(item=>{
+
+        const library =
+
+            item.libraryType ||
+
+            item.managementCategory ||
+
+            item.source ||
+
+            "Overig";
+
+        if(!libraries[library]){
+
+            libraries[library] = [];
+
+        }
+
+        libraries[library].push(item);
+
+    });
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+
+📚 Bibliotheken
+
+</div>
+
+<button
+class="action-btn"
+onclick="
+renderKnowledgeOverview()
+"
+>
+
+⬅ AI Navigator
+
+</button>
+
+<br><br>
+
+<div
+style="
+display:grid;
+grid-template-columns:
+repeat(auto-fit,minmax(280px,1fr));
+gap:20px;
+"
+>
+
+${Object.entries(libraries)
+
+.map(([library,items])=>`
+
+<div
+class="card"
+style="
+cursor:pointer;
+"
+onclick="
+renderFolderNavigator(
+'${library}'
+)
+"
+>
+
+<h2>
+
+📚 ${library}
+
+</h2>
+
+<br>
+
+${items.length} items
+
+</div>
+
+`)
+
+.join("")}
+
+</div>
+
+`;
+
+}
+
+function renderFolderNavigator(
+    library
+){
+
+    const folders = {};
+
+    globalIndex
+
+    .filter(item=>
+
+        (
+
+            item.libraryType ||
+
+            item.managementCategory ||
+
+            item.source
+
+        )
+
+        ===
+
+        library
+
+    )
+
+    .forEach(item=>{
+
+        const folder =
+
+            item.managementSubCategory ||
+
+            item.mainCategory ||
+
+            item.category ||
+
+            "Algemeen";
+
+        if(!folders[folder]){
+
+            folders[folder] = [];
+
+        }
+
+        folders[folder].push(item);
+
+    });
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+
+📂 ${library}
+
+</div>
+
+<button
+class="action-btn"
+onclick="
+renderLibraryNavigator()
+"
+>
+
+⬅ Bibliotheken
+
+</button>
+
+<br><br>
+
+<div
+style="
+display:grid;
+grid-template-columns:
+repeat(auto-fit,minmax(260px,1fr));
+gap:15px;
+"
+>
+
+${Object.entries(folders)
+
+.map(([folder,items])=>`
+
+<div
+class="card"
+style="
+cursor:pointer;
+"
+onclick="
+renderDocumentNavigator(
+'${library}',
+'${folder}'
+)
+"
+>
+
+<h3>
+
+📂 ${folder}
+
+</h3>
+
+<br>
+
+${items.length}
+
+ items
+
+</div>
+
+`)
+
+.join("")}
+
+</div>
+
+`;
+
+}
+
+function renderDocumentNavigator(
+    library,
+    folder
+){
+
+    const items =
+
+        globalIndex.filter(item=>{
+
+            const itemLibrary =
+
+                item.libraryType ||
+
+                item.managementCategory ||
+
+                item.source;
+
+            const itemFolder =
+
+                item.managementSubCategory ||
+
+                item.mainCategory ||
+
+                item.category ||
+
+                "Algemeen";
+
+            return (
+
+                itemLibrary === library
+
+                &&
+
+                itemFolder === folder
+
+            );
+
+        });
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+
+📄 ${folder}
+
+</div>
+
+<button
+class="action-btn"
+onclick="
+renderFolderNavigator(
+'${library}'
+)
+"
+>
+
+⬅ Terug
+
+</button>
+
+<button
+class="action-btn"
+onclick="
+renderKnowledgeMap()
+"
+>
+
+🧠 Kenniskaart
+
+</button>
+
+<br><br>
+
+${items.map(item=>`
+
+<div
+class="card"
+style="
+margin-bottom:12px;
+cursor:pointer;
+"
+onclick="
+openSearchResult(
+'${item.source}',
+'${item.id}'
+)
+"
+>
+
+<h3>
+
+${item.title || "-"}
+
+</h3>
+
+<br>
+
+Type:
+${item.source}
+
+<br>
+
+${item.location || ""}
+
+</div>
+
+`)
+
+.join("")}
 
 `;
 

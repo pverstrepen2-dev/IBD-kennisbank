@@ -701,6 +701,16 @@ async function buildSearchIndex(){
     }
 
     try{
+    await buildQuickCaptureIndex();
+}
+catch(error){
+    console.error(
+        "Quick Capture index fout",
+        error
+    );
+}
+
+    try{
 
         await buildWebsiteIndex();
 
@@ -1065,6 +1075,58 @@ function linkKnowledgeDocuments(){
         linked
     );
 
+}
+
+async function buildQuickCaptureIndex()
+{
+    const captures =
+        databaseCache?.quickCaptures
+        || [];
+
+    captures.forEach(item=>{
+
+        globalIndex.push({
+
+            source : "capture",
+
+            id : item.id,
+
+            title :
+                item.title || "",
+
+            description :
+                item.description || "",
+
+            organization :
+                item.organization || "",
+
+            url :
+                item.url || "",
+
+            tags :
+                item.tags || [],
+
+            publicationDate :
+                item.publicationDate || "",
+
+            location :
+                item.organization || "",
+
+            relationships : [],
+
+            content :
+                item.description || "",
+
+            data : item
+
+        });
+
+    });
+
+    console.log(
+        "Quick Captures:",
+        captures.length
+    );
 }
 
 async function buildWebsiteIndex(){
@@ -1558,8 +1620,20 @@ async function openAssociationPortal(
 
         </div>
 
+        <div
+class="card"
+onclick="
+renderAssociationCaptures(
+'${name}'
+)
+">
+
+📌 Captaties
+
+</div>
+
     </div>
-    
+        
     `;
 }
 
@@ -2614,10 +2688,19 @@ function renderResults(results){
 
         ${
             item.source === "folder"
-                ? "📁"
-                : item.source === "website"
-                    ? "🌐"
-                    : "📄"
+?
+"📁"
+:
+item.source === "website"
+?
+"🌐"
+:
+item.source === "capture"
+?
+"📌"
+:
+"📄"
+
         }
 
         ${item.title || "-"}
@@ -2704,6 +2787,12 @@ async function openSearchResult(
         return;
 
     }
+
+    if(source === "capture")
+{
+    viewCapture(id);
+    return;
+}
 
     if(source === "knowledge"){
 
@@ -7631,27 +7720,32 @@ async function renderKnowledgeOverview(){
 
     const counts = {
 
-        knowledge:
-            filteredItems.filter(
-                x=>x.source==="knowledge"
-            ).length,
+    knowledge :
+    filteredItems.filter(
+        x=>x.source==="knowledge"
+    ).length,
 
-        file:
-            filteredItems.filter(
-                x=>x.source==="file"
-            ).length,
+    file :
+    filteredItems.filter(
+        x=>x.source==="file"
+    ).length,
 
-        folder:
-            filteredItems.filter(
-                x=>x.source==="folder"
-            ).length,
+    folder :
+    filteredItems.filter(
+        x=>x.source==="folder"
+    ).length,
 
-        website:
-            filteredItems.filter(
-                x=>x.source==="website"
-            ).length
+    website :
+    filteredItems.filter(
+        x=>x.source==="website"
+    ).length,
 
-    };
+    capture :
+    filteredItems.filter(
+        x=>x.source==="capture"
+    ).length
+
+};
 
     document.getElementById(
         "ccvContent"
@@ -7814,12 +7908,30 @@ document.getElementById('aiSourceFilter').value='website';
 renderKnowledgeOverview();
 "
 >
-
 <h3>🌐 Websites</h3>
+<br>
+${counts.website}
+</div>
+
+<!-- HIER PLAATSEN -->
+
+<div
+class="card"
+style="cursor:pointer"
+onclick="
+document.getElementById('aiSourceFilter').value='capture';
+renderKnowledgeOverview();
+"
+>
+<h3>
+
+📌 Captaties
+
+</h3>
 
 <br>
 
-${counts.website}
+${counts.capture}
 
 </div>
 

@@ -1637,6 +1637,346 @@ renderAssociationCaptures(
     `;
 }
 
+async function renderAssociationCaptures(
+    associationName
+)
+{
+    const db =
+        await DatabaseService.load();
+
+    const captures =
+        (
+            db.quickCaptures
+            || []
+        )
+        .filter(item=>
+
+            (
+                item.organization
+                || ""
+            )
+            .toLowerCase()
+            ===
+            associationName.toLowerCase()
+
+        );
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+    <div class="page-title">
+
+        📌 ${associationName}
+
+    </div>
+
+    <button
+    class="action-btn"
+    onclick="
+    renderQuickCaptureFormForAssociation(
+        '${associationName}'
+    )
+    ">
+
+    ➕ Nieuwe captatie
+
+    </button>
+
+    <button
+    class="action-btn"
+    onclick="
+    renderAssociationPortals()
+    "
+    style="
+    margin-left:10px;
+    ">
+
+    ⬅ Terug
+
+    </button>
+
+    <br><br>
+
+    ${captures.length === 0
+
+        ?
+
+        `
+
+        <div class="card">
+
+        Nog geen captaties gevonden.
+
+        </div>
+
+        `
+
+        :
+
+        captures.map(item=>`
+
+        <div
+        class="card"
+        style="
+        margin-bottom:15px;
+        cursor:pointer;
+        "
+        onclick="
+        viewCapture(
+            '${item.id}'
+        )
+        ">
+
+            <h3>
+
+            ${item.title}
+
+            </h3>
+
+            <br>
+
+            📅
+            ${item.publicationDate || "-"}
+
+            <br>
+
+            🏷
+            ${(item.tags || []).join(", ")}
+
+            <br>
+
+            🌍
+            ${item.organization}
+
+        </div>
+
+        `).join("")
+
+    }
+
+    `;
+}
+
+function renderQuickCaptureFormForAssociation(
+    associationName
+)
+{
+document.getElementById(
+    "ccvContent"
+).innerHTML = `
+
+<div class="page-title">
+
+➕ Nieuwe Captatie
+
+</div>
+
+<div class="card">
+
+<label>
+
+Titel
+
+</label>
+
+<input
+id="captureTitle"
+style="
+width:100%;
+padding:10px;
+margin-bottom:10px;
+">
+
+<label>
+
+Beschrijving
+
+</label>
+
+<textarea
+id="captureDescription"
+style="
+width:100%;
+height:180px;
+margin-bottom:10px;
+">
+</textarea>
+
+<label>
+
+URL
+
+</label>
+
+<input
+id="captureUrl"
+placeholder="https://..."
+style="
+width:100%;
+padding:10px;
+margin-bottom:10px;
+">
+
+<label>
+
+Publicatiedatum
+
+</label>
+
+<input
+type="date"
+id="capturePublicationDate"
+style="
+width:100%;
+padding:10px;
+margin-bottom:10px;
+">
+
+<label>
+
+Tags
+
+</label>
+
+<input
+id="captureTags"
+placeholder="crohn,ecco,onderzoek"
+style="
+width:100%;
+padding:10px;
+margin-bottom:10px;
+">
+
+<input
+type="hidden"
+id="captureOrganisation"
+value="${associationName}">
+
+<br><br>
+
+<button
+class="action-btn"
+onclick="
+saveQuickCapture()
+">
+
+💾 Opslaan
+
+</button>
+
+<button
+class="action-btn"
+onclick="
+renderAssociationCaptures(
+'${associationName}'
+)
+">
+
+⬅ Terug
+
+</button>
+
+</div>
+
+`;
+}
+
+async function saveQuickCapture()
+{
+    const db =
+        await DatabaseService.load();
+
+    if(!db.quickCaptures)
+    {
+        db.quickCaptures = [];
+    }
+
+    const organisationField =
+        document.getElementById(
+            "captureOrganisation"
+        );
+
+    const capture = {
+
+        id:
+            Date.now(),
+
+        title:
+            document.getElementById(
+                "captureTitle"
+            )?.value || "",
+
+        description:
+            document.getElementById(
+                "captureDescription"
+            )?.value || "",
+
+        organization:
+            organisationField
+                ? organisationField.value
+                : "Algemeen",
+
+        url:
+            document.getElementById(
+                "captureUrl"
+            )?.value || "",
+
+        publicationDate:
+            document.getElementById(
+                "capturePublicationDate"
+            )?.value || "",
+
+        captureDate:
+            new Date().toISOString(),
+
+        tags:
+            (
+                document.getElementById(
+                    "captureTags"
+                )?.value || ""
+            )
+            .split(",")
+            .map(x => x.trim())
+            .filter(Boolean),
+
+        recommended:
+            document.getElementById(
+                "captureRecommended"
+            )?.checked || false,
+
+        validated:
+            document.getElementById(
+                "captureValidated"
+            )?.checked || false,
+
+        type:
+            "capture"
+    };
+
+    db.quickCaptures.unshift(
+        capture
+    );
+
+    await DatabaseService.save();
+
+    alert(
+        "✅ Captatie opgeslagen"
+    );
+
+    if(capture.organization)
+    {
+        renderAssociationCaptures(
+            capture.organization
+        );
+    }
+    else
+    {
+        renderQuickCaptureVault();
+    }
+}
+
+
 async function renderAssociationDocuments(
     folderId,
     portalName

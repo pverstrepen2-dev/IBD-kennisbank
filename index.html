@@ -425,7 +425,8 @@ async function loginMicrosoft(){
             await msalInstance.loginRedirect({
     scopes:[
         "User.Read",
-        "Files.ReadWrite"
+        "Files.ReadWrite",
+        "Mail.Read"
     ]
 });
 
@@ -542,15 +543,13 @@ async function getAccessToken(){
 
         const response =
             await msalInstance.acquireTokenSilent({
-
-                account,
-
-                scopes:[
-                    "User.Read",
-                    "Files.Read"
-                ]
-
-            });
+    account,
+    scopes:[
+        "User.Read",
+        "Files.Read",
+        "Mail.Read"
+    ]
+});
 
         return response.accessToken;
 
@@ -1129,6 +1128,86 @@ async function buildQuickCaptureIndex()
     );
 }
 
+async function buildEmailIndex()
+{
+    try{
+
+        const token =
+            await getAccessToken();
+
+        const response =
+            await fetch(
+                "https://graph.microsoft.com/v1.0/me/messages?$top=250",
+                {
+                    headers:{
+                        Authorization:
+                            "Bearer " + token
+                    }
+                }
+            );
+
+        const data =
+            await response.json();
+
+        const emails =
+            data.value || [];
+
+        emails.forEach(mail=>{
+
+            globalIndex.push({
+
+                source : "email",
+
+                id :
+                    mail.id,
+
+                title :
+                    mail.subject || "(geen onderwerp)",
+
+                description :
+                    mail.bodyPreview || "",
+
+                sender :
+                    mail.from
+                    ?.emailAddress
+                    ?.address || "",
+
+                received :
+                    mail.receivedDateTime || "",
+
+                tags : [],
+
+                relationships : [],
+
+                location :
+                    "Mailbox",
+
+                content :
+                    mail.bodyPreview || "",
+
+                data :
+                    mail
+
+            });
+
+        });
+
+        console.log(
+            "Emails geïndexeerd:",
+            emails.length
+        );
+
+    }
+    catch(error){
+
+        console.error(
+            "Email Index Fout",
+            error
+        );
+
+    }
+}
+
 async function buildWebsiteIndex(){
 
     const websites =
@@ -1532,7 +1611,7 @@ async function renderAssociationPortals()
 }
 
 async function openAssociationPortal(
-    folderId,
+    id,
     name
 )
 {
@@ -1541,11 +1620,11 @@ async function openAssociationPortal(
 
     const response =
         await fetch(
-            `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`,
+            `https://graph.microsoft.com/v1.0/me/drive/items/${id}/children`,
             {
                 headers:{
                     Authorization:
-                    "Bearer " + token
+                        "Bearer " + token
                 }
             }
         );
@@ -1571,69 +1650,91 @@ async function openAssociationPortal(
     display:grid;
     grid-template-columns:
     repeat(auto-fit,minmax(250px,1fr));
-    gap:20px;
+    gap:15px;
     ">
 
-        <div class="card"
+        <div
+        class="card"
         onclick="
         renderAssociationDocuments(
-        '${folderId}',
-        '${name}'
-        )">
+            '${id}',
+            '${name}'
+        )
+        "
+        style="cursor:pointer;">
 
             📄 Documenten
 
         </div>
 
-        <div class="card"
-        onclick="
-        renderAssociationSearch(
-        '${folderId}',
-        '${name}'
-        )">
+        <div
+        class="card"
+        style="cursor:pointer;">
 
             🔍 Zoeken
 
         </div>
 
-        <div class="card">
+        <div
+        class="card"
+        style="cursor:pointer;">
 
             🧠 AI Chat
 
         </div>
 
-        <div class="card">
+        <div
+        class="card"
+        style="cursor:pointer;">
 
             🔗 Relaties
 
         </div>
 
-        <div class="card">
+        <div
+        class="card"
+        style="cursor:pointer;">
 
             🌐 Websites
 
         </div>
 
-        <div class="card">
+        <div
+        class="card"
+        onclick="
+        renderAssociationCaptures(
+            '${name}'
+        )
+        "
+        style="cursor:pointer;">
+
+            📌 Captaties
+
+        </div>
+
+        <div
+        class="card"
+        onclick="
+        renderAssociationEmails(
+            '${name}'
+        )
+        "
+        style="cursor:pointer;">
+
+            📧 E-mails
+
+        </div>
+
+        <div
+        class="card"
+        style="cursor:pointer;">
 
             📈 Dashboard
 
         </div>
 
-        <div
-class="card"
-onclick="
-renderAssociationCaptures(
-'${name}'
-)
-">
-
-📌 Captaties
-
-</div>
-
     </div>
-        
+    
     `;
 }
 
@@ -1754,6 +1855,59 @@ async function renderAssociationCaptures(
         `).join("")
 
     }
+
+    `;
+}
+
+function renderAssociationEmails(
+    associationName
+)
+{
+    const emails =
+        globalIndex.filter(
+
+            item =>
+
+            item.source === "email"
+
+        );
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+    <div class="page-title">
+
+        📧 ${associationName}
+
+    </div>
+
+    ${emails.map(mail=>`
+
+    <div
+    class="card"
+    style="
+    margin-bottom:10px;
+    "
+    onclick="
+    showEmail(
+    '${mail.id}'
+    )
+    ">
+
+        <h3>
+
+        ${mail.title}
+
+        </h3>
+
+        <br>
+
+        ${mail.sender}
+
+    </div>
+
+    `).join("")}
 
     `;
 }
@@ -3027,13 +3181,17 @@ function renderResults(results){
     <h3>
 
         ${
-            item.source === "folder"
+           item.source === "folder"
 ?
 "📁"
 :
 item.source === "website"
 ?
 "🌐"
+:
+item.source === "email"
+?
+"📧"
 :
 item.source === "capture"
 ?
@@ -3128,6 +3286,12 @@ async function openSearchResult(
 
     }
 
+if(source === "email")
+{
+    showEmail(id);
+    return;
+}
+
     if(source === "capture")
 {
     viewCapture(id);
@@ -3185,6 +3349,78 @@ async function openSearchResult(
     }
 
 }
+
+function showEmail(id)
+{
+    const mail =
+        globalIndex.find(
+
+            item =>
+
+            item.source === "email"
+            &&
+            String(item.id)
+            ===
+            String(id)
+
+        );
+
+    if(!mail)
+    {
+        return;
+    }
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+    <div class="page-title">
+
+        📧 Mail
+
+    </div>
+
+    <div class="card">
+
+        <h2>
+
+        ${mail.title}
+
+        </h2>
+
+        <br>
+
+        📤
+
+        ${mail.sender}
+
+        <br><br>
+
+        📅
+
+        ${mail.received}
+
+        <br><br>
+
+        ${mail.description}
+
+        <br><br>
+
+        <button
+        class="action-btn"
+        onclick="
+        renderSearchPage()
+        ">
+
+        ⬅ Terug
+
+        </button>
+
+    </div>
+
+    `;
+}
+
 async function openKnowledgeRecord(id){
 
     const records =
@@ -8061,29 +8297,34 @@ async function renderKnowledgeOverview(){
     const counts = {
 
     knowledge :
-    filteredItems.filter(
-        x=>x.source==="knowledge"
-    ).length,
+        filteredItems.filter(
+            x=>x.source==="knowledge"
+        ).length,
 
     file :
-    filteredItems.filter(
-        x=>x.source==="file"
-    ).length,
+        filteredItems.filter(
+            x=>x.source==="file"
+        ).length,
 
     folder :
-    filteredItems.filter(
-        x=>x.source==="folder"
-    ).length,
+        filteredItems.filter(
+            x=>x.source==="folder"
+        ).length,
 
     website :
-    filteredItems.filter(
-        x=>x.source==="website"
-    ).length,
+        filteredItems.filter(
+            x=>x.source==="website"
+        ).length,
 
     capture :
-    filteredItems.filter(
-        x=>x.source==="capture"
-    ).length
+        filteredItems.filter(
+            x=>x.source==="capture"
+        ).length,
+
+    email :
+        filteredItems.filter(
+            x=>x.source==="email"
+        ).length
 
 };
 
@@ -8156,6 +8397,16 @@ Mappen
 <option value="website"
 ${sourceFilter==="website"?"selected":""}>
 Websites
+</option>
+
+<option value="capture"
+${sourceFilter==="capture"?"selected":""}>
+Captaties
+</option>
+
+<option value="email"
+${sourceFilter==="email"?"selected":""}>
+E-mails
 </option>
 
 </select>
@@ -8272,6 +8523,30 @@ renderKnowledgeOverview();
 <br>
 
 ${counts.capture}
+
+</div>
+
+<div
+class="card"
+style="cursor:pointer"
+onclick="
+document.getElementById(
+'aiSourceFilter'
+).value='email';
+
+renderKnowledgeOverview();
+"
+>
+
+<h3>
+
+📧 E-mails
+
+</h3>
+
+<br>
+
+${counts.email}
 
 </div>
 

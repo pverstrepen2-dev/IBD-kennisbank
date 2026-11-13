@@ -735,7 +735,21 @@ catch(error){
             error
         );
 
-    }
+         }
+
+        try{
+
+    await buildEmailIndex();
+
+}
+catch(error){
+
+    console.error(
+        "Email index fout",
+        error
+    );
+
+}
 
     linkKnowledgeDocuments();
 

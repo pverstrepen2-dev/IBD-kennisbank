@@ -302,6 +302,7 @@ let folderHistory = [];
 let currentItems = [];
 
 let associationPortals = [];
+let associationFolderMap = {};
 
 let folderPath = [
 
@@ -1626,37 +1627,267 @@ async function renderAssociationPortals()
     gap:20px;
     ">
 
-    ${folders.map(folder => `
+    ${folders.map(folder => {
 
-        <div
-        class="card"
-        style="
-        cursor:pointer;
-        "
-        onclick="
-        openAssociationPortal(
-        '${folder.id}',
-        '${folder.name}'
-        )
-        ">
+    associationFolderMap[
+        folder.name
+    ] = folder.id;
 
-            <h2>
+    return `
 
-            🤝 ${folder.name}
+    <div
+    class="card"
+    style="
+    cursor:pointer;
+    "
+    onclick="
+    openAssociationPortal(
+    '${folder.id}',
+    '${folder.name}'
+    )
+    ">
 
-            </h2>
+        <h2>
 
-            <br>
+        🤝 ${folder.name}
 
-            Open kennisportaal
+        </h2>
 
-        </div>
+        <br>
 
-    `).join("")}
+        Open kennisportaal
 
     </div>
 
     `;
+
+}).join("")}
+    </div>
+
+    `;
+}
+
+function renderAssociationAIChat(
+    associationName
+)
+{
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+🧠 AI Chat
+</div>
+
+<div class="card">
+
+Vereniging:
+
+<b>${associationName}</b>
+
+<br><br>
+
+Documenten:
+${globalIndex.filter(
+    x => x.source === "file"
+).length}
+
+<br>
+
+Websites:
+${globalIndex.filter(
+    x => x.source === "website"
+).length}
+
+<br>
+
+Captaties:
+${(
+DatabaseService.cache
+?.quickCaptures || []
+).length}
+
+<br>
+
+Emails:
+${globalIndex.filter(
+    x => x.source === "email"
+).length}
+
+</div>
+
+`;
+
+}
+
+function renderAssociationDashboard(
+    associationName
+)
+{
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+📊 Dashboard
+</div>
+
+<div class="card">
+
+🏛 ${associationName}
+
+<br><br>
+
+📄 ${
+globalIndex.filter(
+x=>x.source==="file"
+).length
+}
+
+ documenten
+
+<br>
+
+🌐 ${
+globalIndex.filter(
+x=>x.source==="website"
+).length
+}
+
+ websites
+
+<br>
+
+📌 ${
+(
+DatabaseService.cache
+?.quickCaptures || []
+).length
+}
+
+ captaties
+
+<br>
+
+📧 ${
+globalIndex.filter(
+x=>x.source==="email"
+).length
+}
+
+ emails
+
+</div>
+
+`;
+
+}
+
+function getAssociationDocuments(
+    associationName
+){
+    const folderId =
+        associationFolderMap[
+            associationName
+        ];
+
+    if(!folderId){
+        return [];
+    }
+
+    return globalIndex.filter(item => {
+
+        if(item.source !== "file"){
+            return false;
+        }
+
+        const fileFolderId =
+            item.data?.parentReference?.id ||
+            "";
+
+        return (
+            fileFolderId === folderId
+        );
+
+    });
+}
+
+function getAssociationCounts(
+    associationName
+){
+    const association =
+        associationName.toLowerCase();
+
+    const documents =
+        getAssociationDocuments(
+            associationName
+        );
+
+    const websites =
+        websitesCache.filter(site => {
+
+            const text = `
+
+                ${site.association || ""}
+                ${site.organization || ""}
+                ${site.title || ""}
+                ${site.titel || ""}
+
+            `
+            .toLowerCase();
+
+            return text.includes(
+                association
+            );
+
+        });
+
+    const captures =
+        (
+            databaseCache?.quickCaptures
+            || []
+        )
+        .filter(capture =>
+
+            (
+                capture.organization ||
+                ""
+            )
+            .toLowerCase()
+            === association
+
+        );
+
+    const emails =
+        globalIndex.filter(item => {
+
+            if(item.source !== "email"){
+                return false;
+            }
+
+            const text = `
+
+                ${item.title || ""}
+                ${item.description || ""}
+                ${item.sender || ""}
+
+            `
+            .toLowerCase();
+
+            return text.includes(
+                association
+            );
+
+        });
+
+    return {
+
+        documents,
+        websites,
+        captures,
+        emails
+
+    };
 }
 
 async function openAssociationPortal(
@@ -1664,367 +1895,499 @@ async function openAssociationPortal(
     name
 )
 {
+    currentAssociationPortal = name;
+
+    const counts =
+        getAssociationCounts(
+            name
+        );
+
     const documentCount =
-        globalIndex.filter(item =>
-            item.source === "file" &&
-            (
-                item.location || ""
-            ).includes(name)
-        ).length;
+        counts.documents.length;
 
     const websiteCount =
-        websitesCache.filter(site =>
-            (
-                site.association ||
-                site.organization ||
-                ""
-            )
-            .toLowerCase()
-            .includes(
-                name.toLowerCase()
-            )
-        ).length;
+        counts.websites.length;
 
     const captureCount =
-        globalIndex.filter(item =>
-            item.source === "capture" &&
-            (
-                item.organization ||
-                ""
-            )
-            .toLowerCase()
-            ===
-            name.toLowerCase()
-        ).length;
+        counts.captures.length;
 
     const emailCount =
-        globalIndex.filter(
-            item =>
-                item.source === "email"
-        ).length;
+        counts.emails.length;
 
     document.getElementById(
         "ccvContent"
     ).innerHTML = `
 
-<div class="page-title">
+    <div class="page-title">
 
-🏛 ${name}
+        🏛 ${name}
 
-</div>
+    </div>
 
-<div class="card">
+    <div class="card">
 
-<h2>
+        <h2>
 
-📚 Kennisbronnen
+            📚 Kennisbronnen
 
-</h2>
+        </h2>
 
-<br>
+        <br>
 
-<div
-style="
-display:grid;
-grid-template-columns:
-repeat(auto-fit,minmax(220px,1fr));
-gap:15px;
-"
->
+        <div
+        style="
+        display:grid;
+        grid-template-columns:
+        repeat(auto-fit,minmax(220px,1fr));
+        gap:15px;
+        "
+        >
 
-<div
-class="card"
-style="cursor:pointer;"
-onclick="
-renderKnowledgeSources(
-'${name}'
-)
-"
->
+            <div
+            class="card"
+            style="cursor:pointer;"
+            onclick="
+            renderKnowledgeSources(
+                '${name}'
+            )
+            "
+            >
 
-📄 ${documentCount}
-Documenten
+                📄 ${documentCount}
 
-</div>
+                <br>
 
-<div
-class="card"
-style="cursor:pointer;"
-onclick="
-renderKnowledgeSources(
-'${name}'
-)
-"
->
+                Documenten
 
-🌐 ${websiteCount}
-Websites
+            </div>
 
-</div>
+            <div
+            class="card"
+            style="cursor:pointer;"
+            onclick="
+            renderKnowledgeSources(
+                '${name}'
+            )
+            "
+            >
 
-<div
-class="card"
-style="cursor:pointer;"
-onclick="
-renderKnowledgeSources(
-'${name}'
-)
-"
->
+                🌐 ${websiteCount}
 
-📌 ${captureCount}
-Captaties
+                <br>
 
-</div>
+                Websites
 
-<div
-class="card"
-style="cursor:pointer;"
-onclick="
-renderKnowledgeSources(
-'${name}'
-)
-"
->
+            </div>
 
-📧 ${emailCount}
-E-mails
+            <div
+            class="card"
+            style="cursor:pointer;"
+            onclick="
+            renderKnowledgeSources(
+                '${name}'
+            )
+            "
+            >
 
-</div>
+                📌 ${captureCount}
 
-</div>
+                <br>
 
-</div>
+                Captaties
 
-<br>
+            </div>
 
-<div
-style="
-display:grid;
-grid-template-columns:
-repeat(auto-fit,minmax(250px,1fr));
-gap:15px;
-"
->
+            <div
+            class="card"
+            style="cursor:pointer;"
+            onclick="
+            renderKnowledgeSources(
+                '${name}'
+            )
+            "
+            >
 
-<div
-class="card"
-style="cursor:pointer;"
-onclick="
-renderKnowledgeSources(
-'${name}'
-)
-"
->
+                📧 ${emailCount}
 
-📚 Kennisbronnen
+                <br>
 
-<br><br>
+                E-mails
 
-Documenten, websites,
-captaties en e-mails
-gecombineerd.
+            </div>
 
-</div>
+        </div>
 
-<div
-class="card"
-style="cursor:pointer;"
->
+    </div>
 
-🧠 AI Chat
+    <br>
 
-<br><br>
+    <div
+    style="
+    display:grid;
+    grid-template-columns:
+    repeat(auto-fit,minmax(260px,1fr));
+    gap:15px;
+    "
+    >
 
-Stel vragen over
-alle kennisbronnen.
+        <div
+        class="card"
+        style="cursor:pointer;"
+        onclick="
+        renderKnowledgeSources(
+            '${name}'
+        )
+        "
+        >
 
-</div>
+            📚 Kennisbronnen
 
-<div
-class="card"
-style="cursor:pointer;"
->
+            <br><br>
 
-📊 Dashboard
+            Gecombineerd overzicht van
+            documenten, websites,
+            captaties en e-mails.
 
-<br><br>
+        </div>
 
-Statistieken en trends.
+        <div
+        class="card"
+        style="cursor:pointer;"
+        onclick="
+        renderAssociationAIChat(
+            '${name}'
+        )
+        "
+        >
 
-</div>
+            🧠 AI Chat
 
-<div
-class="card"
-style="cursor:pointer;"
->
+            <br><br>
 
-⚙ Verenigingsbeheer
+            Stel vragen over alle
+            kennisbronnen van
+            deze vereniging.
 
-<br><br>
+        </div>
 
-Beheer documenten
-en gegevens.
+        <div
+        class="card"
+        style="cursor:pointer;"
+        onclick="
+        renderAssociationDashboard(
+            '${name}'
+        )
+        "
+        >
 
-</div>
+            📊 Dashboard
 
-</div>
+            <br><br>
 
-`;
+            Statistieken,
+            trends en analyses.
 
+        </div>
+
+        <div
+        class="card"
+        style="cursor:pointer;"
+        onclick="
+        renderManagementCenter()
+        "
+        >
+
+            ⚙ Verenigingsbeheer
+
+            <br><br>
+
+            Toegang tot documenten,
+            projecten, ledenbeheer,
+            financiën en administratie.
+
+        </div>
+
+    </div>
+
+    `;
+}
+
+
+function debugAssociation(
+    name
+){
+    const counts =
+        getAssociationCounts(name);
+
+    console.log(
+        "VERENIGING",
+        name
+    );
+
+    console.log(
+        "DOCUMENTEN",
+        counts.documents.length
+    );
+
+    console.log(
+        "WEBSITES",
+        counts.websites.length
+    );
+
+    console.log(
+        "CAPTATIES",
+        counts.captures.length
+    );
+
+    console.log(
+        "EMAILS",
+        counts.emails.length
+    );
+
+    return counts;
 }
 
 function renderKnowledgeSources(
     associationName
-){
+)
+{
+    const counts =
+        getAssociationCounts(
+            associationName
+        );
 
     const documents =
-        globalIndex.filter(
-            item =>
-                item.source === "file" &&
-                (
-                    item.location || ""
-                )
-                .includes(
-                    associationName
-                )
-        );
+        counts.documents;
 
     const captures =
-        globalIndex.filter(
-            item =>
-                item.source === "capture" &&
-                (
-                    item.organization ||
-                    ""
-                )
-                .toLowerCase()
-                ===
-                associationName.toLowerCase()
-        );
+        counts.captures;
 
     const websites =
-        globalIndex.filter(
-            item =>
-                item.source === "website"
-        );
+        counts.websites;
 
     const emails =
-        globalIndex.filter(
-            item =>
-                item.source === "email"
-        );
+        counts.emails;
 
     document.getElementById(
         "ccvContent"
     ).innerHTML = `
 
-<div class="page-title">
+    <div class="page-title">
 
-📚 Kennisbronnen
+        📚 Kennisbronnen
 
-</div>
+        <br>
 
-<button
-class="action-btn"
-onclick="
-openAssociationPortal(
-'',
-'${associationName}'
-)
-"
->
+        <small>
+            ${associationName}
+        </small>
 
-⬅ Terug
+    </div>
 
-</button>
+    <button
+        class="action-btn"
+        onclick="
+        openAssociationPortal(
+            '',
+            '${associationName}'
+        )
+        "
+    >
 
-<br><br>
+        ⬅ Terug naar vereniging
 
-<div
-style="
-display:grid;
-grid-template-columns:
-repeat(auto-fit,minmax(220px,1fr));
-gap:15px;
-"
->
+    </button>
 
-<div
-class="card"
-onclick="
-renderAssociationDocuments(
-'',
-'${associationName}'
-)
-"
-style="cursor:pointer;"
->
+    <br><br>
 
-📄 Documenten
+    <div
+        style="
+        display:grid;
+        grid-template-columns:
+        repeat(auto-fit,minmax(240px,1fr));
+        gap:15px;
+        "
+    >
 
-<br><br>
+        <div
+            class="card"
+            style="
+            cursor:pointer;
+            "
+            onclick="
+            renderAssociationDocuments(
+                '',
+                '${associationName}'
+            )
+            "
+        >
 
-${documents.length}
+            📄 Documenten
 
-</div>
+            <br><br>
 
-<div
-class="card"
-onclick="
-renderWebsites()
-"
-style="cursor:pointer;"
->
+            <span style="
+                font-size:24px;
+                font-weight:bold;
+            ">
+                ${documents.length}
+            </span>
 
-🌐 Websites
+        </div>
 
-<br><br>
+        <div
+            class="card"
+            style="
+            cursor:pointer;
+            "
+            onclick="
+            renderWebsites()
+            "
+        >
 
-${websites.length}
+            🌐 Websites
 
-</div>
+            <br><br>
 
-<div
-class="card"
-onclick="
-renderAssociationCaptures(
-'${associationName}'
-)
-"
-style="cursor:pointer;"
->
+            <span style="
+                font-size:24px;
+                font-weight:bold;
+            ">
+                ${websites.length}
+            </span>
 
-📌 Captaties
+        </div>
 
-<br><br>
+        <div
+            class="card"
+            style="
+            cursor:pointer;
+            "
+            onclick="
+            renderAssociationCaptures(
+                '${associationName}'
+            )
+            "
+        >
 
-${captures.length}
+            📌 Captaties
 
-</div>
+            <br><br>
 
-<div
-class="card"
-onclick="
-renderAssociationEmails(
-'${associationName}'
-)
-"
-style="cursor:pointer;"
->
+            <span style="
+                font-size:24px;
+                font-weight:bold;
+            ">
+                ${captures.length}
+            </span>
 
-📧 E-mails
+        </div>
 
-<br><br>
+        <div
+            class="card"
+            style="
+            cursor:pointer;
+            "
+            onclick="
+            renderAssociationEmails(
+                '${associationName}'
+            )
+            "
+        >
 
-${emails.length}
+            📧 E-mails
 
-</div>
+            <br><br>
 
-</div>
+            <span style="
+                font-size:24px;
+                font-weight:bold;
+            ">
+                ${emails.length}
+            </span>
 
-`;
+        </div>
 
+    </div>
+
+    <br>
+
+    <div
+        style="
+        display:grid;
+        grid-template-columns:
+        repeat(auto-fit,minmax(280px,1fr));
+        gap:15px;
+        "
+    >
+
+        <div
+            class="card"
+            style="
+            cursor:pointer;
+            "
+            onclick="
+            renderAssociationAIChat(
+                '${associationName}'
+            )
+            "
+        >
+
+            🧠 AI Chat
+
+            <br><br>
+
+            Stel vragen over alle
+            documenten, websites,
+            captaties en e-mails
+            van deze vereniging.
+
+        </div>
+
+        <div
+            class="card"
+            style="
+            cursor:pointer;
+            "
+            onclick="
+            renderAssociationDashboard(
+                '${associationName}'
+            )
+            "
+        >
+
+            📊 Dashboard
+
+            <br><br>
+
+            Statistieken,
+            trends en analyse.
+
+        </div>
+
+        <div
+            class="card"
+            style="
+            cursor:pointer;
+            "
+            onclick="
+            renderManagementCenter()
+            "
+        >
+
+            ⚙ Verenigingsbeheer
+
+            <br><br>
+
+            Toegang tot documenten,
+            projecten, ledenbeheer,
+            financiën en administratie.
+
+        </div>
+
+    </div>
+
+    `;
 }
 
 async function renderAssociationCaptures(

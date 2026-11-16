@@ -431,13 +431,23 @@ async function loginMicrosoft(){
 
     try{
 
-            await msalInstance.loginRedirect({
-    scopes:[
-        "User.Read",
-        "Files.ReadWrite",
-        "Mail.Read"
-    ]
-});
+        await msalInstance.loginRedirect({
+
+            scopes:[
+
+                "User.Read",
+
+                "Files.ReadWrite",
+
+                "Mail.Read",
+
+                "Calendars.Read",
+
+                "Calendars.ReadWrite"
+
+            ]
+
+        });
 
     }
     catch(error){
@@ -526,8 +536,8 @@ function applyRolePermissions(){
 
 }
 
-async function getAccessToken(){
-
+async function getAccessToken()
+{
     const accounts =
         msalInstance.getAllAccounts();
 
@@ -536,44 +546,52 @@ async function getAccessToken(){
         accounts
     );
 
-    if(!accounts.length){
-
+    if(!accounts.length)
+    {
         console.warn(
             "Geen Microsoft-account gevonden"
         );
 
         return null;
-
     }
 
-    const account = accounts[0];
+    const account =
+        accounts[0];
 
-    try{
-
+    try
+    {
         const response =
             await msalInstance.acquireTokenSilent({
-    account,
-    scopes:[
-        "User.Read",
-        "Files.Read",
-        "Mail.Read"
-    ]
-});
+
+                account,
+
+                scopes:[
+
+                    "User.Read",
+
+                    "Files.ReadWrite",
+
+                    "Mail.Read",
+
+                    "Calendars.Read",
+
+                    "Calendars.ReadWrite"
+
+                ]
+
+            });
 
         return response.accessToken;
-
     }
-    catch(error){
-
+    catch(error)
+    {
         console.error(
             "Token fout:",
             error
         );
 
         return null;
-
     }
-
 }
 
 async function loadDatabaseJson(){

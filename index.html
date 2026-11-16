@@ -3443,6 +3443,18 @@ async function buildOneDriveIndex(){
 
     );
 
+console.log(
+    "EINDTELLING",
+    globalIndex.reduce(
+        (acc,item)=>{
+            acc[item.source] =
+                (acc[item.source] || 0) + 1;
+            return acc;
+        },
+        {}
+    )
+);
+
     }
     finally{
 
@@ -6283,9 +6295,9 @@ function renderManagementCenter(){
         },
 
         {
-            id:"meetings",
+            id:"calendar",
             icon:"📅",
-            title:"Vergaderingen"
+            title:"Agenda & Vergaderingen"
         },
 
         {
@@ -6332,9 +6344,11 @@ gap:20px;
 
 ${categories.map(cat=>{
 
-    const count =
+    let count = 0;
 
-        globalIndex.filter(
+    if(cat.id !== "calendar")
+    {
+        count = globalIndex.filter(
 
             item =>
 
@@ -6342,6 +6356,7 @@ ${categories.map(cat=>{
                 cat.id
 
         ).length;
+    }
 
     return `
 
@@ -6351,14 +6366,18 @@ style="
 cursor:pointer;
 "
 onclick="
-if('${cat.id}' === 'calendar'){
+
+if('${cat.id}' === 'calendar')
+{
     renderCalendarCenter();
 }
-else{
+else
+{
     renderManagementCategory(
         '${cat.id}'
     );
 }
+
 "
 >
 
@@ -6371,7 +6390,13 @@ ${cat.title}
 
 <br>
 
-${count} documenten
+${
+    cat.id === "calendar"
+    ?
+    "Outlook • Vergaderingen • Actiepunten"
+    :
+    count + " documenten"
+}
 
 </div>
 

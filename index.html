@@ -766,6 +766,10 @@ async function rebuildIndexes(
         !force
     )
     {
+        console.log(
+            "Rebuild reeds actief"
+        );
+
         return;
     }
 
@@ -777,11 +781,11 @@ async function rebuildIndexes(
 
         searchInitialized = false;
 
-        globalIndexMap = {};
-
-        documentConnections = [];
-
         await buildSearchIndex();
+
+        console.log(
+            "Index rebuild voltooid"
+        );
     }
     catch(error)
     {
@@ -913,10 +917,6 @@ console.log(
     "GlobalIndexMap:",
     Object.keys(globalIndexMap).length
 );
-
-networkBuilt = false;
-semanticConnectionsBuilt = false;
-documentConnections = [];
 
 searchInitialized = true;
     

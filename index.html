@@ -1118,11 +1118,13 @@ function linkKnowledgeDocuments(){
 
 async function buildQuickCaptureIndex()
 {
-    const captures =
-        databaseCache?.quickCaptures
-        || [];
+    const db =
+        await DatabaseService.load();
 
-    captures.forEach(item=>{
+    const captures =
+        db?.quickCaptures || [];
+
+    captures.forEach(item => {
 
         globalIndex.push({
 
@@ -1165,6 +1167,13 @@ async function buildQuickCaptureIndex()
     console.log(
         "Quick Captures:",
         captures.length
+    );
+
+    console.log(
+        "Captures in globalIndex:",
+        globalIndex.filter(
+            x => x.source === "capture"
+        ).length
     );
 }
 
@@ -2393,6 +2402,10 @@ async function saveQuickCapture()
     );
 
     await DatabaseService.save();
+
+searchInitialized = false;
+
+await buildSearchIndex();
 
     alert(
         "✅ Captatie opgeslagen"

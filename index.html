@@ -1655,127 +1655,367 @@ async function openAssociationPortal(
     name
 )
 {
-    const token =
-        await getAccessToken();
+    const documentCount =
+        globalIndex.filter(item =>
+            item.source === "file" &&
+            (
+                item.location || ""
+            ).includes(name)
+        ).length;
 
-    const response =
-        await fetch(
-            `https://graph.microsoft.com/v1.0/me/drive/items/${id}/children`,
-            {
-                headers:{
-                    Authorization:
-                        "Bearer " + token
-                }
-            }
-        );
+    const websiteCount =
+        websitesCache.filter(site =>
+            (
+                site.association ||
+                site.organization ||
+                ""
+            )
+            .toLowerCase()
+            .includes(
+                name.toLowerCase()
+            )
+        ).length;
 
-    const data =
-        await response.json();
+    const captureCount =
+        globalIndex.filter(item =>
+            item.source === "capture" &&
+            (
+                item.organization ||
+                ""
+            )
+            .toLowerCase()
+            ===
+            name.toLowerCase()
+        ).length;
 
-    currentItems =
-        data.value || [];
+    const emailCount =
+        globalIndex.filter(
+            item =>
+                item.source === "email"
+        ).length;
 
     document.getElementById(
         "ccvContent"
     ).innerHTML = `
-    
-    <div class="page-title">
 
-        🤝 ${name}
+<div class="page-title">
 
-    </div>
+🏛 ${name}
 
-    <div
-    style="
-    display:grid;
-    grid-template-columns:
-    repeat(auto-fit,minmax(250px,1fr));
-    gap:15px;
-    ">
+</div>
 
-        <div
-        class="card"
-        onclick="
-        renderAssociationDocuments(
-            '${id}',
-            '${name}'
-        )
-        "
-        style="cursor:pointer;">
+<div class="card">
 
-            📄 Documenten
+<h2>
 
-        </div>
+📚 Kennisbronnen
 
-        <div
-        class="card"
-        style="cursor:pointer;">
+</h2>
 
-            🔍 Zoeken
+<br>
 
-        </div>
+<div
+style="
+display:grid;
+grid-template-columns:
+repeat(auto-fit,minmax(220px,1fr));
+gap:15px;
+"
+>
 
-        <div
-        class="card"
-        style="cursor:pointer;">
+<div
+class="card"
+style="cursor:pointer;"
+onclick="
+renderKnowledgeSources(
+'${name}'
+)
+"
+>
 
-            🧠 AI Chat
+📄 ${documentCount}
+Documenten
 
-        </div>
+</div>
 
-        <div
-        class="card"
-        style="cursor:pointer;">
+<div
+class="card"
+style="cursor:pointer;"
+onclick="
+renderKnowledgeSources(
+'${name}'
+)
+"
+>
 
-            🔗 Relaties
+🌐 ${websiteCount}
+Websites
 
-        </div>
+</div>
 
-        <div
-        class="card"
-        style="cursor:pointer;">
+<div
+class="card"
+style="cursor:pointer;"
+onclick="
+renderKnowledgeSources(
+'${name}'
+)
+"
+>
 
-            🌐 Websites
+📌 ${captureCount}
+Captaties
 
-        </div>
+</div>
 
-        <div
-        class="card"
-        onclick="
-        renderAssociationCaptures(
-            '${name}'
-        )
-        "
-        style="cursor:pointer;">
+<div
+class="card"
+style="cursor:pointer;"
+onclick="
+renderKnowledgeSources(
+'${name}'
+)
+"
+>
 
-            📌 Captaties
+📧 ${emailCount}
+E-mails
 
-        </div>
+</div>
 
-        <div
-        class="card"
-        onclick="
-        renderAssociationEmails(
-            '${name}'
-        )
-        "
-        style="cursor:pointer;">
+</div>
 
-            📧 E-mails
+</div>
 
-        </div>
+<br>
 
-        <div
-        class="card"
-        style="cursor:pointer;">
+<div
+style="
+display:grid;
+grid-template-columns:
+repeat(auto-fit,minmax(250px,1fr));
+gap:15px;
+"
+>
 
-            📈 Dashboard
+<div
+class="card"
+style="cursor:pointer;"
+onclick="
+renderKnowledgeSources(
+'${name}'
+)
+"
+>
 
-        </div>
+📚 Kennisbronnen
 
-    </div>
-    
-    `;
+<br><br>
+
+Documenten, websites,
+captaties en e-mails
+gecombineerd.
+
+</div>
+
+<div
+class="card"
+style="cursor:pointer;"
+>
+
+🧠 AI Chat
+
+<br><br>
+
+Stel vragen over
+alle kennisbronnen.
+
+</div>
+
+<div
+class="card"
+style="cursor:pointer;"
+>
+
+📊 Dashboard
+
+<br><br>
+
+Statistieken en trends.
+
+</div>
+
+<div
+class="card"
+style="cursor:pointer;"
+>
+
+⚙ Verenigingsbeheer
+
+<br><br>
+
+Beheer documenten
+en gegevens.
+
+</div>
+
+</div>
+
+`;
+
+}
+
+function renderKnowledgeSources(
+    associationName
+){
+
+    const documents =
+        globalIndex.filter(
+            item =>
+                item.source === "file" &&
+                (
+                    item.location || ""
+                )
+                .includes(
+                    associationName
+                )
+        );
+
+    const captures =
+        globalIndex.filter(
+            item =>
+                item.source === "capture" &&
+                (
+                    item.organization ||
+                    ""
+                )
+                .toLowerCase()
+                ===
+                associationName.toLowerCase()
+        );
+
+    const websites =
+        globalIndex.filter(
+            item =>
+                item.source === "website"
+        );
+
+    const emails =
+        globalIndex.filter(
+            item =>
+                item.source === "email"
+        );
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+
+📚 Kennisbronnen
+
+</div>
+
+<button
+class="action-btn"
+onclick="
+openAssociationPortal(
+'',
+'${associationName}'
+)
+"
+>
+
+⬅ Terug
+
+</button>
+
+<br><br>
+
+<div
+style="
+display:grid;
+grid-template-columns:
+repeat(auto-fit,minmax(220px,1fr));
+gap:15px;
+"
+>
+
+<div
+class="card"
+onclick="
+renderAssociationDocuments(
+'',
+'${associationName}'
+)
+"
+style="cursor:pointer;"
+>
+
+📄 Documenten
+
+<br><br>
+
+${documents.length}
+
+</div>
+
+<div
+class="card"
+onclick="
+renderWebsites()
+"
+style="cursor:pointer;"
+>
+
+🌐 Websites
+
+<br><br>
+
+${websites.length}
+
+</div>
+
+<div
+class="card"
+onclick="
+renderAssociationCaptures(
+'${associationName}'
+)
+"
+style="cursor:pointer;"
+>
+
+📌 Captaties
+
+<br><br>
+
+${captures.length}
+
+</div>
+
+<div
+class="card"
+onclick="
+renderAssociationEmails(
+'${associationName}'
+)
+"
+style="cursor:pointer;"
+>
+
+📧 E-mails
+
+<br><br>
+
+${emails.length}
+
+</div>
+
+</div>
+
+`;
+
 }
 
 async function renderAssociationCaptures(

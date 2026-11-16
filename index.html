@@ -721,6 +721,41 @@ console.log(
 
 }
 
+function resetKnowledgeGraph()
+{
+    console.log(
+        "Knowledge Graph reset..."
+    );
+
+    networkBuilt = false;
+
+    semanticConnectionsBuilt = false;
+
+    documentConnections = [];
+
+    if(
+        window.knowledgeNetwork &&
+        typeof window.knowledgeNetwork.destroy ===
+        "function"
+    )
+    {
+        try
+        {
+            window.knowledgeNetwork.destroy();
+
+            window.knowledgeNetwork = null;
+        }
+        catch(error)
+        {
+            console.error(
+                "Knowledge Graph reset fout:",
+                error
+            );
+        }
+    }
+}
+
+
 async function buildSearchIndex(){
 
     globalIndex = [];
@@ -814,9 +849,7 @@ catch(error){
 
 }
 
-    linkKnowledgeDocuments();
-
-/* snelle lookup index */
+   /* snelle lookup index */
 globalIndexMap = {};
 
 globalIndex.forEach(item=>{
@@ -827,12 +860,23 @@ globalIndex.forEach(item=>{
         item.id
     ] = item;
 
+    globalIndexMap[
+        String(item.id)
+    ] = item;
+
 });
+
+/* daarna koppelen */
+linkKnowledgeDocuments();
 
 console.log(
     "GlobalIndexMap:",
     Object.keys(globalIndexMap).length
 );
+
+networkBuilt = false;
+semanticConnectionsBuilt = false;
+documentConnections = [];
 
 searchInitialized = true;
     
@@ -3084,6 +3128,110 @@ ${item.name}
 
     `).join("")}
 
+    `;
+}
+
+function renderAssociationMailCenter(
+    associationName
+)
+{
+    const association =
+        associationName.toLowerCase();
+
+    const associationEmails =
+        globalIndex.filter(item => {
+
+            if(item.source !== "email"){
+                return false;
+            }
+
+            const text = `
+                ${item.title || ""}
+                ${item.description || ""}
+                ${item.sender || ""}
+            `
+            .toLowerCase();
+
+            return text.includes(
+                association
+            );
+        });
+
+    const emailCount =
+        associationEmails.length;
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+        <div class="content-section">
+
+            <h2>
+                📧 ${associationName}
+            </h2>
+
+            <div class="stats-grid">
+
+                <div class="stat-card">
+                    <div class="stat-number">
+                        ${emailCount}
+                    </div>
+
+                    <div class="stat-label">
+                        Geïndexeerde e-mails
+                    </div>
+                </div>
+
+            </div>
+
+            <br>
+
+            ${
+                associationEmails.length
+
+                ?
+
+                associationEmails.map(email => `
+
+                    <div
+                        class="knowledge-card"
+                        onclick="
+                        showEmail(
+                            '${email.id}'
+                        )
+                        "
+                        style="
+                            cursor:pointer;
+                            margin-bottom:10px;
+                        "
+                    >
+
+                        <h3>
+                            ${
+                                email.subject ||
+                                email.title ||
+                                "Zonder onderwerp"
+                            }
+                        </h3>
+
+                        <p>
+                            <b>Van:</b>
+                            ${
+                                email.sender ||
+                                email.from ||
+                                "-"
+                            }
+                        </p>
+
+                    </div>
+
+                `).join("")
+
+                :
+
+                `<p>Geen e-mails gevonden.</p>`
+            }
+
+        </div>
     `;
 }
 
@@ -8557,36 +8705,36 @@ function populateRelationshipTargets(){
         .join("");
 }
 
-function openRelationshipItem(
-    id
-){
+function openRelationshipItem(id)
+{
+    if(id.includes("_"))
+    {
+        const parts = id.split("_");
+
+        openSearchResult(
+            parts[0],
+            parts.slice(1).join("_")
+        );
+
+        return;
+    }
 
     const item =
-
         globalIndex.find(
-
             x =>
-
                 String(x.id)
                 ===
                 String(id)
-
         );
 
     if(!item){
-
         return;
-
     }
 
     openSearchResult(
-
         item.source,
-
         item.id
-
     );
-
 }
 
 async function saveRelationship(

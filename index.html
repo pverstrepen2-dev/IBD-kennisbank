@@ -505,7 +505,7 @@ async function addMicrosoftAccount()
 {
     try
     {
-        await msalInstance.loginPopup({
+        await msalInstance.loginRedirect({
 
             prompt : "select_account",
 
@@ -525,14 +525,11 @@ async function addMicrosoftAccount()
 
         });
 
-        console.log(
-            "Accounts:",
-            msalInstance.getAllAccounts()
-        );
     }
     catch(error)
     {
         console.error(
+            "Account toevoegen fout:",
             error
         );
     }
@@ -7713,8 +7710,27 @@ renderCalendarCenter()
 
 <br><br>
 
-${accounts.map(
-account => `
+<div
+class="card"
+style="
+cursor:pointer;
+margin-bottom:15px;
+background:#eef7ff;
+"
+onclick="
+addMicrosoftAccount()
+"
+>
+
+➕ Account toevoegen
+
+<br><br>
+
+Voeg een extra Outlook-account toe
+
+</div>
+
+${accounts.map(account => `
 
 <div
 class="card"
@@ -7735,8 +7751,7 @@ ${account.username}
 
 </div>
 
-`
-).join("")}
+`).join("")}
 
 `;
 
@@ -7746,7 +7761,7 @@ function selectCalendarAccount(
     accountId
 )
 {
-    currentCalendarAccount =
+    const account =
         msalInstance
         .getAllAccounts()
         .find(
@@ -7755,7 +7770,23 @@ function selectCalendarAccount(
                 accountId
         );
 
-    renderCalendar();
+    if(!account)
+    {
+        alert(
+            "Account niet gevonden"
+        );
+        return;
+    }
+
+    currentCalendarAccount =
+        account;
+
+    alert(
+        "Actief account:\n\n" +
+        account.username
+    );
+
+    renderCalendarAccountSelector();
 }
 
 function renderNewEventForm()

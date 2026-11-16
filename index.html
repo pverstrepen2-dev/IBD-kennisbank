@@ -303,6 +303,8 @@ let currentItems = [];
 
 let associationPortals = [];
 let associationFolderMap = {};
+let currentCalendarAccount = null;
+let availableAccounts = [];
 
 let folderPath = [
 
@@ -541,11 +543,6 @@ async function getAccessToken()
     const accounts =
         msalInstance.getAllAccounts();
 
-    console.log(
-        "ALL ACCOUNTS:",
-        accounts
-    );
-
     if(!accounts.length)
     {
         console.warn(
@@ -555,7 +552,12 @@ async function getAccessToken()
         return null;
     }
 
+    availableAccounts =
+        accounts;
+
     const account =
+        currentCalendarAccount
+        ||
         accounts[0];
 
     try
@@ -6498,6 +6500,22 @@ renderManagementCenter()
 <br><br>
 
 <div
+class="card"
+style="cursor:pointer;"
+onclick="
+renderCalendarAccountSelector()
+"
+>
+
+👤 Kalenderaccount
+
+<br><br>
+
+Kies Outlook-account
+
+</div>
+
+<div
 style="
 display:grid;
 grid-template-columns:
@@ -7628,6 +7646,79 @@ ${error.message}
 `;
 
     }
+}
+
+function renderCalendarAccountSelector()
+{
+    const accounts =
+        msalInstance.getAllAccounts();
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+
+📅 Kalenderaccounts
+
+</div>
+
+<button
+class="action-btn"
+onclick="
+renderCalendarCenter()
+"
+>
+
+⬅ Terug
+
+</button>
+
+<br><br>
+
+${accounts.map(
+account => `
+
+<div
+class="card"
+style="
+cursor:pointer;
+margin-bottom:10px;
+"
+onclick="
+selectCalendarAccount(
+'${account.homeAccountId}'
+)
+"
+>
+
+📅
+
+${account.username}
+
+</div>
+
+`
+).join("")}
+
+`;
+
+}
+
+function selectCalendarAccount(
+    accountId
+)
+{
+    currentCalendarAccount =
+        msalInstance
+        .getAllAccounts()
+        .find(
+            a =>
+                a.homeAccountId ===
+                accountId
+        );
+
+    renderCalendar();
 }
 
 function renderNewEventForm()

@@ -2752,6 +2752,43 @@ padding:10px;
 margin-bottom:10px;
 ">
 
+<label>
+
+📎 Bijlage
+
+</label>
+
+<input
+type="file"
+id="captureAttachment"
+accept="
+.pdf,
+.doc,
+.docx,
+.xlsx,
+.xls,
+.ppt,
+.pptx
+"
+style="
+width:100%;
+padding:10px;
+margin-bottom:10px;
+">
+
+<div
+id="captureAttachmentInfo"
+style="
+font-size:12px;
+color:#666;
+margin-bottom:15px;
+"
+>
+
+Geen bijlage geselecteerd
+
+</div>
+
 <input
 type="hidden"
 id="captureOrganisation"
@@ -2784,6 +2821,38 @@ renderAssociationCaptures(
 </div>
 
 `;
+
+const fileInput =
+    document.getElementById(
+        "captureAttachment"
+    );
+
+if(fileInput)
+{
+    fileInput.addEventListener(
+        "change",
+        event =>
+        {
+            const file =
+                event.target.files?.[0];
+
+            document.getElementById(
+                "captureAttachmentInfo"
+            ).innerHTML =
+
+                file
+
+                ?
+
+                `📎 ${file.name}`
+
+                :
+
+                "Geen bijlage geselecteerd";
+        }
+    );
+}
+
 }
 
 async function saveQuickCapture()
@@ -2800,6 +2869,24 @@ async function saveQuickCapture()
         document.getElementById(
             "captureOrganisation"
         );
+
+    const tags =
+        (
+            document.getElementById(
+                "captureTags"
+            )?.value || ""
+        )
+        .split(",")
+        .map(x => x.trim())
+        .filter(Boolean);
+
+    const fileInput =
+        document.getElementById(
+            "captureAttachment"
+        );
+
+    const selectedFile =
+        fileInput?.files?.[0] || null;
 
     const capture = {
 
@@ -2832,17 +2919,10 @@ async function saveQuickCapture()
             )?.value || "",
 
         captureDate:
-            new Date().toISOString(),
+            new Date()
+            .toISOString(),
 
-        tags:
-            (
-                document.getElementById(
-                    "captureTags"
-                )?.value || ""
-            )
-            .split(",")
-            .map(x => x.trim())
-            .filter(Boolean),
+        tags,
 
         recommended:
             document.getElementById(
@@ -2854,9 +2934,64 @@ async function saveQuickCapture()
                 "captureValidated"
             )?.checked || false,
 
+        attachmentName :
+
+            selectedFile
+            ?
+            selectedFile.name
+            :
+            "",
+
+        attachmentSize :
+
+            selectedFile
+            ?
+            selectedFile.size
+            :
+            0,
+
+        attachmentType :
+
+            selectedFile
+            ?
+            selectedFile.type
+            :
+            "",
+
+        linkedDocuments : [],
+
+        linkedWebsites : [],
+
+        linkedCaptures : [],
+
+        linkedEmails : [],
+
         type:
             "capture"
+
     };
+
+    const relatedDocuments =
+        findRelatedDocuments(
+            tags
+        );
+
+    capture.linkedDocuments =
+
+        relatedDocuments.map(
+            item => ({
+
+                id :
+                    item.id,
+
+                source :
+                    item.source,
+
+                title :
+                    item.title
+
+            })
+        );
 
     db.quickCaptures.unshift(
         capture
@@ -2864,12 +2999,15 @@ async function saveQuickCapture()
 
     await DatabaseService.save();
 
-searchInitialized = false;
+    searchInitialized = false;
 
-await buildSearchIndex();
+    await buildSearchIndex();
 
     alert(
-        "✅ Captatie opgeslagen"
+        `✅ Captatie opgeslagen
+
+🔗 ${capture.linkedDocuments.length}
+gerelateerde bronnen gevonden`
     );
 
     if(capture.organization)
@@ -2883,7 +3021,6 @@ await buildSearchIndex();
         renderQuickCaptureVault();
     }
 }
-
 
 async function renderAssociationDocuments(
     folderId,
@@ -10407,6 +10544,38 @@ ${site.titel || site.title}
 
 }
 
+function findRelatedDocuments(
+    tags
+)
+{
+    if(!tags?.length)
+    {
+        return [];
+    }
+
+    return globalIndex.filter(item=>{
+
+        const text = `
+
+            ${item.title || ""}
+            ${item.description || ""}
+            ${item.content || ""}
+            ${(item.tags || []).join(" ")}
+
+        `
+        .toLowerCase();
+
+        return tags.some(tag =>
+
+            text.includes(
+                tag.toLowerCase()
+            )
+
+        );
+
+    });
+
+}
 
 function getCategoryIcon(category){
 

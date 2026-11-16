@@ -755,6 +755,46 @@ function resetKnowledgeGraph()
     }
 }
 
+let rebuildInProgress = false;
+
+async function rebuildIndexes(
+    force = false
+)
+{
+    if(
+        rebuildInProgress &&
+        !force
+    )
+    {
+        return;
+    }
+
+    rebuildInProgress = true;
+
+    try
+    {
+        resetKnowledgeGraph();
+
+        searchInitialized = false;
+
+        globalIndexMap = {};
+
+        documentConnections = [];
+
+        await buildSearchIndex();
+    }
+    catch(error)
+    {
+        console.error(
+            "REBUILD FOUT:",
+            error
+        );
+    }
+    finally
+    {
+        rebuildInProgress = false;
+    }
+}
 
 async function buildSearchIndex(){
 

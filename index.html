@@ -2022,92 +2022,136 @@ async function openAssociationPortal(
     <br>
 
     <div
-    style="
-    display:grid;
-    grid-template-columns:
-    repeat(auto-fit,minmax(260px,1fr));
-    gap:15px;
-    "
-    >
+style="
+display:grid;
+grid-template-columns:
+repeat(auto-fit,minmax(260px,1fr));
+gap:15px;
+"
+>
 
-        <div
-        class="card"
-        style="cursor:pointer;"
-        onclick="
-        renderKnowledgeSources(
-            '${name}'
-        )
-        "
-        >
+<div
+class="card"
+style="cursor:pointer;"
+onclick="
+renderAssociationDashboard(
+'${name}'
+)
+"
+>
+📊 Dashboard
+</div>
 
-            📚 Kennisbronnen
+<div
+class="card"
+style="cursor:pointer;"
+onclick="
+renderKnowledgeSources(
+'${name}'
+)
+"
+>
+📚 Kenniscentrum
+</div>
 
-            <br><br>
+<div
+class="card"
+style="cursor:pointer;"
+onclick="
+renderAssociationCalendar(
+'${name}'
+)
+"
+>
+📅 Agenda & Vergaderingen
+</div>
 
-            Gecombineerd overzicht van
-            documenten, websites,
-            captaties en e-mails.
+<div
+class="card"
+style="cursor:pointer;"
+onclick="
+renderAssociationMailCenter(
+'${name}'
+)
+"
+>
+📧 Mailcentrum
+</div>
 
-        </div>
+<div
+class="card"
+style="cursor:pointer;"
+onclick="
+renderAssociationCaptures(
+'${name}'
+)
+"
+>
+📌 Captaties
+</div>
 
-        <div
-        class="card"
-        style="cursor:pointer;"
-        onclick="
-        renderAssociationAIChat(
-            '${name}'
-        )
-        "
-        >
+<div
+class="card"
+style="cursor:pointer;"
+onclick="
+renderAssociationContacts(
+'${name}'
+)
+"
+>
+👥 Contacten
+</div>
 
-            🧠 AI Chat
+<div
+class="card"
+style="cursor:pointer;"
+onclick="
+renderAssociationProjects(
+'${name}'
+)
+"
+>
+📋 Projecten
+</div>
 
-            <br><br>
+<div
+class="card"
+style="cursor:pointer;"
+onclick="
+renderAssociationCommunicationCenter(
+'${name}'
+)
+"
+>
+💬 Communicatiecentrum
+</div>
 
-            Stel vragen over alle
-            kennisbronnen van
-            deze vereniging.
+<div
+class="card"
+style="cursor:pointer;"
+onclick="
+renderAssociationReporting(
+'${name}'
+)
+"
+>
+📈 Rapportering
+</div>
 
-        </div>
+<div
+class="card"
+style="cursor:pointer;"
+onclick="
+renderAssociationAIChat(
+'${name}'
+)
+"
+>
+🤖 AI Assistent
+</div>
 
-        <div
-        class="card"
-        style="cursor:pointer;"
-        onclick="
-        renderAssociationDashboard(
-            '${name}'
-        )
-        "
-        >
+</div>
 
-            📊 Dashboard
-
-            <br><br>
-
-            Statistieken,
-            trends en analyses.
-
-        </div>
-
-        <div
-        class="card"
-        style="cursor:pointer;"
-        onclick="
-        renderManagementCenter()
-        "
-        >
-
-            ⚙ Verenigingsbeheer
-
-            <br><br>
-
-            Toegang tot documenten,
-            projecten, ledenbeheer,
-            financiën en administratie.
-
-        </div>
-
-    </div>
 
     `;
 }
@@ -6508,9 +6552,952 @@ Openstaande taken
 
 </div>
 
+<div
+class="card"
+style="cursor:pointer;"
+onclick="
+renderMeetingAssistant()
+"
+>
+
+🤖 AI Vergaderassistent
+
+<br><br>
+
+Agenda, notulen,
+actiepunten en rapportering
+
+</div>
+
 </div>
 
 `;
+}
+
+function renderMeetingsCenter()
+{
+    const meetings =
+        globalIndex.filter(item =>
+
+            item.managementCategory ===
+            "meetings"
+
+        );
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+
+👥 Vergaderingen
+
+</div>
+
+<button
+class="action-btn"
+onclick="
+renderCalendarCenter()
+"
+>
+
+⬅ Terug
+
+</button>
+
+<br><br>
+
+${
+    meetings.length
+        ?
+
+    meetings.map(item=>`
+
+<div
+class="card"
+style="
+margin-bottom:10px;
+cursor:pointer;
+"
+>
+
+<h3>
+
+${item.title}
+
+</h3>
+
+<br>
+
+${item.location || ""}
+
+</div>
+
+`).join("")
+
+        :
+
+`
+<div class="card">
+
+Nog geen vergaderingen gevonden.
+
+</div>
+`
+}
+
+`;
+
+}
+
+function renderAssociationCalendar(
+    associationName
+)
+{
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+
+📅 ${associationName}
+
+Agenda & Vergaderingen
+
+</div>
+
+<button
+class="action-btn"
+onclick="
+openAssociationPortal(
+'',
+'${associationName}'
+)
+"
+>
+
+⬅ Terug
+
+</button>
+
+<br><br>
+
+<div
+style="
+display:grid;
+grid-template-columns:
+repeat(auto-fit,minmax(250px,1fr));
+gap:15px;
+"
+>
+
+<div
+class="card"
+onclick="
+renderCalendar()
+"
+style="
+cursor:pointer;
+"
+>
+
+📆 Kalender
+
+</div>
+
+<div
+class="card"
+onclick="
+renderMeetingsCenter()
+"
+style="
+cursor:pointer;
+"
+>
+
+👥 Vergaderingen
+
+</div>
+
+<div
+class="card"
+onclick="
+renderMeetingDocuments(
+'${associationName}'
+)
+"
+style="
+cursor:pointer;
+"
+>
+
+📄 Vergaderdocumenten
+
+</div>
+
+<div
+class="card"
+onclick="
+renderActionItemsCenter()
+"
+style="
+cursor:pointer;
+"
+>
+
+✅ Actiepunten
+
+</div>
+
+</div>
+
+`;
+
+}
+
+function renderActionItemsCenter()
+{
+    const emails =
+        globalIndex.filter(
+            item =>
+                item.source === "email"
+        );
+
+    const captures =
+        globalIndex.filter(
+            item =>
+                item.source === "capture"
+        );
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+
+✅ Actiepunten
+
+</div>
+
+<button
+class="action-btn"
+onclick="
+renderCalendarCenter()
+"
+>
+
+⬅ Terug
+
+</button>
+
+<br><br>
+
+<div
+class="card"
+>
+
+<h2>
+
+✅ AI Voorstel
+
+</h2>
+
+<br>
+
+□ Nieuwe mails opvolgen
+
+<br>
+
+□ Nieuwe captaties valideren
+
+<br>
+
+□ Vergaderingen voorbereiden
+
+<br>
+
+□ Verslagen actualiseren
+
+<br>
+
+□ Website-updates controleren
+
+<br><br>
+
+📧 Emails:
+${emails.length}
+
+<br>
+
+📌 Captaties:
+${captures.length}
+
+</div>
+
+`;
+
+}
+
+function renderMeetingAssistant()
+{
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+
+🤖 AI Vergaderassistent
+
+</div>
+
+<button
+class="action-btn"
+onclick="
+renderCalendarCenter()
+"
+>
+
+⬅ Terug
+
+</button>
+
+<br><br>
+
+<div
+style="
+display:grid;
+grid-template-columns:
+repeat(auto-fit,minmax(250px,1fr));
+gap:15px;
+"
+>
+
+<div
+class="card"
+style="cursor:pointer;"
+onclick="
+generateMeetingAgenda()
+"
+>
+
+📋 Vergaderagenda
+
+</div>
+
+<div
+class="card"
+style="cursor:pointer;"
+onclick="
+generateMeetingMinutes()
+"
+>
+
+📝 Vergaderverslag
+
+</div>
+
+<div
+class="card"
+style="cursor:pointer;"
+onclick="
+generateActionItems()
+"
+>
+
+✅ Actiepunten
+
+</div>
+
+<div
+class="card"
+style="cursor:pointer;"
+onclick="
+generateManagementSummary()
+"
+>
+
+📊 Managementrapport
+
+</div>
+
+</div>
+
+<div
+id="meetingAssistantOutput"
+style="
+margin-top:20px;
+"
+>
+</div>
+
+`;
+
+}
+
+function generateMeetingAgenda()
+{
+    const meetings =
+        globalIndex.filter(
+
+            item =>
+                item.managementCategory ===
+                "meetings"
+
+        );
+
+    document.getElementById(
+        "meetingAssistantOutput"
+    ).innerHTML = `
+
+<div class="card">
+
+<h2>
+
+📋 AI Agenda
+
+</h2>
+
+<br>
+
+1. Vorige actiepunten
+
+<br>
+
+2. Nieuwe documenten
+
+<br>
+
+3. Lopende projecten
+
+<br>
+
+4. Financieel overzicht
+
+<br>
+
+5. Openstaande vragen
+
+<br>
+
+6. Rondvraag
+
+<br><br>
+
+Gebaseerd op:
+
+<br>
+
+${meetings.length}
+vergaderdocumenten
+
+</div>
+
+`;
+
+}
+
+function generateMeetingMinutes()
+{
+    const docs =
+        globalIndex.filter(
+
+            item =>
+
+                item.managementCategory ===
+                "meetings"
+
+        );
+
+    document.getElementById(
+        "meetingAssistantOutput"
+    ).innerHTML = `
+
+<div class="card">
+
+<h2>
+
+📝 AI Vergaderverslag
+
+</h2>
+
+<br>
+
+Besproken documenten:
+
+<br><br>
+
+${docs.length}
+
+<br><br>
+
+Template:
+
+<br><br>
+
+• Aanwezigen
+
+<br>
+
+• Besproken punten
+
+<br>
+
+• Beslissingen
+
+<br>
+
+• Actiepunten
+
+<br>
+
+• Volgende vergadering
+
+</div>
+
+`;
+
+}
+
+function generateActionItems()
+{
+    const emails =
+        globalIndex.filter(
+            item =>
+                item.source === "email"
+        );
+
+    const captures =
+        globalIndex.filter(
+            item =>
+                item.source === "capture"
+        );
+
+    document.getElementById(
+        "meetingAssistantOutput"
+    ).innerHTML = `
+
+<div class="card">
+
+<h2>
+
+✅ Actiepunten
+
+</h2>
+
+<br>
+
+Bronnen:
+
+<br>
+
+📧 ${emails.length} mails
+
+<br>
+
+📌 ${captures.length} captaties
+
+<br><br>
+
+Automatisch overzicht:
+
+<br><br>
+
+□ Opvolging lopende projecten
+
+<br>
+
+□ Nieuwe captaties beoordelen
+
+<br>
+
+□ Recente communicatie opvolgen
+
+<br>
+
+□ Nieuwe documenten valideren
+
+</div>
+
+`;
+
+}
+
+function generateManagementSummary()
+{
+    const files =
+        globalIndex.filter(
+            item =>
+                item.source === "file"
+        ).length;
+
+    const websites =
+        globalIndex.filter(
+            item =>
+                item.source === "website"
+        ).length;
+
+    const captures =
+        globalIndex.filter(
+            item =>
+                item.source === "capture"
+        ).length;
+
+    const emails =
+        globalIndex.filter(
+            item =>
+                item.source === "email"
+        ).length;
+
+    document.getElementById(
+        "meetingAssistantOutput"
+    ).innerHTML = `
+
+<div class="card">
+
+<h2>
+
+📊 Managementrapport
+
+</h2>
+
+<br>
+
+📄 Documenten:
+${files}
+
+<br>
+
+🌐 Websites:
+${websites}
+
+<br>
+
+📌 Captaties:
+${captures}
+
+<br>
+
+📧 Emails:
+${emails}
+
+<br><br>
+
+Samenvatting:
+
+<br>
+
+De kennisbank blijft groeien.
+
+<br>
+
+Nieuwe communicatie en captaties
+werden toegevoegd.
+
+<br>
+
+Opvolging van projecten,
+vergaderingen en kennisbeheer
+blijft aanbevolen.
+
+</div>
+
+`;
+
+}
+
+function renderMeetingDocuments(
+    associationName
+)
+{
+    const docs =
+        globalIndex.filter(item =>
+
+            item.source === "file"
+
+            &&
+
+            item.managementCategory ===
+            "meetings"
+
+        );
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+
+📄 Vergaderdocumenten
+
+</div>
+
+<button
+class="action-btn"
+onclick="
+renderAssociationCalendar(
+'${associationName}'
+)
+"
+>
+
+⬅ Terug
+
+</button>
+
+<br><br>
+
+${docs.map(item=>`
+
+<div
+class="card"
+style="
+margin-bottom:10px;
+cursor:pointer;
+"
+onclick="
+openSearchResult(
+'file',
+'${item.id}'
+)
+"
+>
+
+${item.title}
+
+<br>
+
+<small>
+
+${item.location}
+
+</small>
+
+</div>
+
+`).join("")}
+
+`;
+
+}
+
+function renderAssociationProjects(
+    associationName
+)
+{
+    const projects =
+        globalIndex.filter(item =>
+
+            item.managementCategory ===
+            "projects"
+
+        );
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+
+📋 Projecten
+
+</div>
+
+<button
+class="action-btn"
+onclick="
+openAssociationPortal(
+'',
+'${associationName}'
+)
+"
+>
+
+⬅ Terug
+
+</button>
+
+<br><br>
+
+${projects.map(item=>`
+
+<div
+class="card"
+style="
+margin-bottom:10px;
+cursor:pointer;
+"
+onclick="
+openSearchResult(
+'${item.source}',
+'${item.id}'
+)
+"
+>
+
+${item.title}
+
+</div>
+
+`).join("")}
+
+`;
+
+}
+
+function renderAssociationCommunicationCenter(
+    associationName
+)
+{
+    const mails =
+        getAssociationCounts(
+            associationName
+        ).emails;
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+
+💬 Communicatiecentrum
+
+</div>
+
+<button
+class="action-btn"
+onclick="
+openAssociationPortal(
+'',
+'${associationName}'
+)
+"
+>
+
+⬅ Terug
+
+</button>
+
+<br><br>
+
+<div class="card">
+
+📧 E-mails
+
+<br><br>
+
+${mails.length}
+
+</div>
+
+<div class="card">
+
+🚀 Toekomstige uitbreidingen
+
+<br><br>
+
+✅ Mailcampagnes
+
+<br>
+
+✅ Nieuwsbrieven
+
+<br>
+
+✅ Contactgroepen
+
+<br>
+
+✅ Automatische opvolging
+
+</div>
+
+`;
+
+}
+
+function renderAssociationReporting(
+    associationName
+)
+{
+    const counts =
+        getAssociationCounts(
+            associationName
+        );
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+
+📈 Rapportering
+
+</div>
+
+<button
+class="action-btn"
+onclick="
+openAssociationPortal(
+'',
+'${associationName}'
+)
+"
+>
+
+⬅ Terug
+
+</button>
+
+<br><br>
+
+<div class="card">
+
+📄 Documenten
+
+<br>
+
+${counts.documents.length}
+
+</div>
+
+<br>
+
+<div class="card">
+
+🌐 Websites
+
+<br>
+
+${counts.websites.length}
+
+</div>
+
+<br>
+
+<div class="card">
+
+📌 Captaties
+
+<br>
+
+${counts.captures.length}
+
+</div>
+
+<br>
+
+<div class="card">
+
+📧 Emails
+
+<br>
+
+${counts.emails.length}
+
+</div>
+
+`;
+
 }
 
 async function renderCalendar()

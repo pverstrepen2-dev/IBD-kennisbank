@@ -9776,11 +9776,15 @@ async function buildKnowledgeNetwork(){
         return;
     }
 
-    if(window.knowledgeNetwork){
+    if(
+    window.knowledgeNetwork &&
+    typeof window.knowledgeNetwork.destroy ===
+    "function"
+){
 
-        window.knowledgeNetwork.destroy();
+    window.knowledgeNetwork.destroy();
 
-    }
+}
 
     window.knowledgeNetwork =
         new vis.Network(

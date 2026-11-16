@@ -323,12 +323,14 @@ let globalIndex = [];
 let documentConnections = [];
 
 let documentKeywordIndex = {};
+let documentWordIndex = {};
 
 let keywordToDocuments = {};
 
 let semanticConnectionsBuilt = false;
 
 let networkBuilt = false;
+let globalIndexMap = {};
 
 let oneDriveScanRunning = false;
 let oneDriveScanCompleted = false;
@@ -759,7 +761,25 @@ catch(error){
 
     linkKnowledgeDocuments();
 
-    searchInitialized = true;
+/* snelle lookup index */
+globalIndexMap = {};
+
+globalIndex.forEach(item=>{
+
+    globalIndexMap[
+        item.source +
+        "_" +
+        item.id
+    ] = item;
+
+});
+
+console.log(
+    "GlobalIndexMap:",
+    Object.keys(globalIndexMap).length
+);
+
+searchInitialized = true;
     
 }
 
@@ -3155,6 +3175,12 @@ async function buildDocumentKeywordIndex(){
         documentKeywordIndex[
             documentId
         ] = keywords;
+
+        documentWordIndex[
+    documentId
+] = new Set(
+    keywords
+);
 
         keywords.forEach(keyword=>{
 
@@ -8244,11 +8270,11 @@ return [
 
     ...grouped.knowledge.slice(0,100),
 
-    ...grouped.file.slice(0,800),
+    ...grouped.file.slice(0,300),
 
     ...grouped.folder.slice(0,200),
 
-    ...grouped.website.slice(0,300)
+    ...grouped.website.slice(0,100)
 
 ].slice(0,maxNodes);
 
@@ -9165,20 +9191,22 @@ function updateRelationSensitivity(value){
 
 async function rebuildNetwork(){
 
-    if(!networkBuilt){
+    console.log(
+        "Netwerk opnieuw tekenen..."
+    );
 
-        await buildDocumentKeywordIndex();
-
-        buildDocumentConnections();
-
-        buildSemanticRelations();
-
-        networkBuilt = true;
+    if(
+        !document.getElementById(
+            "knowledgeNetwork"
+        )
+    ){
+        return;
     }
 
     await buildKnowledgeNetwork();
 
 }
+
 
 function buildSemanticRelations(){
 
@@ -9189,13 +9217,15 @@ function buildSemanticRelations(){
     const processedPairs =
         new Set();
 
+    let itemsWithRelations = 0;
+
     globalIndex.forEach(item=>{
+
         item.relationships = [];
+
     });
 
     globalIndex.forEach(item=>{
-
-        const tempRelations = [];
 
         const itemId =
             item.source +
@@ -9203,56 +9233,77 @@ function buildSemanticRelations(){
             item.id;
 
         const itemKeywords =
-            documentKeywordIndex[itemId]
-            || [];
+            documentKeywordIndex[
+                itemId
+            ] || [];
+
+        if(
+            itemKeywords.length === 0
+        ){
+            return;
+        }
 
         const candidateIds =
             new Set();
 
         itemKeywords.forEach(keyword=>{
 
-            (
-                keywordToDocuments[keyword]
-                || []
-            )
-            .forEach(docId=>{
-                candidateIds.add(docId);
+            const matchingDocs =
+                keywordToDocuments[
+                    keyword
+                ] || [];
+
+            if(
+                matchingDocs.length > 50
+            ){
+                return;
+            }
+
+            matchingDocs.forEach(docId=>{
+
+                if(docId !== itemId){
+
+                    candidateIds.add(
+                        docId
+                    );
+
+                }
+
             });
 
         });
 
+        const tempRelations = [];
+
         candidateIds.forEach(candidateId=>{
 
-            if(candidateId === itemId){
-                return;
-            }
-
             const other =
-                globalIndex.find(
-                    x =>
-                        (
-                            x.source +
-                            "_" +
-                            x.id
-                        ) === candidateId
-                );
+                globalIndexMap[
+                    candidateId
+                ];
 
             if(!other){
                 return;
             }
 
+            if(
+                item.source === "folder" ||
+                other.source === "folder"
+            ){
+                return;
+            }
+
             const sourceId =
-                item.source +
-                "_" +
-                item.id;
+                itemId;
 
             const targetId =
-                other.source +
-                "_" +
-                other.id;
+                candidateId;
 
             const pairKey =
-                [sourceId,targetId]
+                [
+                    sourceId,
+                    targetId
+                ]
                 .sort()
                 .join("|");
 
@@ -9268,18 +9319,21 @@ function buildSemanticRelations(){
                 pairKey
             );
 
-            if(
-    item.source === "folder" ||
-    other.source === "folder"
-){
-    return;
-}
-
             const similarity =
                 calculateSimilarity(
                     item,
                     other
                 );
+
+            if(similarity === 0){
+                return;
+            }
+
+            if(
+    similarity === 0
+){
+    return;
+}
 
             const semanticScore =
                 calculateContentSimilarity(
@@ -9292,8 +9346,8 @@ function buildSemanticRelations(){
                 semanticScore;
 
             if(totalScore < 10){
-    return;
-}
+                return;
+            }
 
             tempRelations.push({
 
@@ -9322,7 +9376,13 @@ function buildSemanticRelations(){
                 (a,b)=>
                     b.weight - a.weight
             )
-            .slice(0,5);
+            .slice(0,2);
+
+        if(
+            item.relationships.length
+        ){
+            itemsWithRelations++;
+        }
 
     });
 
@@ -9330,20 +9390,14 @@ function buildSemanticRelations(){
         true;
 
     console.log(
+        "Items met relaties:",
+        itemsWithRelations
+    );
+
+    console.log(
         "Semantische relaties opgebouwd"
     );
-console.log(
-    "Items met relaties:",
-    globalIndex.filter(
-        x => x.relationships?.length > 0
-    ).length
-);
 
-console.log(
-    globalIndex.filter(
-        x => x.relationships?.length > 0
-    )
-);
 }
 
 function buildDocumentConnections(){
@@ -9473,7 +9527,7 @@ function buildDocumentConnections(){
             (a,b)=>
                 b.score - a.score
         )
-        .slice(0,1000);
+        .slice(0,250);
 
     console.log(
         "Document connecties:",
@@ -9502,59 +9556,69 @@ async function buildKnowledgeNetwork(){
 
     if(!globalIndex.length){
 
-        document.getElementById(
-            "knowledgeDetails"
-        ).innerHTML =
-            "Geen gegevens gevonden";
+        const detailsPanel =
+            document.getElementById(
+                "knowledgeDetails"
+            );
+
+        if(detailsPanel){
+            detailsPanel.innerHTML =
+                "Geen gegevens gevonden";
+        }
 
         return;
 
     }
 
+    if(!networkBuilt){
+
+        console.log(
+            "Relaties eerste keer berekenen..."
+        );
+
+        await buildDocumentKeywordIndex();
+
+        buildDocumentConnections();
+
+        buildSemanticRelations();
+
+        networkBuilt = true;
+
+    }
+
     buildConceptClusters();
-
-await buildDocumentKeywordIndex();
-
-buildDocumentConnections();
-
-buildSemanticRelations();
-
-networkBuilt = true;
 
     const nodes = [];
     const edges = [];
+
+    const nodeSet = new Set();
     const edgeSet = new Set();
 
     const visibleItems =
-    getKnowledgeMapItems();
+        getKnowledgeMapItems();
 
-visibleItems.forEach(item=>{
+    visibleItems.forEach(item=>{
 
         const nodeId =
             item.source +
             "_" +
             item.id;
 
-        if(
-            !nodes.some(
-                n => n.id === nodeId
-            )
-        ){
-console.log(
-    "NODE TYPE:",
-    item.source,
-    item.title
-);
+        if(!nodeSet.has(nodeId)){
+
+            nodeSet.add(nodeId);
+
             nodes.push({
 
-                id:nodeId,
+                id: nodeId,
 
                 label:
                     item.title ||
                     item.name ||
                     String(item.id),
 
-                group:item.source,
+                group:
+                    item.source,
 
                 value:
                     calculateSemanticScore(
@@ -9565,122 +9629,128 @@ console.log(
 
         }
 
-        (item.relationships || []).forEach(rel=>{
+        (item.relationships || [])
+        .forEach(rel=>{
 
-            const targetItem =
-                globalIndex.find(
+            let targetItem = null;
 
-                    x =>
+            if(rel.source){
 
-                        String(x.id)
-                        ===
-                        String(rel.id)
+                targetItem =
+                    globalIndexMap[
+                        rel.source +
+                        "_" +
+                        rel.id
+                    ];
 
-                        ||
-
-                        (
-                            x.source +
-                            "_" +
-                            x.id
-                        )
-                        ===
-                        String(rel.id)
-
-                );
+            }
 
             if(!targetItem){
 
-                return;
+                targetItem =
+                    globalIndexMap[
+                        String(rel.id)
+                    ];
 
             }
+
+            if(!targetItem){
+                return;
+            }
+
+            const targetNodeId =
+                targetItem.source +
+                "_" +
+                targetItem.id;
 
             const edgeKey =
-
                 [
                     nodeId,
-                    targetItem.source +
-                    "_" +
-                    targetItem.id
+                    targetNodeId
                 ]
-
                 .sort()
-
                 .join("|");
 
-            if(!edgeSet.has(edgeKey)){
-
-                edgeSet.add(edgeKey);
-
-                edges.push({
-
-                    from:nodeId,
-
-                    to:
-                        targetItem.source +
-                        "_" +
-                        targetItem.id,
-
-                    width:
-                        Math.min(
-                            rel.weight || 1,
-                            10
-                        ),
-
-                    color:
-                        rel.automatic
-                        ? "#4caf50"
-                        : "#2196f3"
-
-                });
-
+            if(
+                edgeSet.has(edgeKey)
+            ){
+                return;
             }
 
+            edgeSet.add(edgeKey);
+
+            edges.push({
+
+                from:
+                    nodeId,
+
+                to:
+                    targetNodeId,
+
+                width:
+                    Math.min(
+                        rel.weight || 1,
+                        10
+                    ),
+
+                color:
+                    rel.automatic
+                    ? "#4caf50"
+                    : "#2196f3"
+
+            });
+
         });
 
     });
 
-    documentConnections.forEach(connection=>{
+    documentConnections.forEach(
+        connection=>{
 
-        const edgeKey =
+            const edgeKey =
+                [
+                    connection.source,
+                    connection.target
+                ]
+                .sort()
+                .join("|");
 
-            [
-                connection.source,
-                connection.target
-            ]
+            if(
+                edgeSet.has(
+                    edgeKey
+                )
+            ){
+                return;
+            }
 
-            .sort()
+            edgeSet.add(
+                edgeKey
+            );
 
-            .join("|");
+            edges.push({
 
-        if(edgeSet.has(edgeKey)){
+                from:
+                    connection.source,
 
-            return;
+                to:
+                    connection.target,
+
+                width:
+                    Math.min(
+                        connection.score || 1,
+                        8
+                    ),
+
+                color:
+                    "#ff9800",
+
+                dashes:
+                    true
+
+            });
 
         }
-
-        edgeSet.add(edgeKey);
-
-        edges.push({
-
-            from:
-                connection.source,
-
-            to:
-                connection.target,
-
-            width:
-                Math.min(
-                    connection.score || 1,
-                    8
-                ),
-
-            color:"#ff9800",
-
-            dashes:true
-
-        });
-
-    });
+    );
 
     console.log(
         "Nodes:",
@@ -9697,16 +9767,27 @@ console.log(
         documentConnections.length
     );
 
-    window.knowledgeNetwork =
+    const container =
+        document.getElementById(
+            "knowledgeNetwork"
+        );
 
+    if(!container){
+        return;
+    }
+
+    if(window.knowledgeNetwork){
+
+        window.knowledgeNetwork.destroy();
+
+    }
+
+    window.knowledgeNetwork =
         new vis.Network(
 
-            document.getElementById(
-                "knowledgeNetwork"
-            ),
+            container,
 
             {
-
                 nodes:
                     new vis.DataSet(
                         nodes
@@ -9716,25 +9797,18 @@ console.log(
                     new vis.DataSet(
                         edges
                     )
-
             },
 
             {
 
                 layout:{
-
                     improvedLayout:false
-
                 },
 
                 interaction:{
-
                     hover:true,
-
                     navigationButtons:true,
-
                     multiselect:true
-
                 },
 
                 physics:{
@@ -9745,7 +9819,7 @@ console.log(
 
                         enabled:true,
 
-                        iterations:300
+                        iterations:150
 
                     }
 
@@ -9804,9 +9878,7 @@ console.log(
             if(
                 !params.nodes.length
             ){
-
                 return;
-
             }
 
             showKnowledgeExplorer(
@@ -10260,82 +10332,89 @@ function calculateContentSimilarity(
     other
 ){
 
-    let score = 0;
-
-    const text1 = `
-
-    ${item.title || ""}
-    ${item.description || ""}
-    ${item.category || ""}
-    ${item.content || ""}
-    ${normalizeTags(item.tags).join(" ")}
-
-`
-.toLowerCase();
-
-const text2 = `
-
-    ${other.title || ""}
-    ${other.description || ""}
-    ${other.category || ""}
-    ${other.content || ""}
-    ${normalizeTags(other.tags).join(" ")}
-
-`
-.toLowerCase();
-
-    const words1 =
-
-    text1
-    .split(/\s+/)
-    .filter(Boolean);
-
-const words2 =
-
-    text2
-    .split(/\s+/)
-    .filter(Boolean);
-
-words1.forEach(word=>{
-
-    if(
-        word.length > 2 &&
-        words2.includes(word)
-    ){
-
-        score++;
-
-    }
-
-});
-
-const key1 =
-
-    documentKeywordIndex[
+    const itemId =
         item.source +
         "_" +
-        item.id
-    ] || [];
+        item.id;
 
-const key2 =
-
-    documentKeywordIndex[
+    const otherId =
         other.source +
         "_" +
-        other.id
-    ] || [];
+        other.id;
 
-key1.forEach(keyword=>{
+    const keywords1 =
+        documentWordIndex[itemId];
+
+    const keywords2 =
+        documentWordIndex[otherId];
 
     if(
-        key2.includes(keyword)
+        !keywords1 ||
+        !keywords2
     ){
-
-        score += 2;
-
+        return 0;
     }
 
-});
+    let score = 0;
+
+    const smallest =
+        keywords1.size <
+        keywords2.size
+            ? keywords1
+            : keywords2;
+
+    const largest =
+        keywords1.size <
+        keywords2.size
+            ? keywords2
+            : keywords1;
+
+    smallest.forEach(word=>{
+
+        if(
+            largest.has(word)
+        ){
+            score += 2;
+        }
+
+    });
+
+    const tags1 =
+        normalizeTags(
+            item.tags
+        );
+
+    const tags2 =
+        normalizeTags(
+            other.tags
+        );
+
+    tags1.forEach(tag=>{
+
+        if(
+            tags2.includes(tag)
+        ){
+            score += 5;
+        }
+
+    });
+
+    if(
+        item.category &&
+        other.category &&
+        item.category === other.category
+    ){
+        score += 3;
+    }
+
+    if(
+        item.mainCategory &&
+        other.mainCategory &&
+        item.mainCategory ===
+        other.mainCategory
+    ){
+        score += 5;
+    }
 
     return score;
 

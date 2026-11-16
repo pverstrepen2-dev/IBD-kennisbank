@@ -501,6 +501,43 @@ async function logoutMicrosoft(){
 
 }
 
+async function addMicrosoftAccount()
+{
+    try
+    {
+        await msalInstance.loginPopup({
+
+            prompt : "select_account",
+
+            scopes : [
+
+                "User.Read",
+
+                "Files.ReadWrite",
+
+                "Mail.Read",
+
+                "Calendars.Read",
+
+                "Calendars.ReadWrite"
+
+            ]
+
+        });
+
+        console.log(
+            "Accounts:",
+            msalInstance.getAllAccounts()
+        );
+    }
+    catch(error)
+    {
+        console.error(
+            error
+        );
+    }
+}
+
 async function loadCurrentRole(){
 
     const users =

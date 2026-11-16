@@ -7562,35 +7562,36 @@ function renderKnowledgeSubCategory(
             JSON.stringify(file)
             .toLowerCase();
 
-        let score = 0;
+        const matchingKeywords =
+    [...categoryKeywords]
+    .filter(
+        keyword =>
+            text.includes(keyword)
+    );
 
-        categoryKeywords.forEach(keyword=>{
+if(
+    matchingKeywords.length > 0 &&
+    !documentIds.has(
+        file.id
+    )
+){
 
-            if(
-                text.includes(keyword)
-            ){
-                score++;
-            }
+    console.log(
+        "MATCH DOCUMENT:",
+        file.title,
+        matchingKeywords
+    );
 
-        });
+    linkedDocuments.push(
+        file
+    );
 
-        if(
-            score >= 2 &&
-            !documentIds.has(
-                file.id
-            )
-        ){
+    documentIds.add(
+        file.id
+    );
 
-            linkedDocuments.push(
-                file
-            );
-
-            documentIds.add(
-                file.id
-            );
-
-        }
-
+}
+       
     });
 
     /* =====================================
@@ -7610,15 +7611,31 @@ function renderKnowledgeSubCategory(
 
         let score = 0;
 
-        categoryKeywords.forEach(keyword=>{
+if(
+    text.includes(
+        subCategory.toLowerCase()
+    )
+){
+    score += 10;
+}
 
-            if(
-                text.includes(keyword)
-            ){
-                score++;
-            }
+if(
+    text.includes(
+        category.toLowerCase()
+    )
+){
+    score += 5;
+}
 
-        });
+categoryKeywords.forEach(keyword=>{
+
+    if(
+        text.includes(keyword)
+    ){
+        score++;
+    }
+
+});
 
         if(
             score >= 2 &&

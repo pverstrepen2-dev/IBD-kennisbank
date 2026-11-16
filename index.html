@@ -9269,18 +9269,11 @@ function buildSemanticRelations(){
             );
 
             if(
-                (
-                    item.source !== "knowledge" &&
-                    item.source !== "website"
-                )
-                ||
-                (
-                    other.source !== "knowledge" &&
-                    other.source !== "website"
-                )
-            ){
-                return;
-            }
+    item.source === "folder" ||
+    other.source === "folder"
+){
+    return;
+}
 
             const similarity =
                 calculateSimilarity(
@@ -9298,9 +9291,9 @@ function buildSemanticRelations(){
                 similarity * 5 +
                 semanticScore;
 
-            if(totalScore < 30){
-                return;
-            }
+            if(totalScore < 10){
+    return;
+}
 
             tempRelations.push({
 
@@ -9339,7 +9332,18 @@ function buildSemanticRelations(){
     console.log(
         "Semantische relaties opgebouwd"
     );
+console.log(
+    "Items met relaties:",
+    globalIndex.filter(
+        x => x.relationships?.length > 0
+    ).length
+);
 
+console.log(
+    globalIndex.filter(
+        x => x.relationships?.length > 0
+    )
+);
 }
 
 function buildDocumentConnections(){
@@ -9509,17 +9513,13 @@ async function buildKnowledgeNetwork(){
 
     buildConceptClusters();
 
-if(!networkBuilt){
+await buildDocumentKeywordIndex();
 
-    await buildDocumentKeywordIndex();
+buildDocumentConnections();
 
-    buildDocumentConnections();
+buildSemanticRelations();
 
-    buildSemanticRelations();
-
-    networkBuilt = true;
-
-}
+networkBuilt = true;
 
     const nodes = [];
     const edges = [];

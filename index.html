@@ -317,12 +317,18 @@ let folderPath = [
    =================================== */
 
 let minimumRelationScore = 15;
-   
+
 let globalIndex = [];
 
 let documentConnections = [];
 
 let documentKeywordIndex = {};
+
+let keywordToDocuments = {};
+
+let semanticConnectionsBuilt = false;
+
+let networkBuilt = false;
 
 let oneDriveScanRunning = false;
 let oneDriveScanCompleted = false;
@@ -3115,41 +3121,53 @@ async function extractPowerPointContent(fileId){
 async function buildDocumentKeywordIndex(){
 
     documentKeywordIndex = {};
+    keywordToDocuments = {};
 
     globalIndex.forEach(item=>{
 
         const text = `
-
             ${item.title || ""}
             ${item.category || ""}
             ${item.description || ""}
             ${item.location || ""}
             ${normalizeTags(item.tags).join(" ")}
-
         `
         .toLowerCase();
 
-        const words =
+        const keywords =
+            [...new Set(
 
-            text
+                text
+                .replace(/[^\w\s]/g," ")
+                .split(/\s+/)
+                .filter(
+                    word =>
+                        word.length > 3
+                )
 
-            .replace(/[^\w\s]/g," ")
+            )];
 
-            .split(/\s+/)
-
-            .filter(word=>
-
-                word.length > 3
-
-            );
-
-        documentKeywordIndex[
-
+        const documentId =
             item.source +
             "_" +
-            item.id
+            item.id;
 
-        ] = words;
+        documentKeywordIndex[
+            documentId
+        ] = keywords;
+
+        keywords.forEach(keyword=>{
+
+            if(
+                !keywordToDocuments[keyword]
+            ){
+                keywordToDocuments[keyword] = [];
+            }
+
+            keywordToDocuments[keyword]
+                .push(documentId);
+
+        });
 
     });
 
@@ -3157,6 +3175,13 @@ async function buildDocumentKeywordIndex(){
         "Keyword index:",
         Object.keys(
             documentKeywordIndex
+        ).length
+    );
+
+    console.log(
+        "Keyword buckets:",
+        Object.keys(
+            keywordToDocuments
         ).length
     );
 
@@ -9140,9 +9165,16 @@ function updateRelationSensitivity(value){
 
 async function rebuildNetwork(){
 
-    documentConnections = [];
+    if(!networkBuilt){
 
-    buildDocumentConnections();
+        await buildDocumentKeywordIndex();
+
+        buildDocumentConnections();
+
+        buildSemanticRelations();
+
+        networkBuilt = true;
+    }
 
     await buildKnowledgeNetwork();
 
@@ -9150,33 +9182,74 @@ async function rebuildNetwork(){
 
 function buildSemanticRelations(){
 
-    const processedPairs = new Set();
+    console.log(
+        "Semantische relaties opbouwen..."
+    );
+
+    const processedPairs =
+        new Set();
 
     globalIndex.forEach(item=>{
-
         item.relationships = [];
-
     });
 
     globalIndex.forEach(item=>{
 
         const tempRelations = [];
 
-        globalIndex.forEach(other=>{
+        const itemId =
+            item.source +
+            "_" +
+            item.id;
 
-            const sourceId =
-                item.source + "_" + item.id;
+        const itemKeywords =
+            documentKeywordIndex[itemId]
+            || [];
 
-            const targetId =
-                other.source + "_" + other.id;
+        const candidateIds =
+            new Set();
 
-            /* Zelfde item overslaan */
+        itemKeywords.forEach(keyword=>{
 
-            if(sourceId === targetId){
+            (
+                keywordToDocuments[keyword]
+                || []
+            )
+            .forEach(docId=>{
+                candidateIds.add(docId);
+            });
+
+        });
+
+        candidateIds.forEach(candidateId=>{
+
+            if(candidateId === itemId){
                 return;
             }
 
-            /* Dubbele combinaties voorkomen */
+            const other =
+                globalIndex.find(
+                    x =>
+                        (
+                            x.source +
+                            "_" +
+                            x.id
+                        ) === candidateId
+                );
+
+            if(!other){
+                return;
+            }
+
+            const sourceId =
+                item.source +
+                "_" +
+                item.id;
+
+            const targetId =
+                other.source +
+                "_" +
+                other.id;
 
             const pairKey =
                 [sourceId,targetId]
@@ -9194,8 +9267,6 @@ function buildSemanticRelations(){
             processedPairs.add(
                 pairKey
             );
-
-            /* Alleen Knowledge en Website */
 
             if(
                 (
@@ -9223,8 +9294,6 @@ function buildSemanticRelations(){
                     other
                 );
 
-            /* Strengere filter */
-
             const totalScore =
                 similarity * 5 +
                 semanticScore;
@@ -9235,34 +9304,37 @@ function buildSemanticRelations(){
 
             tempRelations.push({
 
-                id:other.id,
+                id:
+                    other.id,
 
-                source:other.source,
+                source:
+                    other.source,
 
-                type:"related",
+                type:
+                    "related",
 
-                automatic:true,
+                automatic:
+                    true,
 
-                weight:totalScore
+                weight:
+                    totalScore
 
             });
 
         });
 
-        /* Enkel sterkste relaties bewaren */
-
         item.relationships =
-
             tempRelations
-
             .sort(
                 (a,b)=>
                     b.weight - a.weight
             )
-
-            .slice(0,3);
+            .slice(0,5);
 
     });
+
+    semanticConnectionsBuilt =
+        true;
 
     console.log(
         "Semantische relaties opgebouwd"
@@ -9272,104 +9344,132 @@ function buildSemanticRelations(){
 
 function buildDocumentConnections(){
 
-    console.log(
-    "DocumentConnections:",
-    documentConnections
-);
-
     documentConnections = [];
 
-    const existingConnections = new Set();
+    const processedPairs =
+        new Set();
 
-    globalIndex.forEach(item=>{
+    const createdConnections =
+        new Map();
 
-        globalIndex.forEach(other=>{
+    Object.entries(
+        keywordToDocuments
+    ).forEach(
 
-            const sourceId =
-                item.source + "_" + item.id;
-
-            const targetId =
-                other.source + "_" + other.id;
-
-            /* Zelfde document */
-
-            if(sourceId === targetId){
-                return;
-            }
-
-            if(item.source !== other.source){
-    return;
-}
-
-            /* Eén richting */
-
-            if(sourceId > targetId){
-                return;
-            }
-
-            /* Duplicaten vermijden */
-
-            const connectionKey =
-                [sourceId,targetId]
-                .sort()
-                .join("|");
+        ([keyword, docs])=>{
 
             if(
-                existingConnections.has(
-                    connectionKey
-                )
+                docs.length < 2
             ){
                 return;
             }
 
-            const score =
-                calculateContentSimilarity(
-                    item,
-                    other
-                );
+            if(
+                docs.length > 100
+            ){
+                return;
+            }
 
-            /* Veel strenger filter */
+            for(
+                let i = 0;
+                i < docs.length;
+                i++
+            ){
 
-          if(
-    score <
-    minimumRelationScore
-){
-    return;
-}
+                for(
+                    let j = i + 1;
+                    j < docs.length;
+                    j++
+                ){
 
-            existingConnections.add(
-                connectionKey
-            );
+                    const source =
+                        docs[i];
 
-            documentConnections.push({
+                    const target =
+                        docs[j];
 
-                source:sourceId,
+                    const pairKey =
+                        [source,target]
+                        .sort()
+                        .join("|");
 
-                target:targetId,
+                    if(
+                        processedPairs.has(
+                            pairKey
+                        )
+                    ){
+                        continue;
+                    }
 
-                score:score,
+                    processedPairs.add(
+                        pairKey
+                    );
 
-                automatic:true
+                    const sourceItem =
+                        globalIndex.find(
+                            x =>
+                                (
+                                    x.source +
+                                    "_" +
+                                    x.id
+                                ) === source
+                        );
 
-            });
+                    const targetItem =
+                        globalIndex.find(
+                            x =>
+                                (
+                                    x.source +
+                                    "_" +
+                                    x.id
+                                ) === target
+                        );
 
-        });
+                    if(
+                        !sourceItem ||
+                        !targetItem
+                    ){
+                        continue;
+                    }
 
-    });
+                    const score =
+                        calculateContentSimilarity(
+                            sourceItem,
+                            targetItem
+                        );
 
-    /* Sterkste relaties eerst */
+                    if(
+                        score <
+                        minimumRelationScore
+                    ){
+                        continue;
+                    }
 
-    documentConnections.sort(
-        (a,b)=>b.score-a.score
+                    createdConnections.set(
+                        pairKey,
+                        {
+                            source,
+                            target,
+                            score,
+                            automatic:true
+                        }
+                    );
+
+                }
+
+            }
+
+        }
+
     );
 
-    /* Veiligheidslimiet */
-
     documentConnections =
-        documentConnections.slice(
-            0,
-            150
-        );
+        [...createdConnections.values()]
+        .sort(
+            (a,b)=>
+                b.score - a.score
+        )
+        .slice(0,1000);
 
     console.log(
         "Document connecties:",
@@ -9409,13 +9509,15 @@ async function buildKnowledgeNetwork(){
 
     buildConceptClusters();
 
-await buildDocumentKeywordIndex();
+if(!networkBuilt){
 
-if(globalIndex.length < 500){
+    await buildDocumentKeywordIndex();
+
+    buildDocumentConnections();
 
     buildSemanticRelations();
 
-    buildDocumentConnections();
+    networkBuilt = true;
 
 }
 

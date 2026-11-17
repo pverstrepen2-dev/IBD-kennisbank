@@ -10741,28 +10741,44 @@ function findRelatedDocuments(
         return [];
     }
 
-    return globalIndex.filter(item=>{
+    return globalIndex.filter(
+        item =>
+        {
+            let itemTags = "";
 
-        const text = `
-
-            ${item.title || ""}
-            ${item.description || ""}
-            ${item.content || ""}
-            ${(item.tags || []).join(" ")}
-
-        `
-        .toLowerCase();
-
-        return tags.some(tag =>
-
-            text.includes(
-                tag.toLowerCase()
+            if(
+                Array.isArray(
+                    item.tags
+                )
             )
+            {
+                itemTags =
+                    item.tags.join(" ");
+            }
+            else
+            {
+                itemTags =
+                    String(
+                        item.tags || ""
+                    );
+            }
 
-        );
+            const text = `
+                ${item.title || ""}
+                ${item.description || ""}
+                ${item.content || ""}
+                ${itemTags}
+            `
+            .toLowerCase();
 
-    });
-
+            return tags.some(
+                tag =>
+                    text.includes(
+                        tag.toLowerCase()
+                    )
+            );
+        }
+    );
 }
 
 function getCategoryIcon(category){

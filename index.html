@@ -217,6 +217,11 @@ body{
     🌐 Websites
 </button>
 
+<button
+class="menu-button" onclick="renderHealthDashboard()">
+❤️ Gezondheid
+</button>
+
 <button class="menu-button" onclick="renderUsers()">
     👥 Gebruikers
 </button>
@@ -325,6 +330,8 @@ let globalIndex = [];
 
 let documentConnections = [];
 
+let healthIndex = [];
+
 let documentKeywordIndex = {};
 let documentWordIndex = {};
 
@@ -337,6 +344,50 @@ let globalIndexMap = {};
 
 let oneDriveScanRunning = false;
 let oneDriveScanCompleted = false;
+
+const HealthService = {
+
+    getData()
+    {
+        return (
+            DatabaseService.cache
+            ?.healthData
+            || {}
+        );
+    },
+
+    ensureStructure()
+    {
+        const db =
+            DatabaseService.cache;
+
+        if(!db.healthData)
+        {
+            db.healthData = {
+
+                stoolEntries:[],
+
+                sleepEntries:[],
+
+                stressEntries:[],
+
+                meals:[],
+
+                medication:[],
+
+                symptoms:[],
+
+                bloodResults:[],
+
+                exams:[]
+
+            };
+        }
+
+        return db.healthData;
+    }
+
+};
 
 let IndexService = {
 
@@ -2954,6 +3005,8 @@ function rankKnowledgeResults(
         );
 }
 
+
+
 function buildAISummary(
     question,
     results
@@ -5279,6 +5332,29 @@ async function(){
     const db =
         await loadDatabaseJson();
 
+if(!db.healthData)
+{
+    db.healthData = {
+
+        stoolEntries : [],
+
+        sleepEntries : [],
+
+        stressEntries : [],
+
+        meals : [],
+
+        medication : [],
+
+        symptoms : [],
+
+        bloodResults : [],
+
+        exams : []
+
+    };
+}
+
     DatabaseService.cache =
         db;
 
@@ -5939,6 +6015,80 @@ async function renderWebsites(){
     );
 
 }
+
+async function renderHealthDashboard()
+{
+}
+
+function renderStoolTracker()
+{
+}
+
+async function saveStoolEntry()
+{
+}
+
+function renderSleepTracker()
+{
+}
+
+function renderStressTracker()
+{
+}
+
+function renderIBDInsights()
+{
+    const health =
+        HealthService.getData();
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+
+🤖 AI IBD Analyse
+
+</div>
+
+<button
+class="action-btn"
+onclick="
+renderHealthDashboard()
+"
+>
+
+⬅ Terug
+
+</button>
+
+<br><br>
+
+<div class="card">
+
+Nog onvoldoende data.
+
+Registreer eerst:
+
+<br><br>
+
+✅ Stoelgangen
+
+<br>
+
+✅ Slaap
+
+<br>
+
+✅ Stress
+
+</div>
+
+`;
+
+}
+
+
 
 function populateCountryFilter(
     websites
@@ -7079,80 +7229,6 @@ ${title}
 ${count} documenten
 
 </div>
-
-`;
-
-}
-
-function renderManagementCategory(
-    type
-){
-
-    const items =
-
-        globalIndex.filter(
-
-            item =>
-
-                item.libraryType ===
-                type
-
-        );
-
-    document.getElementById(
-        "ccvContent"
-    ).innerHTML = `
-
-<div class="page-title">
-
-🏛 ${type}
-
-</div>
-
-<button
-class="action-btn"
-onclick="
-renderManagementCenter()
-"
->
-
-⬅ Terug
-
-</button>
-
-<br><br>
-
-${items.map(item=>`
-
-<div
-class="card"
-style="
-margin-bottom:10px;
-cursor:pointer;
-"
-onclick="
-openSearchResult(
-'${item.source}',
-'${item.id}'
-)
-"
->
-
-<h3>
-
-${item.title}
-
-</h3>
-
-<small>
-
-${item.location}
-
-</small>
-
-</div>
-
-`).join("")}
 
 `;
 
@@ -9004,24 +9080,16 @@ function renderManagementCategory(
         );
 
     const subCategories =
-
-        [
-
-            ...new Set(
-
-                items.map(
-
-                    item =>
-
-                        item.managementSubCategory
-
-                )
-
-            )
-
-        ]
-
-        .sort();
+[
+    ...new Set(
+        items.map(
+            item =>
+                item.managementSubCategory ||
+                "Algemeen"
+        )
+    )
+]
+.sort();
 
     document.getElementById(
         "ccvContent"
@@ -9086,8 +9154,12 @@ function renderManagementSubCategory(
 
                 &&
 
-                item.managementSubCategory ===
-                subCategory
+                (
+    item.managementSubCategory ||
+    "Algemeen"
+)
+===
+subCategory
 
         );
 

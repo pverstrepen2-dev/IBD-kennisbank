@@ -1814,48 +1814,45 @@ function renderAssociationAIChat(
     ).innerHTML = `
 
 <div class="page-title">
-🧠 AI Chat
+
+🤖 ${associationName}
+
 </div>
 
 <div class="card">
 
-Vereniging:
+<input
+id="associationAIQuestion"
+placeholder="
+Stel een vraag..."
+style="
+width:100%;
+padding:12px;
+margin-bottom:15px;
+"
+>
 
-<b>${associationName}</b>
+<button
+class="action-btn"
+onclick="
+askAssociationAI(
+'${associationName}',
+document.getElementById(
+'associationAIQuestion'
+).value
+)
+"
+>
 
-<br><br>
+🚀 Vraag aan AI
 
-Documenten:
-${globalIndex.filter(
-    x => x.source === "file"
-).length}
-
-<br>
-
-Websites:
-${globalIndex.filter(
-    x => x.source === "website"
-).length}
-
-<br>
-
-Captaties:
-${(
-DatabaseService.cache
-?.quickCaptures || []
-).length}
-
-<br>
-
-Emails:
-${globalIndex.filter(
-    x => x.source === "email"
-).length}
+</button>
 
 </div>
 
-`;
+<div id="aiResults"></div>
 
+`;
 }
 
 function renderAssociationDashboard(
@@ -2294,6 +2291,135 @@ renderAssociationAIChat(
     `;
 }
 
+function scoreAssociationItem(item, question)
+{
+    const words =
+        question
+        .toLowerCase()
+        .split(/\s+/)
+        .filter(word => word.length > 2);
+
+    const text = `
+        ${item.title || ""}
+        ${item.description || ""}
+        ${item.content || ""}
+        ${item.location || ""}
+        ${item.sender || ""}
+        ${item.category || ""}
+        ${normalizeTags(item.tags).join(" ")}
+    `
+    .toLowerCase();
+
+    let score = 0;
+
+    words.forEach(word =>
+    {
+        if(text.includes(word))
+        {
+            score += 10;
+        }
+    });
+
+    score += calculateSemanticScore(item);
+
+    return score;
+}
+
+function getAssociationContext(
+    associationName,
+    question
+)
+{
+    const association =
+        associationName.toLowerCase();
+
+    const documents =
+        getAssociationDocuments(
+            associationName
+        );
+
+    const captures =
+        (
+            DatabaseService.cache
+            ?.quickCaptures || []
+        )
+        .filter(item =>
+            (
+                item.organization || ""
+            )
+            .toLowerCase()
+            === association
+        );
+
+    const websites =
+        websitesCache.filter(site =>
+        {
+            const text = `
+                ${site.association || ""}
+                ${site.organization || ""}
+                ${site.title || ""}
+            `
+            .toLowerCase();
+
+            return text.includes(
+                association
+            );
+        });
+
+    const emails =
+        globalIndex.filter(item =>
+        {
+            if(item.source !== "email")
+            {
+                return false;
+            }
+
+            const text = `
+                ${item.title || ""}
+                ${item.description || ""}
+                ${item.sender || ""}
+            `
+            .toLowerCase();
+
+            return text.includes(
+                association
+            );
+        });
+
+    const allResults = [
+
+        ...documents,
+
+        ...captures.map(c => ({
+            ...c,
+            source : "capture"
+        })),
+
+        ...websites.map(w => ({
+            ...w,
+            source : "website"
+        })),
+
+        ...emails
+
+    ];
+
+    return allResults
+        .map(item =>
+        ({
+            item,
+            score :
+                scoreAssociationItem(
+                    item,
+                    question
+                )
+        }))
+        .sort(
+            (a,b) =>
+                b.score - a.score
+        )
+        .slice(0,25);
+}
 
 function debugAssociation(
     name
@@ -2571,6 +2697,129 @@ function renderKnowledgeSources(
 
     `;
 }
+
+function rankKnowledgeResults(
+    question,
+    items
+)
+{
+    const words =
+        question
+        .toLowerCase()
+        .split(/\s+/)
+        .filter(
+            word =>
+                word.length > 2
+        );
+
+    return items
+        .map(item =>
+        {
+            let score = 0;
+
+            const text = `
+                ${item.title || ""}
+                ${item.description || ""}
+                ${item.content || ""}
+                ${item.location || ""}
+                ${normalizeTags(item.tags).join(" ")}
+            `
+            .toLowerCase();
+
+            words.forEach(word =>
+            {
+                if(
+                    text.includes(word)
+                )
+                {
+                    score += 10;
+                }
+            });
+
+            const title =
+                (
+                    item.title || ""
+                )
+                .toLowerCase();
+
+            words.forEach(word =>
+            {
+                if(
+                    title.includes(word)
+                )
+                {
+                    score += 25;
+                }
+            });
+
+            score +=
+                calculateSemanticScore(
+                    item
+                );
+
+            return {
+                item,
+                score
+            };
+        })
+        .sort(
+            (a,b) =>
+                b.score - a.score
+        );
+}
+
+function buildAISummary(
+    question,
+    results
+)
+{
+    const top =
+        results.slice(0,10);
+
+    let summary = [];
+
+    summary.push(
+        `Vraag: ${question}`
+    );
+
+    summary.push("");
+
+    summary.push(
+        `Ik vond ${top.length} relevante bronnen.`
+    );
+
+    summary.push("");
+
+    top.forEach(result =>
+    {
+        const item =
+            result.item;
+
+        summary.push(
+
+            `• ${
+                item.title
+            }`
+
+        );
+
+        if(item.description)
+        {
+            summary.push(
+                item.description
+                    .substring(
+                        0,
+                        200
+                    )
+            );
+        }
+
+        summary.push("");
+    });
+
+    return summary.join("\n");
+}
+
 
 async function renderAssociationCaptures(
     associationName
@@ -11555,24 +11804,228 @@ async function askAssociationAI(
 )
 {
     const context =
-        globalIndex.filter(
-            item =>
-                item.location &&
-                item.location.includes(
-                    associationName
-                )
+        getAssociationContext(
+            associationName,
+            question
         );
 
-    console.log(
-        associationName,
-        context,
-        question
-    );
+    const ranked =
+        rankKnowledgeResults(
+            question,
+            context.map(
+                x => x.item
+            )
+        );
 
-    alert(
-        "AI Context geladen voor "
-        + associationName
+    const summary =
+        buildAISummary(
+            question,
+            ranked
+        );
+
+    renderAssociationAIAnswer(
+        associationName,
+        question,
+        summary,
+        ranked
     );
+}
+
+function renderAssociationAIAnswer(
+    associationName,
+    question,
+    summary,
+    ranked
+)
+{
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+
+🤖 AI Antwoord
+
+</div>
+
+<div class="card">
+
+<h3>
+
+Vraag
+
+</h3>
+
+${question}
+
+</div>
+
+<br>
+
+<div class="card">
+
+<h3>
+
+AI Samenvatting
+
+</h3>
+
+<pre
+style="
+white-space:pre-wrap;
+"
+>
+
+${summary}
+
+</pre>
+
+</div>
+
+<br>
+
+<div class="card">
+
+<h3>
+
+Top Resultaten
+
+</h3>
+
+<br>
+
+${ranked
+.slice(0,20)
+.map(result => `
+
+<div
+style="
+padding:10px;
+border-bottom:1px solid #ddd;
+cursor:pointer;
+"
+onclick="
+openSearchResult(
+'${result.item.source}',
+'${result.item.id}'
+)
+"
+>
+
+<b>
+
+${result.item.title}
+
+</b>
+
+<br>
+
+Score:
+${result.score}
+
+<br>
+
+Type:
+${result.item.source}
+
+</div>
+
+`)
+.join("")}
+
+</div>
+
+`;
+}
+
+
+function renderAIResult(
+    associationName,
+    question,
+    matches,
+    prompt
+)
+{
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+
+🤖 AI Assistent
+
+</div>
+
+<div class="card">
+
+<b>Vereniging</b>
+
+<br>
+
+${associationName}
+
+<br><br>
+
+<b>Vraag</b>
+
+<br>
+
+${question}
+
+<br><br>
+
+<b>Gevonden bronnen</b>
+
+<br>
+
+${matches.length}
+
+</div>
+
+<br>
+
+<div class="card">
+
+<h3>
+
+📚 Context
+
+</h3>
+
+<br>
+
+${matches.map(match => `
+
+<div
+style="
+padding:10px;
+border-bottom:1px solid #ddd;
+"
+>
+
+<b>
+
+${match.item.title || "-"}
+
+</b>
+
+<br>
+
+Type:
+${match.item.source}
+
+<br>
+
+Score:
+${match.score}
+
+</div>
+
+`).join("")}
+
+</div>
+
+`;
 }
 
 function renderFolderNavigator(

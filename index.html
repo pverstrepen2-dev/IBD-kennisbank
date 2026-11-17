@@ -913,6 +913,8 @@ async function buildSearchIndex(){
 
     globalIndex = [];
 
+    globalIndexMap = {};
+
 resetIndexService();
 
     documentConnections = [];
@@ -1005,7 +1007,7 @@ catch(error){
 }
 
    /* snelle lookup index */
-globalIndexMap = {};
+
 
 globalIndex.forEach(item=>{
 
@@ -10881,74 +10883,70 @@ categoryKeywords.forEach(keyword=>{
        ===================================== */
 
     linkedDocuments.sort(
-        (a,b)=>{
+    (a,b)=>{
 
-            const aText =
-                JSON.stringify(a)
-                .toLowerCase();
+        const aText =
+            a.searchText || "";
 
-            const bText =
-                JSON.stringify(b)
-                .toLowerCase();
+        const bText =
+            b.searchText || "";
 
-            let aScore = 0;
-            let bScore = 0;
+        let aScore = 0;
+        let bScore = 0;
 
-            categoryKeywords.forEach(keyword=>{
+        categoryKeywords.forEach(keyword=>{
 
-                if(
-                    aText.includes(keyword)
-                ){
-                    aScore++;
-                }
+            if(
+                aText.includes(keyword)
+            ){
+                aScore++;
+            }
 
-                if(
-                    bText.includes(keyword)
-                ){
-                    bScore++;
-                }
+            if(
+                bText.includes(keyword)
+            ){
+                bScore++;
+            }
 
-            });
+        });
 
-            return bScore - aScore;
+        return bScore - aScore;
 
-        }
-    );
+    }
+);
 
     linkedWebsites.sort(
-        (a,b)=>{
+    (a,b)=>{
 
-            const aText =
-                JSON.stringify(a)
-                .toLowerCase();
+        const aText =
+            a.searchText || "";
 
-            const bText =
-                JSON.stringify(b)
-                .toLowerCase();
+        const bText =
+            b.searchText || "";
 
-            let aScore = 0;
-            let bScore = 0;
+        let aScore = 0;
+        let bScore = 0;
 
-            categoryKeywords.forEach(keyword=>{
+        categoryKeywords.forEach(keyword=>{
 
-                if(
-                    aText.includes(keyword)
-                ){
-                    aScore++;
-                }
+            if(
+                aText.includes(keyword)
+            ){
+                aScore++;
+            }
 
-                if(
-                    bText.includes(keyword)
-                ){
-                    bScore++;
-                }
+            if(
+                bText.includes(keyword)
+            ){
+                bScore++;
+            }
 
-            });
+        });
 
-            return bScore - aScore;
+        return bScore - aScore;
 
-        }
-    );
+    }
+);
 
     const topTags =
         Object.entries(
@@ -11820,8 +11818,7 @@ async function renderKnowledgeOverview(){
             if(searchText){
 
                 const text =
-                    JSON.stringify(item)
-                    .toLowerCase();
+                     item.searchText || "";
 
                 if(
                     !text.includes(searchText)
@@ -13047,12 +13044,6 @@ item.relationships =
                 );
 
             if(similarity === 0){
-                return;
-            }
-
-            if(
-    similarity === 0
-){
     return;
 }
 
@@ -13185,24 +13176,10 @@ function buildDocumentConnections(){
                     );
 
                     const sourceItem =
-                        globalIndex.find(
-                            x =>
-                                (
-                                    x.source +
-                                    "_" +
-                                    x.id
-                                ) === source
-                        );
+    globalIndexMap[source];
 
-                    const targetItem =
-                        globalIndex.find(
-                            x =>
-                                (
-                                    x.source +
-                                    "_" +
-                                    x.id
-                                ) === target
-                        );
+const targetItem =
+    globalIndexMap[target];
 
                     if(
                         !sourceItem ||
@@ -14240,17 +14217,18 @@ function searchAssociationDocuments(
 )
 {
     return globalIndex.filter(
-        item =>
-            item.location &&
-            item.location.includes(
-                associationName
-            ) &&
-            JSON.stringify(item)
-            .toLowerCase()
-            .includes(
-                text.toLowerCase()
-            )
-    );
+    item =>
+        item.location &&
+        item.location.includes(
+            associationName
+        ) &&
+        (
+            item.searchText || ""
+        )
+        .includes(
+            text.toLowerCase()
+        )
+);
 }
 
 function calculateSemanticScore(item){
@@ -14358,21 +14336,21 @@ function searchKnowledgeNode(){
 
     const node =
 
-        globalIndex.find(item=>
+    globalIndex.find(item=>
 
-            JSON.stringify(item)
+        (
+            item.searchText || ""
+        )
 
-            .toLowerCase()
+        .includes(term)
 
-            .includes(term)
+    );
 
-        );
+if(!node){
 
-    if(!node){
+    return;
 
-        return;
-
-    }
+}
 
     const nodeId =
 

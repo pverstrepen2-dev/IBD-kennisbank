@@ -338,6 +338,39 @@ let globalIndexMap = {};
 let oneDriveScanRunning = false;
 let oneDriveScanCompleted = false;
 
+let IndexService = {
+
+    byId : {},
+
+    bySource : {},
+
+    byAssociation : {},
+
+    byCategory : {},
+
+    byFolder : {}
+
+};
+
+const STOPWORDS = [
+
+    "de",
+    "het",
+    "een",
+    "van",
+    "voor",
+    "door",
+    "naar",
+    "met",
+    "zijn",
+    "worden",
+    "zoals",
+    "deze",
+    "dit",
+    "over",
+    "onder"
+
+];
 
 /* =====================================================
    KNOWLEDGE HUB V4
@@ -427,6 +460,82 @@ function updateUserInfo(){
 <br>
 🛡️ ${currentRole}
 `;
+}
+
+function resetIndexService(){
+
+    IndexService = {
+
+        byId : {},
+
+        bySource : {},
+
+        byAssociation : {},
+
+        byCategory : {},
+
+        byFolder : {}
+
+    };
+
+}
+
+function addToIndexService(item){
+
+    const key =
+        item.source +
+        "_" +
+        item.id;
+
+    IndexService.byId[key] = item;
+
+    if(!IndexService.bySource[item.source]){
+        IndexService.bySource[item.source] = [];
+    }
+
+    IndexService.bySource[item.source].push(item);
+
+    if(item.associationName){
+
+        if(
+            !IndexService.byAssociation[
+                item.associationName
+            ]
+        ){
+            IndexService.byAssociation[
+                item.associationName
+            ] = [];
+        }
+
+        IndexService.byAssociation[
+            item.associationName
+        ].push(item);
+
+    }
+
+    const category =
+        item.managementCategory ||
+        item.mainCategory ||
+        item.category;
+
+    if(category){
+
+        if(
+            !IndexService.byCategory[
+                category
+            ]
+        ){
+            IndexService.byCategory[
+                category
+            ] = [];
+        }
+
+        IndexService.byCategory[
+            category
+        ].push(item);
+
+    }
+
 }
 
 async function loginMicrosoft(){
@@ -804,6 +913,8 @@ async function buildSearchIndex(){
 
     globalIndex = [];
 
+resetIndexService();
+
     documentConnections = [];
 
     documentKeywordIndex = {};
@@ -1112,7 +1223,8 @@ async function buildKnowledgeIndex(){
         );
 
         addedCount++;
-
+addToIndexService(item);
+    
     });
 
     console.log(
@@ -1265,7 +1377,7 @@ async function buildQuickCaptureIndex()
 
     captures.forEach(item => {
 
-        globalIndex.push({
+        const record = {
 
             source : "capture",
 
@@ -1297,9 +1409,28 @@ async function buildQuickCaptureIndex()
             content :
                 item.description || "",
 
+            searchText : `
+                ${item.title || ""}
+                ${item.description || ""}
+                ${item.organization || ""}
+                ${
+                    Array.isArray(item.tags)
+                        ? item.tags.join(" ")
+                        : item.tags || ""
+                }
+            `.toLowerCase(),
+
             data : item
 
-        });
+        };
+
+        globalIndex.push(record);
+
+        globalIndexMap[
+            "capture_" + record.id
+        ] = record;
+
+        addToIndexService(record);
 
     });
 
@@ -1342,7 +1473,7 @@ async function buildEmailIndex()
 
         emails.forEach(mail=>{
 
-            globalIndex.push({
+            const record = {
 
                 source : "email",
 
@@ -1373,10 +1504,32 @@ async function buildEmailIndex()
                 content :
                     mail.bodyPreview || "",
 
+                searchText : `
+                    ${mail.subject || ""}
+                    ${mail.bodyPreview || ""}
+                    ${
+                        mail.from
+                        ?.emailAddress
+                        ?.address || ""
+                    }
+                `.toLowerCase(),
+
                 data :
                     mail
 
-            });
+            };
+
+            globalIndex.push(
+                record
+            );
+
+            globalIndexMap[
+                "email_" + record.id
+            ] = record;
+
+            addToIndexService(
+                record
+            );
 
         });
 
@@ -1396,14 +1549,14 @@ async function buildEmailIndex()
     }
 }
 
-async function buildWebsiteIndex(){
-
+async function buildWebsiteIndex()
+{
     const websites =
         await loadWebsites();
 
     websites.forEach(site => {
 
-        globalIndex.push({
+        const record = {
 
             source:"website",
 
@@ -1432,15 +1585,46 @@ async function buildWebsiteIndex(){
                 site.url || "",
 
             relationships:
-    site.relationships || [],
+                site.relationships || [],
+
+            searchText : `
+                ${site.titel || ""}
+                ${site.title || ""}
+                ${site.land || ""}
+                ${site.subcategorie || ""}
+                ${site.category || ""}
+                ${site.beschrijving || ""}
+                ${site.url || ""}
+                ${
+                    Array.isArray(site.tags)
+                        ? site.tags.join(" ")
+                        : site.tags || ""
+                }
+            `.toLowerCase(),
 
             data:
                 site
 
-        });
+        };
+
+        globalIndex.push(
+            record
+        );
+
+        globalIndexMap[
+            "website_" + record.id
+        ] = record;
+
+        addToIndexService(
+            record
+        );
 
     });
 
+    console.log(
+        "Websites geïndexeerd:",
+        websites.length
+    );
 }
 
 async function scanDriveFolder(
@@ -3911,7 +4095,8 @@ async function buildOneDriveIndex(){
     let duplicateIds = 0;
     let duplicateFiles = 0;
 
-    allItems.forEach(item=>{
+   for(const item of allItems)
+{
 
         const source =
 
@@ -4000,63 +4185,70 @@ async function buildOneDriveIndex(){
             );
 
         }
-
+      
         globalIndex.push({
 
-            source:
-                source,
+    source : source,
 
-            libraryType:
-                determineLibraryType(
-                    item.fullPath
-                ),
+    libraryType :
+        determineLibraryType(
+            item.fullPath
+        ),
 
-            managementCategory:
-                determineManagementCategory(
-                    item.fullPath
-                ),
+    managementCategory :
+        determineManagementCategory(
+            item.fullPath
+        ),
 
-            managementSubCategory:
-                determineManagementSubCategory(
-                    item.fullPath
-                ),
+    managementSubCategory :
+        determineManagementSubCategory(
+            item.fullPath
+        ),
 
-            id:
-                item.id,
+    id :
+        item.id,
 
-            title:
-                item.name || "",
+    title :
+        item.name || "",
 
-            location:
-                item.fullPath || "",
+    location :
+        item.fullPath || "",
 
-            modified:
-                item.lastModifiedDateTime || "",
+    modified :
+        item.lastModifiedDateTime || "",
 
-            size:
-                item.size || 0,
+    size :
+        item.size || 0,
 
-            webUrl:
-                item.webUrl || "",
+    webUrl :
+        item.webUrl || "",
 
-            fileType:
-                item.file?.mimeType || "",
+    fileType :
+        item.file?.mimeType || "",
 
-            shared:
-                !!item.shared,
+    shared :
+        !!item.shared,
 
-            remote:
-                !!item.remoteItem,
+    remote :
+        !!item.remoteItem,
 
-            tags:[],
+    tags : [],
 
-            relationships:[],
+    keywords : [],
 
-            content:"",
+    summary : "",
 
-            data:item
+    relationships : [],
 
-        });
+    content : "",
+
+    contentLoaded : false,
+
+    contentIndexed : false,
+
+    data : item
+
+});
 
         if(source === "file"){
 
@@ -4069,7 +4261,7 @@ async function buildOneDriveIndex(){
 
         }
 
-    });
+    }
 
     console.log(
         "FILES GEINDEXEERD:",
@@ -4416,6 +4608,106 @@ async function extractWordContent(fileId){
 
     }
 
+}
+
+async function extractDocumentContent(
+    item
+)
+{
+    const mime =
+        (
+            item.file?.mimeType ||
+            ""
+        )
+        .toLowerCase();
+
+    if(
+        mime.includes("pdf")
+    )
+    {
+        return await extractPdfContent(
+            item.id
+        );
+    }
+
+    if(
+        mime.includes(
+            "word"
+        )
+    )
+    {
+        return await extractWordContent(
+            item.id
+        );
+    }
+
+    return "";
+}
+
+async function ensureDocumentContent(
+    documentItem
+)
+{
+    if(!documentItem)
+    {
+        return "";
+    }
+
+    if(
+        documentItem.contentLoaded &&
+        documentItem.content
+    )
+    {
+        return documentItem.content;
+    }
+
+    try
+    {
+        console.log(
+            "Inhoud laden:",
+            documentItem.title
+        );
+
+        const content =
+            await extractDocumentContent(
+                documentItem.data
+            );
+
+        documentItem.content =
+            content || "";
+
+        documentItem.contentLoaded =
+            true;
+
+        documentItem.keywords =
+            extractKeywords(
+                documentItem.content
+            );
+
+        documentItem.contentIndexed =
+            true;
+
+        return documentItem.content;
+    }
+    catch(error)
+    {
+        console.error(
+            "Document extractie fout:",
+            documentItem.title,
+            error
+        );
+
+        documentItem.content =
+            "";
+
+        documentItem.keywords =
+            [];
+
+        documentItem.contentLoaded =
+            true;
+
+        return "";
+    }
 }
 
 async function extractPowerPointContent(fileId){
@@ -6279,37 +6571,36 @@ else{
 
     websitesCache.unshift({
 
-        id:
-            Date.now(),
+    id: Date.now(),
 
-        titel:
-            title,
+    titel: title,
 
-        url:
-            url,
+    url: url,
 
-        land:
-            country,
+    land: country,
 
-        categorie:
-            "Websites",
+    categorie:"Websites",
 
-        subcategorie:
-            "Organisaties",
+    subcategorie:"Organisaties",
 
-        tags:tags,
+    tags:tags,
 
-        favorite:false,
+    favorite:false,
 
-relationships:[],
+    relationships:[],
 
-semanticScore: tags.length,
+    semanticScore: tags.length,
 
-        created:
-            new Date()
-            .toISOString()
+    searchText: `
+        ${title}
+        ${url}
+        ${country}
+        ${tags.join(" ")}
+    `.toLowerCase(),
 
-    });
+    created:new Date().toISOString()
+
+});
 
 }
 
@@ -7851,140 +8142,150 @@ blijft aanbevolen.
 
 function renderMeetingDocuments(
     associationName
-)
-{
+){
+
     const docs =
-        globalIndex.filter(item =>
-
-            item.source === "file"
-
-            &&
-
-            item.managementCategory ===
-            "meetings"
-
+        getAssociationDocuments(
+            associationName
+        )
+        .filter(
+            item =>
+                item.managementCategory ===
+                "meetings"
         );
 
     document.getElementById(
         "ccvContent"
     ).innerHTML = `
+    
+    <div class="page-title">
+        📄 Vergaderdocumenten
+    </div>
 
-<div class="page-title">
+    <button
+        class="action-btn"
+        onclick="
+        renderAssociationCalendar(
+            '${associationName}'
+        )
+        "
+    >
+        ⬅ Terug
+    </button>
 
-📄 Vergaderdocumenten
+    <br><br>
 
-</div>
+    ${docs.map(item=>`
 
-<button
-class="action-btn"
-onclick="
-renderAssociationCalendar(
-'${associationName}'
-)
-"
->
+        <div
+            class="card"
+            style="
+                margin-bottom:10px;
+                cursor:pointer;
+            "
+            onclick="
+            openSearchResult(
+                'file',
+                '${item.id}'
+            )
+            "
+        >
 
-⬅ Terug
+            ${item.title}
 
-</button>
+        </div>
 
-<br><br>
+    `).join("")}
 
-${docs.map(item=>`
+    `;
 
-<div
-class="card"
-style="
-margin-bottom:10px;
-cursor:pointer;
-"
-onclick="
-openSearchResult(
-'file',
-'${item.id}'
-)
-"
->
+}
 
-${item.title}
+function getAssociationItems(
+    associationName
+){
 
-<br>
+    return (
+        IndexService.byAssociation[
+            associationName
+        ] || []
+    );
 
-<small>
+}
 
-${item.location}
+function getAssociationDocuments(
+    associationName
+){
 
-</small>
-
-</div>
-
-`).join("")}
-
-`;
+    return getAssociationItems(
+        associationName
+    )
+    .filter(
+        item =>
+            item.source === "file"
+    );
 
 }
 
 function renderAssociationProjects(
     associationName
-)
-{
+){
+
     const projects =
-        globalIndex.filter(item =>
-
-            item.managementCategory ===
-            "projects"
-
+        getAssociationItems(
+            associationName
+        )
+        .filter(
+            item =>
+                item.managementCategory ===
+                "projects"
         );
 
     document.getElementById(
         "ccvContent"
     ).innerHTML = `
+    
+    <div class="page-title">
+        📋 Projecten
+    </div>
 
-<div class="page-title">
+    <button
+        class="action-btn"
+        onclick="
+        openAssociationPortal(
+            '',
+            '${associationName}'
+        )
+        "
+    >
+        ⬅ Terug
+    </button>
 
-📋 Projecten
+    <br><br>
 
-</div>
+    ${projects.map(item=>`
 
-<button
-class="action-btn"
-onclick="
-openAssociationPortal(
-'',
-'${associationName}'
-)
-"
->
+        <div
+            class="card"
+            style="
+                margin-bottom:10px;
+                cursor:pointer;
+            "
+            onclick="
+            openSearchResult(
+                '${item.source}',
+                '${item.id}'
+            )
+            "
+        >
 
-⬅ Terug
+            ${item.title}
 
-</button>
+        </div>
 
-<br><br>
+    `).join("")}
 
-${projects.map(item=>`
-
-<div
-class="card"
-style="
-margin-bottom:10px;
-cursor:pointer;
-"
-onclick="
-openSearchResult(
-'${item.source}',
-'${item.id}'
-)
-"
->
-
-${item.title}
-
-</div>
-
-`).join("")}
-
-`;
+    `;
 
 }
 
@@ -10480,8 +10781,7 @@ function renderKnowledgeSubCategory(
     .forEach(file=>{
 
         const text =
-            JSON.stringify(file)
-            .toLowerCase();
+            file.searchText || ""
 
         const matchingKeywords =
     [...categoryKeywords]
@@ -10527,8 +10827,7 @@ if(
     .forEach(site=>{
 
         const text =
-            JSON.stringify(site)
-            .toLowerCase();
+            site.searchText || ""
 
         let score = 0;
 
@@ -11809,6 +12108,29 @@ async function askAssociationAI(
             question
         );
 
+    /* ----------------------------------
+       Documentinhoud laden
+       ---------------------------------- */
+
+    for(const result of context)
+    {
+        const item = result.item;
+
+        if(
+            item &&
+            item.source === "file"
+        )
+        {
+            await ensureDocumentContent(
+                item
+            );
+        }
+    }
+
+    /* ----------------------------------
+       Ranking uitvoeren
+       ---------------------------------- */
+
     const ranked =
         rankKnowledgeResults(
             question,
@@ -11817,11 +12139,19 @@ async function askAssociationAI(
             )
         );
 
+    /* ----------------------------------
+       Samenvatting
+       ---------------------------------- */
+
     const summary =
         buildAISummary(
             question,
             ranked
         );
+
+    /* ----------------------------------
+       Resultaat tonen
+       ---------------------------------- */
 
     renderAssociationAIAnswer(
         associationName,
@@ -12602,7 +12932,17 @@ function buildSemanticRelations(){
 
     globalIndex.forEach(item=>{
 
-        item.relationships = [];
+        const manualRelations =
+
+    (item.relationships || [])
+
+    .filter(
+        rel =>
+            rel.type === "manual"
+    );
+
+item.relationships =
+    [...manualRelations];
 
     });
 
@@ -13596,9 +13936,7 @@ function createManualRelation(
     if(
         sourceNode === targetNode
     ){
-
         return;
-
     }
 
     const sourceParts =
@@ -13608,43 +13946,51 @@ function createManualRelation(
         sourceParts[0];
 
     const sourceId =
-        sourceParts.slice(1).join("_");
+        sourceParts
+        .slice(1)
+        .join("_");
 
     const sourceItem =
-
         globalIndex.find(
-
             item =>
-
-                item.source === sourceType &&
-
+                item.source === sourceType
+                &&
                 String(item.id)
-                ===
-                String(sourceId)
-
+                === String(sourceId)
         );
 
     if(!sourceItem){
-
         return;
-
     }
 
     if(
         !sourceItem.relationships
     ){
-
         sourceItem.relationships = [];
+    }
 
+    const exists =
+        sourceItem.relationships.some(
+            rel =>
+                rel.id === targetNode
+        );
+
+    if(exists){
+
+        alert(
+            "Relatie bestaat al"
+        );
+
+        return;
     }
 
     sourceItem.relationships.push({
 
-        id:targetNode,
+        id : targetNode,
 
-        type:"manual",
+        type : "manual",
 
-        created:
+        created :
             new Date()
             .toISOString()
 

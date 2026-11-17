@@ -331,6 +331,8 @@ let globalIndex = [];
 let documentConnections = [];
 
 let healthIndex = [];
+let HealthCharts = {};
+
 
 let documentKeywordIndex = {};
 let documentWordIndex = {};
@@ -6018,28 +6020,224 @@ async function renderWebsites(){
 
 async function renderHealthDashboard()
 {
+    console.log(
+        "Health dashboard gestart"
+    );
+
+    let stoolCount = 0;
+    let sleepCount = 0;
+    let stressCount = 0;
+
+    try
+    {
+        await DatabaseService.load();
+
+        if(
+            DatabaseService.cache?.healthData
+        )
+        {
+            stoolCount =
+                DatabaseService.cache
+                .healthData
+                .stoolEntries
+                ?.length || 0;
+
+            sleepCount =
+                DatabaseService.cache
+                .healthData
+                .sleepEntries
+                ?.length || 0;
+
+            stressCount =
+                DatabaseService.cache
+                .healthData
+                .stressEntries
+                ?.length || 0;
+        }
+    }
+    catch(error)
+    {
+        console.error(
+            "HealthData fout",
+            error
+        );
+    }
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+    
+    <div class="page-title">
+    
+        ❤️ Persoonlijke IBD Cockpit
+    
+    </div>
+
+    <div
+    style="
+        display:grid;
+        grid-template-columns:
+        repeat(auto-fit,minmax(250px,1fr));
+        gap:15px;
+    "
+    >
+
+        <div
+        class="card"
+        style="cursor:pointer;"
+        onclick="
+        renderStoolTracker()
+        "
+        >
+
+            <h2>
+            🚽 Stoelgangen
+            </h2>
+
+            <br>
+
+            ${stoolCount}
+
+            registraties
+
+        </div>
+
+        <div
+class="card"
+style="cursor:pointer;"
+onclick="
+renderSleepTracker()
+"
+>
+
+            <h2>
+            😴 Slaap
+            </h2>
+
+            <br>
+
+            ${sleepCount}
+
+            registraties
+
+        </div>
+
+        <div
+class="card"
+style="cursor:pointer;"
+onclick="
+renderStressTracker()
+"
+>
+
+            <h2>
+            😟 Stress
+            </h2>
+
+            <br>
+
+            ${stressCount}
+
+            registraties
+
+        </div>
+  
+    <div
+class="card"
+style="cursor:pointer;"
+onclick="
+renderMedicationTracker()
+"
+>
+    <h2>
+        💊 Medicatie
+    </h2>
+
+    <br>
+
+    Beheer medicatie
+
+</div>
+
+<div
+class="card"
+style="cursor:pointer;"
+onclick="
+renderFoodTracker()
+"
+>
+    <h2>
+        🥗 Voeding
+    </h2>
+
+    <br>
+
+    Voedingsdagboek
+
+</div>
+
+<div
+class="card"
+style="cursor:pointer;"
+onclick="
+renderBloodTracker()
+"
+>
+    <h2>
+        🩸 Bloedwaarden
+    </h2>
+
+    <br>
+
+    Labresultaten
+
+</div>
+
+<div
+class="card"
+style="cursor:pointer;"
+onclick="
+renderExamTracker()
+"
+>
+    <h2>
+        🏥 Onderzoeken
+    </h2>
+
+    <br>
+
+    Scopieën & onderzoeken
+
+</div>
+
+<div
+class="card"
+style="cursor:pointer;"
+onclick="
+renderIBDInsights()
+"
+>
+    <h2>
+        🤖 AI Analyse
+    </h2>
+
+    <br>
+
+    Persoonlijke inzichten
+
+</div>
+
+    `;
 }
 
 function renderStoolTracker()
 {
-}
-
-async function saveStoolEntry()
-{
-}
-
-function renderSleepTracker()
-{
-}
-
-function renderStressTracker()
-{
-}
-
-function renderIBDInsights()
-{
     const health =
-        HealthService.getData();
+        DatabaseService.cache
+        ?.healthData;
+
+    const entries =
+        health?.stoolEntries || [];
 
     document.getElementById(
         "ccvContent"
@@ -6047,7 +6245,7 @@ function renderIBDInsights()
 
 <div class="page-title">
 
-🤖 AI IBD Analyse
+🚽 Stoelgangregistratie
 
 </div>
 
@@ -6066,21 +6264,267 @@ renderHealthDashboard()
 
 <div class="card">
 
-Nog onvoldoende data.
+<label>
 
-Registreer eerst:
+📅 Datum
+
+</label>
+
+<input
+type="date"
+id="stoolDate"
+value="${
+    new Date()
+    .toISOString()
+    .split("T")[0]
+}"
+style="
+width:100%;
+padding:10px;
+margin-bottom:10px;
+"
+>
+
+<label>
+
+🕒 Tijd
+
+</label>
+
+<input
+type="time"
+id="stoolTime"
+value="${
+    new Date()
+    .toTimeString()
+    .slice(0,5)
+}"
+style="
+width:100%;
+padding:10px;
+margin-bottom:10px;
+"
+>
+
+<label>
+
+🚽 Aantal stoelgangen
+
+</label>
+
+<input
+type="number"
+min="1"
+value="1"
+id="stoolCount"
+style="
+width:100%;
+padding:10px;
+margin-bottom:10px;
+"
+>
+
+<label>
+
+📊 Bristol Score
+
+</label>
+
+<select
+id="stoolBristol"
+style="
+width:100%;
+padding:10px;
+margin-bottom:10px;
+"
+>
+
+<option value="1">1 - Harde keutels</option>
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="4" selected>4 - Normaal</option>
+<option value="5">5</option>
+<option value="6">6</option>
+<option value="7">7 - Waterdun</option>
+
+</select>
+
+<label>
+
+🩸 Bloed aanwezig
+
+</label>
+
+<select
+id="stoolBlood"
+style="
+width:100%;
+padding:10px;
+margin-bottom:10px;
+"
+>
+
+<option value="nee">
+Nee
+</option>
+
+<option value="ja">
+Ja
+</option>
+
+</select>
+
+<label>
+
+⚡ Urgentie
+
+</label>
+
+<select
+id="stoolUrgency"
+style="
+width:100%;
+padding:10px;
+margin-bottom:10px;
+"
+>
+
+<option value="nee">
+Nee
+</option>
+
+<option value="ja">
+Ja
+</option>
+
+</select>
+
+<label>
+
+🌙 Nachtelijke stoelgang
+
+</label>
+
+<select
+id="stoolNight"
+style="
+width:100%;
+padding:10px;
+margin-bottom:10px;
+"
+>
+
+<option value="nee">
+Nee
+</option>
+
+<option value="ja">
+Ja
+</option>
+
+</select>
+
+<label>
+
+📝 Opmerkingen
+
+</label>
+
+<textarea
+id="stoolNotes"
+style="
+width:100%;
+height:120px;
+padding:10px;
+margin-bottom:15px;
+"
+></textarea>
+
+<button
+class="action-btn"
+onclick="
+saveStoolEntry()
+"
+>
+
+💾 Opslaan
+
+</button>
+
+</div>
+
+<br>
+
+<div class="card">
+
+<h2>
+
+📋 Historiek
+
+</h2>
+
+<br>
+
+${
+entries.length
+?
+entries.map(entry=>`
+
+<div
+style="
+padding:10px;
+border-bottom:1px solid #ddd;
+"
+>
+
+📅 ${entry.date}
+
+${entry.time}
 
 <br><br>
 
-✅ Stoelgangen
+📊 Bristol:
+${entry.bristol}
 
 <br>
 
-✅ Slaap
+🚽 Aantal:
+${entry.count}
 
 <br>
 
-✅ Stress
+🩸 Bloed:
+${entry.blood}
+
+<br>
+
+⚡ Urgentie:
+${entry.urgency}
+
+<br>
+
+🌙 Nacht:
+${entry.night}
+
+<br>
+
+📝 ${
+    entry.notes || "-"
+}
+
+</div>
+
+`).join("")
+
+:
+
+`
+
+Nog geen registraties.
+
+`
+
+}
 
 </div>
 
@@ -6088,7 +6532,1319 @@ Registreer eerst:
 
 }
 
+async function saveStoolEntry()
+{
+    if(
+        !DatabaseService.cache
+        .healthData
+    )
+    {
+        DatabaseService.cache
+        .healthData = {};
+    }
 
+    if(
+        !DatabaseService.cache
+        .healthData
+        .stoolEntries
+    )
+    {
+        DatabaseService.cache
+        .healthData
+        .stoolEntries = [];
+    }
+
+    DatabaseService.cache
+    .healthData
+    .stoolEntries
+    .unshift({
+
+        id:Date.now(),
+
+        date:
+            document.getElementById(
+                "stoolDate"
+            ).value,
+
+        time:
+            document.getElementById(
+                "stoolTime"
+            ).value,
+
+        count:
+            parseInt(
+                document.getElementById(
+                    "stoolCount"
+                ).value
+            ),
+
+        bristol:
+            parseInt(
+                document.getElementById(
+                    "stoolBristol"
+                ).value
+            ),
+
+        blood:
+            document.getElementById(
+                "stoolBlood"
+            ).value,
+
+        urgency:
+            document.getElementById(
+                "stoolUrgency"
+            ).value,
+
+        night:
+            document.getElementById(
+                "stoolNight"
+            ).value,
+
+        notes:
+            document.getElementById(
+                "stoolNotes"
+            ).value,
+
+        created:
+            new Date()
+            .toISOString()
+
+    });
+
+    await DatabaseService.save();
+
+    renderStoolTracker();
+}
+
+function renderSleepTracker()
+{
+    const entries =
+        DatabaseService.cache
+        ?.healthData
+        ?.sleepEntries || [];
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+
+😴 Slaapregistratie
+
+</div>
+
+<button
+class="action-btn"
+onclick="
+renderHealthDashboard()
+"
+>
+⬅ Terug
+</button>
+
+<br><br>
+
+<div class="card">
+
+<label>📅 Datum</label>
+
+<input
+type="date"
+id="sleepDate"
+value="${
+    new Date()
+    .toISOString()
+    .split("T")[0]
+}"
+style="
+width:100%;
+padding:10px;
+margin-bottom:10px;
+"
+>
+
+<label>Aantal uren slaap</label>
+
+<input
+type="number"
+step="0.5"
+id="sleepHours"
+value="8"
+style="
+width:100%;
+padding:10px;
+margin-bottom:10px;
+"
+>
+
+<label>Slaapkwaliteit</label>
+
+<select
+id="sleepQuality"
+style="
+width:100%;
+padding:10px;
+margin-bottom:10px;
+"
+>
+
+<option value="1">1 - Zeer slecht</option>
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="4">4</option>
+<option value="5" selected>5 - Gemiddeld</option>
+<option value="6">6</option>
+<option value="7">7</option>
+<option value="8">8</option>
+<option value="9">9</option>
+<option value="10">10 - Uitstekend</option>
+
+</select>
+
+<label>Opmerkingen</label>
+
+<textarea
+id="sleepNotes"
+style="
+width:100%;
+height:100px;
+padding:10px;
+margin-bottom:10px;
+"
+></textarea>
+
+<button
+class="action-btn"
+onclick="
+saveSleepEntry()
+"
+>
+💾 Opslaan
+</button>
+
+</div>
+
+<br>
+
+<div class="card">
+
+<h2>
+📈 Slaapgrafiek
+</h2>
+
+<br>
+
+<canvas
+id="sleepChart"
+height="80"
+></canvas>
+
+</div>
+
+<br>
+
+<div class="card">
+
+<h2>
+📋 Historiek
+</h2>
+
+<br>
+
+${entries.map(item=>`
+
+<div
+style="
+padding:10px;
+border-bottom:1px solid #ddd;
+"
+>
+
+📅 ${item.date || "-"}
+
+<br>
+
+😴 ${item.hours} uur
+
+<br>
+
+⭐ ${item.quality}/10
+
+<br>
+
+📝 ${item.notes || "-"}
+
+<br><br>
+
+<button
+class="action-btn"
+onclick="
+editSleepEntry(
+${item.id}
+)
+"
+>
+
+✏ Bewerken
+
+</button>
+
+<button
+class="action-btn"
+onclick="
+deleteSleepEntry(
+${item.id}
+)
+"
+style="
+margin-left:10px;
+background:#dc2626;
+"
+>
+
+🗑 Verwijderen
+
+</button>
+
+</div>
+
+`).join("")}
+
+</div>
+
+`;
+
+setTimeout(
+    drawSleepChart,
+    100
+);
+
+}
+
+async function saveSleepEntry()
+{
+    DatabaseService.cache
+    .healthData
+    .sleepEntries
+    .unshift({
+
+        id:Date.now(),
+
+        date:
+    document.getElementById(
+        "sleepDate"
+    ).value,
+
+        hours:
+            parseFloat(
+                document.getElementById(
+                    "sleepHours"
+                ).value
+            ),
+
+        quality:
+            parseInt(
+                document.getElementById(
+                    "sleepQuality"
+                ).value
+            ),
+
+        notes:
+            document.getElementById(
+                "sleepNotes"
+            ).value,
+
+        created:
+            new Date()
+            .toISOString()
+
+    });
+
+    await DatabaseService.save();
+
+    renderSleepTracker();
+}
+
+function drawSleepChart()
+{
+    const entries =
+        DatabaseService.cache
+        ?.healthData
+        ?.sleepEntries || [];
+
+    new Chart(
+
+        document.getElementById(
+            "sleepChart"
+        ),
+
+        {
+
+            type:"line",
+
+            data:{
+
+                labels:
+                    entries
+                    .slice()
+                    .reverse()
+                    .map(
+                        x => x.date
+                    ),
+
+                datasets:[{
+
+                    label:
+                        "Slaapuren",
+
+                    data:
+                        entries
+                        .slice()
+                        .reverse()
+                        .map(
+                            x => x.hours
+                        )
+
+                }]
+
+            }
+
+        }
+
+    );
+}
+
+function renderStressTracker()
+{
+    const entries =
+        DatabaseService.cache
+        ?.healthData
+        ?.stressEntries || [];
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+
+😟 Stressregistratie
+
+</div>
+
+<button
+class="action-btn"
+onclick="
+renderHealthDashboard()
+"
+>
+⬅ Terug
+</button>
+
+<br><br>
+
+<div class="card">
+
+<label>📅 Datum</label>
+
+<input
+type="date"
+id="stressDate"
+value="${
+    new Date()
+    .toISOString()
+    .split("T")[0]
+}"
+style="
+width:100%;
+padding:10px;
+margin-bottom:10px;
+"
+>
+
+<label>Stressniveau</label>
+
+<select
+id="stressLevel"
+style="
+width:100%;
+padding:10px;
+margin-bottom:10px;
+"
+>
+
+<option value="1">1 - Geen stress</option>
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="4">4</option>
+<option value="5" selected>5</option>
+<option value="6">6</option>
+<option value="7">7</option>
+<option value="8">8</option>
+<option value="9">9</option>
+<option value="10">10 - Extreem</option>
+
+</select>
+
+<label>Oorzaak</label>
+
+<input
+id="stressCause"
+style="
+width:100%;
+padding:10px;
+margin-bottom:10px;
+"
+>
+
+<label>Opmerkingen</label>
+
+<textarea
+id="stressNotes"
+style="
+width:100%;
+height:100px;
+padding:10px;
+margin-bottom:10px;
+"
+></textarea>
+
+<button
+class="action-btn"
+onclick="
+saveStressEntry()
+"
+>
+
+💾 Opslaan
+
+</button>
+
+</div>
+
+<br>
+
+<div class="card">
+
+<h2>
+📈 Stressgrafiek
+</h2>
+
+<br>
+
+<canvas
+id="stressChart"
+height="80"
+></canvas>
+
+</div>
+
+<br>
+
+<div class="card">
+
+<h2>
+📋 Historiek
+</h2>
+
+<br>
+
+${entries.map(item=>`
+
+<div
+style="
+padding:10px;
+border-bottom:1px solid #ddd;
+"
+>
+
+📅 ${item.date || "-"}
+
+<br>
+
+😟 Stress:
+${item.level}/10
+
+<br>
+
+📌 ${item.cause || "-"}
+
+<br>
+
+📝 ${item.notes || "-"}
+
+<br><br>
+
+<button
+class="action-btn"
+onclick="
+editStressEntry(
+${item.id}
+)
+"
+>
+
+✏ Bewerken
+
+</button>
+
+<button
+class="action-btn"
+onclick="
+deleteStressEntry(
+${item.id}
+)
+"
+style="
+margin-left:10px;
+background:#dc2626;
+"
+>
+
+🗑 Verwijderen
+
+</button>
+
+</div>
+
+`).join("")}
+
+</div>
+
+`;
+
+setTimeout(
+    drawStressChart,
+    100
+);
+
+}
+
+function drawStressChart()
+{
+    const entries =
+        DatabaseService.cache
+        ?.healthData
+        ?.stressEntries || [];
+
+    new Chart(
+
+        document.getElementById(
+            "stressChart"
+        ),
+
+        {
+
+            type:"line",
+
+            data:{
+
+                labels:
+                    entries
+                    .slice()
+                    .reverse()
+                    .map(
+                        x => x.date
+                    ),
+
+                datasets:[{
+
+                    label:
+                        "Stress",
+
+                    data:
+                        entries
+                        .slice()
+                        .reverse()
+                        .map(
+                            x => x.level
+                        )
+
+                }]
+
+            }
+
+        }
+
+    );
+}
+
+async function saveStressEntry()
+{
+    DatabaseService.cache
+    .healthData
+    .stressEntries
+    .unshift({
+
+        id:Date.now(),
+
+        date:
+    document.getElementById(
+        "stressDate"
+    ).value,
+
+
+        level:
+            parseInt(
+                document.getElementById(
+                    "stressLevel"
+                ).value
+            ),
+
+        cause:
+            document.getElementById(
+                "stressCause"
+            ).value,
+
+        notes:
+            document.getElementById(
+                "stressNotes"
+            ).value,
+
+        created:
+            new Date()
+            .toISOString()
+
+    });
+
+    await DatabaseService.save();
+
+    renderStressTracker();
+}
+
+async function deleteStressEntry(
+    id
+)
+{
+    DatabaseService.cache
+    .healthData
+    .stressEntries =
+        DatabaseService.cache
+        .healthData
+        .stressEntries
+        .filter(
+            x => x.id !== id
+        );
+
+    await DatabaseService.save();
+
+    renderStressTracker();
+}
+
+function editStressEntry(
+    id
+)
+{
+    const entry =
+        DatabaseService.cache
+        .healthData
+        .stressEntries
+        .find(
+            x => x.id === id
+        );
+
+    if(!entry)
+    {
+        return;
+    }
+
+    document.getElementById(
+        "stressDate"
+    ).value = entry.date;
+
+    document.getElementById(
+        "stressLevel"
+    ).value = entry.level;
+
+    document.getElementById(
+        "stressCause"
+    ).value = entry.cause || "";
+
+    document.getElementById(
+        "stressNotes"
+    ).value = entry.notes || "";
+}
+
+function editSleepEntry(
+    id
+)
+{
+    const entry =
+        DatabaseService.cache
+        .healthData
+        .sleepEntries
+        .find(
+            x => x.id === id
+        );
+
+    if(!entry)
+    {
+        return;
+    }
+
+    document.getElementById(
+        "sleepDate"
+    ).value = entry.date;
+
+    document.getElementById(
+        "sleepHours"
+    ).value = entry.hours;
+
+    document.getElementById(
+        "sleepQuality"
+    ).value = entry.quality;
+
+    document.getElementById(
+        "sleepNotes"
+    ).value = entry.notes || "";
+}
+
+async function deleteSleepEntry(
+    id
+)
+{
+    DatabaseService.cache
+    .healthData
+    .sleepEntries =
+        DatabaseService.cache
+        .healthData
+        .sleepEntries
+        .filter(
+            x => x.id !== id
+        );
+
+    await DatabaseService.save();
+
+    renderSleepTracker();
+}
+
+function renderMedicationTracker()
+{
+    const entries =
+        DatabaseService.cache
+        ?.healthData
+        ?.medication || [];
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+💊 Medicatie
+</div>
+
+<button
+class="action-btn"
+onclick="
+renderHealthDashboard()
+"
+>
+⬅ Terug
+</button>
+
+<br><br>
+
+<div class="card">
+
+<label>Medicatie</label>
+
+<input
+id="medName"
+style="
+width:100%;
+padding:10px;
+margin-bottom:10px;
+"
+>
+
+<label>Dosis</label>
+
+<input
+id="medDose"
+style="
+width:100%;
+padding:10px;
+margin-bottom:10px;
+"
+>
+
+<label>Startdatum</label>
+
+<input
+type="date"
+id="medStart"
+style="
+width:100%;
+padding:10px;
+margin-bottom:10px;
+"
+>
+
+<button
+class="action-btn"
+onclick="
+saveMedication()
+"
+>
+💾 Opslaan
+</button>
+
+</div>
+
+<br>
+
+<div class="card">
+
+<h2>Historiek</h2>
+
+<br>
+
+${entries.map(item => `
+
+<div
+style="
+padding:10px;
+border-bottom:1px solid #ddd;
+"
+>
+
+💊 ${item.name}
+
+<br>
+
+${item.dose}
+
+<br>
+
+📅 ${item.start}
+
+</div>
+
+`).join("")}
+
+</div>
+
+`;
+}
+
+async function saveMedication()
+{
+    DatabaseService.cache
+    .healthData
+    .medication
+    .unshift({
+
+        id: Date.now(),
+
+        name:
+            document.getElementById(
+                "medName"
+            ).value,
+
+        dose:
+            document.getElementById(
+                "medDose"
+            ).value,
+
+        start:
+            document.getElementById(
+                "medStart"
+            ).value
+
+    });
+
+    await DatabaseService.save();
+
+    renderMedicationTracker();
+}
+
+function renderFoodTracker()
+{
+    const entries =
+        DatabaseService.cache
+        ?.healthData
+        ?.meals || [];
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+
+🥗 Voeding
+
+</div>
+
+<button
+class="action-btn"
+onclick="
+renderHealthDashboard()
+"
+>
+⬅ Terug
+</button>
+
+<br><br>
+
+<div class="card">
+
+<label>Maaltijd</label>
+
+<input
+id="mealName"
+style="
+width:100%;
+padding:10px;
+margin-bottom:10px;
+"
+>
+
+<label>Opmerkingen</label>
+
+<textarea
+id="mealNotes"
+style="
+width:100%;
+height:120px;
+margin-bottom:10px;
+"
+></textarea>
+
+<button
+class="action-btn"
+onclick="
+saveMeal()
+"
+>
+💾 Opslaan
+</button>
+
+</div>
+
+<br>
+
+<div class="card">
+
+${entries.map(item => `
+
+<div
+style="
+padding:10px;
+border-bottom:1px solid #ddd;
+"
+>
+
+🥗 ${item.name}
+
+<br>
+
+${item.notes}
+
+</div>
+
+`).join("")}
+
+</div>
+
+`;
+}
+
+async function saveMeal()
+{
+    DatabaseService.cache
+    .healthData
+    .meals
+    .unshift({
+
+        id: Date.now(),
+
+        name:
+            document.getElementById(
+                "mealName"
+            ).value,
+
+        notes:
+            document.getElementById(
+                "mealNotes"
+            ).value
+
+    });
+
+    await DatabaseService.save();
+
+    renderFoodTracker();
+}
+
+function renderBloodTracker()
+{
+    const entries =
+        DatabaseService.cache
+        ?.healthData
+        ?.bloodResults || [];
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+
+🩸 Bloedwaarden
+
+</div>
+
+<button
+class="action-btn"
+onclick="
+renderHealthDashboard()
+"
+>
+⬅ Terug
+</button>
+
+<br><br>
+
+<div class="card">
+
+<label>Parameter</label>
+
+<input
+id="bloodName"
+placeholder="CRP"
+style="
+width:100%;
+padding:10px;
+margin-bottom:10px;
+"
+>
+
+<label>Waarde</label>
+
+<input
+id="bloodValue"
+style="
+width:100%;
+padding:10px;
+margin-bottom:10px;
+"
+>
+
+<button
+class="action-btn"
+onclick="
+saveBloodResult()
+"
+>
+💾 Opslaan
+</button>
+
+</div>
+
+<br>
+
+<div class="card">
+
+${entries.map(item => `
+
+<div
+style="
+padding:10px;
+border-bottom:1px solid #ddd;
+"
+>
+
+🩸 ${item.name}
+
+<br>
+
+Waarde:
+${item.value}
+
+</div>
+
+`).join("")}
+
+</div>
+
+`;
+}
+
+async function saveBloodResult()
+{
+    DatabaseService.cache
+    .healthData
+    .bloodResults
+    .unshift({
+
+        id: Date.now(),
+
+        name:
+            document.getElementById(
+                "bloodName"
+            ).value,
+
+        value:
+            document.getElementById(
+                "bloodValue"
+            ).value
+
+    });
+
+    await DatabaseService.save();
+
+    renderBloodTracker();
+}
+
+function renderExamTracker()
+{
+    const entries =
+        DatabaseService.cache
+        ?.healthData
+        ?.exams || [];
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+
+🏥 Onderzoeken
+
+</div>
+
+<button
+class="action-btn"
+onclick="
+renderHealthDashboard()
+"
+>
+⬅ Terug
+</button>
+
+<br><br>
+
+<div class="card">
+
+<label>Onderzoek</label>
+
+<input
+id="examName"
+placeholder="Colonoscopie"
+style="
+width:100%;
+padding:10px;
+margin-bottom:10px;
+"
+>
+
+<label>Datum</label>
+
+<input
+type="date"
+id="examDate"
+style="
+width:100%;
+padding:10px;
+margin-bottom:10px;
+"
+>
+
+<button
+class="action-btn"
+onclick="
+saveExam()
+"
+>
+💾 Opslaan
+</button>
+
+</div>
+
+<br>
+
+<div class="card">
+
+${entries.map(item => `
+
+<div
+style="
+padding:10px;
+border-bottom:1px solid #ddd;
+"
+>
+
+🏥 ${item.name}
+
+<br>
+
+📅 ${item.date}
+
+</div>
+
+`).join("")}
+
+</div>
+
+`;
+}
+
+async function saveExam()
+{
+    DatabaseService.cache
+    .healthData
+    .exams
+    .unshift({
+
+        id: Date.now(),
+
+        name:
+            document.getElementById(
+                "examName"
+            ).value,
+
+        date:
+            document.getElementById(
+                "examDate"
+            ).value
+
+    });
+
+    await DatabaseService.save();
+
+    renderExamTracker();
+}
+
+function renderIBDInsights()
+{
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+    <div class="page-title">
+
+        🤖 AI Analyse
+
+    </div>
+
+    <button
+    class="action-btn"
+    onclick="
+    renderHealthDashboard()
+    "
+    >
+
+    ⬅ Terug
+
+    </button>
+
+    <br><br>
+
+    <div class="card">
+
+        Nog onvoldoende gegevens verzameld.
+
+    </div>
+
+    `;
+}
 
 function populateCountryFilter(
     websites

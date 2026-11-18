@@ -9,6 +9,7 @@
 
 <script src="https://unpkg.com/@azure/msal-browser@latest/lib/msal-browser.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
@@ -5193,53 +5194,73 @@ if(source === "email")
 
     if(source === "knowledge"){
 
-        const knowledgeItem =
+    const knowledgeItem =
 
-            globalIndex.find(
+        globalIndex.find(
 
-                item =>
+            item =>
 
-                    item.source === "knowledge" &&
+                item.source === "knowledge"
 
-                    String(item.id)
-                    ===
-                    String(id)
+                &&
 
-            );
+                String(item.id)
+                ===
+                String(id)
 
-        if(!knowledgeItem){
-
-            alert(
-                "Knowledge-item niet gevonden"
-            );
-
-            return;
-
-        }
-
-        console.log(
-            "Knowledge item:",
-            knowledgeItem
         );
 
-        if(
-            knowledgeItem.oneDriveId &&
-            knowledgeItem.oneDriveId.trim()
-        ){
-
-            await openFile(
-                knowledgeItem.oneDriveId
-            );
-
-            return;
-
-        }
+    if(!knowledgeItem){
 
         alert(
-            "Geen OneDrive-bestand gekoppeld"
+            "Knowledge-item niet gevonden"
         );
 
+        return;
+
     }
+
+    renderKnowledgeItem(
+        knowledgeItem
+    );
+
+    return;
+
+}
+
+       if(source === "knowledge"){
+
+    const knowledgeItem =
+
+        globalIndex.find(
+            item =>
+
+                item.source === "knowledge"
+
+                &&
+
+                String(item.id)
+                ===
+                String(id)
+        );
+
+    if(!knowledgeItem){
+
+        alert(
+            "Knowledge-item niet gevonden"
+        );
+
+        return;
+
+    }
+
+    renderKnowledgeItem(
+        knowledgeItem
+    );
+
+    return;
+
+}
 
 }
 
@@ -7046,6 +7067,17 @@ async function saveSleepEntry()
 
 function drawSleepChart()
 {
+
+    if(typeof Chart === "undefined"){
+
+    console.warn(
+        "Chart.js niet geladen"
+    );
+
+    return;
+
+}
+
     const entries =
         DatabaseService.cache
         ?.healthData
@@ -7300,6 +7332,16 @@ setTimeout(
 
 function drawStressChart()
 {
+    if(typeof Chart === "undefined"){
+
+    console.warn(
+        "Chart.js niet geladen"
+    );
+
+    return;
+
+}
+
     const entries =
         DatabaseService.cache
         ?.healthData
@@ -12491,6 +12533,98 @@ ${count} items
 
 }
 
+function renderKnowledgeItem(
+    item
+){
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+
+📚 ${item.title}
+
+</div>
+
+<button
+class="action-btn"
+onclick="
+renderTaxonomyDashboard()
+"
+>
+
+⬅ Dashboard
+
+</button>
+
+<br><br>
+
+<div class="card">
+
+${item.description || "-"}
+
+<br><br>
+
+📂 Categorie
+
+<br>
+
+${item.taxonomy?.mainCategory || "-"}
+
+<br><br>
+
+📁 Subcategorie
+
+<br>
+
+${item.taxonomy?.subCategory || "-"}
+
+<br><br>
+
+🏷 Tags
+
+<br>
+
+${normalizeTags(
+    item.tags
+).join(", ")}
+
+</div>
+
+${
+item.oneDriveId
+
+?
+
+`
+
+<br>
+
+<button
+class="action-btn"
+onclick="
+openFile(
+'${item.oneDriveId}'
+)
+"
+>
+
+📄 Open gekoppeld document
+
+</button>
+
+`
+
+:
+
+""
+}
+
+`;
+
+}
+
 async function renderKnowledgeCategory(
     category
 ){
@@ -13245,7 +13379,61 @@ ${item.title || "-"}
 
 <br><br>
 
+<div
+style="
+display:flex;
+flex-wrap:wrap;
+gap:6px;
+margin-bottom:10px;
+"
+>
+
+${Object.keys(
+    item.taxonomy || {}
+)
+
+.filter(
+    key =>
+        item.taxonomy[key] === true
+)
+
+.map(
+    field => `
+    <span
+    style="
+    background:#eef4ff;
+    color:#2563eb;
+    padding:4px 8px;
+    border-radius:12px;
+    font-size:11px;
+    font-weight:600;
+    "
+    >
+    ${field}
+    </span>
+`
+)
+
+.join("")}
+
+</div>
+
+
+<br><br>
+
 ${item.description || ""}
+
+<br><br>
+
+📂 Hoofdcategorie:
+
+${item.taxonomy?.mainCategory || "-"}
+
+<br>
+
+📁 Subcategorie:
+
+${item.taxonomy?.subCategory || "-"}
 
 <br><br>
 
@@ -14415,6 +14603,17 @@ renderKnowledgeMapLauncher()
 
 </button>
 
+<button
+class="action-btn"
+onclick="
+renderTaxonomyDashboard()
+"
+>
+
+🏷 Taxonomie Dashboard
+
+</button>
+
 </div>
 
 <br>
@@ -15109,6 +15308,400 @@ renderKnowledgeOverview()
 async function loadFullKnowledgeMap(){
 
     await renderKnowledgeMap();
+
+}
+let activeTaxonomyTab = "categories";
+
+function renderTaxonomyDashboard(){
+
+    const stats = {};
+    const categoryStats = {};
+    const subCategoryStats = {};
+    const aiTagStats = {};
+
+    globalIndex
+
+    .filter(
+        item =>
+            item.source === "knowledge"
+    )
+
+    .forEach(item => {
+
+        const category =
+            item.taxonomy?.mainCategory
+            || "Overig";
+
+        const subCategory =
+            item.taxonomy?.subCategory
+            || "Algemeen";
+
+        categoryStats[category] =
+            (categoryStats[category] || 0) + 1;
+
+        subCategoryStats[subCategory] =
+            (subCategoryStats[subCategory] || 0) + 1;
+
+        (item.taxonomy?.aiTags || [])
+        .forEach(tag => {
+
+            aiTagStats[tag] =
+                (aiTagStats[tag] || 0) + 1;
+
+        });
+
+        Object.keys(
+            item.taxonomy || {}
+        )
+        .forEach(field => {
+
+            if(
+                item.taxonomy[field] === true
+            ){
+                stats[field] =
+                    (stats[field] || 0) + 1;
+            }
+
+        });
+
+    });
+
+    const categoryRanking =
+
+        Object.entries(categoryStats)
+
+        .sort(
+            (a,b) => b[1] - a[1]
+        );
+
+    const subRanking =
+
+        Object.entries(subCategoryStats)
+
+        .sort(
+            (a,b) => b[1] - a[1]
+        );
+
+    const fieldRanking =
+
+        Object.entries(stats)
+
+        .sort(
+            (a,b) => b[1] - a[1]
+        );
+
+    const aiRanking =
+
+        Object.entries(aiTagStats)
+
+        .sort(
+            (a,b) => b[1] - a[1]
+        );
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+
+🧠 Taxonomie Dashboard
+
+</div>
+
+<div
+style="
+display:flex;
+gap:10px;
+margin-bottom:20px;
+flex-wrap:wrap;
+"
+>
+
+<button
+class="action-btn"
+onclick="
+activeTaxonomyTab='categories';
+renderTaxonomyDashboard();
+"
+>
+📊 Hoofdcategorieën
+</button>
+
+<button
+class="action-btn"
+onclick="
+activeTaxonomyTab='subcategories';
+renderTaxonomyDashboard();
+"
+>
+📁 Subcategorieën
+</button>
+
+<button
+class="action-btn"
+onclick="
+activeTaxonomyTab='fields';
+renderTaxonomyDashboard();
+"
+>
+🏷 Taxonomievelden
+</button>
+
+<button
+class="action-btn"
+onclick="
+activeTaxonomyTab='aitags';
+renderTaxonomyDashboard();
+"
+>
+🤖 AI Tags
+</button>
+
+</div>
+
+<button
+class="action-btn"
+onclick="
+renderKnowledgeOverview()
+"
+>
+⬅ Terug
+</button>
+
+<br><br>
+
+<div
+style="
+display:grid;
+grid-template-columns:
+repeat(auto-fit,minmax(250px,1fr));
+gap:15px;
+"
+>
+
+${
+activeTaxonomyTab === "categories"
+
+?
+
+categoryRanking.map(
+row => `
+
+<div
+class="card"
+style="cursor:pointer;"
+onclick="
+renderKnowledgeTheme(
+'${row[0]}'
+)
+"
+>
+
+<h3>
+
+📊 ${row[0]}
+
+</h3>
+
+<br>
+
+${row[1]} documenten
+
+</div>
+
+`
+).join("")
+
+:
+
+""
+}
+
+${
+activeTaxonomyTab === "subcategories"
+
+?
+
+subRanking.map(
+row => `
+
+<div
+class="card"
+style="cursor:pointer;"
+onclick="
+renderTaxonomySubCategory(
+'${row[0]}'
+)
+"
+>
+
+<h3>
+
+📁 ${row[0]}
+
+</h3>
+
+<br>
+
+${row[1]} documenten
+
+</div>
+
+`
+).join("")
+
+:
+
+""
+}
+
+${
+activeTaxonomyTab === "fields"
+
+?
+
+fieldRanking.map(
+row => `
+
+<div
+class="card"
+style="cursor:pointer;"
+onclick="
+renderTaxonomyField(
+'${row[0]}'
+)
+"
+>
+
+<h3>
+
+🏷 ${row[0]}
+
+</h3>
+
+<br>
+
+${row[1]} documenten
+
+</div>
+
+`
+).join("")
+
+:
+
+""
+}
+
+${
+activeTaxonomyTab === "aitags"
+
+?
+
+aiRanking.map(
+row => `
+
+<div class="card">
+
+<h3>
+
+🤖 ${row[0]}
+
+</h3>
+
+<br>
+
+${row[1]} documenten
+
+</div>
+
+`
+).join("")
+
+:
+
+""
+}
+
+</div>
+
+`;
+
+}
+
+function renderTaxonomyField(
+    field
+){
+
+    const items =
+
+        globalIndex
+
+        .filter(
+            item =>
+
+                item.source ===
+                "knowledge"
+
+                &&
+
+                item.taxonomy?.[
+                    field
+                ] === true
+        );
+
+    console.log(
+        "Taxonomy field:",
+        field
+    );
+
+    console.log(
+        "Items:",
+        items
+    );
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+    
+    ...
+    
+    `;
+}
+
+
+function renderTaxonomySubCategory(
+    subCategory
+){
+
+    const item =
+
+        globalIndex.find(
+            x =>
+
+                x.source ===
+                "knowledge"
+
+                &&
+
+                (
+                    x.taxonomy?.subCategory
+                ) === subCategory
+        );
+
+    if(!item){
+        return;
+    }
+
+    renderKnowledgeSubCategory(
+
+        item.taxonomy?.mainCategory ||
+
+        "Overig",
+
+        subCategory
+
+    );
 
 }
 
@@ -16132,7 +16725,85 @@ ${normalizeTags(
 ).join(", ") || "-"}
 
 </p>
+<p>
 
+<b>🧠 AI Taxonomie</b>
+
+<br><br>
+
+${
+Object.keys(
+    item.taxonomy || {}
+)
+
+.filter(
+    key =>
+        item.taxonomy[key] === true
+)
+
+.join(", ")
+
+|| "-"
+
+}
+
+</p>
+
+<p>
+
+<b>📂 Hoofdcategorie</b>
+
+<br>
+
+${item.taxonomy?.mainCategory || "-"}
+
+</p>
+
+<p>
+
+<b>📁 Subcategorie</b>
+
+<br>
+
+${item.taxonomy?.subCategory || "-"}
+
+</p>
+
+<p>
+
+<b>🎯 Doelgroepen</b>
+
+<br>
+
+${
+Array.isArray(
+    item.taxonomy?.audience
+)
+?
+item.taxonomy.audience.join(", ")
+:
+"-"
+}
+
+</p>
+
+<p>
+
+<b>🤖 AI Tags</b>
+
+<br>
+
+${
+Array.isArray(
+    item.taxonomy?.aiTags
+)
+?
+item.taxonomy.aiTags.join(", ")
+:
+"-"
+}
+
+</p>
 <p>
 
 <b>Semantische score</b>

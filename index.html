@@ -391,6 +391,99 @@ const HealthService = {
 
 };
 
+const KNOWLEDGE_CATEGORIES = [
+{
+    id: "medical",
+    name: "Medische Kennis",
+    icon: "🩺"
+},
+{
+    id: "medication",
+    name: "Medicatie",
+    icon: "💊"
+},
+{
+    id: "nutrition",
+    name: "Voeding",
+    icon: "🥗"
+},
+{
+    id: "research",
+    name: "Onderzoek",
+    icon: "🔬"
+},
+{
+    id: "guidelines",
+    name: "Richtlijnen",
+    icon: "📘"
+},
+{
+    id: "education",
+    name: "Educatie",
+    icon: "🎓"
+},
+{
+    id: "projects",
+    name: "Projecten",
+    icon: "📋"
+},
+{
+    id: "meetings",
+    name: "Vergaderingen",
+    icon: "📅"
+},
+{
+    id: "associations",
+    name: "Verenigingen",
+    icon: "👥"
+},
+{
+    id: "advocacy",
+    name: "Belangenbehartiging",
+    icon: "📢"
+},
+{
+    id: "international",
+    name: "Internationaal",
+    icon: "🌍"
+},
+{
+    id: "communication",
+    name: "Communicatie",
+    icon: "📨"
+},
+{
+    id: "finance",
+    name: "Financiën",
+    icon: "💰"
+},
+{
+    id: "legal",
+    name: "Juridisch",
+    icon: "⚖️"
+},
+{
+    id: "documentation",
+    name: "Documentatie",
+    icon: "📄"
+},
+{
+    id: "media",
+    name: "Media",
+    icon: "🎥"
+},
+{
+    id: "technology",
+    name: "ICT",
+    icon: "💻"
+},
+{
+    id: "archive",
+    name: "Archief",
+    icon: "📦"
+}
+];
+
 let IndexService = {
 
     byId : {},
@@ -1175,12 +1268,14 @@ async function buildKnowledgeIndex(){
                 "",
 
             mainCategory :
-                record.mainCategory ||
-                "Overig",
+    record.taxonomy?.mainCategory ||
+    record.mainCategory ||
+    "Overig",
 
             subCategory :
-                record.subCategory ||
-                "Algemeen",
+    record.taxonomy?.subCategory ||
+    record.subCategory ||
+    "Algemeen",
 
             category :
                 record.mainCategory ||
@@ -1212,12 +1307,21 @@ async function buildKnowledgeIndex(){
                 "NL",
 
             audience :
-                record.audience ||
-                "Iedereen",
+
+    record.taxonomy?.audience ||
+
+    record.audience ||
+
+    ["Iedereen"],
 
             type :
-                record.type ||
-                "artikel",
+
+    record.taxonomy?.contentType ||
+
+    record.type ||
+
+    "artikel",
+
 
             fileName :
                 record.fileName ||
@@ -1268,6 +1372,68 @@ async function buildKnowledgeIndex(){
                 ),
 
             content : "",
+
+                taxonomy : {
+
+    mainCategory :
+        record.taxonomy?.mainCategory ||
+        record.mainCategory ||
+        "Overig",
+
+    subCategory :
+        record.taxonomy?.subCategory ||
+        record.subCategory ||
+        "Algemeen",
+
+    diseaseType :
+        record.taxonomy?.diseaseType ||
+        "",
+
+    diseaseLocation :
+        record.taxonomy?.diseaseLocation ||
+        "",
+
+    diseaseBehavior :
+        record.taxonomy?.diseaseBehavior ||
+        "",
+
+    symptoms :
+        record.taxonomy?.symptoms ||
+        [],
+
+    diagnostics :
+        record.taxonomy?.diagnostics ||
+        [],
+
+    medication :
+        record.taxonomy?.medication ||
+        [],
+
+    complications :
+        record.taxonomy?.complications ||
+        [],
+
+    audience :
+        record.taxonomy?.audience ||
+        [],
+
+    aiTags :
+        record.taxonomy?.aiTags ||
+        [],
+
+    contentType :
+        record.taxonomy?.contentType ||
+        "",
+
+    knowledgeTopic :
+        record.taxonomy?.knowledgeTopic ||
+        "",
+
+    confidenceScore :
+        record.taxonomy?.confidenceScore ||
+        0
+
+},
 
             data : record
 
@@ -12222,25 +12388,11 @@ async function renderKnowledgeCenter(){
                 item.source === "knowledge"
         );
 
-    const categories = [
-
-        ...new Set(
-
-            knowledgeItems.map(
-
-                item =>
-
-                    item.data?.mainCategory ||
-
-                    item.mainCategory ||
-
-                    "Overig"
-
-            )
-
-        )
-
-    ].sort();
+    const categories =
+    CCV_TAXONOMY.map(
+        category =>
+            category.name
+    );
 
     document.getElementById(
         "ccvContent"
@@ -12273,13 +12425,15 @@ ${categories.map(category=>{
             item=>
 
                 (
-                    item.data?.mainCategory ||
+    item.taxonomy?.mainCategory ||
 
-                    item.mainCategory ||
+    item.data?.mainCategory ||
 
-                    "Overig"
+    item.mainCategory ||
 
-                )
+    "Overig"
+)
+
 
                 === category
 
@@ -12341,13 +12495,16 @@ async function renderKnowledgeCategory(
 
             return (
 
-                item.data?.mainCategory ||
+    item.taxonomy?.mainCategory ||
 
-                item.mainCategory ||
+    item.data?.mainCategory ||
 
-                "Overig"
+    item.mainCategory ||
 
-            ) === category;
+    "Overig"
+
+) === category;
+
 
         });
 
@@ -12413,11 +12570,13 @@ ${subCategories.map(sub=>{
 
             (
 
-                item.data?.subCategory ||
+                item.taxonomy?.subCategory ||
 
-                item.subCategory ||
+item.data?.subCategory ||
 
-                "Algemeen"
+item.subCategory ||
+
+"Algemeen"
 
             )
 
@@ -12475,15 +12634,26 @@ function renderKnowledgeSubCategory(
             }
 
             const itemCategory =
-                item.mainCategory ||
-                item.data?.mainCategory ||
-                item.category ||
-                "Overig";
+
+    item.taxonomy?.mainCategory ||
+
+    item.mainCategory ||
+
+    item.data?.mainCategory ||
+
+    item.category ||
+
+    "Overig";
 
             const itemSubCategory =
-                item.subCategory ||
-                item.data?.subCategory ||
-                "Algemeen";
+
+    item.taxonomy?.subCategory ||
+
+    item.subCategory ||
+
+    item.data?.subCategory ||
+
+    "Algemeen";
 
             return (
                 itemCategory === category &&
@@ -12917,6 +13087,80 @@ ${topTags.length}
 
 <h2>
 
+🧠 AI Taxonomie
+
+</h2>
+
+<br>
+
+<label>
+
+Hoofdcategorie
+
+</label>
+
+<br>
+
+${category}
+
+<br><br>
+
+<label>
+
+Subcategorie
+
+</label>
+
+<br>
+
+${subCategory}
+
+<br><br>
+
+<label>
+
+AI Tags gevonden
+
+</label>
+
+<br>
+
+${[
+    ...new Set(
+        items.flatMap(
+            item =>
+                item.taxonomy?.aiTags || []
+        )
+    )
+].join(", ") || "-"}
+
+<br><br>
+
+<label>
+
+Doelgroepen
+
+</label>
+
+<br>
+
+${[
+    ...new Set(
+        items.flatMap(
+            item =>
+                item.taxonomy?.audience || []
+        )
+    )
+].join(", ") || "-"}
+
+</div>
+
+<br>
+
+<div class="card">
+
+<h2>
+
 🏷 Belangrijkste tags
 
 </h2>
@@ -12997,6 +13241,34 @@ ${item.description || ""}
 ${normalizeTags(
     item.tags
 ).join(", ")}
+
+<br><br>
+
+🎯 Doelgroep:
+
+${
+    Array.isArray(
+        item.taxonomy?.audience
+    )
+        ?
+    item.taxonomy.audience.join(", ")
+        :
+    "-"
+}
+
+<br>
+
+🤖 AI:
+
+${
+    Array.isArray(
+        item.taxonomy?.aiTags
+    )
+        ?
+    item.taxonomy.aiTags.join(", ")
+        :
+    "-"
+}
 
 </div>
 
@@ -13155,23 +13427,235 @@ function findRelatedDocuments(
     );
 }
 
-function getCategoryIcon(category){
+/* =====================================================
+   CCV AI TAXONOMIE V1
+   ===================================================== */
 
-    const icons = {
+const CCV_TAXONOMY = [
 
-        "Ziekten":"🩺",
-        "Behandeling":"💊",
-        "Voeding":"🥗",
-        "Zorg":"👨‍⚕️",
-        "Sociale Rechten":"⚖",
-        "Onderzoek":"🔬",
-        "Welzijn":"🧘",
-        "CCV-VZW":"🏛"
+{
+    id : "disease",
+    icon : "🩺",
+    name : "Ziekteprofiel",
 
-    };
+    fields : [
 
-    return icons[category] || "📚";
+        "DiseaseType",
+        "DiseaseLocation",
+        "DiseaseBehavior",
+        "Severity",
+        "DiagnosisStatus",
+        "DiseaseDuration",
+        "PediatricAdult",
+        "Comorbidity"
 
+    ]
+},
+
+{
+    id : "symptoms",
+    icon : "🤒",
+    name : "Symptomen",
+
+    fields : [
+
+        "AbdominalPain",
+        "Diarrhea",
+        "RectalBleeding",
+        "Fatigue",
+        "WeightLoss",
+        "NauseaVomiting",
+        "Fever",
+        "ExtraIntestinalManifestation"
+
+    ]
+},
+
+{
+    id : "diagnostics",
+    icon : "🔬",
+    name : "Diagnostiek",
+
+    fields : [
+
+        "Colonoscopy",
+        "Gastroscopy",
+        "MRI",
+        "CTScan",
+        "BloodTests",
+        "FecalCalprotectin"
+
+    ]
+},
+
+{
+    id : "treatment",
+    icon : "💊",
+    name : "Behandeling",
+
+    fields : [
+
+        "MedicationClass",
+        "BiologicTherapy",
+        "SmallMoleculeTherapy",
+        "Corticosteroids",
+        "Immunomodulators",
+        "NutritionalTherapy",
+        "Surgery"
+
+    ]
+},
+
+{
+    id : "medication",
+    icon : "💉",
+    name : "Medicatie",
+
+    fields : [
+
+        "MedicationName",
+        "MedicationATCCode",
+        "TreatmentPhase",
+        "SideEffects",
+        "Adherence"
+
+    ]
+},
+
+{
+    id : "complications",
+    icon : "⚠️",
+    name : "Complicaties",
+
+    fields : [
+
+        "Fistula",
+        "Stricture",
+        "Abscess",
+        "Stoma",
+        "Malnutrition",
+        "Osteoporosis"
+
+    ]
+},
+
+{
+    id : "qualityoflife",
+    icon : "🌱",
+    name : "Levenskwaliteit",
+
+    fields : [
+
+        "Nutrition",
+        "Work",
+        "Education",
+        "Sports",
+        "Travel",
+        "MentalHealth"
+
+    ]
+},
+
+{
+    id : "reproductive",
+    icon : "👶",
+    name : "Reproductieve Gezondheid",
+
+    fields : [
+
+        "Pregnancy",
+        "Fertility",
+        "Breastfeeding"
+
+    ]
+},
+
+{
+    id : "knowledge",
+    icon : "🧠",
+    name : "Kennisbank & AI",
+
+    fields : [
+
+        "KnowledgeTopic"
+
+    ]
+}
+
+];
+
+const CCV_AI_TAGS = [
+
+    "NewlyDiagnosed",
+    "Flare",
+    "Remission",
+    "LongTermFollowUp",
+    "SelfManagement",
+    "SharedDecisionMaking",
+    "PatientExperience",
+    "CarePathway",
+    "TransitionCare",
+    "RareComplication"
+
+];
+
+const CCV_AUDIENCES = [
+
+    "Patient",
+    "Parent",
+    "Caregiver",
+    "YoungAdult",
+    "HealthcareProfessional",
+    "Volunteer"
+
+];
+
+const CCV_CONTENT_TYPES = [
+
+    "Article",
+    "Webinar",
+    "FAQ",
+    "Guideline",
+    "Research",
+    "Meeting",
+    "Project",
+    "QuickCapture"
+
+];
+
+function getTaxonomyCategoryByName(
+    categoryName
+)
+{
+    return CCV_TAXONOMY.find(
+        cat =>
+            cat.name === categoryName
+    );
+}
+
+function getCategoryIcon(category)
+{
+    const taxonomy =
+        CCV_TAXONOMY.find(
+            cat =>
+                cat.name === category
+        );
+
+    return taxonomy?.icon || "📚";
+}
+
+function getKnowledgeTaxonomy(
+    item
+){
+    return (
+
+        item.taxonomy ||
+
+        item.data?.taxonomy ||
+
+        {}
+
+    );
 }
 
 async function renderKnowledgeMap(){
@@ -14586,13 +15070,15 @@ function renderKnowledgeTheme(
 
             const currentCategory =
 
-                item.mainCategory ||
+    item.taxonomy?.mainCategory ||
 
-                item.data?.mainCategory ||
+    item.mainCategory ||
 
-                item.category ||
+    item.data?.mainCategory ||
 
-                "Overig";
+    item.category ||
+
+    "Overig";
 
             return(
 
@@ -14612,11 +15098,13 @@ function renderKnowledgeTheme(
 
             knowledgeItems.map(item=>
 
-                item.subCategory ||
+                item.taxonomy?.subCategory ||
 
-                item.data?.subCategory ||
+item.subCategory ||
 
-                "Algemeen"
+item.data?.subCategory ||
+
+"Algemeen"
 
             )
 
@@ -16062,6 +16550,21 @@ function searchAssociationDocuments(
 function calculateSemanticScore(item){
 
     let score = 1;
+
+score +=
+    item.taxonomy?.aiTags?.length || 0;
+
+score +=
+    item.taxonomy?.audience?.length || 0;
+
+score +=
+    item.taxonomy?.symptoms?.length || 0;
+
+score +=
+    item.taxonomy?.medication?.length || 0;
+
+score +=
+    item.taxonomy?.complications?.length || 0;
 
     score += normalizeTags(
         item.tags

@@ -15436,8 +15436,7 @@ padding:10px;
 border-bottom:1px solid #eee;
 "
 onclick="
-renderKnowledgeSubCategory(
-'${findCategoryForSubCategory(row[0])}',
+renderTaxonomySubCategory(
 '${row[0]}'
 )
 "
@@ -15660,6 +15659,41 @@ ${item.taxonomy?.subCategory}
 ).join("")}
 
 `;
+
+}
+
+function renderTaxonomySubCategory(
+    subCategory
+){
+
+    const item =
+
+        globalIndex.find(
+            x =>
+
+                x.source ===
+                "knowledge"
+
+                &&
+
+                (
+                    x.taxonomy?.subCategory
+                ) === subCategory
+        );
+
+    if(!item){
+        return;
+    }
+
+    renderKnowledgeSubCategory(
+
+        item.taxonomy?.mainCategory ||
+
+        "Overig",
+
+        subCategory
+
+    );
 
 }
 

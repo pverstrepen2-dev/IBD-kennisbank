@@ -15644,31 +15644,58 @@ function renderTaxonomyField(
     field
 ){
 
-    const items =
+    const items = globalIndex.filter(
 
-        globalIndex.filter(
+        item =>
 
-            item =>
+            item.source === "knowledge"
 
-                item.source ===
-                "knowledge"
+            &&
+
+            item.taxonomy?.[field] === true
+
+    );
+
+    const linkedFiles = [];
+
+    const fileIds = new Set();
+
+    items.forEach(item => {
+
+        if(!item.oneDriveId){
+            return;
+        }
+
+        const file = globalIndex.find(
+
+            x =>
+
+                x.source === "file"
 
                 &&
 
-                item.taxonomy?.[field] ===
-                true
+                (
+                    x.id === item.oneDriveId
+
+                    ||
+
+                    x.oneDriveId === item.oneDriveId
+                )
 
         );
 
-    console.log(
-        "Taxonomy field:",
-        field
-    );
+        if(
+            file &&
+            !fileIds.has(file.id)
+        ){
 
-    console.log(
-        "Items:",
-        items
-    );
+            linkedFiles.push(file);
+
+            fileIds.add(file.id);
+
+        }
+
+    });
 
     document.getElementById(
         "ccvContent"
@@ -15708,11 +15735,7 @@ items.length === 0
 
 ?
 
-`
-
-Geen kennisitems gevonden
-
-`
+"Geen kennisitems gevonden"
 
 :
 
@@ -15722,9 +15745,8 @@ items.map(item => `
 class="card"
 style="
 margin-bottom:12px;
-cursor:pointer;
 padding:15px;
-border:1px solid #ddd;
+cursor:pointer;
 "
 onclick="
 renderKnowledgeItemById(
@@ -15735,7 +15757,7 @@ renderKnowledgeItemById(
 
 <h3>
 
-${item.title || "Geen titel"}
+${item.title || "-"}
 
 </h3>
 
@@ -15745,25 +15767,15 @@ ${item.description || "-"}
 
 <br><br>
 
-📂 Hoofdcategorie
+📂 ${item.taxonomy?.mainCategory || "-"}
 
 <br>
 
-${item.taxonomy?.mainCategory || "-"}
+📁 ${item.taxonomy?.subCategory || "-"}
 
 <br><br>
 
-📁 Subcategorie
-
-<br>
-
-${item.taxonomy?.subCategory || "-"}
-
-<br><br>
-
-🏷 Taxonomievelden
-
-<br>
+🏷
 
 ${Object.keys(
     item.taxonomy || {}
@@ -15774,7 +15786,54 @@ ${Object.keys(
         item.taxonomy[key] === true
 )
 
-.join(", ") || "-"}
+.join(", ")}
+
+</div>
+
+`).join("")
+
+}
+
+</div>
+
+<br>
+
+<div class="card">
+
+<h2>
+
+📄 Gekoppelde documenten
+
+</h2>
+
+<br>
+
+${
+linkedFiles.length === 0
+
+?
+
+"Geen gekoppelde documenten gevonden"
+
+:
+
+linkedFiles.map(file => `
+
+<div
+class="card"
+style="
+margin-bottom:10px;
+cursor:pointer;
+"
+onclick="
+openSearchResult(
+'file',
+'${file.id}'
+)
+"
+>
+
+📄 ${file.title || file.name}
 
 </div>
 

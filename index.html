@@ -14180,6 +14180,48 @@ function findRelatedFilesForKnowledgeItem(
                 }
             );
 
+const results = globalIndex
+    .filter(file => file.source === "file")
+    .map(file => {
+
+        const text = (
+            file.searchText ||
+            file.content ||
+            file.title ||
+            ""
+        ).toLowerCase();
+
+        let score = 0;
+
+        keywords.forEach(keyword => {
+            if(text.includes(keyword)){
+                score++;
+            }
+        });
+
+        return {
+            file,
+            score
+        };
+
+    });
+
+console.table(
+    results
+        .filter(x => x.score > 0)
+        .slice(0,50)
+        .map(x => ({
+            title: x.file.title,
+            score: x.score
+        }))
+);
+
+return results
+    .filter(x => x.score > 0)
+    .sort((a,b) => b.score - a.score)
+    .slice(0,15)
+    .map(x => x.file);
+
             return {
                 file,
                 score
@@ -14188,9 +14230,9 @@ function findRelatedFilesForKnowledgeItem(
         })
 
         .filter(
-            result =>
-                result.score >= 2
-        )
+    result =>
+        result.score > 0
+)
 
         .sort(
             (a,b) =>
@@ -14205,6 +14247,54 @@ function findRelatedFilesForKnowledgeItem(
         );
 
 }
+
+function debugRelatedFiles(item){
+
+    const keywords = new Set();
+
+    (item.title || "")
+        .toLowerCase()
+        .split(/\s+/)
+        .filter(word => word.length > 3)
+        .forEach(word => keywords.add(word));
+
+    normalizeTags(item.tags)
+        .forEach(tag => keywords.add(tag.toLowerCase()));
+
+    return globalIndex
+        .filter(x => x.source === "file")
+        .map(file => {
+
+            const text = (
+                file.searchText ||
+                file.content ||
+                file.title ||
+                ""
+            ).toLowerCase();
+
+            let score = 0;
+
+            keywords.forEach(keyword => {
+                if(text.includes(keyword)){
+                    score++;
+                }
+            });
+
+            return {
+                title: file.title,
+                score
+            };
+
+        })
+        .filter(x => x.score > 0)
+        .sort((a,b) => b.score - a.score)
+        .slice(0,50);
+
+}
+
+console.table(
+    debugRelatedFiles(symptoomItem)
+);
 
 function findRelatedWebsitesForKnowledgeItem(
     knowledgeItem

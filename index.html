@@ -1250,6 +1250,11 @@ async function buildKnowledgeIndex(){
             uniqueKey
         );
 
+        const autoTaxonomy =
+    detectTaxonomy(
+        record
+    );
+
         const item = {
 
             source : "knowledge",
@@ -1374,11 +1379,19 @@ async function buildKnowledgeIndex(){
             content : "",
 
                 taxonomy : {
+                    ...autoTaxonomy,
 
     mainCategory :
-        record.taxonomy?.mainCategory ||
-        record.mainCategory ||
-        "Overig",
+
+    record.taxonomy?.mainCategory ||
+
+    determineMainCategory(
+        autoTaxonomy
+    ) ||
+
+    record.mainCategory ||
+
+    "Overig",
 
     subCategory :
         record.taxonomy?.subCategory ||
@@ -13623,6 +13636,132 @@ const CCV_CONTENT_TYPES = [
 
 ];
 
+/* =====================================================
+   AUTOMATISCHE TAXONOMIEHERKENNING
+   ===================================================== */
+
+const TAXONOMY_RULES = {
+
+    DiseaseType : [
+        "crohn",
+        "colitis",
+        "ibd"
+    ],
+
+    AbdominalPain : [
+        "buikpijn",
+        "abdominal pain"
+    ],
+
+    Diarrhea : [
+        "diarree"
+    ],
+
+    Fatigue : [
+        "vermoeidheid",
+        "fatigue"
+    ],
+
+    Nutrition : [
+        "voeding",
+        "dieet",
+        "fodmap"
+    ],
+
+    Work : [
+        "werk",
+        "arbeid"
+    ],
+
+    Travel : [
+        "reizen",
+        "vakantie"
+    ],
+
+    Colonoscopy : [
+        "coloscopie"
+    ],
+
+    MRI : [
+        "mri"
+    ],
+
+    BiologicTherapy : [
+        "infliximab",
+        "adalimumab",
+        "vedolizumab",
+        "ustekinumab"
+    ]
+
+};
+
+const MAIN_CATEGORY_MAPPING = {
+
+    DiseaseType :
+        "Ziekteprofiel",
+
+    DiseaseLocation :
+        "Ziekteprofiel",
+
+    DiseaseBehavior :
+        "Ziekteprofiel",
+
+    Severity :
+        "Ziekteprofiel",
+
+    AbdominalPain :
+        "Symptomen",
+
+    Diarrhea :
+        "Symptomen",
+
+    Fatigue :
+        "Symptomen",
+
+    Colonoscopy :
+        "Diagnostiek",
+
+    MRI :
+        "Diagnostiek",
+
+    MedicationClass :
+        "Behandeling",
+
+    BiologicTherapy :
+        "Behandeling",
+
+    Surgery :
+        "Behandeling",
+
+    MedicationName :
+        "Medicatie",
+
+    Fistula :
+        "Complicaties",
+
+    Stricture :
+        "Complicaties",
+
+    Nutrition :
+        "Levenskwaliteit",
+
+    Work :
+        "Levenskwaliteit",
+
+    Travel :
+        "Levenskwaliteit",
+
+    MentalHealth :
+        "Levenskwaliteit",
+
+    Pregnancy :
+        "Reproductieve Gezondheid",
+
+    KnowledgeTopic :
+        "Kennisbank & AI"
+
+};
+
 function getTaxonomyCategoryByName(
     categoryName
 )
@@ -16461,6 +16600,122 @@ function buildConceptClusters(){
 
     ];
 
+}
+
+function detectTaxonomy(
+    record
+)
+{
+    const text = `
+
+        ${record.title || ""}
+        ${record.description || ""}
+        ${normalizeTags(record.tags).join(" ")}
+
+    `
+    .toLowerCase();
+
+    const detected = {
+
+        symptoms : [],
+        medication : [],
+        complications : [],
+        diagnostics : [],
+        aiTags : []
+
+    };
+
+    Object.entries(
+        TAXONOMY_RULES
+    ).forEach(
+
+        ([field, keywords]) =>
+        {
+
+            if(
+                keywords.some(
+                    keyword =>
+                        text.includes(keyword)
+                )
+            )
+            {
+                detected[field] = true;
+            }
+
+        }
+
+    );
+
+    return detected;
+}
+
+function determineMainCategory(
+    taxonomy
+)
+{
+    const field =
+        Object.keys(taxonomy)
+        .find(
+            key =>
+                taxonomy[key] === true
+        );
+
+    if(!field){
+        return "Overig";
+    }
+
+    return (
+        MAIN_CATEGORY_MAPPING[
+            field
+        ] || "Overig"
+    );
+}
+
+function detectAITags(
+    record
+)
+{
+    const text = `
+
+        ${record.title || ""}
+        ${record.description || ""}
+
+    `
+    .toLowerCase();
+
+    const tags = [];
+
+    if(
+        text.includes(
+            "nieuw gediagnosticeerd"
+        )
+    ){
+        tags.push(
+            "NewlyDiagnosed"
+        );
+    }
+
+    if(
+        text.includes(
+            "opstoot"
+        )
+    ){
+        tags.push(
+            "Flare"
+        );
+    }
+
+    if(
+        text.includes(
+            "remissie"
+        )
+    ){
+        tags.push(
+            "Remission"
+        );
+    }
+
+    return tags;
 }
 
 function normalizeTags(tags){

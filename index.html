@@ -7047,6 +7047,17 @@ async function saveSleepEntry()
 
 function drawSleepChart()
 {
+
+    if(typeof Chart === "undefined"){
+
+    console.warn(
+        "Chart.js niet geladen"
+    );
+
+    return;
+
+}
+
     const entries =
         DatabaseService.cache
         ?.healthData

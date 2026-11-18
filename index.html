@@ -5228,29 +5228,39 @@ if(source === "email")
 
 }
 
-        console.log(
-            "Knowledge item:",
-            knowledgeItem
+       if(source === "knowledge"){
+
+    const knowledgeItem =
+
+        globalIndex.find(
+            item =>
+
+                item.source === "knowledge"
+
+                &&
+
+                String(item.id)
+                ===
+                String(id)
         );
 
-        if(
-            knowledgeItem.oneDriveId &&
-            knowledgeItem.oneDriveId.trim()
-        ){
-
-            await openFile(
-                knowledgeItem.oneDriveId
-            );
-
-            return;
-
-        }
+    if(!knowledgeItem){
 
         alert(
-            "Geen OneDrive-bestand gekoppeld"
+            "Knowledge-item niet gevonden"
         );
 
+        return;
+
     }
+
+    renderKnowledgeItem(
+        knowledgeItem
+    );
+
+    return;
+
+}
 
 }
 

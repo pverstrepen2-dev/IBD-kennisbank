@@ -682,6 +682,15 @@ async function initializeMSAL() {
 
 }
 
+window.addEventListener(
+    "load",
+    async () => {
+
+        await initializeMSAL();
+
+    }
+);
+
 function updateUserInfo(){
 
     console.log(

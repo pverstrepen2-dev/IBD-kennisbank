@@ -15177,10 +15177,14 @@ async function loadFullKnowledgeMap(){
 
 }
 
+let activeTaxonomyTab =
+    "categories";
 function renderTaxonomyDashboard(){
 
     const stats = {};
-    const categoryStats = {};
+const categoryStats = {};
+const subCategoryStats = {};
+const aiTagStats = {};
 
     globalIndex
 
@@ -15197,11 +15201,35 @@ function renderTaxonomyDashboard(){
 
             || "Overig";
 
+            const subCategory =
+
+    item.taxonomy?.subCategory
+
+    || "Algemeen";
+
+subCategoryStats[subCategory] =
+
+    (subCategoryStats[subCategory] || 0)
+
+    + 1;
+
         categoryStats[category] =
 
             (categoryStats[category] || 0)
 
             + 1;
+
+(item.taxonomy?.aiTags || [])
+
+.forEach(tag => {
+
+    aiTagStats[tag] =
+
+        (aiTagStats[tag] || 0)
+
+        + 1;
+
+});
 
         Object.keys(
             item.taxonomy || {}
@@ -15222,6 +15250,28 @@ function renderTaxonomyDashboard(){
 
     });
 
+const subRanking =
+
+    Object.entries(
+        subCategoryStats
+    )
+
+    .sort(
+        (a,b) =>
+            b[1] - a[1]
+    );
+
+const aiRanking =
+
+    Object.entries(
+        aiTagStats
+    )
+
+    .sort(
+        (a,b) =>
+            b[1] - a[1]
+    );
+
     const ranking =
 
         Object.entries(stats)
@@ -15241,6 +15291,57 @@ function renderTaxonomyDashboard(){
 
 </div>
 
+<div
+style="
+display:flex;
+gap:10px;
+margin-bottom:20px;
+flex-wrap:wrap;
+"
+>
+
+<button
+class="action-btn"
+onclick="
+activeTaxonomyTab='categories';
+renderTaxonomyDashboard();
+"
+>
+📊 Hoofdcategorieën
+</button>
+
+<button
+class="action-btn"
+onclick="
+activeTaxonomyTab='subcategories';
+renderTaxonomyDashboard();
+"
+>
+📁 Subcategorieën
+</button>
+
+<button
+class="action-btn"
+onclick="
+activeTaxonomyTab='fields';
+renderTaxonomyDashboard();
+"
+>
+🏷 Taxonomievelden
+</button>
+
+<button
+class="action-btn"
+onclick="
+activeTaxonomyTab='aitags';
+renderTaxonomyDashboard();
+"
+>
+🤖 AI Tags
+</button>
+
+</div>
+
 <button
 class="action-btn"
 onclick="
@@ -15254,6 +15355,13 @@ renderKnowledgeOverview()
 
 <br><br>
 
+${
+activeTaxonomyTab === "categories"
+
+?
+
+`
+
 <div class="card">
 
 <h2>
@@ -15261,6 +15369,100 @@ renderKnowledgeOverview()
 📊 Hoofdcategorieën
 
 </h2>
+
+<br>
+
+${Object.entries(categoryStats)
+
+.map(row => `
+
+<div
+style="
+cursor:pointer;
+padding:10px;
+border-bottom:1px solid #eee;
+"
+onclick="
+renderKnowledgeTheme(
+'${row[0]}'
+)
+"
+>
+
+<b>${row[0]}</b>
+
+<br>
+
+${row[1]} documenten
+
+</div>
+
+`)
+
+.join("")}
+
+</div>
+
+`
+
+:
+
+""
+}
+
+${
+activeTaxonomyTab === "subcategories"
+
+?
+
+`
+
+<div class="card">
+
+<h2>
+
+📁 Subcategorieën
+
+</h2>
+
+<br>
+
+${subRanking.map(row => `
+
+<div
+style="
+cursor:pointer;
+padding:10px;
+border-bottom:1px solid #eee;
+"
+onclick="
+renderKnowledgeSubCategory(
+'${findCategoryForSubCategory(row[0])}',
+'${row[0]}'
+)
+"
+>
+
+<b>${row[0]}</b>
+
+<br>
+
+${row[1]} documenten
+
+</div>
+
+`)
+
+.join("")}
+
+</div>
+
+`
+
+:
+
+""
+}
 
 <br>
 
@@ -15277,6 +15479,12 @@ ${Object.entries(categoryStats)
 style="
 padding:10px;
 border-bottom:1px solid #eee;
+cursor:pointer;
+"
+onclick="
+renderKnowledgeTheme(
+'${row[0]}'
+)
 "
 >
 
@@ -15306,10 +15514,36 @@ gap:15px;
 "
 >
 
+${
+activeTaxonomyTab === "fields"
+
+?
+
+`
+
+<div
+style="
+display:grid;
+grid-template-columns:
+repeat(auto-fit,minmax(250px,1fr));
+gap:15px;
+"
+>
+
 ${ranking.map(
 item => `
 
-<div class="card">
+<div
+class="card"
+style="
+cursor:pointer;
+"
+onclick="
+renderTaxonomyField(
+'${item[0]}'
+)
+"
+>
 
 <h3>
 
@@ -15327,6 +15561,103 @@ ${item[1]} documenten
 ).join("")}
 
 </div>
+
+`
+
+:
+
+""
+}
+
+`;
+
+}
+
+function renderTaxonomyField(
+    field
+){
+
+    const items =
+
+        globalIndex
+
+        .filter(
+            item =>
+
+                item.source ===
+                "knowledge"
+
+                &&
+
+                item.taxonomy?.[
+                    field
+                ] === true
+        );
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+
+🏷 ${field}
+
+</div>
+
+<button
+class="action-btn"
+onclick="
+renderTaxonomyDashboard()
+"
+>
+
+⬅ Dashboard
+
+</button>
+
+<br><br>
+
+${items.map(
+item => `
+
+<div
+class="card"
+style="
+margin-bottom:12px;
+cursor:pointer;
+"
+onclick="
+openSearchResult(
+'knowledge',
+'${item.id}'
+)
+"
+>
+
+<h3>
+
+${item.title}
+
+</h3>
+
+<br>
+
+${item.description || ""}
+
+<br><br>
+
+📂
+${item.taxonomy?.mainCategory}
+
+<br>
+
+📁
+${item.taxonomy?.subCategory}
+
+</div>
+
+`
+).join("")}
 
 `;
 

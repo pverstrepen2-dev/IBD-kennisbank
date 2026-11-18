@@ -15176,15 +15176,14 @@ async function loadFullKnowledgeMap(){
     await renderKnowledgeMap();
 
 }
+let activeTaxonomyTab = "categories";
 
-let activeTaxonomyTab =
-    "categories";
 function renderTaxonomyDashboard(){
 
     const stats = {};
-const categoryStats = {};
-const subCategoryStats = {};
-const aiTagStats = {};
+    const categoryStats = {};
+    const subCategoryStats = {};
+    const aiTagStats = {};
 
     globalIndex
 
@@ -15196,89 +15195,73 @@ const aiTagStats = {};
     .forEach(item => {
 
         const category =
-
             item.taxonomy?.mainCategory
-
             || "Overig";
 
-            const subCategory =
-
-    item.taxonomy?.subCategory
-
-    || "Algemeen";
-
-subCategoryStats[subCategory] =
-
-    (subCategoryStats[subCategory] || 0)
-
-    + 1;
+        const subCategory =
+            item.taxonomy?.subCategory
+            || "Algemeen";
 
         categoryStats[category] =
+            (categoryStats[category] || 0) + 1;
 
-            (categoryStats[category] || 0)
+        subCategoryStats[subCategory] =
+            (subCategoryStats[subCategory] || 0) + 1;
 
-            + 1;
+        (item.taxonomy?.aiTags || [])
+        .forEach(tag => {
 
-(item.taxonomy?.aiTags || [])
+            aiTagStats[tag] =
+                (aiTagStats[tag] || 0) + 1;
 
-.forEach(tag => {
-
-    aiTagStats[tag] =
-
-        (aiTagStats[tag] || 0)
-
-        + 1;
-
-});
+        });
 
         Object.keys(
             item.taxonomy || {}
         )
-
         .forEach(field => {
 
             if(
                 item.taxonomy[field] === true
             ){
-
                 stats[field] =
                     (stats[field] || 0) + 1;
-
             }
 
         });
 
     });
 
-const subRanking =
+    const categoryRanking =
 
-    Object.entries(
-        subCategoryStats
-    )
+        Object.entries(categoryStats)
 
-    .sort(
-        (a,b) =>
-            b[1] - a[1]
-    );
+        .sort(
+            (a,b) => b[1] - a[1]
+        );
 
-const aiRanking =
+    const subRanking =
 
-    Object.entries(
-        aiTagStats
-    )
+        Object.entries(subCategoryStats)
 
-    .sort(
-        (a,b) =>
-            b[1] - a[1]
-    );
+        .sort(
+            (a,b) => b[1] - a[1]
+        );
 
-    const ranking =
+    const fieldRanking =
 
         Object.entries(stats)
 
         .sort(
-            (a,b) =>
-                b[1] - a[1]
+            (a,b) => b[1] - a[1]
+        );
+
+    const aiRanking =
+
+        Object.entries(aiTagStats)
+
+        .sort(
+            (a,b) => b[1] - a[1]
         );
 
     document.getElementById(
@@ -15348,40 +15331,31 @@ onclick="
 renderKnowledgeOverview()
 "
 >
-
 ⬅ Terug
-
 </button>
 
 <br><br>
+
+<div
+style="
+display:grid;
+grid-template-columns:
+repeat(auto-fit,minmax(250px,1fr));
+gap:15px;
+"
+>
 
 ${
 activeTaxonomyTab === "categories"
 
 ?
 
-`
-
-<div class="card">
-
-<h2>
-
-📊 Hoofdcategorieën
-
-</h2>
-
-<br>
-
-${Object.entries(categoryStats)
-
-.map(row => `
+categoryRanking.map(
+row => `
 
 <div
-style="
-cursor:pointer;
-padding:10px;
-border-bottom:1px solid #eee;
-"
+class="card"
+style="cursor:pointer;"
 onclick="
 renderKnowledgeTheme(
 '${row[0]}'
@@ -15389,7 +15363,11 @@ renderKnowledgeTheme(
 "
 >
 
-<b>${row[0]}</b>
+<h3>
+
+📊 ${row[0]}
+
+</h3>
 
 <br>
 
@@ -15397,13 +15375,8 @@ ${row[1]} documenten
 
 </div>
 
-`)
-
-.join("")}
-
-</div>
-
 `
+).join("")
 
 :
 
@@ -15415,26 +15388,12 @@ activeTaxonomyTab === "subcategories"
 
 ?
 
-`
-
-<div class="card">
-
-<h2>
-
-📁 Subcategorieën
-
-</h2>
-
-<br>
-
-${subRanking.map(row => `
+subRanking.map(
+row => `
 
 <div
-style="
-cursor:pointer;
-padding:10px;
-border-bottom:1px solid #eee;
-"
+class="card"
+style="cursor:pointer;"
 onclick="
 renderTaxonomySubCategory(
 '${row[0]}'
@@ -15442,7 +15401,11 @@ renderTaxonomySubCategory(
 "
 >
 
-<b>${row[0]}</b>
+<h3>
+
+📁 ${row[0]}
+
+</h3>
 
 <br>
 
@@ -15450,123 +15413,83 @@ ${row[1]} documenten
 
 </div>
 
-`)
-
-.join("")}
-
-</div>
-
 `
+).join("")
 
 :
 
 ""
 }
-
-<br>
-
-${Object.entries(categoryStats)
-
-.sort(
-    (a,b) => b[1] - a[1]
-)
-
-.map(
-    row => `
-
-<div
-style="
-padding:10px;
-border-bottom:1px solid #eee;
-cursor:pointer;
-"
-onclick="
-renderKnowledgeTheme(
-'${row[0]}'
-)
-"
->
-
-<b>${row[0]}</b>
-
-<br>
-
-${row[1]} documenten
-
-</div>
-
-`
-)
-
-.join("")}
-
-</div>
-
-<br>
-
-<div
-style="
-display:grid;
-grid-template-columns:
-repeat(auto-fit,minmax(250px,1fr));
-gap:15px;
-"
->
 
 ${
 activeTaxonomyTab === "fields"
 
 ?
 
-`
-
-<div
-style="
-display:grid;
-grid-template-columns:
-repeat(auto-fit,minmax(250px,1fr));
-gap:15px;
-"
->
-
-${ranking.map(
-item => `
+fieldRanking.map(
+row => `
 
 <div
 class="card"
-style="
-cursor:pointer;
-"
+style="cursor:pointer;"
 onclick="
 renderTaxonomyField(
-'${item[0]}'
+'${row[0]}'
 )
 "
 >
 
 <h3>
 
-🏷 ${item[0]}
+🏷 ${row[0]}
 
 </h3>
 
 <br>
 
-${item[1]} documenten
+${row[1]} documenten
 
 </div>
 
 `
-).join("")}
-
-</div>
-
-`
+).join("")
 
 :
 
 ""
 }
+
+${
+activeTaxonomyTab === "aitags"
+
+?
+
+aiRanking.map(
+row => `
+
+<div class="card">
+
+<h3>
+
+🤖 ${row[0]}
+
+</h3>
+
+<br>
+
+${row[1]} documenten
+
+</div>
+
+`
+).join("")
+
+:
+
+""
+}
+
+</div>
 
 `;
 

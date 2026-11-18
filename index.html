@@ -5194,29 +5194,39 @@ if(source === "email")
 
     if(source === "knowledge"){
 
-        const knowledgeItem =
+    const knowledgeItem =
 
-            globalIndex.find(
+        globalIndex.find(
 
-                item =>
+            item =>
 
-                    item.source === "knowledge" &&
+                item.source === "knowledge"
 
-                    String(item.id)
-                    ===
-                    String(id)
+                &&
 
-            );
+                String(item.id)
+                ===
+                String(id)
 
-        if(!knowledgeItem){
+        );
 
-            alert(
-                "Knowledge-item niet gevonden"
-            );
+    if(!knowledgeItem){
 
-            return;
+        alert(
+            "Knowledge-item niet gevonden"
+        );
 
-        }
+        return;
+
+    }
+
+    renderKnowledgeItem(
+        knowledgeItem
+    );
+
+    return;
+
+}
 
         console.log(
             "Knowledge item:",
@@ -12513,6 +12523,98 @@ ${count} items
 
 }
 
+function renderKnowledgeItem(
+    item
+){
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+
+📚 ${item.title}
+
+</div>
+
+<button
+class="action-btn"
+onclick="
+renderTaxonomyDashboard()
+"
+>
+
+⬅ Dashboard
+
+</button>
+
+<br><br>
+
+<div class="card">
+
+${item.description || "-"}
+
+<br><br>
+
+📂 Categorie
+
+<br>
+
+${item.taxonomy?.mainCategory || "-"}
+
+<br><br>
+
+📁 Subcategorie
+
+<br>
+
+${item.taxonomy?.subCategory || "-"}
+
+<br><br>
+
+🏷 Tags
+
+<br>
+
+${normalizeTags(
+    item.tags
+).join(", ")}
+
+</div>
+
+${
+item.oneDriveId
+
+?
+
+`
+
+<br>
+
+<button
+class="action-btn"
+onclick="
+openFile(
+'${item.oneDriveId}'
+)
+"
+>
+
+📄 Open gekoppeld document
+
+</button>
+
+`
+
+:
+
+""
+}
+
+`;
+
+}
+
 async function renderKnowledgeCategory(
     category
 ){
@@ -15520,6 +15622,16 @@ ${row[1]} documenten
 function renderTaxonomyField(
     field
 ){
+
+    console.log(
+    "Taxonomy field:",
+    field
+);
+
+console.log(
+    "Items:",
+    items
+);
 
     const items =
 

@@ -15633,16 +15633,6 @@ function renderTaxonomyField(
     field
 ){
 
-    console.log(
-    "Taxonomy field:",
-    field
-);
-
-console.log(
-    "Items:",
-    items
-);
-
     const items =
 
         globalIndex
@@ -15660,74 +15650,25 @@ console.log(
                 ] === true
         );
 
+    console.log(
+        "Taxonomy field:",
+        field
+    );
+
+    console.log(
+        "Items:",
+        items
+    );
+
     document.getElementById(
         "ccvContent"
     ).innerHTML = `
-
-<div class="page-title">
-
-🏷 ${field}
-
-</div>
-
-<button
-class="action-btn"
-onclick="
-renderTaxonomyDashboard()
-"
->
-
-⬅ Dashboard
-
-</button>
-
-<br><br>
-
-${items.map(
-item => `
-
-<div
-class="card"
-style="
-margin-bottom:12px;
-cursor:pointer;
-"
-onclick="
-openSearchResult(
-'knowledge',
-'${item.id}'
-)
-"
->
-
-<h3>
-
-${item.title}
-
-</h3>
-
-<br>
-
-${item.description || ""}
-
-<br><br>
-
-📂
-${item.taxonomy?.mainCategory}
-
-<br>
-
-📁
-${item.taxonomy?.subCategory}
-
-</div>
-
-`
-).join("")}
-
-`;
-
+    
+    ...
+    
+    `;
 }
+
 
 function renderTaxonomySubCategory(
     subCategory

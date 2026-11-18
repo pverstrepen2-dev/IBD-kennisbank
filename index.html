@@ -9,6 +9,7 @@
 
 <script src="https://unpkg.com/@azure/msal-browser@latest/lib/msal-browser.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
@@ -7300,6 +7301,16 @@ setTimeout(
 
 function drawStressChart()
 {
+    if(typeof Chart === "undefined"){
+
+    console.warn(
+        "Chart.js niet geladen"
+    );
+
+    return;
+
+}
+
     const entries =
         DatabaseService.cache
         ?.healthData

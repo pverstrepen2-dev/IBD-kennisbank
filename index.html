@@ -3420,6 +3420,17 @@ function renderQuickCaptureFormForAssociation(
     associationName
 )
 {
+
+    console.log(
+    "Items aantal:",
+    items.length
+);
+
+console.log(
+    "Eerste item:",
+    items[0]
+);
+
 document.getElementById(
     "ccvContent"
 ).innerHTML = `
@@ -15635,9 +15646,8 @@ function renderTaxonomyField(
 
     const items =
 
-        globalIndex
+        globalIndex.filter(
 
-        .filter(
             item =>
 
                 item.source ===
@@ -15645,9 +15655,9 @@ function renderTaxonomyField(
 
                 &&
 
-                item.taxonomy?.[
-                    field
-                ] === true
+                item.taxonomy?.[field] ===
+                true
+
         );
 
     console.log(
@@ -15663,12 +15673,156 @@ function renderTaxonomyField(
     document.getElementById(
         "ccvContent"
     ).innerHTML = `
-    
-    ...
-    
-    `;
+
+<div class="page-title">
+
+🏷 ${field}
+
+</div>
+
+<button
+class="action-btn"
+onclick="
+renderTaxonomyDashboard()
+"
+>
+
+⬅ Dashboard
+
+</button>
+
+<br><br>
+
+<div class="card">
+
+<h2>
+
+📚 Kennisitems
+
+</h2>
+
+<br>
+
+${
+items.length === 0
+
+?
+
+`
+
+Geen kennisitems gevonden
+
+`
+
+:
+
+items.map(item => `
+
+<div
+class="card"
+style="
+margin-bottom:12px;
+cursor:pointer;
+padding:15px;
+border:1px solid #ddd;
+"
+onclick="
+renderKnowledgeItemById(
+'${item.id}'
+)
+"
+>
+
+<h3>
+
+${item.title || "Geen titel"}
+
+</h3>
+
+<br>
+
+${item.description || "-"}
+
+<br><br>
+
+📂 Hoofdcategorie
+
+<br>
+
+${item.taxonomy?.mainCategory || "-"}
+
+<br><br>
+
+📁 Subcategorie
+
+<br>
+
+${item.taxonomy?.subCategory || "-"}
+
+<br><br>
+
+🏷 Taxonomievelden
+
+<br>
+
+${Object.keys(
+    item.taxonomy || {}
+)
+
+.filter(
+    key =>
+        item.taxonomy[key] === true
+)
+
+.join(", ") || "-"}
+
+</div>
+
+`).join("")
+
 }
 
+</div>
+
+`;
+
+}
+
+function renderKnowledgeItemById(
+    id
+){
+
+    const item =
+
+        globalIndex.find(
+
+            x =>
+
+                x.source ===
+                "knowledge"
+
+                &&
+
+                String(x.id)
+                === String(id)
+
+        );
+
+    if(!item){
+
+        alert(
+            "Knowledge-item niet gevonden"
+        );
+
+        return;
+
+    }
+
+    renderKnowledgeItem(
+        item
+    );
+
+}
 
 function renderTaxonomySubCategory(
     subCategory

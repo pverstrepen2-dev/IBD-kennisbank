@@ -12548,6 +12548,18 @@ function renderKnowledgeItem(
     item
 ){
 
+const relatedFiles =
+
+    findRelatedFilesForKnowledgeItem(
+        item
+    );
+
+const relatedWebsites =
+
+    findRelatedWebsitesForKnowledgeItem(
+        item
+    );
+
     document.getElementById(
         "ccvContent"
     ).innerHTML = `
@@ -12631,6 +12643,126 @@ openFile(
 
 ""
 }
+
+<br><br>
+
+<div class="card">
+
+<h2>
+
+📄 Gerelateerde documenten
+
+</h2>
+
+<br>
+
+<br><br>
+
+<div class="card">
+
+<h2>
+
+🌐 Relevante websites
+
+</h2>
+
+<br>
+
+${
+relatedWebsites.length
+
+?
+
+relatedWebsites.map(
+    site => `
+
+<div
+style="
+padding:10px;
+border-bottom:1px solid #ddd;
+cursor:pointer;
+"
+onclick="
+window.open(
+'${site.url}',
+'_blank'
+)
+"
+>
+
+🌐 ${site.title || site.titel || "Website"}
+
+<br>
+
+<span
+style="
+font-size:12px;
+color:#64748b;
+"
+>
+
+Score:
+${site.matchScore || 0}
+
+</span>
+
+</div>
+
+`
+).join("")
+
+:
+
+`
+
+Geen relevante websites gevonden
+
+`
+
+}
+
+</div>
+
+${
+relatedFiles.length
+
+?
+
+relatedFiles.map(
+    file => `
+
+<div
+style="
+padding:10px;
+border-bottom:1px solid #ddd;
+cursor:pointer;
+"
+onclick="
+openSearchResult(
+'file',
+'${file.id}'
+)
+"
+>
+
+📄 ${file.title}
+
+</div>
+
+`
+).join("")
+
+:
+
+`
+
+Geen relevante documenten gevonden
+
+`
+
+}
+
+</div>
 
 `;
 
@@ -13960,6 +14092,240 @@ const MAIN_CATEGORY_MAPPING = {
         "Kennisbank & AI"
 
 };
+
+function findRelatedFilesForKnowledgeItem(
+    knowledgeItem
+){
+
+    const keywords = new Set();
+
+    const titleWords =
+
+        (knowledgeItem.title || "")
+
+        .toLowerCase()
+
+        .split(/\s+/)
+
+        .filter(
+            word => word.length > 3
+        );
+
+    titleWords.forEach(
+        word => keywords.add(word)
+    );
+
+    normalizeTags(
+        knowledgeItem.tags
+    ).forEach(
+        tag =>
+            keywords.add(
+                tag.toLowerCase()
+            )
+    );
+
+    const taxonomy =
+
+        knowledgeItem.taxonomy || {};
+
+    Object.keys(taxonomy)
+
+    .filter(
+        key =>
+            taxonomy[key] === true
+    )
+
+    .forEach(
+        key =>
+            keywords.add(
+                key.toLowerCase()
+            )
+    );
+
+    return globalIndex
+
+        .filter(
+            file =>
+                file.source ===
+                "file"
+        )
+
+        .map(file => {
+
+            const text = (
+
+                file.searchText ||
+
+                file.content ||
+
+                file.title ||
+
+                ""
+
+            ).toLowerCase();
+
+            let score = 0;
+
+            keywords.forEach(
+                keyword => {
+
+                    if(
+                        text.includes(
+                            keyword
+                        )
+                    ){
+                        score++;
+                    }
+
+                }
+            );
+
+            return {
+                file,
+                score
+            };
+
+        })
+
+        .filter(
+            result =>
+                result.score >= 2
+        )
+
+        .sort(
+            (a,b) =>
+                b.score - a.score
+        )
+
+        .slice(0,15)
+
+        .map(
+            result =>
+                result.file
+        );
+
+}
+
+function findRelatedWebsitesForKnowledgeItem(
+    knowledgeItem
+){
+
+    const keywords = new Set();
+
+    const titleWords =
+
+        (knowledgeItem.title || "")
+
+        .toLowerCase()
+
+        .split(/\s+/)
+
+        .filter(
+            word => word.length > 3
+        );
+
+    titleWords.forEach(
+        word => keywords.add(word)
+    );
+
+    normalizeTags(
+        knowledgeItem.tags
+    ).forEach(
+        tag =>
+            keywords.add(
+                tag.toLowerCase()
+            )
+    );
+
+    const taxonomy =
+
+        knowledgeItem.taxonomy || {};
+
+    Object.keys(taxonomy)
+
+    .filter(
+        key =>
+            taxonomy[key] === true
+    )
+
+    .forEach(
+        key =>
+            keywords.add(
+                key.toLowerCase()
+            )
+    );
+
+    return globalIndex
+
+        .filter(
+            site =>
+                site.source ===
+                "website"
+        )
+
+        .map(site => {
+
+            const text = (
+
+                site.searchText ||
+
+                site.content ||
+
+                site.description ||
+
+                site.title ||
+
+                ""
+
+            ).toLowerCase();
+
+            let score = 0;
+
+            keywords.forEach(
+                keyword => {
+
+                    if(
+                        text.includes(
+                            keyword
+                        )
+                    ){
+                        score++;
+                    }
+
+                }
+            );
+
+            return {
+                site,
+                score
+            };
+
+        })
+
+        .filter(
+            result =>
+                result.score >= 2
+        )
+
+        .sort(
+            (a,b) =>
+                b.score - a.score
+        )
+
+        .slice(0,15)
+
+        .map(
+    result => {
+
+        result.site.matchScore =
+            result.score;
+
+        return result.site;
+
+    }
+);
+
+}
 
 function getTaxonomyCategoryByName(
     categoryName

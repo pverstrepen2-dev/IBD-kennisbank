@@ -13245,7 +13245,61 @@ ${item.title || "-"}
 
 <br><br>
 
+<div
+style="
+display:flex;
+flex-wrap:wrap;
+gap:6px;
+margin-bottom:10px;
+"
+>
+
+${Object.keys(
+    item.taxonomy || {}
+)
+
+.filter(
+    key =>
+        item.taxonomy[key] === true
+)
+
+.map(
+    field => `
+    <span
+    style="
+    background:#eef4ff;
+    color:#2563eb;
+    padding:4px 8px;
+    border-radius:12px;
+    font-size:11px;
+    font-weight:600;
+    "
+    >
+    ${field}
+    </span>
+`
+)
+
+.join("")}
+
+</div>
+
+
+<br><br>
+
 ${item.description || ""}
+
+<br><br>
+
+📂 Hoofdcategorie:
+
+${item.taxonomy?.mainCategory || "-"}
+
+<br>
+
+📁 Subcategorie:
+
+${item.taxonomy?.subCategory || "-"}
 
 <br><br>
 
@@ -14415,6 +14469,17 @@ renderKnowledgeMapLauncher()
 
 </button>
 
+<button
+class="action-btn"
+onclick="
+renderTaxonomyDashboard()
+"
+>
+
+🏷 Taxonomie Dashboard
+
+</button>
+
 </div>
 
 <br>
@@ -15109,6 +15174,161 @@ renderKnowledgeOverview()
 async function loadFullKnowledgeMap(){
 
     await renderKnowledgeMap();
+
+}
+
+function renderTaxonomyDashboard(){
+
+    const stats = {};
+    const categoryStats = {};
+
+    globalIndex
+
+    .filter(
+        item =>
+            item.source === "knowledge"
+    )
+
+    .forEach(item => {
+
+        const category =
+
+            item.taxonomy?.mainCategory
+
+            || "Overig";
+
+        categoryStats[category] =
+
+            (categoryStats[category] || 0)
+
+            + 1;
+
+        Object.keys(
+            item.taxonomy || {}
+        )
+
+        .forEach(field => {
+
+            if(
+                item.taxonomy[field] === true
+            ){
+
+                stats[field] =
+                    (stats[field] || 0) + 1;
+
+            }
+
+        });
+
+    });
+
+    const ranking =
+
+        Object.entries(stats)
+
+        .sort(
+            (a,b) =>
+                b[1] - a[1]
+        );
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+
+🧠 Taxonomie Dashboard
+
+</div>
+
+<button
+class="action-btn"
+onclick="
+renderKnowledgeOverview()
+"
+>
+
+⬅ Terug
+
+</button>
+
+<br><br>
+
+<div class="card">
+
+<h2>
+
+📊 Hoofdcategorieën
+
+</h2>
+
+<br>
+
+${Object.entries(categoryStats)
+
+.sort(
+    (a,b) => b[1] - a[1]
+)
+
+.map(
+    row => `
+
+<div
+style="
+padding:10px;
+border-bottom:1px solid #eee;
+"
+>
+
+<b>${row[0]}</b>
+
+<br>
+
+${row[1]} documenten
+
+</div>
+
+`
+)
+
+.join("")}
+
+</div>
+
+<br>
+
+<div
+style="
+display:grid;
+grid-template-columns:
+repeat(auto-fit,minmax(250px,1fr));
+gap:15px;
+"
+>
+
+${ranking.map(
+item => `
+
+<div class="card">
+
+<h3>
+
+🏷 ${item[0]}
+
+</h3>
+
+<br>
+
+${item[1]} documenten
+
+</div>
+
+`
+).join("")}
+
+</div>
+
+`;
 
 }
 
@@ -16132,7 +16352,85 @@ ${normalizeTags(
 ).join(", ") || "-"}
 
 </p>
+<p>
 
+<b>🧠 AI Taxonomie</b>
+
+<br><br>
+
+${
+Object.keys(
+    item.taxonomy || {}
+)
+
+.filter(
+    key =>
+        item.taxonomy[key] === true
+)
+
+.join(", ")
+
+|| "-"
+
+}
+
+</p>
+
+<p>
+
+<b>📂 Hoofdcategorie</b>
+
+<br>
+
+${item.taxonomy?.mainCategory || "-"}
+
+</p>
+
+<p>
+
+<b>📁 Subcategorie</b>
+
+<br>
+
+${item.taxonomy?.subCategory || "-"}
+
+</p>
+
+<p>
+
+<b>🎯 Doelgroepen</b>
+
+<br>
+
+${
+Array.isArray(
+    item.taxonomy?.audience
+)
+?
+item.taxonomy.audience.join(", ")
+:
+"-"
+}
+
+</p>
+
+<p>
+
+<b>🤖 AI Tags</b>
+
+<br>
+
+${
+Array.isArray(
+    item.taxonomy?.aiTags
+)
+?
+item.taxonomy.aiTags.join(", ")
+:
+"-"
+}
+
+</p>
 <p>
 
 <b>Semantische score</b>

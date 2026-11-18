@@ -17971,27 +17971,23 @@ function detectAITags(
 function normalizeTags(tags){
 
     if(!tags){
-
         return [];
-
     }
 
     if(Array.isArray(tags)){
-
         return tags
-        .map(x=>x.toLowerCase().trim())
-        .filter(Boolean);
-
+            .map(t => String(t).trim().toLowerCase())
+            .filter(Boolean);
     }
 
-    return String(tags)
+    if(typeof tags === "string"){
+        return tags
+            .split(",")
+            .map(t => t.trim().toLowerCase())
+            .filter(Boolean);
+    }
 
-        .split(",")
-
-        .map(x=>x.toLowerCase().trim())
-
-        .filter(Boolean);
-
+    return [];
 }
 
 function globalSearch(term){

@@ -4470,12 +4470,18 @@ function renderQuickCaptureFormForAssociation(
                 const file =
                     event.target.files?.[0];
 
-                document.getElementById(
-                    "captureAttachmentInfo"
-                ).innerHTML =
-                    file
-                        ? `📎 ${file.name}`
-                        : "Geen bijlage geselecteerd";
+                const info =
+    document.getElementById(
+        "captureAttachmentInfo"
+    );
+
+if(info)
+{
+    info.innerHTML =
+        file
+            ? `📎 ${file.name}`
+            : "Geen bijlage geselecteerd";
+}
             }
         );
     }

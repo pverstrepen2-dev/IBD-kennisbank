@@ -3378,114 +3378,184 @@ async function renderAssociationCaptures(
 
     const captures =
         (
-            db.quickCaptures
-            || []
+            db.quickCaptures || []
         )
-        .filter(item=>
-
-            (
-                item.organization
-                || ""
-            )
-            .toLowerCase()
-            ===
-            associationName.toLowerCase()
-
+        .filter(
+            item =>
+                (
+                    item.organization ||
+                    ""
+                ).toLowerCase()
+                ===
+                associationName.toLowerCase()
+        )
+        .sort(
+            (a,b) =>
+                new Date(
+                    b.publicationDate ||
+                    b.createdDate ||
+                    0
+                )
+                -
+                new Date(
+                    a.publicationDate ||
+                    a.createdDate ||
+                    0
+                )
         );
+
+    const captureCount =
+        captures.length;
 
     document.getElementById(
         "ccvContent"
     ).innerHTML = `
 
-    <div class="page-title">
-
-        📌 ${associationName}
-
-    </div>
-
-    <button
-    class="action-btn"
-    onclick="
-    renderQuickCaptureFormForAssociation(
-        '${associationName}'
-    )
-    ">
-
-    ➕ Nieuwe captatie
-
-    </button>
-
-    <button
-    class="action-btn"
-    onclick="
-    renderAssociationPortals()
-    "
-    style="
-    margin-left:10px;
-    ">
-
-    ⬅ Terug
-
-    </button>
-
-    <br><br>
-
-    ${captures.length === 0
-
-        ?
-
-        `
-
-        <div class="card">
-
-        Nog geen captaties gevonden.
-
+        <div class="page-title">
+            📌 ${associationName}
         </div>
 
-        `
-
-        :
-
-        captures.map(item=>`
-
-        <div
-        class="card"
-        style="
-        margin-bottom:15px;
-        cursor:pointer;
-        "
-        onclick="
-        viewCapture(
-            '${item.id}'
-        )
+        <div class="card" style="
+            margin-bottom:15px;
+            background:#f5f7fa;
         ">
-
-            <h3>
-
-            ${item.title}
-
-            </h3>
-
-            <br>
-
-            📅
-            ${item.publicationDate || "-"}
-
-            <br>
-
-            🏷
-            ${(item.tags || []).join(", ")}
-
-            <br>
-
-            🌍
-            ${item.organization}
-
+            <strong>
+                ${captureCount}
+            </strong>
+            captatie${
+                captureCount === 1
+                    ? ""
+                    : "s"
+            }
         </div>
 
-        `).join("")
+        <button
+            class="action-btn"
+            onclick="
+                renderQuickCaptureFormForAssociation(
+                    '${associationName}'
+                )
+            "
+        >
+            ➕ Nieuwe captatie
+        </button>
 
-    }
+        <button
+            class="action-btn"
+            onclick="
+                renderAssociationPortals()
+            "
+            style="
+                margin-left:10px;
+            "
+        >
+            ⬅ Terug
+        </button>
+
+        <br><br>
+
+        ${
+            captureCount === 0
+            ?
+            `
+            <div class="card">
+                Nog geen captaties gevonden.
+            </div>
+            `
+            :
+            captures.map(
+                item => `
+
+                <div
+                    class="card"
+                    style="
+                        margin-bottom:15px;
+                    "
+                >
+
+                    <div
+                        style="
+                            cursor:pointer;
+                        "
+                        onclick="
+                            viewCapture(
+                                '${item.id}'
+                            )
+                        "
+                    >
+
+                        <h3>
+                            ${item.title || ""}
+                        </h3>
+
+                        <br>
+
+                        📅
+                        ${
+                            item.publicationDate
+                            || "-"
+                        }
+
+                        <br>
+
+                        🏷
+                        ${
+                            (
+                                item.tags || []
+                            ).join(", ")
+                        }
+
+                        <br>
+
+                        🌍
+                        ${
+                            item.organization
+                            || ""
+                        }
+
+                    </div>
+
+                    ${
+                        item.attachmentContent
+                        ?
+                        `
+                        <hr>
+
+                        <div style="
+                            margin-top:10px;
+                        ">
+
+                            📎
+                            ${
+                                item.attachmentName
+                                || "Bijlage"
+                            }
+
+                            <br><br>
+
+                            <button
+                                class="action-btn"
+                                onclick="
+                                    event.stopPropagation();
+                                    openCaptureAttachment(
+                                        '${item.id}'
+                                    );
+                                "
+                            >
+                                📥 Download
+                            </button>
+
+                        </div>
+                        `
+                        :
+                        ""
+                    }
+
+                </div>
+
+                `
+            ).join("")
+        }
 
     `;
 }
@@ -3547,371 +3617,380 @@ function renderQuickCaptureFormForAssociation(
     associationName
 )
 {
+    const captureCount =
+        globalIndex.filter(
+            x =>
+                x.source === "capture" &&
+                x.organisation === associationName
+        ).length;
 
     console.log(
-    "Items aantal:",
-    items.length
-);
+        "Aantal captaties:",
+        captureCount
+    );
 
-console.log(
-    "Eerste item:",
-    items[0]
-);
-
-document.getElementById(
-    "ccvContent"
-).innerHTML = `
-
-<div class="page-title">
-
-➕ Nieuwe Captatie
-
-</div>
-
-<div class="card">
-
-<label>
-
-Titel
-
-</label>
-
-<input
-id="captureTitle"
-style="
-width:100%;
-padding:10px;
-margin-bottom:10px;
-">
-
-<label>
-
-Beschrijving
-
-</label>
-
-<textarea
-id="captureDescription"
-style="
-width:100%;
-height:180px;
-margin-bottom:10px;
-">
-</textarea>
-
-<label>
-
-URL
-
-</label>
-
-<input
-id="captureUrl"
-placeholder="https://..."
-style="
-width:100%;
-padding:10px;
-margin-bottom:10px;
-">
-
-<label>
-
-Publicatiedatum
-
-</label>
-
-<input
-type="date"
-id="capturePublicationDate"
-style="
-width:100%;
-padding:10px;
-margin-bottom:10px;
-">
-
-<label>
-
-Tags
-
-</label>
-
-<input
-id="captureTags"
-placeholder="crohn,ecco,onderzoek"
-style="
-width:100%;
-padding:10px;
-margin-bottom:10px;
-">
-
-<label>
-
-📎 Bijlage
-
-</label>
-
-<input
-type="file"
-id="captureAttachment"
-accept="
-.pdf,
-.doc,
-.docx,
-.xlsx,
-.xls,
-.ppt,
-.pptx
-"
-style="
-width:100%;
-padding:10px;
-margin-bottom:10px;
-">
-
-<div
-id="captureAttachmentInfo"
-style="
-font-size:12px;
-color:#666;
-margin-bottom:15px;
-"
->
-
-Geen bijlage geselecteerd
-
-</div>
-
-<input
-type="hidden"
-id="captureOrganisation"
-value="${associationName}">
-
-<br><br>
-
-<button
-class="action-btn"
-onclick="
-saveQuickCapture()
-">
-
-💾 Opslaan
-
-</button>
-
-<button
-class="action-btn"
-onclick="
-renderAssociationCaptures(
-'${associationName}'
-)
-">
-
-⬅ Terug
-
-</button>
-
-</div>
-
-`;
-
-const fileInput =
     document.getElementById(
-        "captureAttachment"
-    );
+        "ccvContent"
+    ).innerHTML = `
 
-if(fileInput)
-{
-    fileInput.addEventListener(
-        "change",
-        event =>
-        {
-            const file =
-                event.target.files?.[0];
+        <div class="page-title">
+            ➕ Nieuwe Captatie
+        </div>
 
-            document.getElementById(
-                "captureAttachmentInfo"
-            ).innerHTML =
+        <div class="card" style="
+            margin-bottom:20px;
+            background:#f5f7fa;
+            border-left:4px solid #d81b60;
+        ">
+            <div style="
+                font-size:18px;
+                font-weight:600;
+                margin-bottom:5px;
+            ">
+                📌 ${associationName}
+            </div>
 
-                file
+            <div style="
+                font-size:14px;
+                color:#666;
+            ">
+                Aantal captaties: <strong>${captureCount}</strong>
+            </div>
+        </div>
 
-                ?
+        <div class="card">
 
-                `📎 ${file.name}`
+            <label>Titel</label>
 
-                :
+            <input
+                id="captureTitle"
+                style="
+                    width:100%;
+                    padding:10px;
+                    margin-bottom:10px;
+                "
+            >
 
-                "Geen bijlage geselecteerd";
-        }
-    );
-}
+            <label>Beschrijving</label>
 
-}
+            <textarea
+                id="captureDescription"
+                style="
+                    width:100%;
+                    height:180px;
+                    margin-bottom:10px;
+                "
+            ></textarea>
 
-async function saveQuickCapture()
-{
-    const db =
-        await DatabaseService.load();
+            <label>URL</label>
 
-    if(!db.quickCaptures)
-    {
-        db.quickCaptures = [];
-    }
+            <input
+                id="captureUrl"
+                placeholder="https://..."
+                style="
+                    width:100%;
+                    padding:10px;
+                    margin-bottom:10px;
+                "
+            >
 
-    const organisationField =
-        document.getElementById(
-            "captureOrganisation"
-        );
+            <label>Publicatiedatum</label>
 
-    const tags =
-        (
-            document.getElementById(
-                "captureTags"
-            )?.value || ""
-        )
-        .split(",")
-        .map(x => x.trim())
-        .filter(Boolean);
+            <input
+                type="date"
+                id="capturePublicationDate"
+                style="
+                    width:100%;
+                    padding:10px;
+                    margin-bottom:10px;
+                "
+            >
+
+            <label>Tags</label>
+
+            <input
+                id="captureTags"
+                placeholder="crohn,ecco,onderzoek"
+                style="
+                    width:100%;
+                    padding:10px;
+                    margin-bottom:10px;
+                "
+            >
+
+            <label>📎 Bijlage</label>
+
+            <input
+                type="file"
+                id="captureAttachment"
+                accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
+                style="
+                    width:100%;
+                    padding:10px;
+                    margin-bottom:10px;
+                "
+            >
+
+            <div
+                id="captureAttachmentInfo"
+                style="
+                    font-size:12px;
+                    color:#666;
+                    margin-bottom:15px;
+                "
+            >
+                Geen bijlage geselecteerd
+            </div>
+
+            <input
+                type="hidden"
+                id="captureOrganisation"
+                value="${associationName}"
+            >
+
+            <br>
+
+            <button
+                class="action-btn"
+                onclick="saveQuickCapture()"
+            >
+                💾 Opslaan
+            </button>
+
+            <button
+                class="action-btn"
+                onclick="renderAssociationCaptures('${associationName}')"
+            >
+                ⬅ Terug
+            </button>
+
+        </div>
+    `;
 
     const fileInput =
         document.getElementById(
             "captureAttachment"
         );
 
-    const selectedFile =
-        fileInput?.files?.[0] || null;
-
-    const capture = {
-
-        id:
-            Date.now(),
-
-        title:
-            document.getElementById(
-                "captureTitle"
-            )?.value || "",
-
-        description:
-            document.getElementById(
-                "captureDescription"
-            )?.value || "",
-
-        organization:
-            organisationField
-                ? organisationField.value
-                : "Algemeen",
-
-        url:
-            document.getElementById(
-                "captureUrl"
-            )?.value || "",
-
-        publicationDate:
-            document.getElementById(
-                "capturePublicationDate"
-            )?.value || "",
-
-        captureDate:
-            new Date()
-            .toISOString(),
-
-        tags,
-
-        recommended:
-            document.getElementById(
-                "captureRecommended"
-            )?.checked || false,
-
-        validated:
-            document.getElementById(
-                "captureValidated"
-            )?.checked || false,
-
-        attachmentName :
-
-            selectedFile
-            ?
-            selectedFile.name
-            :
-            "",
-
-        attachmentSize :
-
-            selectedFile
-            ?
-            selectedFile.size
-            :
-            0,
-
-        attachmentType :
-
-            selectedFile
-            ?
-            selectedFile.type
-            :
-            "",
-
-        linkedDocuments : [],
-
-        linkedWebsites : [],
-
-        linkedCaptures : [],
-
-        linkedEmails : [],
-
-        type:
-            "capture"
-
-    };
-
-    const relatedDocuments =
-        findRelatedDocuments(
-            tags
-        );
-
-    capture.linkedDocuments =
-
-        relatedDocuments.map(
-            item => ({
-
-                id :
-                    item.id,
-
-                source :
-                    item.source,
-
-                title :
-                    item.title
-
-            })
-        );
-
-    db.quickCaptures.unshift(
-        capture
-    );
-
-    await DatabaseService.save();
-
-    searchInitialized = false;
-
-    await buildSearchIndex();
-
-    alert(
-        `✅ Captatie opgeslagen
-
-🔗 ${capture.linkedDocuments.length}
-gerelateerde bronnen gevonden`
-    );
-
-    if(capture.organization)
+    if(fileInput)
     {
-        renderAssociationCaptures(
-            capture.organization
+        fileInput.addEventListener(
+            "change",
+            event =>
+            {
+                const file =
+                    event.target.files?.[0];
+
+                document.getElementById(
+                    "captureAttachmentInfo"
+                ).innerHTML =
+                    file
+                        ? `📎 ${file.name}`
+                        : "Geen bijlage geselecteerd";
+            }
+        );
+    }
+}
+
+function saveQuickCapture()
+{
+    const title =
+        document.getElementById(
+            "captureTitle"
+        ).value.trim();
+
+    const description =
+        document.getElementById(
+            "captureDescription"
+        ).value.trim();
+
+    const url =
+        document.getElementById(
+            "captureUrl"
+        ).value.trim();
+
+    const publicationDate =
+        document.getElementById(
+            "capturePublicationDate"
+        ).value;
+
+    const tags =
+        document.getElementById(
+            "captureTags"
+        ).value
+        .split(",")
+        .map(tag => tag.trim())
+        .filter(Boolean);
+
+    const organisation =
+        document.getElementById(
+            "captureOrganisation"
+        ).value;
+
+    const file =
+        document.getElementById(
+            "captureAttachment"
+        ).files?.[0];
+
+    if(!title)
+    {
+        alert("Geef een titel op.");
+        return;
+    }
+
+    if(file)
+    {
+        const reader =
+            new FileReader();
+
+        reader.onload =
+            function(event)
+            {
+                saveCaptureData(
+                    {
+                        title,
+                        description,
+                        url,
+                        publicationDate,
+                        tags,
+                        organisation,
+                        file
+                    },
+                    event.target.result
+                );
+            };
+
+        reader.readAsDataURL(
+            file
         );
     }
     else
     {
-        renderQuickCaptureVault();
+        saveCaptureData(
+            {
+                title,
+                description,
+                url,
+                publicationDate,
+                tags,
+                organisation,
+                file: null
+            },
+            null
+        );
     }
+}
+
+function saveCaptureData(
+    data,
+    fileContent
+)
+{
+    const captureItem =
+    {
+        source: "capture",
+
+        id: Date.now(),
+
+        title: data.title,
+
+        description:
+            data.description,
+
+        url: data.url,
+
+        publicationDate:
+            data.publicationDate,
+
+        organisation:
+            data.organisation,
+
+        tags: data.tags,
+
+        createdDate:
+            new Date().toISOString(),
+
+        attachmentName:
+            data.file?.name || "",
+
+        attachmentSize:
+            data.file?.size || 0,
+
+        attachmentType:
+            data.file?.type || "",
+
+        attachmentContent:
+            fileContent || ""
+    };
+
+    globalIndex.push(
+        captureItem
+    );
+
+    saveGlobalIndex();
+
+    renderAssociationCaptures(
+        data.organisation
+    );
+}
+
+function openCaptureAttachment(
+    captureId
+)
+{
+    DatabaseService.load()
+        .then(
+            db =>
+            {
+                const capture =
+                    (
+                        db.quickCaptures
+                        || []
+                    ).find(
+                        x =>
+                            String(
+                                x.id
+                            )
+                            ===
+                            String(
+                                captureId
+                            )
+                    );
+
+                if(
+                    !capture ||
+                    !capture.attachmentContent
+                )
+                {
+                    alert(
+                        "Geen bijlage gevonden."
+                    );
+                    return;
+                }
+
+                const link =
+                    document.createElement(
+                        "a"
+                    );
+
+                link.href =
+                    capture.attachmentContent;
+
+                link.download =
+                    capture.attachmentName
+                    || "bijlage";
+
+                document.body.appendChild(
+                    link
+                );
+
+                link.click();
+
+                document.body.removeChild(
+                    link
+                );
+            }
+        );
 }
 
 async function renderAssociationDocuments(

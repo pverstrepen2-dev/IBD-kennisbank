@@ -3478,10 +3478,10 @@ async function renderAssociationCaptures(
                             cursor:pointer;
                         "
                         onclick="
-    previewCaptureAttachment(
-        '${item.id}'
-    )
-"
+                            previewCaptureAttachment(
+                                '${item.id}'
+                            )
+                        "
                     >
 
                         <h3>
@@ -3516,55 +3516,67 @@ async function renderAssociationCaptures(
                     </div>
 
                     ${
-    item.attachmentContent
-    ?
-    `
-    <hr>
+                        item.attachmentContent
+                        ?
+                        `
+                        <hr>
 
-    <div style="
-        margin-top:10px;
-    ">
+                        <div
+                            style="
+                                margin-top:10px;
+                            "
+                        >
 
-        📎
-        ${
-            item.attachmentName
-            || "Bijlage"
-        }
+                            📎
+                            ${
+                                item.attachmentName
+                                || "Bijlage"
+                            }
 
-        <br><br>
+                            <br><br>
 
-        <button
-            class="action-btn"
-            onclick="
-                event.stopPropagation();
-                previewCaptureAttachment(
-                    '${item.id}'
-                );
-            "
-        >
-            👁 Open
-        </button>
+                            <button
+                                type="button"
+                                class="action-btn"
+                                onclick="
+                                    event.preventDefault();
+                                    event.stopPropagation();
 
-        <button
-            class="action-btn"
-            onclick="
-                event.stopPropagation();
-                openCaptureAttachment(
-                    '${item.id}'
-                );
-            "
-            style="
-                margin-left:8px;
-            "
-        >
-            📥 Download
-        </button>
+                                    previewCaptureAttachment(
+                                        '${item.id}'
+                                    );
 
-    </div>
-    `
-    :
-    ""
-}
+                                    return false;
+                                "
+                            >
+                                👁 Open
+                            </button>
+
+                            <button
+                                type="button"
+                                class="action-btn"
+                                onclick="
+                                    event.preventDefault();
+                                    event.stopPropagation();
+
+                                    openCaptureAttachment(
+                                        '${item.id}'
+                                    );
+
+                                    return false;
+                                "
+                                style="
+                                    margin-left:8px;
+                                "
+                            >
+                                📥 Download
+                            </button>
+
+                        </div>
+                        `
+                        :
+                        ""
+                    }
 
                 </div>
 
@@ -3972,76 +3984,91 @@ console.log(
     }
 }
 
-function openCaptureAttachment(
+async function openCaptureAttachment(
     captureId
 )
 {
-    DatabaseService.load()
-        .then(
-            db =>
-            {
-                const capture =
-                    (
-                        db.quickCaptures
-                        || []
-                    ).find(
-                        x =>
-                            String(x.id)
-                            ===
-                            String(captureId)
-                    );
+    const db =
+        await DatabaseService.load();
 
-                if(
-                    !capture ||
-                    !capture.attachmentContent
-                )
-                {
-                    alert(
-                        "Geen bijlage gevonden."
-                    );
-                    return;
-                }
-
-                const isPdf =
-                    capture.attachmentType
-                    &&
-                    capture.attachmentType.includes(
-                        "pdf"
-                    );
-
-                if(isPdf)
-                {
-                    window.open(
-                        capture.attachmentContent,
-                        "_blank"
-                    );
-                }
-                else
-                {
-                    const link =
-                        document.createElement(
-                            "a"
-                        );
-
-                    link.href =
-                        capture.attachmentContent;
-
-                    link.download =
-                        capture.attachmentName
-                        || "bijlage";
-
-                    document.body.appendChild(
-                        link
-                    );
-
-                    link.click();
-
-                    document.body.removeChild(
-                        link
-                    );
-                }
-            }
+    const capture =
+        (
+            db.quickCaptures || []
+        ).find(
+            x =>
+                String(x.id)
+                ===
+                String(captureId)
         );
+
+    if(
+        !capture ||
+        !capture.attachmentContent
+    )
+    {
+        alert(
+            "Geen bijlage gevonden."
+        );
+        return;
+    }
+
+    try
+    {
+        const response =
+            await fetch(
+                capture.attachmentContent
+            );
+
+        const blob =
+            await response.blob();
+
+        const blobUrl =
+            URL.createObjectURL(
+                blob
+            );
+
+        const link =
+            document.createElement(
+                "a"
+            );
+
+        link.href =
+            blobUrl;
+
+        link.download =
+            capture.attachmentName
+            || "document.pdf";
+
+        document.body.appendChild(
+            link
+        );
+
+        link.click();
+
+        document.body.removeChild(
+            link
+        );
+
+        setTimeout(
+            () =>
+            {
+                URL.revokeObjectURL(
+                    blobUrl
+                );
+            },
+            3000
+        );
+    }
+    catch(error)
+    {
+        console.error(
+            error
+        );
+
+        alert(
+            "Download mislukt."
+        );
+    }
 }
 
 async function previewCaptureAttachment(
@@ -4134,7 +4161,9 @@ async function previewCaptureAttachment(
     }
     catch(error)
     {
-        console.error(error);
+        console.error(
+            error
+        );
 
         alert(
             "Kan PDF niet openen."

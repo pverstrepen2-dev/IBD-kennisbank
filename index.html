@@ -4848,10 +4848,11 @@ async function previewCaptureAttachment(
         );
 
     renderPDFViewer(
-        blobUrl,
-        capture.title,
-        capture.organization
-    );
+    blobUrl,
+    capture.title,
+    `renderAssociationCaptures('${capture.organization}')`
+);
+
 }
 catch(error)
 {
@@ -4866,7 +4867,7 @@ catch(error)
 async function renderPDFViewer(
     pdfUrl,
     title,
-    backFunction
+    organisation
 )
 {
     document.getElementById(
@@ -4879,7 +4880,11 @@ async function renderPDFViewer(
 
         <button
             class="action-btn"
-            onclick="${backFunction}"
+            onclick="
+                renderAssociationCaptures(
+                    '${organisation}'
+                )
+            "
         >
             ⬅ Terug
         </button>
@@ -4898,7 +4903,7 @@ async function renderPDFViewer(
             <div
                 id="pdfThumbnails"
                 style="
-                    width:200px;
+                    width:220px;
                     overflow-y:auto;
                     border-right:1px solid #ddd;
                     padding:10px;
@@ -4924,9 +4929,9 @@ async function renderPDFViewer(
     `;
 
     const pdf =
-        await pdfjsLib.getDocument(
-            pdfUrl
-        ).promise;
+        await pdfjsLib
+            .getDocument(pdfUrl)
+            .promise;
 
     const canvas =
         document.getElementById(
@@ -4937,35 +4942,33 @@ async function renderPDFViewer(
         canvas.getContext(
             "2d"
         );
-      
+
     async function renderPage(
-    pageNumber
-)
-{
+        pageNumber
+    )
+    {
+        window.currentPdfPage =
+            pageNumber;
 
-window.currentPdfPage =
-    pageNumber;
+        document
+            .querySelectorAll(
+                "#pdfThumbnails div[data-page]"
+            )
+            .forEach(
+                div =>
+                {
+                    div.style.background =
+                        "transparent";
 
+                    div.style.border =
+                        "2px solid transparent";
+                }
+            );
 
-    document
-        .querySelectorAll(
-            "#pdfThumbnails div[data-page]"
-        )
-        .forEach(
-            div =>
-            {
-                div.style.background =
-                    "transparent";
-
-                div.style.border =
-    "2px solid transparent";
-            }
-        );
-
-    const page =
-        await pdf.getPage(
-            pageNumber
-        );
+        const page =
+            await pdf.getPage(
+                pageNumber
+            );
 
         const viewport =
             page.getViewport({
@@ -4987,119 +4990,122 @@ window.currentPdfPage =
         }).promise;
 
         const activeThumb =
-    document.querySelector(
-        `#pdfThumbnails div[data-page="${pageNumber}"]`
-    );
+            document.querySelector(
+                `#pdfThumbnails div[data-page="${pageNumber}"]`
+            );
 
-if(activeThumb)
-{
-    activeThumb.style.background =
-        "#dbeafe";
+        if(activeThumb)
+        {
+            activeThumb.style.background =
+                "#dbeafe";
 
-    activeThumb.style.border =
-        "2px solid #2563eb";
-}
+            activeThumb.style.border =
+                "2px solid #2563eb";
+        }
     }
-    
+
     const thumbs =
         document.getElementById(
             "pdfThumbnails"
         );
 
     for(
-    let i = 1;
-    i <= pdf.numPages;
-    i++
-)
-{
-    const thumbContainer =
-        document.createElement(
-            "div"
+        let i = 1;
+        i <= pdf.numPages;
+        i++
+    )
+    {
+        const thumbContainer =
+            document.createElement(
+                "div"
+            );
+
+        thumbContainer.dataset.page =
+            i;
+
+        thumbContainer.style.marginBottom =
+            "10px";
+
+        thumbContainer.style.padding =
+            "6px";
+
+        thumbContainer.style.borderRadius =
+            "8px";
+
+        thumbContainer.style.cursor =
+            "pointer";
+
+        thumbContainer.style.textAlign =
+            "center";
+
+        const thumbCanvas =
+            document.createElement(
+                "canvas"
+            );
+
+        thumbCanvas.style.width =
+            "140px";
+
+        thumbCanvas.style.border =
+            "1px solid #ccc";
+
+        thumbCanvas.style.background =
+            "white";
+
+        thumbContainer.appendChild(
+            thumbCanvas
         );
 
-    thumbContainer.dataset.page =
-        i;
+        const pageLabel =
+            document.createElement(
+                "div"
+            );
 
-    thumbContainer.style.marginBottom =
-        "10px";
+        pageLabel.innerHTML =
+            "Pagina " + i;
 
-    thumbContainer.style.padding =
-        "6px";
+        pageLabel.style.marginTop =
+            "4px";
 
-    thumbContainer.style.borderRadius =
-        "8px";
-
-    thumbContainer.style.cursor =
-        "pointer";
-
-    thumbContainer.style.textAlign =
-        "center";
-
-    const thumbCanvas =
-        document.createElement(
-            "canvas"
+        thumbContainer.appendChild(
+            pageLabel
         );
 
-    thumbCanvas.style.width =
-        "140px";
-
-    thumbCanvas.style.border =
-        "1px solid #ccc";
-
-    thumbCanvas.style.background =
-        "white";
-
-    thumbContainer.appendChild(
-        thumbCanvas
-    );
-
-    const pageLabel =
-        document.createElement(
-            "div"
+        thumbs.appendChild(
+            thumbContainer
         );
 
-    pageLabel.innerHTML =
-        i;
+        const thumbPage =
+            await pdf.getPage(i);
 
-    pageLabel.style.marginTop =
-        "4px";
+        const thumbViewport =
+            thumbPage.getViewport({
+                scale:0.25
+            });
 
-    thumbContainer.appendChild(
-        pageLabel
-    );
+        thumbCanvas.width =
+            thumbViewport.width;
 
-    thumbs.appendChild(
-        thumbContainer
-    );
+        thumbCanvas.height =
+            thumbViewport.height;
 
-    const thumbPage =
-        await pdf.getPage(i);
+        await thumbPage.render({
+            canvasContext:
+                thumbCanvas.getContext(
+                    "2d"
+                ),
 
-    const thumbViewport =
-        thumbPage.getViewport({
-            scale:0.25
-        });
+            viewport:
+                thumbViewport
 
-    thumbCanvas.width =
-        thumbViewport.width;
+        }).promise;
 
-    thumbCanvas.height =
-        thumbViewport.height;
+        thumbContainer.onclick =
+            () =>
+                renderPage(i);
+    }
 
-    await thumbPage.render({
-        canvasContext:
-            thumbCanvas.getContext(
-                "2d"
-            ),
-        viewport:
-            thumbViewport
-    }).promise;
-
-    thumbContainer.onclick =
-        () =>
-            renderPage(i);
-}
-await renderPage(1);
+    await renderPage(1);
 }
 
 async function renderAssociationDocuments(

@@ -3607,41 +3607,78 @@ return {
 };
 }
 
+function getCaptureCategoryStats(
+    captures
+)
+{
+    const stats = {};
+
+    captures.forEach(
+        capture =>
+        {
+            const category =
+                capture.aiCategory ||
+                "Algemeen";
+
+            stats[category] =
+                (
+                    stats[category] || 0
+                ) + 1;
+        }
+    );
+
+    return stats;
+}
+
 async function renderAssociationCaptures(
-    associationName
+    associationName,
+    selectedCategory = null
 )
 {
     const db =
         await DatabaseService.load();
 
     const captures =
+(
+    db.quickCaptures || []
+)
+.filter(
+    item =>
         (
-            db.quickCaptures || []
+            item.organization ||
+            ""
+        ).toLowerCase()
+        ===
+        associationName.toLowerCase()
+)
+.sort(
+    (a,b) =>
+        new Date(
+            b.publicationDate ||
+            b.createdDate ||
+            0
         )
-        .filter(
-            item =>
-                (
-                    item.organization ||
-                    ""
-                ).toLowerCase()
-                ===
-                associationName.toLowerCase()
+        -
+        new Date(
+            a.publicationDate ||
+            a.createdDate ||
+            0
         )
-        .sort(
-            (a,b) =>
-                new Date(
-                    b.publicationDate ||
-                    b.createdDate ||
-                    0
-                )
-                -
-                new Date(
-                    a.publicationDate ||
-                    a.createdDate ||
-                    0
-                )
-        );
+);
 
+let filteredCaptures =
+    captures;
+
+if(selectedCategory)
+{
+    filteredCaptures =
+        captures.filter(
+            capture =>
+                capture.aiCategory ===
+                selectedCategory
+        );
+}
+        
     const captureCount =
         captures.length;
 
@@ -3657,6 +3694,48 @@ async function renderAssociationCaptures(
         <div class="page-title">
             📌 ${associationName}
         </div>
+
+        <div
+    class="card"
+    style="
+        margin-bottom:15px;
+        background:#eef5ff;
+    "
+>
+    <h3>
+        📊 AI Categorieën
+    </h3>
+
+    ${
+        Object.entries(
+            categoryStats
+        )
+        .map(
+            ([category,count]) =>
+            `
+            <div
+    style="
+        padding:5px 0;
+        cursor:pointer;
+        color:#2563eb;
+        font-weight:bold;
+    "
+    onclick="
+        filterCapturesByCategory(
+            '${category}',
+            '${associationName}'
+        )
+    "
+>
+                📂 ${category}
+                (${count})
+            </div>
+            `
+        )
+        .join("")
+    }
+
+</div>
 
         <div class="card" style="
             margin-bottom:15px;
@@ -3897,6 +3976,16 @@ function getCaptureCategoryStats(
     return stats;
 }
 
+function filterCapturesByCategory(
+    category,
+    associationName
+)
+{
+    renderAssociationCaptures(
+        associationName,
+        category
+    );
+}
 
 function renderAssociationEmails(
     associationName

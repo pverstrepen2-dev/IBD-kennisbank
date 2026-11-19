@@ -14,11 +14,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.8.69/pdf.min.js"></script>
+
 <script>
 pdfjsLib.GlobalWorkerOptions.workerSrc =
 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.8.69/pdf.worker.min.js';
 </script>
-
 
 <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
 <script>
@@ -4833,36 +4833,34 @@ async function previewCaptureAttachment(
     }
 
     try
-    {
-        const response =
-            await fetch(
-                capture.attachmentContent
-            );
+{
+    const response =
+        await fetch(
+            capture.attachmentContent
+        );
 
-        const blob =
-            await response.blob();
-       
-        const blobUrl =
-    URL.createObjectURL(
-        blob
+    const blob =
+        await response.blob();
+
+    const blobUrl =
+        URL.createObjectURL(
+            blob
+        );
+
+    renderPDFViewer(
+        blobUrl,
+        capture.title,
+        capture.organization
     );
+}
+catch(error)
+{
+    console.error(error);
 
-renderPDFViewer(
-    blobUrl,
-    capture.title,
-    capture.organization
-);
-    }
-    catch(error)
-    {
-        console.error(
-            error
-        );
-
-        alert(
-            "Kan PDF niet openen."
-        );
-    }
+    alert(
+        "Kan PDF niet openen."
+    );
+}
 }
 
 async function renderPDFViewer(
@@ -4940,14 +4938,32 @@ async function renderPDFViewer(
             "2d"
         );
 
+        window.currentPdfPage =
+    pageNumber;
+
     async function renderPage(
-        pageNumber
-    )
-    {
-        const page =
-            await pdf.getPage(
-                pageNumber
-            );
+    pageNumber
+)
+{
+    document
+        .querySelectorAll(
+            "#pdfThumbnails div[data-page]"
+        )
+        .forEach(
+            div =>
+            {
+                div.style.background =
+                    "transparent";
+
+                div.style.border =
+                    "none";
+            }
+        );
+
+    const page =
+        await pdf.getPage(
+            pageNumber
+        );
 
         const viewport =
             page.getViewport({
@@ -4967,6 +4983,20 @@ async function renderPDFViewer(
             viewport:
                 viewport
         }).promise;
+
+        const activeThumb =
+    document.querySelector(
+        `#pdfThumbnails div[data-page="${pageNumber}"]`
+    );
+
+if(activeThumb)
+{
+    activeThumb.style.background =
+        "#dbeafe";
+
+    activeThumb.style.border =
+        "2px solid #2563eb";
+}
     }
 
     await renderPage(1);
@@ -4977,33 +5007,98 @@ async function renderPDFViewer(
         );
 
     for(
-        let i = 1;
-        i <= pdf.numPages;
-        i++
-    )
-    {
-        const button =
-            document.createElement(
-                "button"
-            );
-
-        button.innerHTML =
-            "Pagina " + i;
-
-        button.style.width =
-            "100%";
-
-        button.style.marginBottom =
-            "5px";
-
-        button.onclick =
-            () =>
-                renderPage(i);
-
-        thumbs.appendChild(
-            button
+    let i = 1;
+    i <= pdf.numPages;
+    i++
+)
+{
+    const thumbContainer =
+        document.createElement(
+            "div"
         );
-    }
+
+    thumbContainer.dataset.page =
+        i;
+
+    thumbContainer.style.marginBottom =
+        "10px";
+
+    thumbContainer.style.padding =
+        "6px";
+
+    thumbContainer.style.borderRadius =
+        "8px";
+
+    thumbContainer.style.cursor =
+        "pointer";
+
+    thumbContainer.style.textAlign =
+        "center";
+
+    const thumbCanvas =
+        document.createElement(
+            "canvas"
+        );
+
+    thumbCanvas.style.width =
+        "140px";
+
+    thumbCanvas.style.border =
+        "1px solid #ccc";
+
+    thumbCanvas.style.background =
+        "white";
+
+    thumbContainer.appendChild(
+        thumbCanvas
+    );
+
+    const pageLabel =
+        document.createElement(
+            "div"
+        );
+
+    pageLabel.innerHTML =
+        i;
+
+    pageLabel.style.marginTop =
+        "4px";
+
+    thumbContainer.appendChild(
+        pageLabel
+    );
+
+    thumbs.appendChild(
+        thumbContainer
+    );
+
+    const thumbPage =
+        await pdf.getPage(i);
+
+    const thumbViewport =
+        thumbPage.getViewport({
+            scale:0.25
+        });
+
+    thumbCanvas.width =
+        thumbViewport.width;
+
+    thumbCanvas.height =
+        thumbViewport.height;
+
+    await thumbPage.render({
+        canvasContext:
+            thumbCanvas.getContext(
+                "2d"
+            ),
+        viewport:
+            thumbViewport
+    }).promise;
+
+    thumbContainer.onclick =
+        () =>
+            renderPage(i);
+}
 }
 
 async function renderAssociationDocuments(

@@ -4937,14 +4937,16 @@ async function renderPDFViewer(
         canvas.getContext(
             "2d"
         );
-
-        window.currentPdfPage =
-    pageNumber;
-
+      
     async function renderPage(
     pageNumber
 )
 {
+
+window.currentPdfPage =
+    pageNumber;
+
+
     document
         .querySelectorAll(
             "#pdfThumbnails div[data-page]"
@@ -4956,7 +4958,7 @@ async function renderPDFViewer(
                     "transparent";
 
                 div.style.border =
-                    "none";
+    "2px solid transparent";
             }
         );
 
@@ -4998,9 +5000,7 @@ if(activeThumb)
         "2px solid #2563eb";
 }
     }
-
-    await renderPage(1);
-
+    
     const thumbs =
         document.getElementById(
             "pdfThumbnails"
@@ -5099,6 +5099,7 @@ if(activeThumb)
         () =>
             renderPage(i);
 }
+await renderPage(1);
 }
 
 async function renderAssociationDocuments(

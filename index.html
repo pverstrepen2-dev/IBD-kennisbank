@@ -3472,8 +3472,117 @@ function enrichCaptureWithAI(
         );
     }
 
-    return {
+    let audience = [];
+
+let contentType =
+    "Artikel";
+
+const taxonomy =
+{
+    crohn:false,
+    colitis:false,
+    voeding:false,
+    stress:false,
+    medicatie:false,
+    onderzoek:false,
+    richtlijnen:false
+};
+
+if(
+    text.includes("crohn")
+)
+{
+    taxonomy.crohn = true;
+}
+
+if(
+    text.includes("colitis")
+)
+{
+    taxonomy.colitis = true;
+}
+
+if(
+    text.includes("voeding")
+)
+{
+    taxonomy.voeding = true;
+}
+
+if(
+    text.includes("stress")
+)
+{
+    taxonomy.stress = true;
+}
+
+if(
+    text.includes("medicatie")
+    ||
+    text.includes("biologic")
+    ||
+    text.includes("ustekinumab")
+    ||
+    text.includes("vedolizumab")
+)
+{
+    taxonomy.medicatie = true;
+}
+
+if(
+    text.includes("research")
+    ||
+    text.includes("study")
+    ||
+    text.includes("onderzoek")
+)
+{
+    taxonomy.onderzoek = true;
+
+    contentType =
+        "Research";
+}
+
+if(
+    text.includes("ecco")
+    ||
+    text.includes("guideline")
+)
+{
+    taxonomy.richtlijnen = true;
+
+    contentType =
+        "Richtlijn";
+}
+
+if(
+    text.includes("patient")
+    ||
+    text.includes("patiënt")
+)
+{
+    audience.push(
+        "Patiënten"
+    );
+}
+
+if(
+    text.includes("physician")
+    ||
+    text.includes("gastro")
+    ||
+    text.includes("zorgverlener")
+)
+{
+    audience.push(
+        "Zorgverleners"
+    );
+}
+
+return {
+
     category,
+
     subCategory,
 
     tags:
@@ -3487,7 +3596,14 @@ function enrichCaptureWithAI(
         ).substring(
             0,
             250
-        )
+        ),
+
+    audience,
+
+    contentType,
+
+    taxonomy
+
 };
 }
 
@@ -3652,26 +3768,34 @@ ${
 
                         <br>
 
-                        🌍
-                        ${
-                            item.organization
-                            || ""
-                        }
+                        🌍 ${ item.organization || "" }
 
-                        <br>
+<br>
 
-📂
+📂 Categorie:
 ${ item.aiCategory || "-" }
 
 <br>
 
-📁
+📁 Subcategorie:
 ${ item.aiSubCategory || "-" }
 
 <br>
 
-🤖
-${ (item.aiTags || []).join(", ") }
+🧠 Type:
+${ item.aiContentType || "-" }
+
+<br>
+
+👥 Doelgroep:
+${ (item.aiAudience || [])
+    .join(", ") || "-" }
+
+<br>
+
+🤖 Tags:
+${ (item.aiTags || [])
+    .join(", ") || "-" }
 
                     </div>
 
@@ -4069,13 +4193,12 @@ async function saveQuickCapture()
             attachmentContent = ""
         ) =>
     {
-
-const ai =
-    enrichCaptureWithAI(
-        title,
-        description,
-        tags
-    );
+        const ai =
+            enrichCaptureWithAI(
+                title,
+                description,
+                tags
+            );
 
         const capture =
         {
@@ -4112,17 +4235,25 @@ const ai =
                 file?.size || 0,
 
             aiCategory:
-    ai.category,
+                ai.category,
 
-aiSubCategory:
-    ai.subCategory,
+            aiSubCategory:
+                ai.subCategory,
 
-aiTags:
-    ai.tags,
+            aiTags:
+                ai.tags,
 
-aiSummary:
-    ai.summary,
+            aiSummary:
+                ai.summary,
 
+            aiAudience:
+                ai.audience,
+
+            aiContentType:
+                ai.contentType,
+
+            aiTaxonomy:
+                ai.taxonomy,
 
             attachmentContent
         };
@@ -4143,21 +4274,9 @@ aiSummary:
         );
 
         console.log(
-    "Captatie opgeslagen:",
-    capture
-);
-
-console.log(
-    "attachmentName:",
-    capture.attachmentName
-);
-
-console.log(
-    "attachmentContent:",
-    capture.attachmentContent
-        ? "JA"
-        : "NEE"
-);
+            "Captatie opgeslagen:",
+            capture
+        );
 
         renderAssociationCaptures(
             organization
@@ -4170,21 +4289,21 @@ console.log(
             new FileReader();
 
         reader.onload =
-    async event =>
-    {
-        console.log(
-            "Bestand geladen"
-        );
+            async event =>
+            {
+                console.log(
+                    "Bestand geladen"
+                );
 
-        console.log(
-            "Base64 lengte:",
-            event.target.result.length
-        );
+                console.log(
+                    "Base64 lengte:",
+                    event.target.result.length
+                );
 
-        await saveCapture(
-            event.target.result
-        );
-    };
+                await saveCapture(
+                    event.target.result
+                );
+            };
 
         reader.readAsDataURL(
             file

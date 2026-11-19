@@ -3478,10 +3478,10 @@ async function renderAssociationCaptures(
                             cursor:pointer;
                         "
                         onclick="
-                            viewCapture(
-                                '${item.id}'
-                            )
-                        "
+    previewCaptureAttachment(
+        '${item.id}'
+    )
+"
                     >
 
                         <h3>
@@ -3516,40 +3516,55 @@ async function renderAssociationCaptures(
                     </div>
 
                     ${
-                        item.attachmentContent
-                        ?
-                        `
-                        <hr>
+    item.attachmentContent
+    ?
+    `
+    <hr>
 
-                        <div style="
-                            margin-top:10px;
-                        ">
+    <div style="
+        margin-top:10px;
+    ">
 
-                            📎
-                            ${
-                                item.attachmentName
-                                || "Bijlage"
-                            }
+        📎
+        ${
+            item.attachmentName
+            || "Bijlage"
+        }
 
-                            <br><br>
+        <br><br>
 
-                            <button
-                                class="action-btn"
-                                onclick="
-                                    event.stopPropagation();
-                                    openCaptureAttachment(
-                                        '${item.id}'
-                                    );
-                                "
-                            >
-                                📥 Download
-                            </button>
+        <button
+            class="action-btn"
+            onclick="
+                event.stopPropagation();
+                previewCaptureAttachment(
+                    '${item.id}'
+                );
+            "
+        >
+            👁 Open
+        </button>
 
-                        </div>
-                        `
-                        :
-                        ""
-                    }
+        <button
+            class="action-btn"
+            onclick="
+                event.stopPropagation();
+                openCaptureAttachment(
+                    '${item.id}'
+                );
+            "
+            style="
+                margin-left:8px;
+            "
+        >
+            📥 Download
+        </button>
+
+    </div>
+    `
+    :
+    ""
+}
 
                 </div>
 
@@ -3971,13 +3986,9 @@ function openCaptureAttachment(
                         || []
                     ).find(
                         x =>
-                            String(
-                                x.id
-                            )
+                            String(x.id)
                             ===
-                            String(
-                                captureId
-                            )
+                            String(captureId)
                     );
 
                 if(
@@ -3991,26 +4002,81 @@ function openCaptureAttachment(
                     return;
                 }
 
-                const link =
-                    document.createElement(
-                        "a"
+                const isPdf =
+                    capture.attachmentType
+                    &&
+                    capture.attachmentType.includes(
+                        "pdf"
                     );
 
-                link.href =
-                    capture.attachmentContent;
+                if(isPdf)
+                {
+                    window.open(
+                        capture.attachmentContent,
+                        "_blank"
+                    );
+                }
+                else
+                {
+                    const link =
+                        document.createElement(
+                            "a"
+                        );
 
-                link.download =
-                    capture.attachmentName
-                    || "bijlage";
+                    link.href =
+                        capture.attachmentContent;
 
-                document.body.appendChild(
-                    link
-                );
+                    link.download =
+                        capture.attachmentName
+                        || "bijlage";
 
-                link.click();
+                    document.body.appendChild(
+                        link
+                    );
 
-                document.body.removeChild(
-                    link
+                    link.click();
+
+                    document.body.removeChild(
+                        link
+                    );
+                }
+            }
+        );
+}
+
+function previewCaptureAttachment(
+    captureId
+)
+{
+    DatabaseService.load()
+        .then(
+            db =>
+            {
+                const capture =
+                    (
+                        db.quickCaptures
+                        || []
+                    ).find(
+                        x =>
+                            String(x.id)
+                            ===
+                            String(captureId)
+                    );
+
+                if(
+                    !capture ||
+                    !capture.attachmentContent
+                )
+                {
+                    alert(
+                        "Geen bijlage gevonden."
+                    );
+                    return;
+                }
+
+                window.open(
+                    capture.attachmentContent,
+                    "_blank"
                 );
             }
         );

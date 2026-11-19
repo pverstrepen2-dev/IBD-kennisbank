@@ -4019,6 +4019,26 @@ async function renderAssociationCaptures(
                                                                 >
                                                                     📥 Download
                                                                 </button>
+                                                                <button
+    class="action-btn"
+    style="
+        margin-left:8px;
+        background:#dc2626;
+        color:white;
+    "
+    onclick="
+        event.preventDefault();
+        event.stopPropagation();
+
+        deleteCapture(
+            '${item.id}'
+        );
+
+        return false;
+    "
+>
+    🗑 Verwijder
+</button>
                                                                 `
                                                                 :
                                                                 ""
@@ -4101,6 +4121,52 @@ function filterCapturesByCategory(
     renderAssociationCaptures(
         associationName,
         category
+    );
+}
+
+async function deleteCapture(
+    captureId
+)
+{
+    if(
+        !confirm(
+            "Captatie verwijderen?"
+        )
+    )
+    {
+        return;
+    }
+
+    const db =
+        await DatabaseService.load();
+
+    const capture =
+        db.quickCaptures.find(
+            x =>
+                String(x.id)
+                ===
+                String(captureId)
+        );
+
+    if(!capture)
+    {
+        return;
+    }
+
+    db.quickCaptures =
+        db.quickCaptures.filter(
+            x =>
+                String(x.id)
+                !==
+                String(captureId)
+        );
+
+    await DatabaseService.save(
+        db
+    );
+
+    renderAssociationCaptures(
+        capture.organization
     );
 }
 
@@ -4470,6 +4536,48 @@ async function saveQuickCapture()
         {
             db.quickCaptures = [];
         }
+
+const exists =
+    db.quickCaptures.some(
+        x =>
+            (x.title || "")
+            .trim()
+            .toLowerCase()
+            ===
+            title
+            .trim()
+            .toLowerCase()
+    );
+
+if(exists)
+{
+    alert(
+        "Deze captatie bestaat reeds."
+    );
+
+    return;
+}
+
+const duplicate =
+    db.quickCaptures.find(
+        x =>
+            (x.title || "")
+            .trim()
+            .toLowerCase()
+            ===
+            title
+            .trim()
+            .toLowerCase()
+    );
+
+if(duplicate)
+{
+    alert(
+        "Deze captatie bestaat reeds."
+    );
+
+    return;
+}
 
         db.quickCaptures.push(
             capture

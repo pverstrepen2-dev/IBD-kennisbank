@@ -4000,6 +4000,42 @@ async function renderAssociationCaptures(
                                                                         return false;
                                                                     "
                                                                 >
+                                                                ${
+    related.length
+    ?
+    `
+    <hr>
+
+    <div
+        style="
+            margin-top:10px;
+        "
+    >
+
+        <strong>
+            🔗 Gerelateerde captaties
+        </strong>
+
+        <ul>
+
+        ${
+            related.map(
+                relatedItem => `
+                    <li>
+                        ${relatedItem.title}
+                    </li>
+                `
+            )
+            .join("")
+        }
+
+        </ul>
+
+    </div>
+    `
+    :
+    ""
+}
                                                                     👁 Open
                                                                 </button>
 
@@ -4111,6 +4147,76 @@ function toggleCaptureGroup(groupId)
         element.style.display === "none"
         ? "block"
         : "none";
+}
+
+function findRelatedCaptures(
+    capture,
+    allCaptures
+)
+{
+    return allCaptures
+
+        .filter(
+            x =>
+                x.id !== capture.id
+        )
+
+        .map(
+            x =>
+            {
+                let score = 0;
+
+                if(
+                    x.aiCategory ===
+                    capture.aiCategory
+                )
+                {
+                    score += 5;
+                }
+
+                if(
+                    x.aiSubCategory ===
+                    capture.aiSubCategory
+                )
+                {
+                    score += 3;
+                }
+
+                (x.aiTags || [])
+                .forEach(tag =>
+                {
+                    if(
+                        (
+                            capture.aiTags ||
+                            []
+                        ).includes(tag)
+                    )
+                    {
+                        score += 2;
+                    }
+                });
+
+                return {
+                    capture:x,
+                    score
+                };
+            }
+        )
+
+        .filter(
+            x => x.score > 0
+        )
+
+        .sort(
+            (a,b) =>
+                b.score - a.score
+        )
+
+        .slice(0,5)
+
+        .map(
+            x => x.capture
+        );
 }
 
 function filterCapturesByCategory(

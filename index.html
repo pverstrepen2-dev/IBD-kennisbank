@@ -3984,43 +3984,51 @@ async function renderAssociationCaptures(
                                                             </div>
 
                                                             ${
-                                                                item.attachmentContent
-                                                                ?
-                                                                `
-                                                                <hr>
+    item.attachmentContent
+    ?
+    `
+    <hr>
 
-                                                                <button
-                                                                    class="action-btn"
-                                                                    onclick="
-                                                                        event.preventDefault();
-                                                                        event.stopPropagation();
-                                                                        previewCaptureAttachment(
-                                                                            '${item.id}'
-                                                                        );
-                                                                        return false;
-                                                                    "
-                                                                >
-                                                              
-                                                                    👁 Open
-                                                                </button>
+    <button
+        class="action-btn"
+        onclick="
+            event.preventDefault();
+            event.stopPropagation();
 
-                                                                <button
-                                                                    class="action-btn"
-                                                                    style="
-                                                                        margin-left:8px;
-                                                                    "
-                                                                    onclick="
-                                                                        event.preventDefault();
-                                                                        event.stopPropagation();
-                                                                        openCaptureAttachment(
-                                                                            '${item.id}'
-                                                                        );
-                                                                        return false;
-                                                                    "
-                                                                >
-                                                                    📥 Download
-                                                                </button>
-                                                                <button
+            previewCaptureAttachment(
+                '${item.id}'
+            );
+
+            return false;
+        "
+    >
+        👁 Open
+    </button>
+
+    <button
+        class="action-btn"
+        style="
+            margin-left:8px;
+        "
+        onclick="
+            event.preventDefault();
+            event.stopPropagation();
+
+            openCaptureAttachment(
+                '${item.id}'
+            );
+
+            return false;
+        "
+    >
+        📥 Download
+    </button>
+    `
+    :
+    ""
+}
+
+<button
     class="action-btn"
     style="
         margin-left:8px;
@@ -4040,11 +4048,7 @@ async function renderAssociationCaptures(
 >
     🗑 Verwijder
 </button>
-                                                                `
-                                                                :
-                                                                ""
-                                                            }
-
+                                                              
                                                         </div>
                                                     `
                                                     )

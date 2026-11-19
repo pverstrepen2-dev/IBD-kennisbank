@@ -4044,42 +4044,102 @@ function openCaptureAttachment(
         );
 }
 
-function previewCaptureAttachment(
+async function previewCaptureAttachment(
     captureId
 )
 {
-    DatabaseService.load()
-        .then(
-            db =>
-            {
-                const capture =
-                    (
-                        db.quickCaptures
-                        || []
-                    ).find(
-                        x =>
-                            String(x.id)
-                            ===
-                            String(captureId)
-                    );
+    const db =
+        await DatabaseService.load();
 
-                if(
-                    !capture ||
-                    !capture.attachmentContent
-                )
-                {
-                    alert(
-                        "Geen bijlage gevonden."
-                    );
-                    return;
-                }
-
-                window.open(
-                    capture.attachmentContent,
-                    "_blank"
-                );
-            }
+    const capture =
+        (
+            db.quickCaptures || []
+        ).find(
+            x =>
+                String(x.id)
+                ===
+                String(captureId)
         );
+
+    if(
+        !capture ||
+        !capture.attachmentContent
+    )
+    {
+        alert(
+            "Geen bijlage gevonden."
+        );
+        return;
+    }
+
+    try
+    {
+        const response =
+            await fetch(
+                capture.attachmentContent
+            );
+
+        const blob =
+            await response.blob();
+
+        const blobUrl =
+            URL.createObjectURL(
+                blob
+            );
+
+        document.getElementById(
+            "ccvContent"
+        ).innerHTML = `
+            <div class="page-title">
+                📄 ${capture.title}
+            </div>
+
+            <button
+                class="action-btn"
+                onclick="
+                    renderAssociationCaptures(
+                        '${capture.organization}'
+                    )
+                "
+            >
+                ⬅ Terug
+            </button>
+
+            <button
+                class="action-btn"
+                onclick="
+                    openCaptureAttachment(
+                        '${capture.id}'
+                    )
+                "
+                style="
+                    margin-left:10px;
+                "
+            >
+                📥 Download
+            </button>
+
+            <br><br>
+
+            <iframe
+                src="${blobUrl}"
+                style="
+                    width:100%;
+                    height:90vh;
+                    border:none;
+                    background:white;
+                "
+            ></iframe>
+        `;
+    }
+    catch(error)
+    {
+        console.error(error);
+
+        alert(
+            "Kan PDF niet openen."
+        );
+    }
 }
 
 async function renderAssociationDocuments(

@@ -3792,7 +3792,7 @@ function renderQuickCaptureFormForAssociation(
     }
 }
 
-function saveQuickCapture()
+async function saveQuickCapture()
 {
     const title =
         document.getElementById(
@@ -3817,12 +3817,15 @@ function saveQuickCapture()
     const tags =
         document.getElementById(
             "captureTags"
-        ).value
+        )
+        .value
         .split(",")
-        .map(tag => tag.trim())
+        .map(
+            tag => tag.trim()
+        )
         .filter(Boolean);
 
-    const organisation =
+    const organization =
         document.getElementById(
             "captureOrganisation"
         ).value;
@@ -3834,9 +3837,93 @@ function saveQuickCapture()
 
     if(!title)
     {
-        alert("Geef een titel op.");
+        alert(
+            "Geef een titel op."
+        );
         return;
     }
+
+    const db =
+        await DatabaseService.load();
+
+    const saveCapture =
+        async (
+            attachmentContent = ""
+        ) =>
+    {
+        const capture =
+        {
+            id:
+                "capture_" +
+                Date.now(),
+
+            source:
+                "capture",
+
+            title,
+
+            description,
+
+            url,
+
+            publicationDate,
+
+            tags,
+
+            organization,
+
+            createdDate:
+                new Date()
+                .toISOString(),
+
+            attachmentName:
+                file?.name || "",
+
+            attachmentType:
+                file?.type || "",
+
+            attachmentSize:
+                file?.size || 0,
+
+            attachmentContent
+        };
+
+        if(
+            !db.quickCaptures
+        )
+        {
+            db.quickCaptures = [];
+        }
+
+        db.quickCaptures.push(
+            capture
+        );
+
+        await DatabaseService.save(
+            db
+        );
+
+        console.log(
+    "Captatie opgeslagen:",
+    capture
+);
+
+console.log(
+    "attachmentName:",
+    capture.attachmentName
+);
+
+console.log(
+    "attachmentContent:",
+    capture.attachmentContent
+        ? "JA"
+        : "NEE"
+);
+
+        renderAssociationCaptures(
+            organization
+        );
+    };
 
     if(file)
     {
@@ -3844,21 +3931,21 @@ function saveQuickCapture()
             new FileReader();
 
         reader.onload =
-            function(event)
-            {
-                saveCaptureData(
-                    {
-                        title,
-                        description,
-                        url,
-                        publicationDate,
-                        tags,
-                        organisation,
-                        file
-                    },
-                    event.target.result
-                );
-            };
+    async event =>
+    {
+        console.log(
+            "Bestand geladen"
+        );
+
+        console.log(
+            "Base64 lengte:",
+            event.target.result.length
+        );
+
+        await saveCapture(
+            event.target.result
+        );
+    };
 
         reader.readAsDataURL(
             file
@@ -3866,72 +3953,8 @@ function saveQuickCapture()
     }
     else
     {
-        saveCaptureData(
-            {
-                title,
-                description,
-                url,
-                publicationDate,
-                tags,
-                organisation,
-                file: null
-            },
-            null
-        );
+        await saveCapture();
     }
-}
-
-function saveCaptureData(
-    data,
-    fileContent
-)
-{
-    const captureItem =
-    {
-        source: "capture",
-
-        id: Date.now(),
-
-        title: data.title,
-
-        description:
-            data.description,
-
-        url: data.url,
-
-        publicationDate:
-            data.publicationDate,
-
-        organisation:
-            data.organisation,
-
-        tags: data.tags,
-
-        createdDate:
-            new Date().toISOString(),
-
-        attachmentName:
-            data.file?.name || "",
-
-        attachmentSize:
-            data.file?.size || 0,
-
-        attachmentType:
-            data.file?.type || "",
-
-        attachmentContent:
-            fileContent || ""
-    };
-
-    globalIndex.push(
-        captureItem
-    );
-
-    saveGlobalIndex();
-
-    renderAssociationCaptures(
-        data.organisation
-    );
 }
 
 function openCaptureAttachment(

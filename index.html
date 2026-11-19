@@ -13,6 +13,13 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.8.69/pdf.min.js"></script>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.8.69/pdf.worker.min.js';
+</script>
+
+
 <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
 <script>
 console.log("VIS TEST", typeof vis);
@@ -4834,56 +4841,17 @@ async function previewCaptureAttachment(
 
         const blob =
             await response.blob();
-
+       
         const blobUrl =
-            URL.createObjectURL(
-                blob
-            );
+    URL.createObjectURL(
+        blob
+    );
 
-        document.getElementById(
-            "ccvContent"
-        ).innerHTML = `
-            <div class="page-title">
-                📄 ${capture.title}
-            </div>
-
-            <button
-                class="action-btn"
-                onclick="
-                    renderAssociationCaptures(
-                        '${capture.organization}'
-                    )
-                "
-            >
-                ⬅ Terug
-            </button>
-
-            <button
-                class="action-btn"
-                onclick="
-                    openCaptureAttachment(
-                        '${capture.id}'
-                    )
-                "
-                style="
-                    margin-left:10px;
-                "
-            >
-                📥 Download
-            </button>
-
-            <br><br>
-
-            <iframe
-                src="${blobUrl}"
-                style="
-                    width:100%;
-                    height:90vh;
-                    border:none;
-                    background:white;
-                "
-            ></iframe>
-        `;
+renderPDFViewer(
+    blobUrl,
+    capture.title,
+    capture.organization
+);
     }
     catch(error)
     {
@@ -4897,6 +4865,146 @@ async function previewCaptureAttachment(
     }
 }
 
+async function renderPDFViewer(
+    pdfUrl,
+    title,
+    backFunction
+)
+{
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+        <div class="page-title">
+            📄 ${title}
+        </div>
+
+        <button
+            class="action-btn"
+            onclick="${backFunction}"
+        >
+            ⬅ Terug
+        </button>
+
+        <br><br>
+
+        <div
+            style="
+                display:flex;
+                height:85vh;
+                border:1px solid #ddd;
+                background:white;
+            "
+        >
+
+            <div
+                id="pdfThumbnails"
+                style="
+                    width:200px;
+                    overflow-y:auto;
+                    border-right:1px solid #ddd;
+                    padding:10px;
+                    background:#f8f9fa;
+                "
+            >
+            </div>
+
+            <div
+                style="
+                    flex:1;
+                    overflow:auto;
+                    text-align:center;
+                    background:#ccc;
+                "
+            >
+                <canvas
+                    id="pdfCanvas"
+                ></canvas>
+            </div>
+
+        </div>
+    `;
+
+    const pdf =
+        await pdfjsLib.getDocument(
+            pdfUrl
+        ).promise;
+
+    const canvas =
+        document.getElementById(
+            "pdfCanvas"
+        );
+
+    const context =
+        canvas.getContext(
+            "2d"
+        );
+
+    async function renderPage(
+        pageNumber
+    )
+    {
+        const page =
+            await pdf.getPage(
+                pageNumber
+            );
+
+        const viewport =
+            page.getViewport({
+                scale:1.5
+            });
+
+        canvas.width =
+            viewport.width;
+
+        canvas.height =
+            viewport.height;
+
+        await page.render({
+            canvasContext:
+                context,
+
+            viewport:
+                viewport
+        }).promise;
+    }
+
+    await renderPage(1);
+
+    const thumbs =
+        document.getElementById(
+            "pdfThumbnails"
+        );
+
+    for(
+        let i = 1;
+        i <= pdf.numPages;
+        i++
+    )
+    {
+        const button =
+            document.createElement(
+                "button"
+            );
+
+        button.innerHTML =
+            "Pagina " + i;
+
+        button.style.width =
+            "100%";
+
+        button.style.marginBottom =
+            "5px";
+
+        button.onclick =
+            () =>
+                renderPage(i);
+
+        thumbs.appendChild(
+            button
+        );
+    }
+}
 
 async function renderAssociationDocuments(
     folderId,

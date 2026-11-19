@@ -3314,8 +3314,6 @@ function rankKnowledgeResults(
         );
 }
 
-
-
 function buildAISummary(
     question,
     results
@@ -3368,6 +3366,130 @@ function buildAISummary(
     return summary.join("\n");
 }
 
+function enrichCaptureWithAI(
+    title,
+    description,
+    tags = []
+)
+{
+    const text =
+        (
+            title + " " +
+            description + " " +
+            tags.join(" ")
+        )
+        .toLowerCase();
+
+    let category =
+        "Algemeen";
+
+    let subCategory =
+        "Overig";
+
+    const aiTags =
+        new Set();
+
+    if(
+        text.includes("crohn")
+    )
+    {
+        aiTags.add(
+            "Crohn"
+        );
+    }
+
+    if(
+        text.includes("colitis")
+    )
+    {
+        aiTags.add(
+            "Colitis"
+        );
+    }
+
+    if(
+        text.includes("voeding") ||
+        text.includes("nutrition") ||
+        text.includes("diet")
+    )
+    {
+        category =
+            "Voeding";
+
+        subCategory =
+            "Dieet";
+
+        aiTags.add(
+            "Voeding"
+        );
+    }
+
+    if(
+        text.includes("stress") ||
+        text.includes("anxiety")
+    )
+    {
+        category =
+            "Mentale Gezondheid";
+
+        subCategory =
+            "Stress";
+
+        aiTags.add(
+            "Stress"
+        );
+    }
+
+    if(
+        text.includes("ecco")
+    )
+    {
+        category =
+            "Richtlijnen";
+
+        subCategory =
+            "ECCO";
+
+        aiTags.add(
+            "ECCO"
+        );
+    }
+
+    if(
+        text.includes("research") ||
+        text.includes("study") ||
+        text.includes("onderzoek")
+    )
+    {
+        category =
+            "Onderzoek";
+
+        subCategory =
+            "Studies";
+
+        aiTags.add(
+            "Onderzoek"
+        );
+    }
+
+    return {
+    category,
+    subCategory,
+
+    tags:
+        Array.from(
+            aiTags
+        ),
+
+    summary:
+        (
+            description || ""
+        ).substring(
+            0,
+            250
+        )
+};
+}
 
 async function renderAssociationCaptures(
     associationName
@@ -3406,6 +3528,11 @@ async function renderAssociationCaptures(
 
     const captureCount =
         captures.length;
+
+    const categoryStats =
+    getCaptureCategoryStats(
+        captures
+    );
 
     document.getElementById(
         "ccvContent"
@@ -3488,6 +3615,24 @@ async function renderAssociationCaptures(
                             ${item.title || ""}
                         </h3>
 
+${
+    item.aiSummary
+    ?
+    `
+    <div
+        style="
+            color:#555;
+            margin-top:5px;
+            margin-bottom:10px;
+        "
+    >
+        ${item.aiSummary}
+    </div>
+    `
+    :
+    ""
+}
+
                         <br>
 
                         📅
@@ -3512,6 +3657,21 @@ async function renderAssociationCaptures(
                             item.organization
                             || ""
                         }
+
+                        <br>
+
+📂
+${ item.aiCategory || "-" }
+
+<br>
+
+📁
+${ item.aiSubCategory || "-" }
+
+<br>
+
+🤖
+${ (item.aiTags || []).join(", ") }
 
                     </div>
 
@@ -3587,6 +3747,33 @@ async function renderAssociationCaptures(
     `;
 }
 
+function getCaptureCategoryStats(
+    captures
+)
+{
+    const stats =
+        {};
+
+    captures.forEach(
+        capture =>
+        {
+            const category =
+                capture.aiCategory
+                || "Algemeen";
+
+            stats[category] =
+                (
+                    stats[category]
+                    || 0
+                )
+                + 1;
+        }
+    );
+
+    return stats;
+}
+
+
 function renderAssociationEmails(
     associationName
 )
@@ -3645,11 +3832,15 @@ function renderQuickCaptureFormForAssociation(
 )
 {
     const captureCount =
-        globalIndex.filter(
-            x =>
-                x.source === "capture" &&
-                x.organisation === associationName
-        ).length;
+    (
+        DatabaseService.cache
+        ?.quickCaptures || []
+    )
+    .filter(
+        x =>
+            x.organization === associationName
+    )
+    .length;
 
     console.log(
         "Aantal captaties:",
@@ -3878,6 +4069,14 @@ async function saveQuickCapture()
             attachmentContent = ""
         ) =>
     {
+
+const ai =
+    enrichCaptureWithAI(
+        title,
+        description,
+        tags
+    );
+
         const capture =
         {
             id:
@@ -3911,6 +4110,19 @@ async function saveQuickCapture()
 
             attachmentSize:
                 file?.size || 0,
+
+            aiCategory:
+    ai.category,
+
+aiSubCategory:
+    ai.subCategory,
+
+aiTags:
+    ai.tags,
+
+aiSummary:
+    ai.summary,
+
 
             attachmentContent
         };
@@ -4170,6 +4382,7 @@ async function previewCaptureAttachment(
         );
     }
 }
+
 
 async function renderAssociationDocuments(
     folderId,

@@ -3678,9 +3678,35 @@ if(selectedCategory)
                 selectedCategory
         );
 }
-        
+  
+const groupedCaptures = {};
+
+filteredCaptures.forEach(capture =>
+{
+    const category =
+        capture.aiCategory ||
+        "Ongecategoriseerd";
+
+    const subCategory =
+        capture.aiSubCategory ||
+        "Algemeen";
+
+    if(!groupedCaptures[category])
+    {
+        groupedCaptures[category] = {};
+    }
+
+    if(!groupedCaptures[category][subCategory])
+    {
+        groupedCaptures[category][subCategory] = [];
+    }
+
+    groupedCaptures[category][subCategory]
+        .push(capture);
+});
+
     const captureCount =
-        captures.length;
+    filteredCaptures.length;
 
     const categoryStats =
     getCaptureCategoryStats(
@@ -3974,6 +4000,22 @@ function getCaptureCategoryStats(
     );
 
     return stats;
+}
+
+function toggleCaptureGroup(groupId)
+{
+    const element =
+        document.getElementById(groupId);
+
+    if(!element)
+    {
+        return;
+    }
+
+    element.style.display =
+        element.style.display === "none"
+        ? "block"
+        : "none";
 }
 
 function filterCapturesByCategory(

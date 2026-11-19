@@ -3639,79 +3639,80 @@ async function renderAssociationCaptures(
         await DatabaseService.load();
 
     const captures =
-(
-    db.quickCaptures || []
-)
-.filter(
-    item =>
-        (
-            item.organization ||
-            ""
-        ).toLowerCase()
-        ===
-        associationName.toLowerCase()
-)
-.sort(
-    (a,b) =>
-        new Date(
-            b.publicationDate ||
-            b.createdDate ||
-            0
+        (db.quickCaptures || [])
+        .filter(
+            item =>
+                (
+                    item.organization || ""
+                ).toLowerCase()
+                ===
+                associationName.toLowerCase()
         )
-        -
-        new Date(
-            a.publicationDate ||
-            a.createdDate ||
-            0
-        )
-);
-
-let filteredCaptures =
-    captures;
-
-if(selectedCategory)
-{
-    filteredCaptures =
-        captures.filter(
-            capture =>
-                capture.aiCategory ===
-                selectedCategory
+        .sort(
+            (a,b) =>
+                new Date(
+                    b.publicationDate ||
+                    b.createdDate ||
+                    0
+                )
+                -
+                new Date(
+                    a.publicationDate ||
+                    a.createdDate ||
+                    0
+                )
         );
-}
-  
-const groupedCaptures = {};
 
-filteredCaptures.forEach(capture =>
-{
-    const category =
-        capture.aiCategory ||
-        "Ongecategoriseerd";
+    let filteredCaptures =
+        captures;
 
-    const subCategory =
-        capture.aiSubCategory ||
-        "Algemeen";
-
-    if(!groupedCaptures[category])
+    if(selectedCategory)
     {
-        groupedCaptures[category] = {};
+        filteredCaptures =
+            captures.filter(
+                capture =>
+                    capture.aiCategory ===
+                    selectedCategory
+            );
     }
 
-    if(!groupedCaptures[category][subCategory])
-    {
-        groupedCaptures[category][subCategory] = [];
-    }
+    const groupedCaptures = {};
 
-    groupedCaptures[category][subCategory]
-        .push(capture);
-});
+    filteredCaptures.forEach(
+        capture =>
+        {
+            const category =
+                capture.aiCategory ||
+                "Ongecategoriseerd";
+
+            const subCategory =
+                capture.aiSubCategory ||
+                "Algemeen";
+
+            if(!groupedCaptures[category])
+            {
+                groupedCaptures[category] = {};
+            }
+
+            if(
+                !groupedCaptures[category][subCategory]
+            )
+            {
+                groupedCaptures[category][subCategory] = [];
+            }
+
+            groupedCaptures[category][subCategory]
+                .push(capture);
+        }
+    );
 
     const captureCount =
-    filteredCaptures.length;
+        filteredCaptures.length;
 
     const categoryStats =
-    getCaptureCategoryStats(
-        captures
-    );
+        getCaptureCategoryStats(
+            captures
+        );
 
     document.getElementById(
         "ccvContent"
@@ -3721,52 +3722,64 @@ filteredCaptures.forEach(capture =>
             📌 ${associationName}
         </div>
 
-        <div
-    class="card"
-    style="
-        margin-bottom:15px;
-        background:#eef5ff;
-    "
->
-    <h3>
-        📊 AI Categorieën
-    </h3>
+        <div class="card"
+             style="
+                margin-bottom:15px;
+                background:#eef5ff;
+             ">
+            <h3>
+                📊 AI Categorieën
+            </h3>
 
-    ${
-        Object.entries(
-            categoryStats
-        )
-        .map(
-            ([category,count]) =>
-            `
             <div
-    style="
-        padding:5px 0;
-        cursor:pointer;
-        color:#2563eb;
-        font-weight:bold;
-    "
-    onclick="
-        filterCapturesByCategory(
-            '${category}',
-            '${associationName}'
-        )
-    "
->
-                📂 ${category}
-                (${count})
+                style="
+                    cursor:pointer;
+                    color:#666;
+                    font-weight:bold;
+                    margin-bottom:8px;
+                "
+                onclick="
+                    renderAssociationCaptures(
+                        '${associationName}'
+                    )
+                "
+            >
+                🔄 Alles tonen
             </div>
-            `
-        )
-        .join("")
-    }
 
-</div>
+            ${
+                Object.entries(categoryStats)
+                .map(
+                    ([category,count]) => `
+                        <div
+                            style="
+                                padding:5px 0;
+                                cursor:pointer;
+                                color:#2563eb;
+                                font-weight:bold;
+                            "
+                            onclick="
+                                filterCapturesByCategory(
+                                    '${category}',
+                                    '${associationName}'
+                                )
+                            "
+                        >
+                            📂 ${category}
+                            (${count})
+                        </div>
+                    `
+                )
+                .join("")
+            }
 
-        <div class="card" style="
-            margin-bottom:15px;
-            background:#f5f7fa;
-        ">
+        </div>
+
+        <div class="card"
+             style="
+                margin-bottom:15px;
+                background:#f5f7fa;
+             ">
             <strong>
                 ${captureCount}
             </strong>
@@ -3811,166 +3824,228 @@ filteredCaptures.forEach(capture =>
             </div>
             `
             :
-            captures.map(
-                item => `
+            Object.entries(groupedCaptures)
+            .map(
+                ([category,subGroups]) =>
+                {
+                    const categoryId =
+                        "cat_" +
+                        category.replace(
+                            /\W/g,
+                            "_"
+                        );
 
-                <div
-                    class="card"
-                    style="
-                        margin-bottom:15px;
-                    "
-                >
+                    return `
+                    <div class="card"
+                         style="
+                            margin-bottom:15px;
+                         ">
 
-                    <div
-                        style="
-                            cursor:pointer;
-                        "
-                        onclick="
-                            previewCaptureAttachment(
-                                '${item.id}'
-                            )
-                        "
-                    >
-
-                        <h3>
-                            ${item.title || ""}
-                        </h3>
-
-${
-    item.aiSummary
-    ?
-    `
-    <div
-        style="
-            color:#555;
-            margin-top:5px;
-            margin-bottom:10px;
-        "
-    >
-        ${item.aiSummary}
-    </div>
-    `
-    :
-    ""
-}
-
-                        <br>
-
-                        📅
-                        ${
-                            item.publicationDate
-                            || "-"
-                        }
-
-                        <br>
-
-                        🏷
-                        ${
-                            (
-                                item.tags || []
-                            ).join(", ")
-                        }
-
-                        <br>
-
-                        🌍 ${ item.organization || "" }
-
-<br>
-
-📂 Categorie:
-${ item.aiCategory || "-" }
-
-<br>
-
-📁 Subcategorie:
-${ item.aiSubCategory || "-" }
-
-<br>
-
-🧠 Type:
-${ item.aiContentType || "-" }
-
-<br>
-
-👥 Doelgroep:
-${ (item.aiAudience || [])
-    .join(", ") || "-" }
-
-<br>
-
-🤖 Tags:
-${ (item.aiTags || [])
-    .join(", ") || "-" }
-
-                    </div>
-
-                    ${
-                        item.attachmentContent
-                        ?
-                        `
-                        <hr>
-
-                        <div
+                        <h2
                             style="
-                                margin-top:10px;
+                                cursor:pointer;
+                                color:#2563eb;
+                            "
+                            onclick="
+                                toggleCaptureGroup(
+                                    '${categoryId}'
+                                )
                             "
                         >
+                            📂 ${category}
+                        </h2>
 
-                            📎
+                        <div
+                            id="${categoryId}"
+                            style="display:none;"
+                        >
+
                             ${
-                                item.attachmentName
-                                || "Bijlage"
+                                Object.entries(
+                                    subGroups
+                                )
+                                .map(
+                                    ([subCategory,items]) =>
+                                    {
+                                        const subId =
+                                            categoryId +
+                                            "_" +
+                                            subCategory.replace(
+                                                /\W/g,
+                                                "_"
+                                            );
+
+                                        return `
+                                        <div
+                                            style="
+                                                margin-left:20px;
+                                                margin-top:10px;
+                                            "
+                                        >
+
+                                            <h3
+                                                style="
+                                                    cursor:pointer;
+                                                "
+                                                onclick="
+                                                    toggleCaptureGroup(
+                                                        '${subId}'
+                                                    )
+                                                "
+                                            >
+                                                📁 ${subCategory}
+                                                (${items.length})
+                                            </h3>
+
+                                            <div
+                                                id="${subId}"
+                                                style="
+                                                    display:none;
+                                                "
+                                            >
+
+                                                ${
+                                                    items.map(
+                                                        item => `
+                                                        <div
+                                                            class="card"
+                                                            style="
+                                                                margin-top:10px;
+                                                                background:#fafafa;
+                                                            "
+                                                        >
+
+                                                            <div
+                                                                style="
+                                                                    cursor:pointer;
+                                                                "
+                                                                onclick="
+                                                                    previewCaptureAttachment(
+                                                                        '${item.id}'
+                                                                    )
+                                                                "
+                                                            >
+
+                                                                <h3>
+                                                                    ${item.title || ""}
+                                                                </h3>
+
+                                                                ${
+                                                                    item.aiSummary
+                                                                    ?
+                                                                    `
+                                                                    <div
+                                                                        style="
+                                                                            color:#555;
+                                                                            margin-bottom:10px;
+                                                                        "
+                                                                    >
+                                                                        ${item.aiSummary}
+                                                                    </div>
+                                                                    `
+                                                                    :
+                                                                    ""
+                                                                }
+
+                                                                📅 ${item.publicationDate || "-"}
+
+                                                                <br><br>
+
+                                                                🌍 ${item.organization || ""}
+
+                                                                <br><br>
+
+                                                                📂 ${item.aiCategory || "-"}
+
+                                                                <br><br>
+
+                                                                📁 ${item.aiSubCategory || "-"}
+
+                                                                <br><br>
+
+                                                                🧠 ${item.aiContentType || "-"}
+
+                                                                <br><br>
+
+                                                                👥 ${
+                                                                    (item.aiAudience || [])
+                                                                    .join(", ")
+                                                                    || "-"
+                                                                }
+
+                                                                <br><br>
+
+                                                                🤖 ${
+                                                                    (item.aiTags || [])
+                                                                    .join(", ")
+                                                                    || "-"
+                                                                }
+
+                                                            </div>
+
+                                                            ${
+                                                                item.attachmentContent
+                                                                ?
+                                                                `
+                                                                <hr>
+
+                                                                <button
+                                                                    class="action-btn"
+                                                                    onclick="
+                                                                        event.preventDefault();
+                                                                        event.stopPropagation();
+                                                                        previewCaptureAttachment(
+                                                                            '${item.id}'
+                                                                        );
+                                                                        return false;
+                                                                    "
+                                                                >
+                                                                    👁 Open
+                                                                </button>
+
+                                                                <button
+                                                                    class="action-btn"
+                                                                    style="
+                                                                        margin-left:8px;
+                                                                    "
+                                                                    onclick="
+                                                                        event.preventDefault();
+                                                                        event.stopPropagation();
+                                                                        openCaptureAttachment(
+                                                                            '${item.id}'
+                                                                        );
+                                                                        return false;
+                                                                    "
+                                                                >
+                                                                    📥 Download
+                                                                </button>
+                                                                `
+                                                                :
+                                                                ""
+                                                            }
+
+                                                        </div>
+                                                    `
+                                                    )
+                                                    .join("")
+                                                }
+
+                                            </div>
+
+                                        </div>
+                                        `;
+                                    }
+                                )
+                                .join("")
                             }
 
-                            <br><br>
-
-                            <button
-                                type="button"
-                                class="action-btn"
-                                onclick="
-                                    event.preventDefault();
-                                    event.stopPropagation();
-
-                                    previewCaptureAttachment(
-                                        '${item.id}'
-                                    );
-
-                                    return false;
-                                "
-                            >
-                                👁 Open
-                            </button>
-
-                            <button
-                                type="button"
-                                class="action-btn"
-                                onclick="
-                                    event.preventDefault();
-                                    event.stopPropagation();
-
-                                    openCaptureAttachment(
-                                        '${item.id}'
-                                    );
-
-                                    return false;
-                                "
-                                style="
-                                    margin-left:8px;
-                                "
-                            >
-                                📥 Download
-                            </button>
-
                         </div>
-                        `
-                        :
-                        ""
-                    }
 
-                </div>
-
-                `
-            ).join("")
+                    </div>
+                    `;
+                }
+            )
+            .join("")
         }
 
     `;

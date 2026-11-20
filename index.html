@@ -9094,6 +9094,361 @@ async function saveMeal()
     renderFoodTracker();
 }
 
+function generateBloodSummary()
+{
+    const entries =
+        (
+            DatabaseService.cache
+            ?.healthData
+            ?.bloodResults
+            || []
+        )
+        .filter(
+            x => x.values
+        );
+
+    if(!entries.length)
+    {
+        return `
+        <div class="card">
+        Geen bloedanalyses beschikbaar.
+        </div>
+        `;
+    }
+
+    const latest =
+        entries[0];
+
+    let findings = [];
+
+    const crp =
+        latest.values?.CRP ?? 0;
+
+    const ferritine =
+        latest.values?.Ferritine ?? 0;
+
+    const hb =
+        latest.values?.Hemoglobine ?? 0;
+
+    const vitD =
+        latest.values?.VitamineD ?? 0;
+
+    if(crp > 5)
+    {
+        findings.push(
+            "🔴 CRP verhoogd (" +
+            crp +
+            ")"
+        );
+    }
+    else
+    {
+        findings.push(
+            "🟢 CRP normaal"
+        );
+    }
+
+    if(ferritine < 30)
+    {
+        findings.push(
+            "🔴 Ferritine verlaagd (" +
+            ferritine +
+            ")"
+        );
+    }
+    else
+    {
+        findings.push(
+            "🟢 Ferritine normaal"
+        );
+    }
+
+    if(hb < 12)
+    {
+        findings.push(
+            "🔴 Hemoglobine verlaagd (" +
+            hb +
+            ")"
+        );
+    }
+    else
+    {
+        findings.push(
+            "🟢 Hemoglobine normaal"
+        );
+    }
+
+    if(vitD < 30)
+    {
+        findings.push(
+            "🔴 Vitamine D verlaagd (" +
+            vitD +
+            ")"
+        );
+    }
+    else
+    {
+        findings.push(
+            "🟢 Vitamine D normaal"
+        );
+    }
+
+    let trendText =
+    "Nog onvoldoende gegevens";
+
+if(entries.length >= 2)
+{
+    const newest =
+        entries[0];
+
+    const previous =
+        entries[1];
+
+    const newestCRP =
+        newest.values?.CRP ?? 0;
+
+    const previousCRP =
+        previous.values?.CRP ?? 0;
+
+    if(newestCRP > previousCRP)
+    {
+        trendText =
+            `🔺 CRP stijgend
+            (${previousCRP} → ${newestCRP})`;
+    }
+    else if(newestCRP < previousCRP)
+    {
+        trendText =
+            `🔻 CRP dalend
+            (${previousCRP} → ${newestCRP})`;
+    }
+    else
+    {
+        trendText =
+            `➡️ CRP stabiel
+            (${newestCRP})`;
+    }
+}
+
+const searchTerms = [];
+
+if(crp > 5)
+{
+    searchTerms.push(
+        "crohn",
+        "ontsteking",
+        "crp",
+        "calprotectine"
+    );
+}
+
+if(ferritine < 30)
+{
+    searchTerms.push(
+        "ferritine",
+        "ijzer",
+        "anemie"
+    );
+}
+
+if(vitD < 30)
+{
+    searchTerms.push(
+        "vitamine d",
+        "voeding"
+    );
+}
+
+const knowledgeMatches =
+
+    globalIndex
+
+   .filter(
+    item =>
+
+        item.source === "knowledge"
+
+        ||
+
+        item.source === "capture"
+
+        ||
+
+        item.source === "website"
+
+        ||
+
+        item.source === "file"
+)
+
+    .filter(
+        item =>
+        {
+            const text = `
+                ${item.title || ""}
+                ${item.description || ""}
+                ${(item.tags || []).join(" ")}
+            `
+            .toLowerCase();
+
+            return searchTerms.some(
+                term =>
+                    text.includes(term)
+            );
+        }
+    )
+
+    .slice(0,5);
+
+return `
+
+<div
+class="card"
+style="
+background:#fefce8;
+border-left:6px solid #f59e0b;
+">
+
+    <h3>
+    🧠 AI Interpretatie
+    </h3>
+
+    <br>
+
+    <b>
+    Laatste analyse:
+    </b>
+
+    ${latest.testDate || "-"}
+
+    <br><br>
+
+    ${findings.join("<br>")}
+
+    <hr>
+
+    <h3>
+    📈 Trendanalyse
+    </h3>
+
+    ↳ ${trendText}
+
+    <hr>
+
+    <h3>
+    ⚠ Mogelijke aandachtspunten
+    </h3>
+
+    ${
+        (crp > 5)
+        ?
+        "↳ Ontstekingsactiviteit<br>"
+        :
+        ""
+    }
+
+    ${
+        (ferritine < 30)
+        ?
+        "↳ Mogelijk ijzertekort<br>"
+        :
+        ""
+    }
+
+    ${
+        (vitD < 30)
+        ?
+        "↳ Mogelijk vitamine D tekort<br>"
+        :
+        ""
+    }
+
+    ${
+        (hb < 12)
+        ?
+        "↳ Mogelijke bloedarmoede<br>"
+        :
+        ""
+    }
+
+    <hr>
+
+    <h3>
+🔗 Gerelateerde kennis
+</h3>
+
+${
+    knowledgeMatches.length
+
+    ?
+
+    knowledgeMatches
+    .map(
+        item =>
+        {
+            const icon =
+
+                item.source === "knowledge"
+                    ? "📘"
+
+                : item.source === "capture"
+                    ? "📌"
+
+                : item.source === "website"
+                    ? "🌐"
+
+                : item.source === "file"
+                    ? "📄"
+
+                : "🔗";
+
+            return `
+
+            <div
+            style="
+                padding:6px;
+                cursor:pointer;
+                color:#2563eb;
+                font-weight:600;
+            "
+            onclick="
+                openSearchResult(
+                    '${item.source}',
+                    '${item.id}'
+                )
+            "
+            >
+
+                ${icon} ${item.title}
+
+            </div>
+
+            `;
+        }
+    )
+    .join("")
+
+    :
+
+    `
+
+    <div
+    style="
+        color:#666;
+    "
+    >
+        Geen gerelateerde kennis gevonden
+    </div>
+
+    `
+}
+
+
+</div>
+
+`;
+}
+
 function renderBloodTracker()
 {
     const entries =
@@ -9111,12 +9466,21 @@ function renderBloodTracker()
 
 </div>
 
+${generateBloodSummary()}
+
 <div class="card">
+
+<div
+style="
+height:350px;
+"
+>
 
 <canvas
 id="bloodTrendChart"
-height="120"
 ></canvas>
+
+</div>
 
 </div>
 
@@ -9236,23 +9600,71 @@ ${entries.map(item => {
 
             <br><br>
 
-            CRP:
-            ${item.values?.CRP ?? "-"}
+           CRP:
+
+<span style="
+font-weight:bold;
+color:${
+    (item.values?.CRP ?? 0) <= 5
+    ? '#16a34a'
+    : '#dc2626'
+};
+">
+
+${item.values?.CRP ?? "-"}
+
+</span>
 
             <br>
 
             Ferritine:
-            ${item.values?.Ferritine ?? "-"}
+
+<span style="
+font-weight:bold;
+color:${
+    (item.values?.Ferritine ?? 0) >= 30
+    ? '#16a34a'
+    : '#dc2626'
+};
+">
+
+${item.values?.Ferritine ?? "-"}
+
+</span>
 
             <br>
 
-            Hemoglobine:
-            ${item.values?.Hemoglobine ?? "-"}
+           Hemoglobine:
+
+<span style="
+font-weight:bold;
+color:${
+    (item.values?.Hemoglobine ?? 0) >= 12
+    ? '#16a34a'
+    : '#dc2626'
+};
+">
+
+${item.values?.Hemoglobine ?? "-"}
+
+</span>
 
             <br>
 
-            Vitamine D:
-            ${item.values?.VitamineD ?? "-"}
+           Vitamine D:
+
+<span style="
+font-weight:bold;
+color:${
+    (item.values?.VitamineD ?? 0) >= 30
+    ? '#16a34a'
+    : '#dc2626'
+};
+">
+
+${item.values?.VitamineD ?? "-"}
+
+</span>
 
         </div>
 
@@ -9380,7 +9792,7 @@ function renderBloodTrendChart()
         return;
     }
 
-    const entries =
+    const analyses =
         (
             DatabaseService.cache
             ?.healthData
@@ -9388,55 +9800,156 @@ function renderBloodTrendChart()
             || []
         )
         .filter(
-            x => x.values
+            x =>
+                x.values &&
+                x.testDate
         )
-        .reverse();
+        .sort(
+            (a,b) =>
+                new Date(a.testDate)
+                -
+                new Date(b.testDate)
+        );
+
+    if(!analyses.length)
+    {
+        return;
+    }
 
     const labels =
-        entries.map(
-            x => x.testDate
+        analyses.map(
+            x =>
+                new Date(
+                    x.testDate
+                ).toLocaleDateString(
+                    "nl-BE"
+                )
         );
 
-    const crpData =
-        entries.map(
-            x => x.values?.CRP || 0
+    const crp =
+        analyses.map(
+            x =>
+                x.values?.CRP ?? null
         );
 
-    new Chart(
-        canvas,
-        {
-            type : "line",
+    const ferritine =
+        analyses.map(
+            x =>
+                x.values?.Ferritine ?? null
+        );
 
-            data :
+    const hemoglobine =
+        analyses.map(
+            x =>
+                x.values?.Hemoglobine ?? null
+        );
+
+    const vitamineD =
+        analyses.map(
+            x =>
+                x.values?.VitamineD ?? null
+        );
+
+    if(
+        HealthCharts.bloodTrend
+    )
+    {
+        HealthCharts.bloodTrend.destroy();
+    }
+
+    HealthCharts.bloodTrend =
+        new Chart(
+            canvas,
             {
-                labels,
+                type:"line",
 
-                datasets :
-                [
+                data:
+                {
+                    labels,
+
+                    datasets:
+                    [
+                        {
+                            label:"CRP",
+
+                            data:crp,
+
+                            borderColor:"#dc2626",
+
+                            backgroundColor:"#dc262633",
+
+                            tension:0.3
+                        },
+
+                        {
+                            label:"CRP Referentie",
+
+                            data:
+                                labels.map(
+                                    () => 5
+                                ),
+
+                            borderColor:"#999",
+
+                            borderDash:[5,5],
+
+                            pointRadius:0
+                        },
+
+                        {
+                            label:"Ferritine",
+
+                            data:ferritine,
+
+                            borderColor:"#2563eb",
+
+                            backgroundColor:"#2563eb33",
+
+                            tension:0.3
+                        },
+
+                        {
+                            label:"Hemoglobine",
+
+                            data:hemoglobine,
+
+                            borderColor:"#16a34a",
+
+                            backgroundColor:"#16a34a33",
+
+                            tension:0.3
+                        },
+
+                        {
+                            label:"Vitamine D",
+
+                            data:vitamineD,
+
+                            borderColor:"#ca8a04",
+
+                            backgroundColor:"#ca8a0433",
+
+                            tension:0.3
+                        }
+                    ]
+                },
+
+                options:
+                {
+                    responsive:true,
+
+                    maintainAspectRatio:false,
+
+                    plugins:
                     {
-                        label :
-                            "CRP",
-
-                        data :
-                            crpData,
-
-                        borderColor :
-                            "#dc2626",
-
-                        fill :
-                            false
+                        legend:
+                        {
+                            position:"top"
+                        }
                     }
-                ]
-            },
-
-            options :
-            {
-                responsive :
-                    true
+                }
             }
-
-        }
-    );
+        );
 }
 
 function renderExamTracker()

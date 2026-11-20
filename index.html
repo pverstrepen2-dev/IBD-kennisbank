@@ -7001,9 +7001,17 @@ if(!db.healthData)
 }
 ],
 
+        calprotectineResults : [],
+
         exams : []
 
     };
+}
+
+if(
+    !db.healthData.calprotectineResults
+){
+    db.healthData.calprotectineResults = [];
 }
 
     DatabaseService.cache =
@@ -7524,8 +7532,9 @@ async function renderHealthDashboard()
     );
 
     let stoolCount = 0;
-    let sleepCount = 0;
-    let stressCount = 0;
+let sleepCount = 0;
+let stressCount = 0;
+let calprotectineCount = 0;
 
     try
     {
@@ -7552,6 +7561,12 @@ async function renderHealthDashboard()
                 .healthData
                 .stressEntries
                 ?.length || 0;
+
+            calprotectineCount =
+    DatabaseService.cache
+    .healthData
+    .calprotectineResults
+    ?.length || 0;
         }
     }
     catch(error)
@@ -7689,6 +7704,25 @@ renderBloodTracker()
     <br>
 
     Labresultaten
+
+</div>
+
+<div
+class="card"
+style="cursor:pointer;"
+onclick="
+renderCalprotectineTracker()
+"
+>
+    <h2>
+        🧫 Calprotectine
+    </h2>
+
+    <br>
+
+    ${calprotectineCount}
+
+    registraties
 
 </div>
 
@@ -9231,6 +9265,8 @@ if(entries.length >= 2)
 }
 
 const searchTerms = [];
+const taxonomyTerms = [];
+
 
 if(crp > 5)
 {
@@ -9239,6 +9275,12 @@ if(crp > 5)
         "ontsteking",
         "crp",
         "calprotectine"
+    );
+
+    taxonomyTerms.push(
+        "InflammationMarker",
+        "DiseaseActivity",
+        "FlareIndicator"
     );
 }
 
@@ -9301,10 +9343,25 @@ const text = `
 `
 .toLowerCase();
 
-            return searchTerms.some(
-                term =>
-                    text.includes(term)
-            );
+            const taxonomy =
+    item.taxonomy || {};
+
+const keywordMatch =
+    searchTerms.some(
+        term =>
+            text.includes(term)
+    );
+
+const taxonomyMatch =
+    taxonomyTerms.some(
+        term =>
+            taxonomy[term] === true
+    );
+
+return (
+    keywordMatch ||
+    taxonomyMatch
+);
         }
     )
 
@@ -9776,10 +9833,14 @@ async function saveBloodResult()
             ],
 
             taxonomy :
-            {
-                mainCategory :
-                    "Bloedanalyse"
-            }
+    buildBloodTaxonomy(
+        {
+            CRP,
+            Ferritine,
+            Hemoglobine,
+            VitamineD
+        }
+    ),
 
         });
 
@@ -9962,6 +10023,103 @@ function renderBloodTrendChart()
         );
 }
 
+function renderCalprotectineTracker()
+{
+    const entries =
+        DatabaseService.cache
+        ?.healthData
+        ?.calprotectineResults || [];
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+
+🧫 Calprotectine
+
+</div>
+
+<button
+class="action-btn"
+onclick="
+renderHealthDashboard()
+"
+>
+⬅ Terug
+</button>
+
+<br><br>
+
+<div class="card">
+
+<label>
+Datum
+</label>
+
+<input
+type="date"
+id="calDate"
+style="
+width:100%;
+padding:10px;
+margin-bottom:10px;
+"
+>
+
+<label>
+Calprotectine (μg/g)
+</label>
+
+<input
+type="number"
+id="calValue"
+style="
+width:100%;
+padding:10px;
+margin-bottom:10px;
+"
+>
+
+<button
+class="action-btn"
+onclick="
+saveCalprotectineResult()
+"
+>
+💾 Opslaan
+</button>
+
+</div>
+
+<br>
+
+<div class="card">
+
+${entries.map(item=>`
+
+<div
+style="
+padding:10px;
+border-bottom:1px solid #ddd;
+"
+>
+
+📅 ${item.date}
+
+<br>
+
+🧫 ${item.value}
+
+</div>
+
+`).join("")}
+
+</div>
+
+`;
+}
+
 function renderExamTracker()
 {
     const entries =
@@ -10053,6 +10211,40 @@ border-bottom:1px solid #ddd;
 </div>
 
 `;
+}
+
+async function saveCalprotectineResult()
+{
+    DatabaseService.cache
+        .healthData
+        .calprotectineResults
+        .unshift({
+
+            id :
+                "cal_" +
+                Date.now(),
+
+            date :
+                document.getElementById(
+                    "calDate"
+                ).value,
+
+            value :
+                Number(
+                    document.getElementById(
+                        "calValue"
+                    ).value || 0
+                ),
+
+            created :
+                new Date()
+                .toISOString()
+
+        });
+
+    await DatabaseService.save();
+
+    renderCalprotectineTracker();
 }
 
 async function saveExam()
@@ -15972,6 +16164,22 @@ const CCV_TAXONOMY = [
 },
 
 {
+    id : "blood_ai",
+    icon : "🧠",
+    name : "Bloedinterpretatie",
+
+    fields : [
+        "InflammationMarker",
+        "AnemiaMarker",
+        "NutritionMarker",
+        "ImmuneMarker",
+        "DiseaseActivity",
+        "RemissionIndicator",
+        "FlareIndicator"
+    ]
+},
+
+{
     id : "knowledge",
     icon : "🧠",
     name : "Kennisbank & AI",
@@ -16113,6 +16321,35 @@ Albumine : [
     "albumine"
 ],
 
+Calprotectine : [
+    "calprotectine",
+    "fecal calprotectin"
+],
+
+InflammationMarker : [
+    "crp",
+    "ontsteking",
+    "inflammation"
+],
+
+AnemiaMarker : [
+    "ferritine",
+    "hemoglobine",
+    "anemie"
+],
+
+NutritionMarker : [
+    "vitamine d",
+    "vitamine b12",
+    "albumine"
+],
+
+DiseaseActivity : [
+    "flare",
+    "opstoot",
+    "actieve ziekte"
+],
+
     BiologicTherapy : [
         "infliximab",
         "adalimumab",
@@ -16195,7 +16432,24 @@ VitamineD : "Bloedanalyse",
 Leukocyten : "Bloedanalyse",
 Trombocyten : "Bloedanalyse",
 Albumine : "Bloedanalyse",
-Calprotectine : "Bloedanalyse"
+Calprotectine : "Bloedanalyse",
+InflammationMarker :
+    "Bloedinterpretatie",
+
+AnemiaMarker :
+    "Bloedinterpretatie",
+
+NutritionMarker :
+    "Bloedinterpretatie",
+
+DiseaseActivity :
+    "Bloedinterpretatie",
+
+FlareIndicator :
+    "Bloedinterpretatie",
+
+RemissionIndicator :
+    "Bloedinterpretatie"
     
 };
 
@@ -16219,6 +16473,56 @@ function normalizeTags(tags){
     }
 
     return [];
+}
+
+function buildBloodTaxonomy(
+    values
+)
+{
+    const taxonomy =
+    {
+        mainCategory :
+            "Bloedanalyse"
+    };
+
+    if(values.CRP > 5)
+    {
+        taxonomy.CRP = true;
+        taxonomy.InflammationMarker = true;
+        taxonomy.DiseaseActivity = true;
+        taxonomy.FlareIndicator = true;
+    }
+
+    if(values.CRP <= 5)
+    {
+        taxonomy.RemissionIndicator = true;
+    }
+
+    if(values.Ferritine < 30)
+    {
+        taxonomy.Ferritine = true;
+        taxonomy.AnemiaMarker = true;
+    }
+
+    if(values.Hemoglobine < 12)
+    {
+        taxonomy.Hemoglobine = true;
+        taxonomy.AnemiaMarker = true;
+    }
+
+    if(values.VitamineD < 30)
+    {
+        taxonomy.VitamineD = true;
+        taxonomy.NutritionMarker = true;
+    }
+
+    if(values.Albumine < 35)
+    {
+        taxonomy.Albumine = true;
+        taxonomy.NutritionMarker = true;
+    }
+
+    return taxonomy;
 }
 
 function buildKnowledgeKeywords(
@@ -20278,28 +20582,6 @@ function detectAITags(
     }
 
     return tags;
-}
-
-function normalizeTags(tags){
-
-    if(!tags){
-        return [];
-    }
-
-    if(Array.isArray(tags)){
-        return tags
-            .map(t => String(t).trim().toLowerCase())
-            .filter(Boolean);
-    }
-
-    if(typeof tags === "string"){
-        return tags
-            .split(",")
-            .map(t => t.trim().toLowerCase())
-            .filter(Boolean);
-    }
-
-    return [];
 }
 
 function globalSearch(term){

@@ -9124,11 +9124,12 @@ renderHealthDashboard()
 
 <div class="card">
 
-<label>Parameter</label>
+<label>CRP</label>
 
 <input
-id="bloodName"
-placeholder="CRP"
+id="bloodCRP"
+type="number"
+step="0.1"
 style="
 width:100%;
 padding:10px;
@@ -9136,10 +9137,38 @@ margin-bottom:10px;
 "
 >
 
-<label>Waarde</label>
+<label>Ferritine</label>
 
 <input
-id="bloodValue"
+id="bloodFerritine"
+type="number"
+step="0.1"
+style="
+width:100%;
+padding:10px;
+margin-bottom:10px;
+"
+>
+
+<label>Hemoglobine</label>
+
+<input
+id="bloodHemoglobine"
+type="number"
+step="0.1"
+style="
+width:100%;
+padding:10px;
+margin-bottom:10px;
+"
+>
+
+<label>Vitamine D</label>
+
+<input
+id="bloodVitamineD"
+type="number"
+step="0.1"
 style="
 width:100%;
 padding:10px;
@@ -9171,12 +9200,27 @@ border-bottom:1px solid #ddd;
 "
 >
 
-🩸 ${item.name}
+🩸 ${item.title || "Bloedanalyse"}
+
+<br><br>
+
+CRP:
+${item.values?.CRP ?? "-"}
 
 <br>
 
-Waarde:
-${item.value}
+Ferritine:
+${item.values?.Ferritine ?? "-"}
+
+<br>
+
+Hemoglobine:
+${item.values?.Hemoglobine ?? "-"}
+
+<br>
+
+Vitamine D:
+${item.values?.VitamineD ?? "-"}
 
 </div>
 
@@ -9190,25 +9234,69 @@ ${item.value}
 async function saveBloodResult()
 {
     DatabaseService.cache
-    .healthData
-    .bloodResults
-    .unshift({
+        .healthData
+        .bloodResults
+        .unshift({
 
-        id: Date.now(),
+            id :
+                "blood_" +
+                Date.now(),
 
-        name:
-            document.getElementById(
-                "bloodName"
-            ).value,
+            title :
+                "Bloedanalyse " +
+                new Date()
+                .toLocaleDateString(),
 
-        value:
-            document.getElementById(
-                "bloodValue"
-            ).value
+            testDate :
+                new Date()
+                .toISOString(),
 
-    });
+            values :
+            {
+                CRP :
+                    Number(
+                        document.getElementById(
+                            "bloodCRP"
+                        ).value || 0
+                    ),
+
+                Ferritine :
+                    Number(
+                        document.getElementById(
+                            "bloodFerritine"
+                        ).value || 0
+                    ),
+
+                Hemoglobine :
+                    Number(
+                        document.getElementById(
+                            "bloodHemoglobine"
+                        ).value || 0
+                    ),
+
+                VitamineD :
+                    Number(
+                        document.getElementById(
+                            "bloodVitamineD"
+                        ).value || 0
+                    )
+            },
+
+            tags : [
+                "bloedanalyse"
+            ],
+
+            taxonomy :
+            {
+                mainCategory :
+                    "Bloedanalyse"
+            }
+
+        });
 
     await DatabaseService.save();
+
+    await rebuildIndexes(true);
 
     renderBloodTracker();
 }

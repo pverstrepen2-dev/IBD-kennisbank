@@ -1287,6 +1287,20 @@ catch(error){
 
 }
 
+try{
+
+    await buildBloodAnalysisIndex();
+
+}
+catch(error){
+
+    console.error(
+        "Bloedanalyse index fout",
+        error
+    );
+
+}
+
    /* snelle lookup index */
 
 
@@ -1306,6 +1320,11 @@ globalIndex.forEach(item=>{
 
 /* daarna koppelen */
 linkKnowledgeDocuments();
+
+console.log(
+    "GlobalIndexMap:",
+    Object.keys(globalIndexMap).length
+);
 
 console.log(
     "GlobalIndexMap:",
@@ -1915,6 +1934,84 @@ async function buildEmailIndex()
             error
         );
 
+    }
+}
+
+async function buildBloodAnalysisIndex()
+{
+    try
+    {
+        const healthData =
+            HealthService.getData();
+
+        const analyses =
+            healthData.bloodResults || [];
+
+        analyses.forEach(result =>
+        {
+            const record =
+            {
+                source : "blood",
+
+                id :
+                    result.id,
+
+                title :
+                    result.title ||
+                    "Bloedanalyse",
+
+                description :
+                    result.description || "",
+
+                testDate :
+                    result.testDate || "",
+
+                values :
+                    result.values || {},
+
+                tags :
+                    result.tags || [],
+
+                taxonomy :
+                    result.taxonomy || {},
+
+                searchText : `
+                    ${result.title || ""}
+                    ${result.description || ""}
+                    ${(result.tags || []).join(" ")}
+                `
+                .toLowerCase(),
+
+                data :
+                    result
+            };
+
+            globalIndex.push(
+                record
+            );
+
+            globalIndexMap[
+                "blood_" + record.id
+            ] = record;
+
+            addToIndexService(
+                record
+            );
+
+        });
+
+        console.log(
+            "Blood Results:",
+            analyses.length
+        );
+
+    }
+    catch(error)
+    {
+        console.error(
+            "buildBloodAnalysisIndex fout",
+            error
+        );
     }
 }
 
@@ -6527,6 +6624,12 @@ if(source === "email")
     return;
 }
 
+if(source === "blood")
+{
+    renderBloodAnalysis(id);
+    return;
+}
+
     if(source === "knowledge"){
 
     const knowledgeItem =
@@ -6562,41 +6665,7 @@ if(source === "email")
     return;
 
 }
-
-       if(source === "knowledge"){
-
-    const knowledgeItem =
-
-        globalIndex.find(
-            item =>
-
-                item.source === "knowledge"
-
-                &&
-
-                String(item.id)
-                ===
-                String(id)
-        );
-
-    if(!knowledgeItem){
-
-        alert(
-            "Knowledge-item niet gevonden"
-        );
-
-        return;
-
-    }
-
-    renderKnowledgeItem(
-        knowledgeItem
-    );
-
-    return;
-
-}
-
+     
 }
 
 function showEmail(id)
@@ -6885,7 +6954,47 @@ if(!db.healthData)
 
         symptoms : [],
 
-        bloodResults : [],
+        bloodResults:[
+{
+    id:"blood_001",
+
+    title:
+        "Controle november",
+
+    description:
+        "Routine controle Crohn",
+
+    testDate:
+        "2026-11-20",
+
+    values:
+    {
+        CRP:18,
+        Ferritine:22,
+        Hemoglobine:11.4,
+        VitamineD:26
+    },
+
+    tags:[
+        "crohn",
+        "ontsteking"
+    ],
+
+    taxonomy:
+    {
+        mainCategory:
+            "Bloedanalyse",
+
+        CRP:true,
+
+        Ferritine:true,
+
+        Hemoglobine:true,
+
+        VitamineD:true
+    }
+}
+],
 
         exams : []
 
@@ -15089,6 +15198,26 @@ const CCV_TAXONOMY = [
 },
 
 {
+    id : "blood",
+    icon : "🩸",
+    name : "Bloedanalyse",
+
+    fields : [
+
+        "CRP",
+        "Hemoglobine",
+        "Ferritine",
+        "VitamineB12",
+        "VitamineD",
+        "Leukocyten",
+        "Trombocyten",
+        "Calprotectine",
+        "Albumine"
+
+    ]
+},
+
+{
     id : "knowledge",
     icon : "🧠",
     name : "Kennisbank & AI",
@@ -15137,7 +15266,8 @@ const CCV_CONTENT_TYPES = [
     "Research",
     "Meeting",
     "Project",
-    "QuickCapture"
+    "QuickCapture",
+    "BloodAnalysis"
 
 ];
 
@@ -15190,6 +15320,44 @@ const TAXONOMY_RULES = {
     MRI : [
         "mri"
     ],
+
+    CRP : [
+    "crp",
+    "c-reactive protein"
+],
+
+Hemoglobine : [
+    "hb",
+    "hemoglobine"
+],
+
+Ferritine : [
+    "ferritine",
+    "ferritin"
+],
+
+VitamineB12 : [
+    "b12",
+    "vitamine b12"
+],
+
+VitamineD : [
+    "vitamine d"
+],
+
+Leukocyten : [
+    "leukocyten",
+    "white blood cell"
+],
+
+Trombocyten : [
+    "trombocyten",
+    "platelets"
+],
+
+Albumine : [
+    "albumine"
+],
 
     BiologicTherapy : [
         "infliximab",
@@ -15263,8 +15431,18 @@ const MAIN_CATEGORY_MAPPING = {
         "Reproductieve Gezondheid",
 
     KnowledgeTopic :
-        "Kennisbank & AI"
+        "Kennisbank & AI",
 
+    CRP : "Bloedanalyse",
+Hemoglobine : "Bloedanalyse",
+Ferritine : "Bloedanalyse",
+VitamineB12 : "Bloedanalyse",
+VitamineD : "Bloedanalyse",
+Leukocyten : "Bloedanalyse",
+Trombocyten : "Bloedanalyse",
+Albumine : "Bloedanalyse",
+Calprotectine : "Bloedanalyse"
+    
 };
 
 function normalizeTags(tags){
@@ -17516,6 +17694,75 @@ function renderKnowledgeItemById(
     renderKnowledgeItem(
         item
     );
+
+}
+
+function renderBloodAnalysis(id)
+{
+    const item =
+        globalIndex.find(
+            x =>
+                x.source === "blood"
+                &&
+                String(x.id)
+                === String(id)
+        );
+
+    if(!item)
+    {
+        return;
+    }
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+    <div class="page-title">
+
+        🩸 ${item.title}
+
+    </div>
+
+    <button
+        class="action-btn"
+        onclick="
+        renderKnowledgeOverview()
+        "
+    >
+        ⬅ Terug
+    </button>
+
+    <br><br>
+
+    <div class="card">
+
+        <h2>
+            Bloedwaarden
+        </h2>
+
+        <br>
+
+        CRP:
+        ${item.values?.CRP ?? "-"}
+
+        <br><br>
+
+        Ferritine:
+        ${item.values?.Ferritine ?? "-"}
+
+        <br><br>
+
+        Hemoglobine:
+        ${item.values?.Hemoglobine ?? "-"}
+
+        <br><br>
+
+        Vitamine D:
+        ${item.values?.VitamineD ?? "-"}
+
+    </div>
+
+    `;
 
 }
 

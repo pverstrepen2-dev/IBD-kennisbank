@@ -16201,6 +16201,11 @@ const grouped = {
 
     website : items.filter(
         x => x.source === "website"
+    ),
+
+    blood :
+    items.filter(
+        x => x.source === "blood"
     )
 
 };
@@ -16213,8 +16218,9 @@ return [
 
     ...grouped.folder.slice(0,200),
 
-    ...grouped.website.slice(0,100)
+    ...grouped.website.slice(0,100),
 
+    ...grouped.blood.slice(0,100),
 ].slice(0,maxNodes);
 
 }
@@ -16324,6 +16330,11 @@ async function renderKnowledgeOverview(){
             x=>x.source==="capture"
         ).length,
 
+        blood :
+    filteredItems.filter(
+        x => x.source === "blood"
+    ).length,
+
     email :
         filteredItems.filter(
             x=>x.source==="email"
@@ -16405,6 +16416,11 @@ Websites
 <option value="capture"
 ${sourceFilter==="capture"?"selected":""}>
 Captaties
+</option>
+
+<option value="blood"
+${sourceFilter==="blood"?"selected":""}>
+Bloedanalyses
 </option>
 
 <option value="email"
@@ -16539,6 +16555,31 @@ renderKnowledgeOverview();
 ${counts.capture}
 
 </div>
+
+<div
+class="card"
+style="cursor:pointer"
+onclick="
+document.getElementById(
+'aiSourceFilter'
+).value='blood';
+
+renderKnowledgeOverview();
+"
+>
+
+<h3>
+
+🩸 Bloedanalyses
+
+</h3>
+
+<br>
+
+${counts.blood}
+
+</div>
+
 
 <div
 class="card"

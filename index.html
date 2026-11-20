@@ -9284,12 +9284,22 @@ const knowledgeMatches =
     .filter(
         item =>
         {
-            const text = `
-                ${item.title || ""}
-                ${item.description || ""}
-                ${(item.tags || []).join(" ")}
-            `
-            .toLowerCase();
+            const tags =
+
+    Array.isArray(item.tags)
+
+    ? item.tags.join(" ")
+
+    : (
+        item.tags || ""
+    );
+
+const text = `
+    ${item.title || ""}
+    ${item.description || ""}
+    ${tags}
+`
+.toLowerCase();
 
             return searchTerms.some(
                 term =>

@@ -1941,11 +1941,11 @@ async function buildBloodAnalysisIndex()
 {
     try
     {
-        const healthData =
-            HealthService.getData();
+        const db =
+    await DatabaseService.load();
 
-        const analyses =
-            healthData.bloodResults || [];
+const analyses =
+    db.healthData?.bloodResults || [];
 
         analyses.forEach(result =>
         {

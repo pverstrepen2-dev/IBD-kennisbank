@@ -1942,10 +1942,15 @@ async function buildBloodAnalysisIndex()
     try
     {
         const db =
-    await DatabaseService.load();
+            await DatabaseService.load();
 
-const analyses =
-    db.healthData?.bloodResults || [];
+        const analyses =
+            db.healthData?.bloodResults || [];
+
+        console.log(
+            "Blood Results:",
+            analyses.length
+        );
 
         analyses.forEach(result =>
         {
@@ -1997,14 +2002,14 @@ const analyses =
             addToIndexService(
                 record
             );
-
         });
 
         console.log(
-            "Blood Results:",
-            analyses.length
+            "Blood analyses geïndexeerd:",
+            globalIndex.filter(
+                x => x.source === "blood"
+            ).length
         );
-
     }
     catch(error)
     {

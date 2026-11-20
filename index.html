@@ -9111,6 +9111,17 @@ function renderBloodTracker()
 
 </div>
 
+<div class="card">
+
+<canvas
+id="bloodTrendChart"
+height="120"
+></canvas>
+
+</div>
+
+<br>
+
 <button
 class="action-btn"
 onclick="
@@ -9124,7 +9135,19 @@ renderHealthDashboard()
 
 <div class="card">
 
-<label>CRP</label>
+<label>Datum analyse</label>
+
+<input
+type="date"
+id="bloodDate"
+style="
+width:100%;
+padding:10px;
+margin-bottom:10px;
+"
+>
+
+<label>CRP (ref. < 5)</label>
 
 <input
 id="bloodCRP"
@@ -9137,7 +9160,7 @@ margin-bottom:10px;
 "
 >
 
-<label>Ferritine</label>
+<label>Ferritine (ref. 30 - 300)</label>
 
 <input
 id="bloodFerritine"
@@ -9150,7 +9173,7 @@ margin-bottom:10px;
 "
 >
 
-<label>Hemoglobine</label>
+<label>Hemoglobine (ref. 12 - 18)</label>
 
 <input
 id="bloodHemoglobine"
@@ -9163,7 +9186,7 @@ margin-bottom:10px;
 "
 >
 
-<label>Vitamine D</label>
+<label>Vitamine D (ref. > 30)</label>
 
 <input
 id="bloodVitamineD"
@@ -9191,48 +9214,118 @@ saveBloodResult()
 
 <div class="card">
 
-${entries.map(item => `
+${entries.map(item => {
 
-<div
-style="
-padding:10px;
-border-bottom:1px solid #ddd;
-"
->
+    if(item.values)
+    {
+        return `
 
-🩸 ${item.title || "Bloedanalyse"}
+        <div
+        style="
+        padding:10px;
+        border-bottom:1px solid #ddd;
+        ">
 
-<br><br>
+            <b>
+            🩸 ${item.title || ""}
+            </b>
 
-CRP:
-${item.values?.CRP ?? "-"}
+            <br>
 
-<br>
+            📅 ${item.testDate || "-"}
 
-Ferritine:
-${item.values?.Ferritine ?? "-"}
+            <br><br>
 
-<br>
+            CRP:
+            ${item.values?.CRP ?? "-"}
 
-Hemoglobine:
-${item.values?.Hemoglobine ?? "-"}
+            <br>
 
-<br>
+            Ferritine:
+            ${item.values?.Ferritine ?? "-"}
 
-Vitamine D:
-${item.values?.VitamineD ?? "-"}
+            <br>
 
-</div>
+            Hemoglobine:
+            ${item.values?.Hemoglobine ?? "-"}
 
-`).join("")}
+            <br>
+
+            Vitamine D:
+            ${item.values?.VitamineD ?? "-"}
+
+        </div>
+
+        `;
+    }
+
+    return `
+
+    <div
+    style="
+    padding:10px;
+    border-bottom:1px solid #ddd;
+    ">
+
+        🩸 ${item.name}
+
+        <br>
+
+        Waarde:
+        ${item.value}
+
+    </div>
+
+    `;
+
+}).join("")}
 
 </div>
 
 `;
+
+setTimeout(() =>
+{
+    renderBloodTrendChart();
+},100);
+
 }
 
 async function saveBloodResult()
 {
+    const testDate =
+        document.getElementById(
+            "bloodDate"
+        ).value;
+
+    const CRP =
+        Number(
+            document.getElementById(
+                "bloodCRP"
+            ).value || 0
+        );
+
+    const Ferritine =
+        Number(
+            document.getElementById(
+                "bloodFerritine"
+            ).value || 0
+        );
+
+    const Hemoglobine =
+        Number(
+            document.getElementById(
+                "bloodHemoglobine"
+            ).value || 0
+        );
+
+    const VitamineD =
+        Number(
+            document.getElementById(
+                "bloodVitamineD"
+            ).value || 0
+        );
+
     DatabaseService.cache
         .healthData
         .bloodResults
@@ -9244,42 +9337,16 @@ async function saveBloodResult()
 
             title :
                 "Bloedanalyse " +
-                new Date()
-                .toLocaleDateString(),
+                testDate,
 
-            testDate :
-                new Date()
-                .toISOString(),
+            testDate,
 
             values :
             {
-                CRP :
-                    Number(
-                        document.getElementById(
-                            "bloodCRP"
-                        ).value || 0
-                    ),
-
-                Ferritine :
-                    Number(
-                        document.getElementById(
-                            "bloodFerritine"
-                        ).value || 0
-                    ),
-
-                Hemoglobine :
-                    Number(
-                        document.getElementById(
-                            "bloodHemoglobine"
-                        ).value || 0
-                    ),
-
-                VitamineD :
-                    Number(
-                        document.getElementById(
-                            "bloodVitamineD"
-                        ).value || 0
-                    )
+                CRP,
+                Ferritine,
+                Hemoglobine,
+                VitamineD
             },
 
             tags : [
@@ -9299,6 +9366,77 @@ async function saveBloodResult()
     await rebuildIndexes(true);
 
     renderBloodTracker();
+}
+
+function renderBloodTrendChart()
+{
+    const canvas =
+        document.getElementById(
+            "bloodTrendChart"
+        );
+
+    if(!canvas)
+    {
+        return;
+    }
+
+    const entries =
+        (
+            DatabaseService.cache
+            ?.healthData
+            ?.bloodResults
+            || []
+        )
+        .filter(
+            x => x.values
+        )
+        .reverse();
+
+    const labels =
+        entries.map(
+            x => x.testDate
+        );
+
+    const crpData =
+        entries.map(
+            x => x.values?.CRP || 0
+        );
+
+    new Chart(
+        canvas,
+        {
+            type : "line",
+
+            data :
+            {
+                labels,
+
+                datasets :
+                [
+                    {
+                        label :
+                            "CRP",
+
+                        data :
+                            crpData,
+
+                        borderColor :
+                            "#dc2626",
+
+                        fill :
+                            false
+                    }
+                ]
+            },
+
+            options :
+            {
+                responsive :
+                    true
+            }
+
+        }
+    );
 }
 
 function renderExamTracker()

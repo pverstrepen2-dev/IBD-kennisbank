@@ -9760,6 +9760,17 @@ saveBloodResult()
 💾 Opslaan
 </button>
 
+<br><br>
+
+<button
+class="action-btn"
+onclick="
+renderBloodReportUpload()
+"
+>
+📄 Labrapport opladen
+</button>
+
 </div>
 
 <br>
@@ -10239,6 +10250,321 @@ border-bottom:1px solid #ddd;
 </div>
 
 `;
+}
+
+function renderBloodReportUpload()
+{
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+
+📄 Labrapport analyseren
+
+</div>
+
+<button
+class="action-btn"
+onclick="
+renderBloodTracker()
+"
+>
+⬅ Terug
+</button>
+
+<br><br>
+
+<div class="card">
+
+<input
+type="file"
+id="bloodReportFile"
+accept=".pdf,.txt,.doc,.docx,.jpg,.jpeg,.png"
+style="
+width:100%;
+padding:10px;
+"
+>
+
+<div
+id="bloodReportPreview"
+style="
+margin-top:15px;
+"
+></div>
+
+<br><br>
+
+<button
+class="action-btn"
+onclick="
+analyzeBloodReport()
+"
+>
+🤖 Analyseer rapport
+</button>
+
+</div>
+
+<div
+id="bloodReportResult"
+style="
+margin-top:20px;
+"
+></div>
+
+`;
+}
+
+async function analyzeBloodReport()
+{
+    const file =
+        document.getElementById(
+            "bloodReportFile"
+        )
+        .files?.[0];
+
+    if(!file)
+    {
+        alert(
+            "Selecteer eerst een bestand"
+        );
+        return;
+    }
+
+    const result =
+        document.getElementById(
+            "bloodReportResult"
+        );
+
+    result.innerHTML =
+        `
+        <div class="card">
+        PDF wordt verwerkt...
+        </div>
+        `;
+
+    const text =
+        await file.text();
+
+    extractBloodValues(
+        text
+    );
+}
+
+function extractBloodValues(
+    text
+)
+{
+    const values =
+    {
+        CRP :
+            extractLabNumber(
+                text,
+                [
+                    "CRP",
+                    "C-reactive protein"
+                ]
+            ),
+
+        Ferritine :
+            extractLabNumber(
+                text,
+                [
+                    "Ferritine",
+                    "Ferritin"
+                ]
+            ),
+
+        Hemoglobine :
+            extractLabNumber(
+                text,
+                [
+                    "Hemoglobine",
+                    "Hemoglobin",
+                    "Hb"
+                ]
+            ),
+
+        VitamineD :
+            extractLabNumber(
+                text,
+                [
+                    "Vitamine D",
+                    "Vitamin D"
+                ]
+            ),
+
+        Albumine :
+            extractLabNumber(
+                text,
+                [
+                    "Albumine"
+                ]
+            ),
+
+        Leukocyten :
+            extractLabNumber(
+                text,
+                [
+                    "Leukocyten",
+                    "WBC"
+                ]
+            ),
+
+        Trombocyten :
+            extractLabNumber(
+                text,
+                [
+                    "Trombocyten",
+                    "Platelets"
+                ]
+            )
+    };
+
+    renderBloodExtractionResult(
+        values
+    );
+}
+
+function extractLabNumber(
+    text,
+    labels
+)
+{
+    for(const label of labels)
+    {
+        const regex =
+            new RegExp(
+                label +
+                "[^0-9]{0,20}([0-9]+(?:[\\.,][0-9]+)?)",
+                "i"
+            );
+
+        const match =
+            text.match(
+                regex
+            );
+
+        if(match)
+        {
+            return Number(
+                match[1]
+                .replace(",",".")
+            );
+        }
+    }
+
+    return null;
+}
+
+function renderBloodExtractionResult(
+    values
+)
+{
+    document.getElementById(
+        "bloodReportResult"
+    ).innerHTML = `
+
+<div class="card">
+
+<h3>
+🤖 Herkende bloedwaarden
+</h3>
+
+<br>
+
+CRP:
+${values.CRP ?? "-"}
+
+<br><br>
+
+Ferritine:
+${values.Ferritine ?? "-"}
+
+<br><br>
+
+Hemoglobine:
+${values.Hemoglobine ?? "-"}
+
+<br><br>
+
+Vitamine D:
+${values.VitamineD ?? "-"}
+
+<br><br>
+
+Albumine:
+${values.Albumine ?? "-"}
+
+<br><br>
+
+Leukocyten:
+${values.Leukocyten ?? "-"}
+
+<br><br>
+
+Trombocyten:
+${values.Trombocyten ?? "-"}
+
+<br><br>
+
+<button
+class="action-btn"
+onclick='saveExtractedBloodValues(
+${JSON.stringify(values)}
+)'
+>
+
+💾 Overnemen in bloedanalyse
+
+</button>
+
+</div>
+
+`;
+}
+
+async function saveExtractedBloodValues(
+    values
+)
+{
+    DatabaseService.cache
+        .healthData
+        .bloodResults
+        .unshift({
+
+            id :
+                "blood_" +
+                Date.now(),
+
+            title :
+                "Labrapport",
+
+            testDate :
+                new Date()
+                .toISOString()
+                .split("T")[0],
+
+            values,
+
+            tags :
+            [
+                "labrapport",
+                "pdf"
+            ],
+
+            taxonomy :
+                buildBloodTaxonomy(
+                    values
+                )
+
+        });
+
+    await DatabaseService.save();
+
+    renderBloodTracker();
 }
 
 function renderExamTracker()

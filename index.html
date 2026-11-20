@@ -9153,6 +9153,9 @@ function generateBloodSummary()
     const latest =
         entries[0];
 
+    const activity =
+    calculateDiseaseActivity();
+
     let findings = [];
 
     const crp =
@@ -9376,6 +9379,31 @@ background:#fefce8;
 border-left:6px solid #f59e0b;
 ">
 
+<div
+style="
+padding:12px;
+margin-bottom:15px;
+border-radius:8px;
+background:${activity.color}22;
+border-left:6px solid ${activity.color};
+"
+>
+
+🏥 Ziekteactiviteit
+
+<br><br>
+
+<b>
+${activity.level}
+</b>
+
+<br><br>
+
+Score:
+${activity.score}/10
+
+</div>
+
     <h3>
     🧠 AI Interpretatie
     </h3>
@@ -9514,6 +9542,99 @@ ${
 </div>
 
 `;
+}
+
+function calculateDiseaseActivity()
+{
+    const health =
+        DatabaseService.cache
+        ?.healthData || {};
+
+    const latestBlood =
+        health.bloodResults?.[0];
+
+    const latestCal =
+        health.calprotectineResults?.[0];
+
+    if(!latestBlood)
+    {
+        return {
+            level :
+                "Onvoldoende data",
+            color :
+                "#6b7280",
+            score : 0
+        };
+    }
+
+    let score = 0;
+
+    const crp =
+        latestBlood.values?.CRP || 0;
+
+    const cal =
+        latestCal?.value || 0;
+
+    if(crp > 5)
+    {
+        score += 2;
+    }
+
+    if(crp > 15)
+    {
+        score += 2;
+    }
+
+    if(cal > 150)
+    {
+        score += 2;
+    }
+
+    if(cal > 300)
+    {
+        score += 2;
+    }
+
+    if(score <= 2)
+    {
+        return {
+            level :
+                "Remissie",
+            color :
+                "#16a34a",
+            score
+        };
+    }
+
+    if(score <= 5)
+    {
+        return {
+            level :
+                "Lichte activiteit",
+            color :
+                "#ca8a04",
+            score
+        };
+    }
+
+    if(score <= 8)
+    {
+        return {
+            level :
+                "Matige activiteit",
+            color :
+                "#ea580c",
+            score
+        };
+    }
+
+    return {
+        level :
+            "Ernstige opstoot",
+        color :
+            "#dc2626",
+        score
+    };
 }
 
 function renderBloodTracker()

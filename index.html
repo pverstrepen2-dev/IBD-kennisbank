@@ -1986,57 +1986,155 @@ async function buildBloodAnalysisIndex()
             analyses.length
         );
 
-        analyses.forEach(result =>
+       analyses.forEach(result =>
+{
+    let taxonomy = {};
+
+    try
+    {
+        if(
+            result.taxonomy &&
+            Object.keys(
+                result.taxonomy
+            ).length > 0
+        )
         {
-            const record =
+            taxonomy =
+                result.taxonomy;
+        }
+        else
+        {
+            taxonomy =
+                buildBloodTaxonomy(
+                    result.values || {}
+                );
+        }
+    }
+    catch(error)
+    {
+        console.error(
+            "Taxonomy fout:",
+            error
+        );
+
+        taxonomy =
+        {
+            mainCategory :
+                "Bloedanalyse"
+        };
+    }
+
+    const record =
+    {
+        source : "blood",
+
+        id :
+            result.id,
+
+        title :
+            result.title ||
+            "Bloedanalyse",
+
+        description :
+            result.description || "",
+
+        testDate :
+            result.testDate || "",
+
+        values :
+            (
+                typeof result.values === "object" &&
+                result.values !== null
+            )
+            ?
+            result.values
+            :
+            {},
+
+        tags :
+            Array.isArray(
+                result.tags
+            )
+            ?
+            result.tags
+            :
+            [],
+
+        taxonomy :
+            taxonomy,
+
+        relationships :
+            (() =>
             {
-                source : "blood",
+                try
+                {
+                    return buildHealthRelationships({
 
-                id :
-                    result.id,
+                        tags :
+                        [
+                            ...(result.tags || []),
 
-                title :
-                    result.title ||
-                    "Bloedanalyse",
+                            "crohn",
+                            "colitis",
+                            "ibd",
 
-                description :
-                    result.description || "",
+                            "crp",
+                            "ferritine",
+                            "hemoglobine",
 
-                testDate :
-                    result.testDate || "",
+                            "vitamined",
+                            "b12",
 
-                values :
-                    result.values || {},
+                            "ontsteking",
+                            "bloedanalyse"
+                        ],
 
-                tags :
-                    result.tags || [],
+                        taxonomy :
+                            taxonomy
 
-                taxonomy :
-                    result.taxonomy || {},
+                    });
+                }
+                catch(error)
+                {
+                    console.error(
+                        "Relaties fout:",
+                        error
+                    );
 
-                searchText : `
-                    ${result.title || ""}
-                    ${result.description || ""}
-                    ${(result.tags || []).join(" ")}
-                `
-                .toLowerCase(),
+                    return [];
+                }
+            })(),
 
-                data :
-                    result
-            };
+        searchText : `
+            ${result.title || ""}
+            ${result.description || ""}
+            ${
+                Array.isArray(
+                    result.tags
+                )
+                ?
+                result.tags.join(" ")
+                :
+                ""
+            }
+        `.toLowerCase(),
 
-            globalIndex.push(
-                record
-            );
+        data :
+            result
+    };
 
-            globalIndexMap[
-                "blood_" + record.id
-            ] = record;
+    globalIndex.push(
+        record
+    );
 
-            addToIndexService(
-                record
-            );
-        });
+    globalIndexMap[
+        "blood_" + record.id
+    ] = record;
+
+    addToIndexService(
+        record
+    );
+});
 
         console.log(
             "Blood analyses geïndexeerd:",
@@ -17798,6 +17896,97 @@ function buildBloodTaxonomy(
 
     return taxonomy;
 }
+
+function buildHealthRelationships(
+    item
+)
+{
+    const relationships = [];
+
+    const tags =
+        normalizeTags(
+            item.tags
+        );
+
+    globalIndex
+
+    .filter(
+        x =>
+            x.source ===
+            "knowledge"
+    )
+
+    .forEach(
+        knowledgeItem =>
+        {
+            let score = 0;
+
+            const knowledgeTags =
+                normalizeTags(
+                    knowledgeItem.tags
+                );
+
+            tags.forEach(tag => {
+
+                if(
+                    knowledgeTags.includes(
+                        tag
+                    )
+                )
+                {
+                    score += 5;
+                }
+
+            });
+
+            Object.keys(
+                item.taxonomy || {}
+            )
+            .forEach(field => {
+
+                if(
+                    item.taxonomy[field]
+                    &&
+                    knowledgeItem.taxonomy?.[field]
+                )
+                {
+                    score += 10;
+                }
+
+            });
+
+            if(score >= 10)
+            {
+                relationships.push({
+
+                    id :
+                        knowledgeItem.id,
+
+                    source :
+                        "knowledge",
+
+                    type :
+                        "related",
+
+                    automatic :
+                        true,
+
+                    weight :
+                        score
+
+                });
+            }
+
+        });
+
+    return relationships
+        .sort(
+            (a,b) =>
+                b.weight - a.weight
+        )
+        .slice(0,10);
+}
+
 
 function buildKnowledgeKeywords(
     knowledgeItem

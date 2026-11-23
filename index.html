@@ -1311,13 +1311,19 @@ catch(error){
 
 try{
 
-    await buildBloodAnalysisIndex();
+await buildBloodAnalysisIndex();
 
 await buildMedicationIndex();
 
 await buildExamIndex();
 
 await buildCalprotectineIndex();
+
+await buildMealIndex();
+
+await buildSleepIndex();
+
+await buildStressIndex();
 
 }
 catch(error){
@@ -2186,6 +2192,173 @@ async function buildCalprotectineIndex()
 
     });
 
+}
+
+async function buildMealIndex()
+{
+    const entries =
+        DatabaseService.cache
+        ?.healthData
+        ?.mealEntries || [];
+
+    entries.forEach(item => {
+
+        globalIndex.push({
+
+            id:
+                item.id,
+
+            source:
+                "meal",
+
+            title:
+                item.title ||
+                item.mealType ||
+                "Maaltijd",
+
+            description:
+                item.notes || "",
+
+            tags:[
+                "voeding",
+                "meal"
+            ],
+
+            taxonomy:{
+                mainCategory:
+                    "Levenskwaliteit",
+
+                Nutrition:
+                    true
+            },
+
+            searchText: `
+                ${item.title || ""}
+                ${item.notes || ""}
+                ${item.mealType || ""}
+            `.toLowerCase()
+
+        });
+
+    });
+
+    console.log(
+        "Meals:",
+        entries.length
+    );
+}
+
+async function buildSleepIndex()
+{
+    const entries =
+        DatabaseService.cache
+        ?.healthData
+        ?.sleepEntries || [];
+
+    entries.forEach(item => {
+
+        globalIndex.push({
+
+            id:
+                item.id,
+
+            source:
+                "sleep",
+
+            title:
+                "Slaap " +
+                (
+                    item.hours ||
+                    "-"
+                ) +
+                " uur",
+
+            description:
+                item.notes || "",
+
+            tags:[
+                "slaap",
+                "sleep"
+            ],
+
+            taxonomy:{
+                mainCategory:
+                    "Levenskwaliteit",
+
+                MentalHealth:
+                    true
+            },
+
+            searchText: `
+                slaap
+                ${item.hours || ""}
+                ${item.notes || ""}
+            `.toLowerCase()
+
+        });
+
+    });
+
+    console.log(
+        "Sleep:",
+        entries.length
+    );
+}
+
+async function buildStressIndex()
+{
+    const entries =
+        DatabaseService.cache
+        ?.healthData
+        ?.stressEntries || [];
+
+    entries.forEach(item => {
+
+        globalIndex.push({
+
+            id:
+                item.id,
+
+            source:
+                "stress",
+
+            title:
+                "Stressniveau " +
+                (
+                    item.level ||
+                    "-"
+                ),
+
+            description:
+                item.notes || "",
+
+            tags:[
+                "stress",
+                "welzijn"
+            ],
+
+            taxonomy:{
+                mainCategory:
+                    "Levenskwaliteit",
+
+                MentalHealth:
+                    true
+            },
+
+            searchText: `
+                stress
+                ${item.level || ""}
+                ${item.notes || ""}
+            `.toLowerCase()
+
+        });
+
+    });
+
+    console.log(
+        "Stress:",
+        entries.length
+    );
 }
 
 async function buildWebsiteIndex()
@@ -8352,6 +8525,43 @@ function renderSleepTracker()
         ?.healthData
         ?.sleepEntries || [];
 
+    const sleepKnowledge =
+    findRelatedKnowledge(
+        [
+            "slaap",
+            "vermoeidheid",
+            "fatigue"
+        ],
+        {
+            Fatigue : true,
+            MentalHealth : true
+        }
+    );
+
+const sleepDocuments =
+    findRelatedDocuments(
+        [
+            "slaap",
+            "vermoeidheid",
+            "fatigue"
+        ],
+        {
+            Fatigue : true
+        }
+    );
+
+const sleepWebsites =
+    findRelatedWebsites(
+        [
+            "slaap",
+            "vermoeidheid",
+            "fatigue"
+        ],
+        {
+            Fatigue : true
+        }
+    );
+
     document.getElementById(
         "ccvContent"
     ).innerHTML = `
@@ -8541,6 +8751,70 @@ background:#dc2626;
 
 </div>
 
+<br><br>
+
+<div class="card">
+
+<h2>
+📚 Gerelateerde kennis
+</h2>
+
+${sleepKnowledge.map(item => `
+
+<div
+style="
+padding:10px;
+border-bottom:1px solid #ddd;
+cursor:pointer;
+"
+onclick="
+openSearchResult(
+'knowledge',
+'${item.id}'
+)
+"
+>
+
+📚 ${item.title}
+
+</div>
+
+`).join("")}
+
+</div>
+
+<br>
+
+<div class="card">
+
+<h2>
+📄 Gerelateerde documenten
+</h2>
+
+${sleepDocuments.map(item => `
+
+<div
+style="
+padding:10px;
+border-bottom:1px solid #ddd;
+cursor:pointer;
+"
+onclick="
+openSearchResult(
+'file',
+'${item.id}'
+)
+"
+>
+
+📄 ${item.title}
+
+</div>
+
+`).join("")}
+
+</div>
+
 `;
 
 setTimeout(
@@ -8660,6 +8934,43 @@ function renderStressTracker()
         DatabaseService.cache
         ?.healthData
         ?.stressEntries || [];
+
+const stressKnowledge =
+    findRelatedKnowledge(
+        [
+            "stress",
+            "mentaal",
+            "psychologie",
+            "welzijn"
+        ],
+        {
+            MentalHealth : true
+        }
+    );
+
+const stressDocuments =
+    findRelatedDocuments(
+        [
+            "stress",
+            "mentaal",
+            "psychologie"
+        ],
+        {
+            MentalHealth : true
+        }
+    );
+
+const stressWebsites =
+    findRelatedWebsites(
+        [
+            "stress",
+            "mentaal",
+            "psychologie"
+        ],
+        {
+            MentalHealth : true
+        }
+    );
 
     document.getElementById(
         "ccvContent"
@@ -8843,6 +9154,102 @@ background:#dc2626;
 🗑 Verwijderen
 
 </button>
+
+</div>
+
+`).join("")}
+
+</div>
+
+<br><br>
+
+<div class="card">
+
+<h2>
+📚 Gerelateerde kennis
+</h2>
+
+${stressKnowledge.map(item => `
+
+<div
+style="
+padding:10px;
+border-bottom:1px solid #ddd;
+cursor:pointer;
+"
+onclick="
+openSearchResult(
+'knowledge',
+'${item.id}'
+)
+"
+>
+
+📚 ${item.title}
+
+</div>
+
+`).join("")}
+
+</div>
+
+<br>
+
+<div class="card">
+
+<h2>
+📄 Gerelateerde documenten
+</h2>
+
+${stressDocuments.map(item => `
+
+<div
+style="
+padding:10px;
+border-bottom:1px solid #ddd;
+cursor:pointer;
+"
+onclick="
+openSearchResult(
+'file',
+'${item.id}'
+)
+"
+>
+
+📄 ${item.title}
+
+</div>
+
+`).join("")}
+
+</div>
+
+<br>
+
+<div class="card">
+
+<h2>
+🌐 Relevante websites
+</h2>
+
+${stressWebsites.map(item => `
+
+<div
+style="
+padding:10px;
+border-bottom:1px solid #ddd;
+cursor:pointer;
+"
+onclick="
+window.open(
+'${item.url}',
+'_blank'
+)
+"
+>
+
+🌐 ${item.title || item.titel}
 
 </div>
 
@@ -9214,6 +9621,30 @@ function renderFoodTracker()
         ?.healthData
         ?.meals || [];
 
+    const foodKnowledge =
+    findRelatedKnowledge(
+        ["voeding","dieet","fodmap"],
+        {
+            Nutrition : true
+        }
+    );
+
+const foodDocuments =
+    findRelatedDocuments(
+        ["voeding","dieet","fodmap"],
+        {
+            Nutrition : true
+        }
+    );
+
+const foodWebsites =
+    findRelatedWebsites(
+        ["voeding","dieet","fodmap"],
+        {
+            Nutrition : true
+        }
+    );
+
     document.getElementById(
         "ccvContent"
     ).innerHTML = `
@@ -9288,6 +9719,102 @@ border-bottom:1px solid #ddd;
 <br>
 
 ${item.notes}
+
+</div>
+
+`).join("")}
+
+</div>
+
+<br><br>
+
+<div class="card">
+
+<h2>
+📚 Gerelateerde kennis
+</h2>
+
+${foodKnowledge.map(item => `
+
+<div
+style="
+padding:10px;
+border-bottom:1px solid #ddd;
+cursor:pointer;
+"
+onclick="
+openSearchResult(
+'knowledge',
+'${item.id}'
+)
+"
+>
+
+📚 ${item.title}
+
+</div>
+
+`).join("")}
+
+</div>
+
+<br>
+
+<div class="card">
+
+<h2>
+📄 Gerelateerde documenten
+</h2>
+
+${foodDocuments.map(item => `
+
+<div
+style="
+padding:10px;
+border-bottom:1px solid #ddd;
+cursor:pointer;
+"
+onclick="
+openSearchResult(
+'file',
+'${item.id}'
+)
+"
+>
+
+📄 ${item.title}
+
+</div>
+
+`).join("")}
+
+</div>
+
+<br>
+
+<div class="card">
+
+<h2>
+🌐 Relevante websites
+</h2>
+
+${foodWebsites.map(item => `
+
+<div
+style="
+padding:10px;
+border-bottom:1px solid #ddd;
+cursor:pointer;
+"
+onclick="
+window.open(
+'${item.url}',
+'_blank'
+)
+"
+>
+
+🌐 ${item.title || item.titel}
 
 </div>
 
@@ -10637,32 +11164,6 @@ function extractBloodValues(
         ]
     ),
 
-Albumine :
-    extractLabNumber(
-        text,
-        [
-            "Albumine"
-        ]
-    ),
-
-Leukocyten :
-    extractLabNumber(
-        text,
-        [
-            "Leukocyten",
-            "WBC"
-        ]
-    ),
-
-Trombocyten :
-    extractLabNumber(
-        text,
-        [
-            "Trombocyten",
-            "Platelets"
-        ]
-    ),
-
 Calprotectine :
     extractLabNumber(
         text,
@@ -10712,11 +11213,12 @@ function extractLabNumber(
     for(const label of labels)
     {
         const regex =
-            new RegExp(
-                label +
-                "[^0-9]{0,20}([0-9]+(?:[\\.,][0-9]+)?)",
-                "i"
-            );
+new RegExp(
+    label +
+    "[\\s\\S]{0,60}?" +
+    "([0-9]+(?:[\\.,][0-9]+)?)",
+    "i"
+);
 
         const match =
             text.match(
@@ -10773,21 +11275,6 @@ ${values.VitamineD ?? "-"}
 
 Vitamine B12:
 ${values.VitamineB12 ?? "-"}
-
-<br><br>
-
-Albumine:
-${values.Albumine ?? "-"}
-
-<br><br>
-
-Leukocyten:
-${values.Leukocyten ?? "-"}
-
-<br><br>
-
-Trombocyten:
-${values.Trombocyten ?? "-"}
 
 <br><br>
 
@@ -17621,6 +18108,243 @@ function findRelatedWebsitesForKnowledgeItem(
 
 }
 
+function findRelatedKnowledge(
+    tags = [],
+    taxonomy = {}
+)
+{
+    return globalIndex
+
+    .filter(
+        item =>
+            item.source === "knowledge"
+    )
+
+    .map(item => {
+
+        let score = 0;
+
+        const itemTags =
+            normalizeTags(item.tags);
+
+        tags.forEach(tag => {
+
+            if(
+                itemTags.includes(
+                    tag.toLowerCase()
+                )
+            )
+            {
+                score += 5;
+            }
+
+        });
+
+        Object.keys(
+            taxonomy || {}
+        ).forEach(field => {
+
+            if(
+                taxonomy[field] === true &&
+                item.taxonomy?.[field]
+            )
+            {
+                score += 10;
+            }
+
+        });
+
+        return {
+            item,
+            score
+        };
+
+    })
+
+    .filter(
+        x => x.score > 0
+    )
+
+    .sort(
+        (a,b) =>
+            b.score - a.score
+    )
+
+    .slice(0,10)
+
+    .map(
+        x => x.item
+    );
+}
+
+function findRelatedDocuments(
+    tags = [],
+    taxonomy = {}
+)
+{
+    return globalIndex
+
+    .filter(
+        item =>
+            item.source === "file"
+    )
+
+    .map(file => {
+
+        const text = (
+
+            file.searchText ||
+
+            file.content ||
+
+            file.title ||
+
+            ""
+
+        ).toLowerCase();
+
+        let score = 0;
+
+        tags.forEach(tag => {
+
+            if(
+                text.includes(
+                    tag.toLowerCase()
+                )
+            )
+            {
+                score += 5;
+            }
+
+        });
+
+        Object.keys(
+            taxonomy || {}
+        ).forEach(field => {
+
+            if(
+                taxonomy[field]
+            )
+            {
+                if(
+                    text.includes(
+                        field.toLowerCase()
+                    )
+                )
+                {
+                    score += 10;
+                }
+            }
+
+        });
+
+        return {
+            file,
+            score
+        };
+
+    })
+
+    .filter(
+        x => x.score > 0
+    )
+
+    .sort(
+        (a,b) =>
+            b.score - a.score
+    )
+
+    .slice(0,15)
+
+    .map(
+        x => x.file
+    );
+}
+
+function findRelatedWebsites(
+    tags = [],
+    taxonomy = {}
+)
+{
+    return globalIndex
+
+    .filter(
+        item =>
+            item.source === "website"
+    )
+
+    .map(site => {
+
+        const text = (
+
+            site.searchText ||
+
+            site.description ||
+
+            site.title ||
+
+            ""
+
+        ).toLowerCase();
+
+        let score = 0;
+
+        tags.forEach(tag => {
+
+            if(
+                text.includes(
+                    tag.toLowerCase()
+                )
+            )
+            {
+                score += 5;
+            }
+
+        });
+
+        Object.keys(
+            taxonomy || {}
+        ).forEach(field => {
+
+            if(
+                taxonomy[field]
+            )
+            {
+                if(
+                    text.includes(
+                        field.toLowerCase()
+                    )
+                )
+                {
+                    score += 10;
+                }
+            }
+
+        });
+
+        return {
+            site,
+            score
+        };
+
+    })
+
+    .filter(
+        x => x.score > 0
+    )
+
+    .sort(
+        (a,b) =>
+            b.score - a.score
+    )
+
+    .slice(0,15)
+
+    .map(
+        x => x.site
+    );
+}
+
 function getTaxonomyCategoryByName(
     categoryName
 )
@@ -18066,6 +18790,21 @@ exam :
 calprotectine :
     items.filter(
         x => x.source === "calprotectine"
+    ),
+
+meal :
+    items.filter(
+        x => x.source === "meal"
+    ),
+
+sleep :
+    items.filter(
+        x => x.source === "sleep"
+    ),
+
+stress :
+    items.filter(
+        x => x.source === "stress"
     )
 
 };
@@ -18087,6 +18826,12 @@ return [
 ...grouped.exam.slice(0,100),
 
 ...grouped.calprotectine.slice(0,100),
+
+...grouped.meal.slice(0,100),
+
+...grouped.sleep.slice(0,100),
+
+...grouped.stress.slice(0,100),
 
 ].slice(0,maxNodes);
 
@@ -18220,6 +18965,21 @@ exam :
 calprotectine :
     filteredItems.filter(
         x => x.source === "calprotectine"
+    ).length,
+
+meal :
+    filteredItems.filter(
+        x => x.source === "meal"
+    ).length,
+
+sleep :
+    filteredItems.filter(
+        x => x.source === "sleep"
+    ).length,
+
+stress :
+    filteredItems.filter(
+        x => x.source === "stress"
     ).length
 
 };
@@ -18315,6 +19075,18 @@ Onderzoeken
 
 <option value="calprotectine">
 Calprotectine
+</option>
+
+<option value="meal">
+Voeding
+</option>
+
+<option value="sleep">
+Slaap
+</option>
+
+<option value="stress">
+Stress
 </option>
 
 <option value="email"
@@ -18534,6 +19306,69 @@ renderKnowledgeOverview();
 <br>
 
 ${counts.calprotectine}
+
+</div>
+
+<div
+class="card"
+style="cursor:pointer"
+onclick="
+document.getElementById(
+'aiSourceFilter'
+).value='meal';
+renderKnowledgeOverview();
+"
+>
+
+<h3>
+🥗 Voeding
+</h3>
+
+<br>
+
+${counts.meal}
+
+</div>
+
+<div
+class="card"
+style="cursor:pointer"
+onclick="
+document.getElementById(
+'aiSourceFilter'
+).value='sleep';
+renderKnowledgeOverview();
+"
+>
+
+<h3>
+😴 Slaap
+</h3>
+
+<br>
+
+${counts.sleep}
+
+</div>
+
+<div
+class="card"
+style="cursor:pointer"
+onclick="
+document.getElementById(
+'aiSourceFilter'
+).value='stress';
+renderKnowledgeOverview();
+"
+>
+
+<h3>
+😟 Stress
+</h3>
+
+<br>
+
+${counts.stress}
 
 </div>
 
@@ -19705,11 +20540,36 @@ function renderBloodAnalysis(id)
                 === String(id)
         );
 
+    const relatedKnowledge =
+    findRelatedKnowledge(
+        normalizeTags(
+            item.tags
+        ),
+        item.taxonomy || {}
+    );
+
+const relatedDocuments =
+    findRelatedDocuments(
+        normalizeTags(
+            item.tags
+        ),
+        item.taxonomy || {}
+    );
+
+const relatedWebsites =
+    findRelatedWebsites(
+        normalizeTags(
+            item.tags
+        ),
+        item.taxonomy || {}
+    );
+
     if(!item)
     {
         return;
     }
 
+    
     document.getElementById(
         "ccvContent"
     ).innerHTML = `
@@ -19782,6 +20642,205 @@ ${item.values?.Trombocyten ?? "-"}
 Calprotectine:
 ${item.values?.Calprotectine ?? "-"}
 
+<br><br>
+
+<h2>
+📚 Gerelateerde kennis
+</h2>
+
+${relatedKnowledge.map(k => `
+
+<div
+style="
+padding:10px;
+border-bottom:1px solid #ddd;
+cursor:pointer;
+"
+onclick="
+openSearchResult(
+'knowledge',
+'${k.id}'
+)
+"
+>
+
+📚 ${k.title}
+
+</div>
+
+`).join("")}
+
+<br><br>
+
+<h2>
+📄 Gerelateerde documenten
+</h2>
+
+${relatedDocuments.map(file => `
+
+<div
+style="
+padding:10px;
+border-bottom:1px solid #ddd;
+cursor:pointer;
+"
+onclick="
+openSearchResult(
+'file',
+'${file.id}'
+)
+"
+>
+
+📄 ${file.title}
+
+</div>
+
+`).join("")}
+
+
+<br><br>
+
+<h2>
+🌐 Relevante websites
+</h2>
+
+${relatedWebsites.map(site => `
+
+<div
+style="
+padding:10px;
+border-bottom:1px solid #ddd;
+cursor:pointer;
+"
+onclick="
+window.open(
+'${site.url}',
+'_blank'
+)
+"
+>
+
+🌐 ${site.titel || site.title}
+
+</div>
+
+`).join("")}
+
+<br><br>
+
+<div class="card">
+
+<h2>
+📚 Gerelateerde kennis
+</h2>
+
+${relatedKnowledge.length
+
+? relatedKnowledge.map(k => `
+
+<div
+style="
+padding:10px;
+border-bottom:1px solid #ddd;
+cursor:pointer;
+"
+onclick="
+openSearchResult(
+'knowledge',
+'${k.id}'
+)
+"
+>
+
+📚 ${k.title}
+
+</div>
+
+`).join("")
+
+: "Geen kennis gevonden"
+
+}
+
+</div>
+
+<br>
+
+<div class="card">
+
+<h2>
+📄 Gerelateerde documenten
+</h2>
+
+${relatedDocuments.length
+
+? relatedDocuments.map(file => `
+
+<div
+style="
+padding:10px;
+border-bottom:1px solid #ddd;
+cursor:pointer;
+"
+onclick="
+openSearchResult(
+'file',
+'${file.id}'
+)
+"
+>
+
+📄 ${file.title}
+
+</div>
+
+`).join("")
+
+: "Geen documenten gevonden"
+
+}
+
+</div>
+
+<br>
+
+<div class="card">
+
+<h2>
+🌐 Relevante websites
+</h2>
+
+${relatedWebsites.length
+
+? relatedWebsites.map(site => `
+
+<div
+style="
+padding:10px;
+border-bottom:1px solid #ddd;
+cursor:pointer;
+"
+onclick="
+window.open(
+'${site.url}',
+'_blank'
+)
+"
+>
+
+🌐 ${site.titel || site.title}
+
+</div>
+
+`).join("")
+
+: "Geen websites gevonden"
+
+}
+
+</div>
+
     </div>
 
     `;
@@ -19803,6 +20862,30 @@ function renderMedication(id)
     if(!item){
         return;
     }
+
+    const relatedKnowledge =
+    findRelatedKnowledge(
+        normalizeTags(
+            item.tags
+        ),
+        item.taxonomy || {}
+    );
+
+const relatedDocuments =
+    findRelatedDocuments(
+        normalizeTags(
+            item.tags
+        ),
+        item.taxonomy || {}
+    );
+
+const relatedWebsites =
+    findRelatedWebsites(
+        normalizeTags(
+            item.tags
+        ),
+        item.taxonomy || {}
+    );
 
     document.getElementById(
         "ccvContent"
@@ -19831,6 +20914,148 @@ renderKnowledgeOverview()
 
 ${item.description || "-"}
 
+<br><br>
+
+<div class="card">
+
+<h2>
+📚 Gerelateerde kennis
+</h2>
+
+${relatedKnowledge.length
+
+? relatedKnowledge.map(k => `
+
+<div
+style="
+padding:10px;
+border-bottom:1px solid #ddd;
+cursor:pointer;
+"
+onclick="
+openSearchResult(
+'knowledge',
+'${k.id}'
+)
+"
+>
+
+📚 ${k.title}
+
+</div>
+
+`).join("")
+
+: "Geen kennis gevonden"
+
+}
+
+</div>
+
+<br>
+
+<div class="card">
+
+<h2>
+📄 Gerelateerde documenten
+</h2>
+
+${relatedDocuments.length
+
+? relatedDocuments.map(file => `
+
+<div
+style="
+padding:10px;
+border-bottom:1px solid #ddd;
+cursor:pointer;
+"
+onclick="
+openSearchResult(
+'file',
+'${file.id}'
+)
+"
+>
+
+📄 ${file.title}
+
+</div>
+
+`).join("")
+
+: "Geen documenten gevonden"
+
+}
+
+</div>
+
+<br>
+
+<div class="card">
+
+<h2>
+🌐 Relevante websites
+</h2>
+
+${relatedWebsites.length
+
+? relatedWebsites.map(site => `
+
+<div
+style="
+padding:10px;
+border-bottom:1px solid #ddd;
+cursor:pointer;
+"
+onclick="
+window.open(
+'${site.url}',
+'_blank'
+)
+"
+>
+
+🌐 ${site.titel || site.title}
+
+</div>
+
+`).join("")
+
+: "Geen websites gevonden"
+
+}
+
+</div>
+
+<br><br>
+
+<h2>
+📚 Gerelateerde kennis
+</h2>
+
+${relatedKnowledge.map(k => `
+
+<div
+style="
+padding:10px;
+border-bottom:1px solid #ddd;
+cursor:pointer;
+"
+onclick="
+openSearchResult(
+'knowledge',
+'${k.id}'
+)
+"
+>
+
+📚 ${k.title}
+
+</div>
+
+`).join("")}
+
 </div>
 
 `;
@@ -19850,6 +21075,30 @@ function renderExam(id)
     if(!item){
         return;
     }
+
+    const relatedKnowledge =
+    findRelatedKnowledge(
+        normalizeTags(
+            item.tags
+        ),
+        item.taxonomy || {}
+    );
+
+const relatedDocuments =
+    findRelatedDocuments(
+        normalizeTags(
+            item.tags
+        ),
+        item.taxonomy || {}
+    );
+
+const relatedWebsites =
+    findRelatedWebsites(
+        normalizeTags(
+            item.tags
+        ),
+        item.taxonomy || {}
+    );
 
     document.getElementById(
         "ccvContent"
@@ -19874,9 +21123,105 @@ renderKnowledgeOverview()
 
 <br><br>
 
-<div class="card">
+<<div class="card">
 
 ${item.description || "-"}
+
+</div>
+
+<br><br>
+
+<div class="card">
+
+<h2>
+📚 Gerelateerde kennis
+</h2>
+
+${relatedKnowledge.map(k => `
+
+<div
+style="
+padding:10px;
+border-bottom:1px solid #ddd;
+cursor:pointer;
+"
+onclick="
+openSearchResult(
+'knowledge',
+'${k.id}'
+)
+"
+>
+
+📚 ${k.title}
+
+</div>
+
+`).join("")}
+
+</div>
+
+<br>
+
+<div class="card">
+
+<h2>
+📄 Gerelateerde documenten
+</h2>
+
+${relatedDocuments.map(file => `
+
+<div
+style="
+padding:10px;
+border-bottom:1px solid #ddd;
+cursor:pointer;
+"
+onclick="
+openSearchResult(
+'file',
+'${file.id}'
+)
+"
+>
+
+📄 ${file.title}
+
+</div>
+
+`).join("")}
+
+</div>
+
+<br>
+
+<div class="card">
+
+<h2>
+🌐 Relevante websites
+</h2>
+
+${relatedWebsites.map(site => `
+
+<div
+style="
+padding:10px;
+border-bottom:1px solid #ddd;
+cursor:pointer;
+"
+onclick="
+window.open(
+'${site.url}',
+'_blank'
+)
+"
+>
+
+🌐 ${site.titel || site.title}
+
+</div>
+
+`).join("")}
 
 </div>
 
@@ -19897,6 +21242,30 @@ function renderCalprotectine(id)
     if(!item){
         return;
     }
+
+    const relatedKnowledge =
+    findRelatedKnowledge(
+        normalizeTags(
+            item.tags
+        ),
+        item.taxonomy || {}
+    );
+
+const relatedDocuments =
+    findRelatedDocuments(
+        normalizeTags(
+            item.tags
+        ),
+        item.taxonomy || {}
+    );
+
+const relatedWebsites =
+    findRelatedWebsites(
+        normalizeTags(
+            item.tags
+        ),
+        item.taxonomy || {}
+    );
 
     document.getElementById(
         "ccvContent"
@@ -19925,7 +21294,117 @@ renderKnowledgeOverview()
 
 Waarde:
 
-${item.values?.Calprotectine ?? "-"}
+${
+
+    item.values?.Calprotectine ??
+
+    item.value ??
+
+    "-"
+
+}
+
+</div>
+
+<br>
+
+<div class="card">
+
+<h2>
+
+📚 Gerelateerde kennis
+
+</h2>
+
+${relatedKnowledge.map(k => `
+
+<div
+style="
+padding:10px;
+border-bottom:1px solid #ddd;
+cursor:pointer;
+"
+onclick="
+openSearchResult(
+'knowledge',
+'${k.id}'
+)
+"
+>
+
+📚 ${k.title}
+
+</div>
+
+`).join("")}
+
+</div>
+
+<br>
+
+<div class="card">
+
+<h2>
+
+📄 Gerelateerde documenten
+
+</h2>
+
+${relatedDocuments.map(file => `
+
+<div
+style="
+padding:10px;
+border-bottom:1px solid #ddd;
+cursor:pointer;
+"
+onclick="
+openSearchResult(
+'file',
+'${file.id}'
+)
+"
+>
+
+📄 ${file.title}
+
+</div>
+
+`).join("")}
+
+</div>
+
+<br>
+
+<div class="card">
+
+<h2>
+
+🌐 Relevante websites
+
+</h2>
+
+${relatedWebsites.map(site => `
+
+<div
+style="
+padding:10px;
+border-bottom:1px solid #ddd;
+cursor:pointer;
+"
+onclick="
+window.open(
+'${site.url}',
+'_blank'
+)
+"
+>
+
+🌐 ${site.titel || site.title}
+
+</div>
+
+`).join("")}
 
 </div>
 
@@ -19965,6 +21444,34 @@ function renderTaxonomySubCategory(
 
     );
 
+}
+
+function buildBloodTaxonomy(values)
+{
+    return {
+
+        mainCategory :
+            "Bloedanalyse",
+
+        InflammationMarker :
+            (values.CRP || 0) > 5,
+
+        IronDeficiency :
+            (values.Ferritine || 0) < 30,
+
+        Anemia :
+            (values.Hemoglobine || 0) < 12,
+
+        VitaminDDeficiency :
+            (values.VitamineD || 0) < 30,
+
+        DiseaseActivity :
+            (values.CRP || 0) > 5,
+
+        FlareIndicator :
+            (values.Calprotectine || 0) > 250
+
+    };
 }
 
 function renderTopKnowledgeTopics(){
@@ -20869,6 +22376,18 @@ exam:{
 
 calprotectine:{
     color:"#9333ea"
+},
+
+meal:{
+    color:"#16a34a"
+},
+
+sleep:{
+    color:"#0ea5e9"
+},
+
+stress:{
+    color:"#f97316"
 }
 
                 }

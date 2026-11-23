@@ -1313,6 +1313,12 @@ try{
 
     await buildBloodAnalysisIndex();
 
+await buildMedicationIndex();
+
+await buildExamIndex();
+
+await buildCalprotectineIndex();
+
 }
 catch(error){
 
@@ -2040,6 +2046,146 @@ async function buildBloodAnalysisIndex()
             error
         );
     }
+}
+
+async function buildMedicationIndex()
+{
+    const entries =
+        DatabaseService.cache
+        ?.healthData
+        ?.medication || [];
+
+    entries.forEach(item => {
+
+        globalIndex.push({
+
+            id:
+                item.id,
+
+            source:
+                "medication",
+
+            title:
+                item.name ||
+                "Medicatie",
+
+            description:
+                item.notes || "",
+
+            tags: [
+                "medicatie",
+                item.name
+            ],
+
+            taxonomy: {
+                mainCategory:
+                    "Medicatie"
+            },
+
+            searchText: `
+                ${item.name || ""}
+                ${item.notes || ""}
+            `.toLowerCase()
+
+        });
+
+    });
+
+    console.log(
+        "Medication:",
+        entries.length
+    );
+}
+
+async function buildExamIndex()
+{
+    const entries =
+        DatabaseService.cache
+        ?.healthData
+        ?.exams || [];
+
+    entries.forEach(item => {
+
+        globalIndex.push({
+
+            id:item.id,
+
+            source:"exam",
+
+            title:
+                item.name ||
+                "Onderzoek",
+
+            description:
+                item.notes || "",
+
+            tags:[
+                "onderzoek",
+                item.name
+            ],
+
+            taxonomy:{
+                mainCategory:
+                    "Diagnostiek"
+            },
+
+            searchText: `
+                ${item.name || ""}
+            `.toLowerCase()
+
+        });
+
+    });
+
+}
+
+async function buildCalprotectineIndex()
+{
+    const entries =
+        DatabaseService.cache
+        ?.healthData
+        ?.calprotectineResults || [];
+
+    entries.forEach(item => {
+
+        globalIndex.push({
+
+            id:
+                item.id,
+
+            source:
+                "calprotectine",
+
+            title:
+                "Calprotectine " +
+                item.value,
+
+            values:{
+                Calprotectine:
+                    item.value
+            },
+
+            taxonomy:{
+                mainCategory:
+                    "Bloedanalyse",
+
+                Calprotectine:
+                    true
+            },
+
+            tags:[
+                "calprotectine"
+            ],
+
+            searchText: `
+                calprotectine
+                ${item.value}
+            `.toLowerCase()
+
+        });
+
+    });
+
 }
 
 async function buildWebsiteIndex()
@@ -6531,25 +6677,35 @@ function renderResults(results){
     <h3>
 
         ${
-           item.source === "folder"
-?
-"📁"
-:
-item.source === "website"
-?
-"🌐"
-:
-item.source === "email"
-?
-"📧"
-:
-item.source === "capture"
-?
-"📌"
-:
-"📄"
+    item.source === "folder"
+    ? "📁"
 
-        }
+    : item.source === "website"
+    ? "🌐"
+
+    : item.source === "email"
+    ? "📧"
+
+    : item.source === "capture"
+    ? "📌"
+
+    : item.source === "blood"
+    ? "🩸"
+
+    : item.source === "medication"
+    ? "💊"
+
+    : item.source === "exam"
+    ? "🏥"
+
+    : item.source === "calprotectine"
+    ? "🧫"
+
+    : item.source === "knowledge"
+    ? "📚"
+
+    : "📄"
+}
 
         ${item.title || "-"}
 
@@ -6654,6 +6810,24 @@ if(source === "email")
 if(source === "blood")
 {
     renderBloodAnalysis(id);
+    return;
+}
+
+if(source === "medication")
+{
+    renderMedication(id);
+    return;
+}
+
+if(source === "exam")
+{
+    renderExam(id);
+    return;
+}
+
+if(source === "calprotectine")
+{
+    renderCalprotectine(id);
     return;
 }
 
@@ -17877,6 +18051,21 @@ const grouped = {
     blood :
     items.filter(
         x => x.source === "blood"
+    ),
+
+    medication :
+    items.filter(
+        x => x.source === "medication"
+    ),
+
+exam :
+    items.filter(
+        x => x.source === "exam"
+    ),
+
+calprotectine :
+    items.filter(
+        x => x.source === "calprotectine"
     )
 
 };
@@ -17892,6 +18081,13 @@ return [
     ...grouped.website.slice(0,100),
 
     ...grouped.blood.slice(0,100),
+
+    ...grouped.medication.slice(0,100),
+
+...grouped.exam.slice(0,100),
+
+...grouped.calprotectine.slice(0,100),
+
 ].slice(0,maxNodes);
 
 }
@@ -18009,7 +18205,22 @@ async function renderKnowledgeOverview(){
     email :
         filteredItems.filter(
             x=>x.source==="email"
-        ).length
+        ).length,
+
+    medication :
+    filteredItems.filter(
+        x => x.source === "medication"
+    ).length,
+
+exam :
+    filteredItems.filter(
+        x => x.source === "exam"
+    ).length,
+
+calprotectine :
+    filteredItems.filter(
+        x => x.source === "calprotectine"
+    ).length
 
 };
 
@@ -18092,6 +18303,18 @@ Captaties
 <option value="blood"
 ${sourceFilter==="blood"?"selected":""}>
 Bloedanalyses
+</option>
+
+<option value="medication">
+Medicatie
+</option>
+
+<option value="exam">
+Onderzoeken
+</option>
+
+<option value="calprotectine">
+Calprotectine
 </option>
 
 <option value="email"
@@ -18251,6 +18474,68 @@ ${counts.blood}
 
 </div>
 
+<div
+class="card"
+style="cursor:pointer"
+onclick="
+document.getElementById(
+'aiSourceFilter'
+).value='medication';
+renderKnowledgeOverview();
+"
+>
+
+<h3>
+💊 Medicatie
+</h3>
+
+<br>
+
+${counts.medication}
+
+</div>
+
+<div
+class="card"
+style="cursor:pointer"
+onclick="
+document.getElementById(
+'aiSourceFilter'
+).value='exam';
+renderKnowledgeOverview();
+"
+>
+
+<h3>
+🏥 Onderzoeken
+</h3>
+
+<br>
+
+${counts.exam}
+
+</div>
+
+<div
+class="card"
+style="cursor:pointer"
+onclick="
+document.getElementById(
+'aiSourceFilter'
+).value='calprotectine';
+renderKnowledgeOverview();
+"
+>
+
+<h3>
+🧫 Calprotectine
+</h3>
+
+<br>
+
+${counts.calprotectine}
+
+</div>
 
 <div
 class="card"
@@ -19503,6 +19788,150 @@ ${item.values?.Calprotectine ?? "-"}
 
 }
 
+function renderMedication(id)
+{
+    const item =
+        globalIndex.find(
+            x =>
+                x.source ===
+                "medication"
+                &&
+                String(x.id)
+                === String(id)
+        );
+
+    if(!item){
+        return;
+    }
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+
+💊 ${item.title}
+
+</div>
+
+<button
+class="action-btn"
+onclick="
+renderKnowledgeOverview()
+"
+>
+
+⬅ Terug
+
+</button>
+
+<br><br>
+
+<div class="card">
+
+${item.description || "-"}
+
+</div>
+
+`;
+}
+
+function renderExam(id)
+{
+    const item =
+        globalIndex.find(
+            x =>
+                x.source === "exam"
+                &&
+                String(x.id)
+                === String(id)
+        );
+
+    if(!item){
+        return;
+    }
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+
+🏥 ${item.title}
+
+</div>
+
+<button
+class="action-btn"
+onclick="
+renderKnowledgeOverview()
+"
+>
+
+⬅ Terug
+
+</button>
+
+<br><br>
+
+<div class="card">
+
+${item.description || "-"}
+
+</div>
+
+`;
+}
+
+function renderCalprotectine(id)
+{
+    const item =
+        globalIndex.find(
+            x =>
+                x.source === "calprotectine"
+                &&
+                String(x.id)
+                === String(id)
+        );
+
+    if(!item){
+        return;
+    }
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+
+🧫 ${item.title}
+
+</div>
+
+<button
+class="action-btn"
+onclick="
+renderKnowledgeOverview()
+"
+>
+
+⬅ Terug
+
+</button>
+
+<br><br>
+
+<div class="card">
+
+Waarde:
+
+${item.values?.Calprotectine ?? "-"}
+
+</div>
+
+`;
+}
+
 function renderTaxonomySubCategory(
     subCategory
 ){
@@ -20428,6 +20857,18 @@ async function buildKnowledgeNetwork(){
 
                     blood:{
     color:"#dc2626"
+},
+
+medication:{
+    color:"#2563eb"
+},
+
+exam:{
+    color:"#16a34a"
+},
+
+calprotectine:{
+    color:"#9333ea"
 }
 
                 }

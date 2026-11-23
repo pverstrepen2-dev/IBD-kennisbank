@@ -1975,9 +1975,29 @@ async function buildBloodAnalysisIndex()
 {
     try
     {
+        globalIndex =
+            globalIndex.filter(
+                x => x.source !== "blood"
+            );
+
+        Object.keys(
+            globalIndexMap
+        )
+        .forEach(key =>
+        {
+            if(
+                key.startsWith(
+                    "blood_"
+                )
+            )
+            {
+                delete globalIndexMap[key];
+            }
+        });
+
         const db =
             await DatabaseService.load();
-
+            
         const analyses =
             db.healthData?.bloodResults || [];
 

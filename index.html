@@ -691,6 +691,34 @@ window.addEventListener(
     }
 );
 
+async function extractBloodValuesFromPDF(file) {
+
+    const arrayBuffer = await file.arrayBuffer();
+
+    const pdf = await pdfjsLib.getDocument({
+        data: arrayBuffer
+    }).promise;
+
+    let fullText = "";
+
+    for(let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+
+        const page = await pdf.getPage(pageNum);
+
+        const textContent = await page.getTextContent();
+
+        const pageText = textContent.items
+            .map(item => item.str)
+            .join(" ");
+
+        fullText += pageText + "\n";
+    }
+
+    console.log("PDF BLOEDTEKST", fullText);
+
+    return parseBloodValues(fullText);
+}
+
 function updateUserInfo(){
 
     console.log(
@@ -10649,10 +10677,24 @@ async function saveExtractedBloodValues(
             values,
 
             tags :
-            [
-                "labrapport",
-                "pdf"
-            ],
+[
+    "labrapport",
+    "pdf",
+    "bloedanalyse",
+
+    values.CRP > 5
+        ? "ontsteking"
+        : null,
+
+    values.Ferritine < 30
+        ? "ijzertekort"
+        : null,
+
+    values.Calprotectine > 250
+        ? "opstoot"
+        : null
+
+].filter(Boolean),
 
             taxonomy :
                 buildBloodTaxonomy(
@@ -19412,23 +19454,48 @@ function renderBloodAnalysis(id)
 
         <br>
 
-        CRP:
-        ${item.values?.CRP ?? "-"}
+       CRP:
+${item.values?.CRP ?? "-"}
 
-        <br><br>
+<br><br>
 
-        Ferritine:
-        ${item.values?.Ferritine ?? "-"}
+Ferritine:
+${item.values?.Ferritine ?? "-"}
 
-        <br><br>
+<br><br>
 
-        Hemoglobine:
-        ${item.values?.Hemoglobine ?? "-"}
+Hemoglobine:
+${item.values?.Hemoglobine ?? "-"}
 
-        <br><br>
+<br><br>
 
-        Vitamine D:
-        ${item.values?.VitamineD ?? "-"}
+Vitamine D:
+${item.values?.VitamineD ?? "-"}
+
+<br><br>
+
+Vitamine B12:
+${item.values?.VitamineB12 ?? "-"}
+
+<br><br>
+
+Albumine:
+${item.values?.Albumine ?? "-"}
+
+<br><br>
+
+Leukocyten:
+${item.values?.Leukocyten ?? "-"}
+
+<br><br>
+
+Trombocyten:
+${item.values?.Trombocyten ?? "-"}
+
+<br><br>
+
+Calprotectine:
+${item.values?.Calprotectine ?? "-"}
 
     </div>
 
@@ -20357,7 +20424,11 @@ async function buildKnowledgeNetwork(){
 
                     folder:{
                         color:"#9c27b0"
-                    }
+                    },
+
+                    blood:{
+    color:"#dc2626"
+}
 
                 }
 

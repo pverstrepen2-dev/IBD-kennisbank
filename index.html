@@ -11575,6 +11575,141 @@ const RelationshipGraphBuilder = {
 
 };
 
+/* =====================================================
+   MY IBD PROFILE BUILDER
+   ===================================================== */
+
+const MyIBDProfileBuilder = {
+
+    build()
+    {
+        const insights =
+            HealthTimelineEngine.generateInsights();
+
+        const ferritinRelations =
+            RelationshipGraphBuilder
+                .findFerritinRelations();
+
+        const profile = {
+
+            inflammation :
+                false,
+
+            ironDeficiency :
+                false,
+
+            vitaminDDeficiency :
+                false,
+
+            highFlareRisk :
+                false,
+
+            fatigueRisk :
+                false,
+
+            activeThemes : [],
+
+            recommendations : []
+
+        };
+
+        profile.activeThemes =
+            insights.themes || [];
+
+        profile.recommendations =
+            insights.recommendations || [];
+
+        if(
+            profile.activeThemes.includes(
+                "Ontsteking"
+            )
+        )
+        {
+            profile.inflammation = true;
+        }
+
+        if(
+            profile.activeThemes.includes(
+                "Ferritinetekort"
+            )
+        )
+        {
+            profile.ironDeficiency = true;
+        }
+
+        if(
+            profile.activeThemes.includes(
+                "Vitamine D tekort"
+            )
+        )
+        {
+            profile.vitaminDDeficiency = true;
+        }
+
+        if(
+            insights.flareRisk === "hoog"
+        )
+        {
+            profile.highFlareRisk = true;
+        }
+
+        if(
+            ferritinRelations.length
+        )
+        {
+            profile.fatigueRisk = true;
+        }
+
+        return profile;
+    },
+
+    buildSummary()
+    {
+        const profile =
+            this.build();
+
+        const summary = [];
+
+        if(profile.inflammation)
+        {
+            summary.push(
+                "Actieve ontstekingsindicatoren"
+            );
+        }
+
+        if(profile.ironDeficiency)
+        {
+            summary.push(
+                "Mogelijk ijzertekort"
+            );
+        }
+
+        if(profile.vitaminDDeficiency)
+        {
+            summary.push(
+                "Mogelijk vitamine D tekort"
+            );
+        }
+
+        if(profile.fatigueRisk)
+        {
+            summary.push(
+                "Verhoogd risico op vermoeidheid"
+            );
+        }
+
+        if(profile.highFlareRisk)
+        {
+            summary.push(
+                "Verhoogd opstootrisico"
+            );
+        }
+
+        return summary;
+    }
+
+};
+
 async function renderHealthTimeline(){
 
     const timeline =

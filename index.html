@@ -2172,6 +2172,82 @@ async function buildBloodAnalysisIndex()
     }
 }
 
+async function buildHealthTimeline(){
+
+    const db = DatabaseService.cache;
+
+    const timeline = [];
+
+    // Bloedresultaten
+    (db.healthData?.bloodResults || []).forEach(item => {
+
+        timeline.push({
+            date : item.testDate,
+            type : "blood",
+            title : item.title,
+            data : item
+        });
+
+    });
+
+    // Medicatie
+    (db.healthData?.medication || []).forEach(item => {
+
+        timeline.push({
+            date : item.date,
+            type : "medication",
+            title : item.name,
+            data : item
+        });
+
+    });
+
+    // Symptomen
+    (db.healthData?.symptoms || []).forEach(item => {
+
+        timeline.push({
+            date : item.date,
+            type : "symptom",
+            title : item.name,
+            data : item
+        });
+
+    });
+
+    // Slaap
+    (db.healthData?.sleepEntries || []).forEach(item => {
+
+        timeline.push({
+            date : item.date,
+            type : "sleep",
+            title : "Slaap",
+            data : item
+        });
+
+    });
+
+    // Stress
+    (db.healthData?.stressEntries || []).forEach(item => {
+
+        timeline.push({
+            date : item.date,
+            type : "stress",
+            title : "Stress",
+            data : item
+        });
+
+    });
+
+    timeline.sort(
+        (a,b) =>
+        new Date(b.date) -
+        new Date(a.date)
+    );
+
+    return timeline;
+
+}
+
 async function buildMedicationIndex()
 {
     const entries =
@@ -8019,41 +8095,40 @@ async function renderHealthDashboard()
     );
 
     let stoolCount = 0;
-let sleepCount = 0;
-let stressCount = 0;
-let calprotectineCount = 0;
+    let sleepCount = 0;
+    let stressCount = 0;
+    let bloodCount = 0;
+    let calprotectineCount = 0;
 
     try
     {
-        await DatabaseService.load();
-
-        if(
-            DatabaseService.cache?.healthData
+        if (
+            DatabaseService.load &&
+            typeof DatabaseService.load === "function"
         )
         {
+            await DatabaseService.load();
+        }
+
+        const healthData =
+            DatabaseService.cache?.healthData;
+
+        if (healthData)
+        {
             stoolCount =
-                DatabaseService.cache
-                .healthData
-                .stoolEntries
-                ?.length || 0;
+                healthData.stoolEntries?.length || 0;
 
             sleepCount =
-                DatabaseService.cache
-                .healthData
-                .sleepEntries
-                ?.length || 0;
+                healthData.sleepEntries?.length || 0;
 
             stressCount =
-                DatabaseService.cache
-                .healthData
-                .stressEntries
-                ?.length || 0;
+                healthData.stressEntries?.length || 0;
+
+            bloodCount =
+                healthData.bloodResults?.length || 0;
 
             calprotectineCount =
-    DatabaseService.cache
-    .healthData
-    .calprotectineResults
-    ?.length || 0;
+                healthData.calprotectineResults?.length || 0;
         }
     }
     catch(error)
@@ -8067,11 +8142,9 @@ let calprotectineCount = 0;
     document.getElementById(
         "ccvContent"
     ).innerHTML = `
-    
+
     <div class="page-title">
-    
         ❤️ Persoonlijke IBD Cockpit
-    
     </div>
 
     <div
@@ -8080,172 +8153,163 @@ let calprotectineCount = 0;
         grid-template-columns:
         repeat(auto-fit,minmax(250px,1fr));
         gap:15px;
-    "
-    >
+    ">
 
         <div
         class="card"
         style="cursor:pointer;"
-        onclick="
-        renderStoolTracker()
-        "
-        >
-
+        onclick="renderHealthTimeline()">
             <h2>
-            🚽 Stoelgangen
+                📅 Gezondheidstijdlijn
+            </h2>
+
+            <br>
+
+            Volledig gezondheidsoverzicht
+
+            <br>
+
+            AI-gedreven verbanden
+        </div>
+
+        <div
+        class="card"
+        style="cursor:pointer;"
+        onclick="renderBloodTracker()">
+            <h2>
+                🩸 Bloedwaarden
+            </h2>
+
+            <br>
+
+            ${bloodCount}
+
+            <br>
+
+            registraties
+        </div>
+
+        <div
+        class="card"
+        style="cursor:pointer;"
+        onclick="renderStoolTracker()">
+            <h2>
+                🚽 Stoelgangen
             </h2>
 
             <br>
 
             ${stoolCount}
 
-            registraties
+            <br>
 
+            registraties
         </div>
 
         <div
-class="card"
-style="cursor:pointer;"
-onclick="
-renderSleepTracker()
-"
->
-
+        class="card"
+        style="cursor:pointer;"
+        onclick="renderSleepTracker()">
             <h2>
-            😴 Slaap
+                😴 Slaap
             </h2>
 
             <br>
 
             ${sleepCount}
 
-            registraties
+            <br>
 
+            registraties
         </div>
 
         <div
-class="card"
-style="cursor:pointer;"
-onclick="
-renderStressTracker()
-"
->
-
+        class="card"
+        style="cursor:pointer;"
+        onclick="renderStressTracker()">
             <h2>
-            😟 Stress
+                😟 Stress
             </h2>
 
             <br>
 
             ${stressCount}
 
+            <br>
+
             registraties
-
         </div>
-  
-    <div
-class="card"
-style="cursor:pointer;"
-onclick="
-renderMedicationTracker()
-"
->
-    <h2>
-        💊 Medicatie
-    </h2>
 
-    <br>
+        <div
+        class="card"
+        style="cursor:pointer;"
+        onclick="renderMedicationTracker()">
+            <h2>
+                💊 Medicatie
+            </h2>
 
-    Beheer medicatie
+            <br>
 
-</div>
+            Beheer medicatie
+        </div>
 
-<div
-class="card"
-style="cursor:pointer;"
-onclick="
-renderFoodTracker()
-"
->
-    <h2>
-        🥗 Voeding
-    </h2>
+        <div
+        class="card"
+        style="cursor:pointer;"
+        onclick="renderFoodTracker()">
+            <h2>
+                🥗 Voeding
+            </h2>
 
-    <br>
+            <br>
 
-    Voedingsdagboek
+            Voedingsdagboek
+        </div>
 
-</div>
+        <div
+        class="card"
+        style="cursor:pointer;"
+        onclick="renderCalprotectineTracker()">
+            <h2>
+                🧫 Calprotectine
+            </h2>
 
-<div
-class="card"
-style="cursor:pointer;"
-onclick="
-renderBloodTracker()
-"
->
-    <h2>
-        🩸 Bloedwaarden
-    </h2>
+            <br>
 
-    <br>
+            ${calprotectineCount}
 
-    Labresultaten
+            <br>
 
-</div>
+            registraties
+        </div>
 
-<div
-class="card"
-style="cursor:pointer;"
-onclick="
-renderCalprotectineTracker()
-"
->
-    <h2>
-        🧫 Calprotectine
-    </h2>
+        <div
+        class="card"
+        style="cursor:pointer;"
+        onclick="renderExamTracker()">
+            <h2>
+                🏥 Onderzoeken
+            </h2>
 
-    <br>
+            <br>
 
-    ${calprotectineCount}
+            Scopieën & onderzoeken
+        </div>
 
-    registraties
+        <div
+        class="card"
+        style="cursor:pointer;"
+        onclick="renderIBDInsights()">
+            <h2>
+                🤖 AI Analyse
+            </h2>
 
-</div>
+            <br>
 
-<div
-class="card"
-style="cursor:pointer;"
-onclick="
-renderExamTracker()
-"
->
-    <h2>
-        🏥 Onderzoeken
-    </h2>
+            Persoonlijke inzichten
+        </div>
 
-    <br>
-
-    Scopieën & onderzoeken
-
-</div>
-
-<div
-class="card"
-style="cursor:pointer;"
-onclick="
-renderIBDInsights()
-"
->
-    <h2>
-        🤖 AI Analyse
-    </h2>
-
-    <br>
-
-    Persoonlijke inzichten
-
-</div>
+    </div>
 
     `;
 }
@@ -10740,6 +10804,147 @@ setTimeout(() =>
 {
     renderBloodTrendChart();
 },100);
+
+}
+
+async function renderHealthTimeline(){
+
+    const timeline =
+    await buildHealthTimeline();
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+    <div class="page-title">
+
+    📅 Gezondheidstijdlijn
+
+    </div>
+
+    <button
+    class="action-btn"
+    onclick="renderHealthDashboard()">
+
+    ⬅ Terug
+
+    </button>
+
+    <br><br>
+
+    <div id="timelineSummary"></div>
+
+    <br>
+
+    <div id="timelineContainer">
+
+    ${
+        timeline.map(item =>
+            renderTimelineEvent(item)
+        ).join("")
+    }
+
+    </div>
+
+    `;
+
+    renderTimelineSummary();
+
+}
+
+function renderTimelineEvent(item){
+
+    const icons = {
+
+        blood : "🩸",
+        medication : "💊",
+        symptom : "⚠️",
+        sleep : "😴",
+        stress : "😟"
+
+    };
+
+    return `
+
+    <div class="card"
+         style="
+         margin-bottom:10px;
+         border-left:5px solid #2563eb;
+         ">
+
+        <strong>
+
+        ${icons[item.type] || "📌"}
+        ${item.title}
+
+        </strong>
+
+        <br>
+
+        📅 ${item.date}
+
+    </div>
+
+    `;
+
+}
+
+function renderTimelineSummary(){
+
+    const blood =
+    DatabaseService.cache
+    .healthData
+    .bloodResults || [];
+
+    let html = `
+
+    <div class="card"
+         style="
+         background:#f8fafc;
+         border:2px solid #2563eb;
+         ">
+
+    <h2>
+
+    🧠 AI Samenvatting
+
+    </h2>
+
+    `;
+
+    if(blood.length >= 2){
+
+        const latest = blood[0];
+        const previous = blood[1];
+
+        const crpTrend =
+        latest.values?.CRP >
+        previous.values?.CRP
+        ? "⚠ CRP stijgt"
+        : "✅ CRP stabiel of daalt";
+
+        html += `
+
+        ${crpTrend}
+
+        <br><br>
+
+        `;
+
+    }
+
+    html += `
+
+    💡 Mogelijke verbanden
+    worden automatisch berekend.
+
+    </div>
+
+    `;
+
+    document.getElementById(
+        "timelineSummary"
+    ).innerHTML = html;
 
 }
 

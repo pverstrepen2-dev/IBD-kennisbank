@@ -11374,6 +11374,207 @@ const HealthTimelineEngine = {
 
 };
 
+/* =====================================================
+   RELATIONSHIP GRAPH BUILDER
+   ===================================================== */
+
+const RelationshipGraphBuilder = {
+
+    build()
+    {
+        const timeline =
+            HealthTimelineEngine.buildTimeline();
+
+        const graph = [];
+
+        timeline.forEach(event =>
+        {
+            graph.push({
+
+                id :
+                    event.source?.id ||
+                    crypto.randomUUID(),
+
+                type :
+                    event.type,
+
+                title :
+                    event.title,
+
+                date :
+                    event.date,
+
+                source :
+                    event.source,
+
+                links : []
+
+            });
+        });
+
+        graph.forEach(node =>
+        {
+            const currentDate =
+                new Date(node.date);
+
+            node.links =
+                graph
+                    .filter(other =>
+                    {
+                        if(other.id === node.id)
+                        {
+                            return false;
+                        }
+
+                        const diff =
+                            Math.abs(
+                                currentDate -
+                                new Date(other.date)
+                            );
+
+                        return diff <= 14 * 86400000;
+                    })
+                    .map(x => x.id);
+        });
+
+        return graph;
+    },
+
+    findFerritinRelations()
+    {
+        const blood =
+            DatabaseService.cache
+            ?.healthData
+            ?.bloodResults || [];
+
+        const relations = [];
+
+        blood.forEach(item =>
+        {
+            const ferritine =
+                item.values?.Ferritine;
+
+            if(
+                ferritine !== undefined &&
+                ferritine < 30
+            )
+            {
+                relations.push({
+
+                    type : "Ferritinetekort",
+
+                    bloodId :
+                        item.id,
+
+                    ferritine :
+                        ferritine,
+
+                    impact : [
+
+                        "Vermoeidheid",
+                        "Slaap",
+                        "Concentratie",
+
+                    ]
+
+                });
+            }
+        });
+
+        return relations;
+    },
+
+    findKnowledgeRelations(tags = [])
+    {
+        if(
+            !window.globalIndex ||
+            !Array.isArray(globalIndex)
+        )
+        {
+            return [];
+        }
+
+        return globalIndex.filter(item =>
+        {
+            const itemTags =
+                normalizeTags(
+                    item.tags || []
+                );
+
+            return tags.some(tag =>
+            {
+                return itemTags.includes(
+                    String(tag)
+                        .toLowerCase()
+                );
+            });
+        });
+    },
+
+    explain(node)
+    {
+        const explanation = [];
+
+        if(node.type === "blood")
+        {
+            explanation.push(
+                "Bloedanalyse aanwezig"
+            );
+        }
+
+        if(node.type === "sleep")
+        {
+            explanation.push(
+                "Slaapregistratie aanwezig"
+            );
+        }
+
+        if(node.type === "stress")
+        {
+            explanation.push(
+                "Stressregistratie aanwezig"
+            );
+        }
+
+        if(node.links?.length)
+        {
+            explanation.push(
+                `${node.links.length} gerelateerde gebeurtenissen`
+            );
+        }
+
+        return explanation;
+    },
+
+    generateRelationshipMap()
+    {
+        const graph =
+            this.build();
+
+        const ferritinRelations =
+            this.findFerritinRelations();
+
+        return {
+
+            graph,
+
+            ferritinRelations,
+
+            totalNodes :
+                graph.length,
+
+            totalLinks :
+                graph.reduce(
+                    (sum,node) =>
+                        sum + node.links.length,
+                    0
+                )
+
+        };
+    }
+
+};
+
 async function renderHealthTimeline(){
 
     const timeline =

@@ -2248,6 +2248,78 @@ async function buildHealthTimeline(){
 
 }
 
+function analyzeHealthData()
+{
+    const health =
+        DatabaseService.cache?.healthData || {};
+
+    const blood =
+        health.bloodResults || [];
+
+    const sleep =
+        health.sleepEntries || [];
+
+    const stress =
+        health.stressEntries || [];
+
+    const insights = [];
+
+    if(blood.length >= 2)
+    {
+        const latest = blood[0];
+        const previous = blood[1];
+
+        // CRP trend
+
+        const currentCRP =
+            Number(latest.values?.CRP || 0);
+
+        const previousCRP =
+            Number(previous.values?.CRP || 0);
+
+        if(currentCRP > previousCRP)
+        {
+            insights.push({
+                type : "warning",
+                category : "CRP",
+                text :
+                `CRP stijgt van ${previousCRP}
+                 naar ${currentCRP}`
+            });
+        }
+
+        // Ferritine trend
+
+        const currentFerritine =
+            Number(
+                latest.values?.Ferritine || 0
+            );
+
+        const previousFerritine =
+            Number(
+                previous.values?.Ferritine || 0
+            );
+
+        if(
+            currentFerritine <
+            previousFerritine
+        )
+        {
+            insights.push({
+                type : "warning",
+                category : "Ferritine",
+                text :
+                `Ferritine daalt van
+                ${previousFerritine}
+                naar
+                ${currentFerritine}`
+            });
+        }
+    }
+
+    return insights;
+}
+
 async function buildMedicationIndex()
 {
     const entries =
@@ -21143,116 +21215,6 @@ window.open(
 
 <br><br>
 
-<div class="card">
-
-<h2>
-📚 Gerelateerde kennis
-</h2>
-
-${relatedKnowledge.length
-
-? relatedKnowledge.map(k => `
-
-<div
-style="
-padding:10px;
-border-bottom:1px solid #ddd;
-cursor:pointer;
-"
-onclick="
-openSearchResult(
-'knowledge',
-'${k.id}'
-)
-"
->
-
-📚 ${k.title}
-
-</div>
-
-`).join("")
-
-: "Geen kennis gevonden"
-
-}
-
-</div>
-
-<br>
-
-<div class="card">
-
-<h2>
-📄 Gerelateerde documenten
-</h2>
-
-${relatedDocuments.length
-
-? relatedDocuments.map(file => `
-
-<div
-style="
-padding:10px;
-border-bottom:1px solid #ddd;
-cursor:pointer;
-"
-onclick="
-openSearchResult(
-'file',
-'${file.id}'
-)
-"
->
-
-📄 ${file.title}
-
-</div>
-
-`).join("")
-
-: "Geen documenten gevonden"
-
-}
-
-</div>
-
-<br>
-
-<div class="card">
-
-<h2>
-🌐 Relevante websites
-</h2>
-
-${relatedWebsites.length
-
-? relatedWebsites.map(site => `
-
-<div
-style="
-padding:10px;
-border-bottom:1px solid #ddd;
-cursor:pointer;
-"
-onclick="
-window.open(
-'${site.url}',
-'_blank'
-)
-"
->
-
-🌐 ${site.titel || site.title}
-
-</div>
-
-`).join("")
-
-: "Geen websites gevonden"
-
-}
-
 </div>
 
     </div>
@@ -21442,34 +21404,6 @@ window.open(
 
 </div>
 
-<br><br>
-
-<h2>
-📚 Gerelateerde kennis
-</h2>
-
-${relatedKnowledge.map(k => `
-
-<div
-style="
-padding:10px;
-border-bottom:1px solid #ddd;
-cursor:pointer;
-"
-onclick="
-openSearchResult(
-'knowledge',
-'${k.id}'
-)
-"
->
-
-📚 ${k.title}
-
-</div>
-
-`).join("")}
-
 </div>
 
 `;
@@ -21537,7 +21471,7 @@ renderKnowledgeOverview()
 
 <br><br>
 
-<<div class="card">
+<div class="card">
 
 ${item.description || "-"}
 
@@ -21825,6 +21759,21 @@ window.open(
 `;
 }
 
+function interpretCalprotectine(value)
+{
+    if(value < 100)
+    {
+        return "✅ Remissie waarschijnlijk";
+    }
+
+    if(value < 250)
+    {
+        return "⚠ Lichte activiteit";
+    }
+
+    return "🚨 Mogelijke opstoot";
+}
+
 function renderTaxonomySubCategory(
     subCategory
 ){
@@ -21858,34 +21807,6 @@ function renderTaxonomySubCategory(
 
     );
 
-}
-
-function buildBloodTaxonomy(values)
-{
-    return {
-
-        mainCategory :
-            "Bloedanalyse",
-
-        InflammationMarker :
-            (values.CRP || 0) > 5,
-
-        IronDeficiency :
-            (values.Ferritine || 0) < 30,
-
-        Anemia :
-            (values.Hemoglobine || 0) < 12,
-
-        VitaminDDeficiency :
-            (values.VitamineD || 0) < 30,
-
-        DiseaseActivity :
-            (values.CRP || 0) > 5,
-
-        FlareIndicator :
-            (values.Calprotectine || 0) > 250
-
-    };
 }
 
 function renderTopKnowledgeTopics(){

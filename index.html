@@ -11207,58 +11207,76 @@ const HealthTimelineEngine = {
     },
 
     detectActiveThemes()
+{
+    const themes = [];
+
+    const bloodResults =
+        DatabaseService.cache
+        ?.healthData
+        ?.bloodResults || [];
+
+    if(!bloodResults.length)
     {
-        const themes = [];
-
-        const blood =
-
-            DatabaseService.cache
-            ?.healthData
-            ?.bloodResults?.[0];
-
-        if(!blood)
-        {
-            return themes;
-        }
-
-        if(
-            (blood.values?.CRP || 0) > 5
-        )
-        {
-            themes.push(
-                "Ontsteking"
-            );
-        }
-
-        if(
-            (blood.values?.Ferritine || 999) < 30
-        )
-        {
-            themes.push(
-                "Ferritinetekort"
-            );
-        }
-
-        if(
-            (blood.values?.VitamineD || 999) < 30
-        )
-        {
-            themes.push(
-                "Vitamine D tekort"
-            );
-        }
-
-        if(
-            (blood.values?.Calprotectine || 0) > 250
-        )
-        {
-            themes.push(
-                "Opstootrisico"
-            );
-        }
-
         return themes;
-    },
+    }
+
+    const latest =
+        bloodResults[0];
+
+    const ferritine =
+        latest.values?.Ferritine;
+
+    const crp =
+        latest.values?.CRP;
+
+    const vitamineD =
+        latest.values?.VitamineD;
+
+    const b12 =
+        latest.values?.VitamineB12;
+
+    if(crp >= 5)
+    {
+        themes.push(
+            "Ontsteking"
+        );
+    }
+
+    if(
+        ferritine !== null &&
+        ferritine !== undefined &&
+        ferritine <= 30
+    )
+    {
+        themes.push(
+            "Ferritinetekort"
+        );
+    }
+
+    if(
+        vitamineD !== null &&
+        vitamineD !== undefined &&
+        vitamineD < 30
+    )
+    {
+        themes.push(
+            "Vitamine D tekort"
+        );
+    }
+
+    if(
+        b12 !== null &&
+        b12 !== undefined &&
+        b12 < 200
+    )
+    {
+        themes.push(
+            "Vitamine B12 tekort"
+        );
+    }
+
+    return themes;
+},
 
     generateRecommendations()
     {

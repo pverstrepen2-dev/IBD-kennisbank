@@ -10989,6 +10989,25 @@ const HealthTimelineEngine = {
 
             });
 
+            events.forEach(event =>
+{
+    event.related = events.filter(other =>
+    {
+        if(other === event)
+        {
+            return false;
+        }
+
+        const diff =
+            Math.abs(
+                new Date(other.date) -
+                new Date(event.date)
+            );
+
+        return diff <= (14 * 86400000);
+    });
+});
+
         return events.sort(
 
             (a,b) =>

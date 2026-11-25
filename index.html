@@ -10869,7 +10869,6 @@ ${item.values?.VitamineD ?? "-"}
 }).join("")}
 
 </div>
-
 `;
 
 setTimeout(() =>
@@ -11148,6 +11147,175 @@ const HealthTimelineEngine = {
 
         return "laag";
     },
+
+    calculateFatigueScore(){
+
+    const blood =
+        DatabaseService.cache?.healthData?.bloodResults || [];
+
+    const sleep =
+        DatabaseService.cache?.healthData?.sleepEntries || [];
+
+    const stress =
+        DatabaseService.cache?.healthData?.stressEntries || [];
+
+    let score = 0;
+
+    let reasons = [];
+
+    //------------------------------------
+    // Ferritine
+    //------------------------------------
+
+    const latestBlood =
+        blood
+            .sort((a,b)=>
+                new Date(b.testDate) -
+                new Date(a.testDate)
+            )[0];
+
+    if(latestBlood?.values?.Ferritine){
+
+        const ferritine =
+            Number(latestBlood.values.Ferritine);
+
+        if(ferritine < 15){
+
+            score += 40;
+
+            reasons.push(
+                "Ernstig laag ferritine"
+            );
+
+        }
+        else if(ferritine < 30){
+
+            score += 25;
+
+            reasons.push(
+                "Laag ferritine"
+            );
+
+        }
+
+    }
+
+    //------------------------------------
+    // Hemoglobine
+    //------------------------------------
+
+    if(latestBlood?.values?.Hemoglobine){
+
+        const hb =
+            Number(latestBlood.values.Hemoglobine);
+
+        if(hb < 12){
+
+            score += 25;
+
+            reasons.push(
+                "Laag hemoglobine"
+            );
+
+        }
+
+    }
+
+    //------------------------------------
+    // Ontsteking
+    //------------------------------------
+
+    if(latestBlood?.values?.CRP){
+
+        const crp =
+            Number(latestBlood.values.CRP);
+
+        if(crp > 10){
+
+            score += 20;
+
+            reasons.push(
+                "Actieve ontsteking"
+            );
+
+        }
+
+    }
+
+    //------------------------------------
+    // Slaap
+    //------------------------------------
+
+    if(sleep.length){
+
+        const avgSleep =
+            sleep.reduce(
+                (sum,s)=>
+                    sum + (s.hours || 0),
+                0
+            ) / sleep.length;
+
+        if(avgSleep < 6){
+
+            score += 20;
+
+            reasons.push(
+                "Te weinig slaap"
+            );
+
+        }
+
+    }
+
+    //------------------------------------
+    // Stress
+    //------------------------------------
+
+    if(stress.length){
+
+        const avgStress =
+            stress.reduce(
+                (sum,s)=>
+                    sum + (s.level || 0),
+                0
+            ) / stress.length;
+
+        if(avgStress > 7){
+
+            score += 15;
+
+            reasons.push(
+                "Hoge stressbelasting"
+            );
+
+        }
+
+    }
+
+    //------------------------------------
+
+    score = Math.min(100, score);
+
+    let level = "laag";
+
+    if(score >= 60){
+
+        level = "hoog";
+
+    }
+    else if(score >= 30){
+
+        level = "matig";
+
+    }
+
+    return {
+        score,
+        level,
+        reasons
+    };
+
+},
 
     calculateFlareRisk()
     {
@@ -18469,55 +18637,6 @@ ${site.titel || site.title}
 
 }
 
-function findRelatedDocuments(
-    tags
-)
-{
-    if(!tags?.length)
-    {
-        return [];
-    }
-
-    return globalIndex.filter(
-        item =>
-        {
-            let itemTags = "";
-
-            if(
-                Array.isArray(
-                    item.tags
-                )
-            )
-            {
-                itemTags =
-                    item.tags.join(" ");
-            }
-            else
-            {
-                itemTags =
-                    String(
-                        item.tags || ""
-                    );
-            }
-
-            const text = `
-                ${item.title || ""}
-                ${item.description || ""}
-                ${item.content || ""}
-                ${itemTags}
-            `
-            .toLowerCase();
-
-            return tags.some(
-                tag =>
-                    text.includes(
-                        tag.toLowerCase()
-                    )
-            );
-        }
-    );
-}
-
 /* =====================================================
    CCV AI TAXONOMIE V1
    ===================================================== */
@@ -20459,6 +20578,17 @@ renderTaxonomyDashboard()
 
 </div>
 
+<button
+class="action-btn"
+onclick="
+renderMyIBDProfile()
+"
+>
+
+🧠 Mijn IBD Profiel
+
+</button>
+
 <br>
 
 <div
@@ -21236,6 +21366,641 @@ ${item.location || ""}
 
 }
 
+function renderMyIBDProfile()
+{
+    const bloods =
+        globalIndex
+        .filter(
+            x => x.source === "blood"
+        )
+        .sort(
+            (a,b) =>
+                new Date(
+                    b.testDate || 0
+                ) -
+                new Date(
+                    a.testDate || 0
+                )
+        );
+
+    const medications =
+        globalIndex.filter(
+            x => x.source === "medication"
+        );
+
+    const exams =
+        globalIndex.filter(
+            x => x.source === "exam"
+        );
+
+    const calprotectines =
+        globalIndex
+        .filter(
+            x => x.source === "calprotectine"
+        )
+        .sort(
+            (a,b) =>
+                new Date(
+                    b.testDate ||
+                    b.date ||
+                    0
+                ) -
+                new Date(
+                    a.testDate ||
+                    a.date ||
+                    0
+                )
+        );
+
+    const meals =
+        globalIndex.filter(
+            x => x.source === "meal"
+        );
+
+    const sleeps =
+        globalIndex.filter(
+            x => x.source === "sleep"
+        );
+
+    const stresses =
+        globalIndex.filter(
+            x => x.source === "stress"
+        );
+
+    const latestBlood =
+        bloods[0];
+
+    const latestCalprotectine =
+        calprotectines[0];
+
+    const latestCRP =
+        latestBlood?.values?.CRP;
+
+    const latestFerritine =
+        latestBlood?.values?.Ferritine;
+
+    const latestHemoglobine =
+        latestBlood?.values?.Hemoglobine;
+
+    const latestVitamineD =
+        latestBlood?.values?.VitamineD;
+
+    const latestB12 =
+        latestBlood?.values?.VitamineB12;
+
+    const latestAlbumine =
+        latestBlood?.values?.Albumine;
+
+    const latestCalprotectineValue =
+
+        latestCalprotectine?.values?.Calprotectine
+
+        ??
+
+        latestCalprotectine?.value
+
+        ??
+
+        "-";
+
+    let diseaseStatus =
+        "Onbekend";
+
+    if(
+        latestCRP > 5 ||
+        latestCalprotectineValue > 250
+    )
+    {
+        diseaseStatus =
+            "🚨 Mogelijke actieve ontsteking";
+    }
+    else if(
+        latestCRP > 0 ||
+        latestCalprotectineValue > 100
+    )
+    {
+        diseaseStatus =
+            "⚠ Lichte activiteit";
+    }
+    else if(
+        latestCRP !== undefined
+    )
+    {
+        diseaseStatus =
+            "✅ Mogelijke remissie";
+    }
+
+    const insights = [];
+
+    if(latestCRP > 5)
+    {
+        insights.push(
+            "CRP verhoogd"
+        );
+    }
+
+    if(latestFerritine < 30)
+    {
+        insights.push(
+            "Ferritine mogelijk te laag"
+        );
+    }
+
+    if(latestHemoglobine < 12)
+    {
+        insights.push(
+            "Mogelijke anemie"
+        );
+    }
+
+    if(latestVitamineD < 30)
+    {
+        insights.push(
+            "Vitamine D mogelijk te laag"
+        );
+    }
+
+    if(latestCalprotectineValue > 250)
+    {
+        insights.push(
+            "Calprotectine wijst mogelijk op ziekteactiviteit"
+        );
+    }
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+
+🧠 Mijn IBD Profiel
+
+</div>
+
+<button
+class="action-btn"
+onclick="
+renderKnowledgeOverview()
+"
+>
+
+⬅ Terug
+
+</button>
+
+<br><br>
+
+<div class="card">
+
+<h2>
+
+🏥 Ziekteactiviteit
+
+</h2>
+
+<br>
+
+${diseaseStatus}
+
+</div>
+
+<br>
+
+<div class="card">
+
+<h2>
+
+🧠 AI Inzichten
+
+</h2>
+
+<br>
+
+${
+insights.length
+
+?
+
+insights.map(
+    x => `• ${x}`
+).join("<br>")
+
+:
+
+"Geen aandachtspunten gevonden"
+}
+
+</div>
+
+<br>
+
+<div class="card">
+
+<h2>
+
+🩸 Laatste bloedanalyse
+
+</h2>
+
+<br>
+
+📅 Datum:
+
+${latestBlood?.testDate || "-"}
+
+<br><br>
+
+CRP:
+
+${latestCRP ?? "-"}
+
+<br><br>
+
+Ferritine:
+
+${latestFerritine ?? "-"}
+
+<br><br>
+
+Hemoglobine:
+
+${latestHemoglobine ?? "-"}
+
+<br><br>
+
+Vitamine D:
+
+${latestVitamineD ?? "-"}
+
+<br><br>
+
+Vitamine B12:
+
+${latestB12 ?? "-"}
+
+<br><br>
+
+Albumine:
+
+${latestAlbumine ?? "-"}
+
+<br><br>
+
+Calprotectine:
+
+${latestCalprotectineValue}
+
+</div>
+
+<br><br>
+
+<<div class="card">
+
+<h2>
+
+📈 Trends
+
+</h2>
+
+<canvas
+id="ibdTrendChart"
+height="120"
+style="
+width:100%;
+max-width:100%;
+"
+></canvas>
+
+</div>
+
+<br><br>
+
+<div
+style="
+display:grid;
+grid-template-columns:
+repeat(auto-fit,minmax(220px,1fr));
+gap:15px;
+"
+>
+
+<br><br>
+
+${bloods.length}
+
+</div>
+
+<div class="card">
+
+💊 Medicatie
+
+<br><br>
+
+${medications.length}
+
+</div>
+
+<div class="card">
+
+🏥 Onderzoeken
+
+<br><br>
+
+${exams.length}
+
+</div>
+
+<div class="card">
+
+🧫 Calprotectine
+
+<br><br>
+
+${calprotectines.length}
+
+</div>
+
+<div class="card">
+
+🥗 Voeding
+
+<br><br>
+
+${meals.length}
+
+</div>
+
+<div class="card">
+
+😴 Slaap
+
+<br><br>
+
+${sleeps.length}
+
+</div>
+
+<div class="card">
+
+😟 Stress
+
+<br><br>
+
+${stresses.length}
+
+</div>
+
+</div>
+
+<br><br>
+
+<div class="card">
+
+<h2>
+
+💊 Huidige medicatie
+
+</h2>
+
+<br>
+
+${
+medications.length
+
+?
+
+medications.map(
+    item => `
+        • ${item.title}
+    `
+).join("<br>")
+
+:
+
+"Geen medicatie geregistreerd"
+}
+
+</div>
+
+`;
+
+setTimeout(
+    drawIBDTrendChart,
+    100
+);
+
+}
+
+
+function drawIBDTrendChart()
+{
+    const canvas =
+        document.getElementById(
+            "ibdTrendChart"
+        );
+
+    if(!canvas)
+    {
+        return;
+    }
+
+    const ctx =
+        canvas.getContext("2d");
+
+    const entries =
+        globalIndex
+        .filter(
+            x =>
+                x.source === "blood"
+        )
+        .sort(
+            (a,b) =>
+                new Date(
+                    a.testDate || 0
+                )
+                -
+                new Date(
+                    b.testDate || 0
+                )
+        );
+
+    if(entries.length < 2)
+    {
+        ctx.fillText(
+            "Minstens 2 bloedanalyses nodig",
+            20,
+            40
+        );
+
+        return;
+    }
+
+    const crpValues =
+        entries.map(
+            x =>
+                Number(
+                    x.values?.CRP || 0
+                )
+        );
+
+    const ferritineValues =
+        entries.map(
+            x =>
+                Number(
+                    x.values?.Ferritine || 0
+                )
+        );
+
+    const width =
+        canvas.width =
+        canvas.offsetWidth;
+
+    const height =
+        canvas.height =
+        300;
+
+    const maxValue =
+        Math.max(
+            ...crpValues,
+            ...ferritineValues,
+            10
+        );
+
+    ctx.clearRect(
+        0,
+        0,
+        width,
+        height
+    );
+
+    ctx.strokeStyle =
+        "#e5e7eb";
+
+    for(
+        let i=0;
+        i<5;
+        i++
+    )
+    {
+        const y =
+            (height / 5) * i;
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            0,
+            y
+        );
+
+        ctx.lineTo(
+            width,
+            y
+        );
+
+        ctx.stroke();
+    }
+
+    function drawLine(
+        values,
+        color
+    )
+    {
+        ctx.beginPath();
+
+        ctx.strokeStyle =
+            color;
+
+        ctx.lineWidth = 3;
+
+        values.forEach(
+            (value,index)=>
+            {
+                const x =
+                    (
+                        index /
+                        (
+                            values.length - 1
+                        )
+                    ) * width;
+
+                const y =
+                    height -
+                    (
+                        value /
+                        maxValue
+                    ) * (
+                        height - 20
+                    );
+
+                if(index===0)
+                {
+                    ctx.moveTo(
+                        x,
+                        y
+                    );
+                }
+                else
+                {
+                    ctx.lineTo(
+                        x,
+                        y
+                    );
+                }
+            }
+        );
+
+        ctx.stroke();
+    }
+
+    drawLine(
+        crpValues,
+        "#dc2626"
+    );
+
+    drawLine(
+        ferritineValues,
+        "#2563eb"
+    );
+
+    ctx.fillStyle =
+        "#dc2626";
+
+    ctx.fillRect(
+        10,
+        10,
+        15,
+        15
+    );
+
+    ctx.fillStyle =
+        "#111";
+
+    ctx.fillText(
+        "CRP",
+        35,
+        22
+    );
+
+    ctx.fillStyle =
+        "#2563eb";
+
+    ctx.fillRect(
+        90,
+        10,
+        15,
+        15
+    );
+
+    ctx.fillStyle =
+        "#111";
+
+    ctx.fillText(
+        "Ferritine",
+        115,
+        22
+    );
+}
+
 function renderKnowledgeMapLauncher(){
 
     document.getElementById(
@@ -21875,6 +22640,12 @@ function renderBloodAnalysis(id)
                 === String(id)
         );
 
+        if(!item)
+    {
+        return;
+    }
+
+
     const relatedKnowledge =
     findRelatedKnowledge(
         normalizeTags(
@@ -21898,13 +22669,7 @@ const relatedWebsites =
         ),
         item.taxonomy || {}
     );
-
-    if(!item)
-    {
-        return;
-    }
-
-    
+        
     document.getElementById(
         "ccvContent"
     ).innerHTML = `
@@ -24009,17 +24774,12 @@ function openKnowledgeNode(
 
 }
 
-function createManualRelation(
-
+async function createManualRelation(
     sourceNode,
-
     targetNode
-
-){
-
-    if(
-        sourceNode === targetNode
-    ){
+)
+{
+    if(sourceNode === targetNode){
         return;
     }
 
@@ -24030,33 +24790,37 @@ function createManualRelation(
         sourceParts[0];
 
     const sourceId =
-        sourceParts
-        .slice(1)
-        .join("_");
+        sourceParts.slice(1).join("_");
+
+    const targetParts =
+        targetNode.split("_");
+
+    const targetSource =
+        targetParts[0];
+
+    const targetId =
+        targetParts.slice(1).join("_");
 
     const sourceItem =
         globalIndex.find(
             item =>
-                item.source === sourceType
-                &&
-                String(item.id)
-                === String(sourceId)
+                item.source === sourceType &&
+                String(item.id) === String(sourceId)
         );
 
     if(!sourceItem){
         return;
     }
 
-    if(
-        !sourceItem.relationships
-    ){
+    if(!sourceItem.relationships){
         sourceItem.relationships = [];
     }
 
     const exists =
         sourceItem.relationships.some(
             rel =>
-                rel.id === targetNode
+                String(rel.id) === String(targetId) &&
+                rel.source === targetSource
         );
 
     if(exists){
@@ -24070,18 +24834,20 @@ function createManualRelation(
 
     sourceItem.relationships.push({
 
-        id : targetNode,
+        id : targetId,
+
+        source : targetSource,
 
         type : "manual",
 
+        weight : 100,
+
         created :
-            new Date()
-            .toISOString()
+            new Date().toISOString()
 
     });
 
-    buildKnowledgeNetwork();
-
+    await buildKnowledgeNetwork();
 }
 
 function startRelationMode(

@@ -8248,6 +8248,21 @@ async function renderHealthDashboard()
         );
     }
 
+let maturityScore = 0;
+
+if (bloodCount > 0) maturityScore += 20;
+if (stoolCount > 0) maturityScore += 20;
+if (sleepCount > 0) maturityScore += 20;
+if (stressCount > 0) maturityScore += 20;
+if (calprotectineCount > 0) maturityScore += 20;
+
+const aiMaturity = {
+    score: maturityScore
+};
+
+const aiReliability =
+    maturityScore + "%";
+    
     document.getElementById(
         "ccvContent"
     ).innerHTML = `
@@ -21466,88 +21481,175 @@ ${item.location || ""}
 
 function calculateAIMaturity()
 {
-    let score = 0;
-
-    const result = {
-
+    const result =
+    {
         score : 0,
-
         level : "Starter",
-
         completed : [],
-
         missing : []
-
     };
 
+    const index =
+        Array.isArray(globalIndex)
+        ? globalIndex
+        : [];
+
     const bloodCount =
-        globalIndex.filter(
+        index.filter(
             x => x.source === "blood"
         ).length;
 
     const stoolCount =
-        globalIndex.filter(
+        index.filter(
             x => x.source === "stool"
         ).length;
 
     const calprotectineCount =
-        globalIndex.filter(
+        index.filter(
             x => x.source === "calprotectine"
         ).length;
 
     const medicationCount =
-        globalIndex.filter(
+        index.filter(
             x => x.source === "medication"
         ).length;
 
     const sleepCount =
-        globalIndex.filter(
+        index.filter(
             x => x.source === "sleep"
         ).length;
 
     const stressCount =
-        globalIndex.filter(
+        index.filter(
             x => x.source === "stress"
         ).length;
 
     const mealCount =
-        globalIndex.filter(
+        index.filter(
             x => x.source === "meal"
         ).length;
 
     const examCount =
-        globalIndex.filter(
+        index.filter(
             x => x.source === "exam"
         ).length;
 
     const healthDocuments =
-        globalIndex.filter(
+        index.filter(
             x =>
-                x.source === "file"
-                &&
-                x.aiClassification ===
-                "health"
+                x.source === "file" &&
+                x.aiClassification === "health"
         ).length;
 
-        if(score < 30)
+    let score = 0;
+
+    if (bloodCount > 0)
     {
-        result.level =
-            "Starter";
-    }
-    else if(score < 60)
-    {
-        result.level =
-            "Basis";
-    }
-    else if(score < 80)
-    {
-        result.level =
-            "Gevorderd";
+        score += 10;
+        result.completed.push("Bloedwaarden");
     }
     else
     {
-        result.level =
-            "Expert";
+        result.missing.push("Bloedwaarden");
+    }
+
+    if (stoolCount > 0)
+    {
+        score += 15;
+        result.completed.push("Stoelgang");
+    }
+    else
+    {
+        result.missing.push("Stoelgang");
+    }
+
+    if (calprotectineCount > 0)
+    {
+        score += 15;
+        result.completed.push("Calprotectine");
+    }
+    else
+    {
+        result.missing.push("Calprotectine");
+    }
+
+    if (medicationCount > 0)
+    {
+        score += 10;
+        result.completed.push("Medicatie");
+    }
+    else
+    {
+        result.missing.push("Medicatie");
+    }
+
+    if (sleepCount > 0)
+    {
+        score += 10;
+        result.completed.push("Slaap");
+    }
+    else
+    {
+        result.missing.push("Slaap");
+    }
+
+    if (stressCount > 0)
+    {
+        score += 10;
+        result.completed.push("Stress");
+    }
+    else
+    {
+        result.missing.push("Stress");
+    }
+
+    if (mealCount > 0)
+    {
+        score += 10;
+        result.completed.push("Voeding");
+    }
+    else
+    {
+        result.missing.push("Voeding");
+    }
+
+    if (examCount > 0)
+    {
+        score += 10;
+        result.completed.push("Onderzoeken");
+    }
+    else
+    {
+        result.missing.push("Onderzoeken");
+    }
+
+    if (healthDocuments > 0)
+    {
+        score += 10;
+        result.completed.push("Gezondheidsdocumenten");
+    }
+    else
+    {
+        result.missing.push("Gezondheidsdocumenten");
+    }
+
+    result.score = score;
+
+    if(score < 30)
+    {
+        result.level = "Starter";
+    }
+    else if(score < 60)
+    {
+        result.level = "Basis";
+    }
+    else if(score < 80)
+    {
+        result.level = "Gevorderd";
+    }
+    else
+    {
+        result.level = "Expert";
     }
 
     return result;

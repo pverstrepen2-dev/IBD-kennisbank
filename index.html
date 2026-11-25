@@ -22220,6 +22220,62 @@ function renderRecentDocuments()
     .sort()
     .reverse();
 
+    const monthCounts = {};
+
+newFiles.forEach(file => {
+
+    const monthKey =
+        (
+            file.lastModifiedDateTime ||
+            file.modified ||
+            ""
+        ).substring(0,7);
+
+    if(!monthKey)
+    {
+        return;
+    }
+
+    monthCounts[monthKey] =
+        (monthCounts[monthKey] || 0) + 1;
+
+});
+
+    function formatMonthLabel(
+    monthKey
+)
+{
+    const months = {
+        "01":"Januari",
+        "02":"Februari",
+        "03":"Maart",
+        "04":"April",
+        "05":"Mei",
+        "06":"Juni",
+        "07":"Juli",
+        "08":"Augustus",
+        "09":"September",
+        "10":"Oktober",
+        "11":"November",
+        "12":"December"
+    };
+
+    const parts =
+        monthKey.split("-");
+
+    if(parts.length !== 2)
+    {
+        return monthKey;
+    }
+
+    return (
+        months[parts[1]]
+        || parts[1]
+    )
+    + " " +
+    parts[0];
+}
+
     const visibleFiles =
 
         activeDocumentMonth === "all"
@@ -22275,7 +22331,7 @@ renderRecentDocuments();
 "
 >
 
-Alle
+Alle (${newFiles.length})
 
 </button>
 
@@ -22284,12 +22340,35 @@ ${availableMonths.map(month => `
 <button
 class="action-btn"
 onclick="
-activeDocumentMonth='${month}';
+window.activeDocumentMonth='${month}';
 renderRecentDocuments();
+"
+style="
+${
+window.activeDocumentMonth === month
+
+?
+
+`
+background:#2563eb;
+color:white;
+font-weight:bold;
+border:2px solid #1d4ed8;
+box-shadow:0 2px 6px rgba(37,99,235,0.35);
+`
+
+:
+
+`
+background:white;
+color:black;
+`
+}
 "
 >
 
-${month}
+${formatMonthLabel(month)}
+(${monthCounts[month] || 0})
 
 </button>
 
@@ -22298,6 +22377,37 @@ ${month}
 </div>
 
 <br><br>
+
+<div class="card">
+
+📂 Actieve periode
+
+<br><br>
+
+<b>
+
+${
+activeDocumentMonth === "all"
+
+?
+
+"Alle documenten"
+
+:
+
+formatMonthLabel(
+    activeDocumentMonth
+)
+
+}
+
+</b>
+
+<br><br>
+
+📄 ${visibleFiles.length} documenten
+
+</div>
 
 <br><br>
 
@@ -22320,7 +22430,22 @@ renderDocumentWorkbench(
 
 <br><br>
 
-${file.lastModifiedDateTime || "-"}
+${
+file.lastModifiedDateTime
+
+?
+
+new Date(
+    file.lastModifiedDateTime
+)
+.toLocaleString(
+    "nl-BE"
+)
+
+:
+
+"-"
+}
 
 </div>
 

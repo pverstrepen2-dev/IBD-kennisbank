@@ -22326,10 +22326,45 @@ renderAIInbox()
 <button
 class="action-btn"
 onclick="
-activeDocumentMonth='all';
+window.activeDocumentMonth='all';
 renderRecentDocuments();
 "
+style="
+${
+window.activeDocumentMonth === "all"
+
+?
+
+`
+background:#2563eb;
+color:white;
+font-weight:bold;
+border:2px solid #1d4ed8;
+box-shadow:0 2px 6px rgba(37,99,235,0.35);
+`
+
+:
+
+`
+background:white;
+color:black;
+`
+}
+"
 >
+
+${
+window.activeDocumentMonth === "all"
+
+?
+
+"✅ "
+
+:
+
+"📂 "
+
+}
 
 Alle (${newFiles.length})
 
@@ -22367,6 +22402,19 @@ color:black;
 "
 >
 
+${
+window.activeDocumentMonth === month
+
+?
+
+"✅ "
+
+:
+
+"📅 "
+
+}
+
 ${formatMonthLabel(month)}
 (${monthCounts[month] || 0})
 
@@ -22380,7 +22428,34 @@ ${formatMonthLabel(month)}
 
 <div class="card">
 
-📂 Actieve periode
+🗂 Huidige filter
+
+<br><br>
+
+<b>
+
+${
+window.activeDocumentMonth === "all"
+
+?
+
+"Alle documenten"
+
+:
+
+formatMonthLabel(
+    window.activeDocumentMonth
+)
+
+}
+
+</b>
+
+<br><br>
+
+📄 ${visibleFiles.length}
+documenten zichtbaar
+
 
 <br><br>
 

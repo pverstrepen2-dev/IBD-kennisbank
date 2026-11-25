@@ -22278,25 +22278,26 @@ newFiles.forEach(file => {
 
     const visibleFiles =
 
-        activeDocumentMonth === "all"
+    window.activeDocumentMonth ===
+    "all"
 
-        ?
+    ?
 
-        newFiles
+    newFiles
 
-        :
+    :
 
-        newFiles.filter(
-            file =>
-                (
-                    file.lastModifiedDateTime ||
-                    file.modified ||
-                    ""
-                )
-                .startsWith(
-                    activeDocumentMonth
-                )
-        );
+    newFiles.filter(
+        file =>
+            (
+                file.lastModifiedDateTime ||
+                file.modified ||
+                ""
+            )
+            .startsWith(
+                window.activeDocumentMonth
+            )
+    );
 
     document.getElementById(
         "ccvContent"
@@ -22431,31 +22432,6 @@ ${formatMonthLabel(month)}
 🗂 Huidige filter
 
 <br><br>
-
-<b>
-
-${
-window.activeDocumentMonth === "all"
-
-?
-
-"Alle documenten"
-
-:
-
-formatMonthLabel(
-    window.activeDocumentMonth
-)
-
-}
-
-</b>
-
-<br><br>
-
-📄 ${visibleFiles.length}
-documenten zichtbaar
-
 
 <br><br>
 

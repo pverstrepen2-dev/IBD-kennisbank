@@ -22299,6 +22299,21 @@ newFiles.forEach(file => {
             )
     );
 
+    console.log(
+    "Files gevonden:",
+    newFiles.length
+);
+
+console.log(
+    "Visible files:",
+    visibleFiles.length
+);
+
+console.log(
+    "Actieve maand:",
+    window.activeDocumentMonth
+);
+
     document.getElementById(
         "ccvContent"
     ).innerHTML = `
@@ -22447,7 +22462,7 @@ window.activeDocumentMonth === "all"
 :
 
 formatMonthLabel(
-    activeDocumentMonth
+    window.activeDocumentMonth
 )
 
 }

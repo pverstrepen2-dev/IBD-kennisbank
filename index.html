@@ -11108,7 +11108,51 @@ const HealthTimelineEngine = {
         return diff <= (14 * 86400000);
     });
 });
+const insights = [];
 
+const bloodEvents =
+    events.filter(
+        x => x.type === "blood"
+    );
+
+bloodEvents.forEach(event => {
+
+    const values =
+        event.source?.values || {};
+
+    if(values.CRP > 10)
+    {
+        insights.push({
+
+            type : "insight",
+
+            date : event.date,
+
+            title :
+                "CRP verhoogd",
+
+            source : event.source
+
+        });
+    }
+
+    if(values.Ferritine < 30)
+    {
+        insights.push({
+
+            type : "insight",
+
+            date : event.date,
+
+            title :
+                "Ferritine laag",
+
+            source : event.source
+
+        });
+    }
+
+});
         return events.sort(
 
             (a,b) =>
@@ -11601,6 +11645,37 @@ const HealthTimelineEngine = {
 
         return recommendations;
     },
+
+buildRelationshipEvents()
+{
+    const events = [];
+
+    const fatigue =
+        this.calculateFatigueScore();
+
+    if(
+        fatigue.level === "hoog"
+    )
+    {
+        events.push({
+
+            type :
+                "relationship",
+
+            title :
+                "Vermoeidheidsrisico",
+
+            score :
+                fatigue.score,
+
+            reasons :
+                fatigue.reasons
+
+        });
+    }
+
+    return events;
+},
 
     generateInsights()
     {
@@ -25180,6 +25255,8 @@ function buildSemanticRelations(){
         "Semantische relaties opbouwen..."
     );
 
+RelationshipEngine.buildAll();
+
     const processedPairs =
         new Set();
 
@@ -26372,6 +26449,139 @@ const RELATIONS = {
     CHILD:"child",
 
     PARENT:"parent"
+
+};
+
+const RelationshipEngine = {
+
+    buildAll() {
+
+        console.log(
+            "RelationshipEngine gestart"
+        );
+
+        globalIndex.forEach(item => {
+
+            const manualRelations =
+                (item.relationships || [])
+                .filter(
+                    rel =>
+                        rel.type === "manual"
+                );
+
+            item.relationships =
+                [...manualRelations];
+
+        });
+
+        globalIndex.forEach(item => {
+
+            item.relationships.push(
+
+                ...this.buildForItem(item)
+
+            );
+
+        });
+
+    },
+
+    buildForItem(item) {
+
+        return [
+
+            ...this.buildHealthRelations(item),
+
+            ...this.buildKnowledgeRelations(item),
+
+            ...this.buildSemanticRelations(item)
+
+        ]
+        .sort(
+            (a,b) =>
+                b.weight - a.weight
+        )
+        .slice(0,20);
+
+    },
+
+    buildHealthRelations(item) {
+
+        const relations = [];
+
+        if(item.source === "blood") {
+
+            if(item.values?.CRP > 5) {
+
+                relations.push({
+
+                    id:"inflammation",
+
+                    source:"health",
+
+                    type:"health",
+
+                    label:"Ontsteking",
+
+                    weight:100
+
+                });
+
+            }
+
+            if(item.values?.Ferritine < 30) {
+
+                relations.push({
+
+                    id:"fatigue",
+
+                    source:"health",
+
+                    type:"health",
+
+                    label:"Vermoeidheid",
+
+                    weight:90
+
+                });
+
+            }
+
+        }
+
+        return relations;
+
+    },
+
+    buildKnowledgeRelations(item) {
+
+        try {
+
+            return buildHealthRelationships(
+                item
+            );
+
+        }
+        catch(error) {
+
+            return [];
+
+        }
+
+    },
+
+    buildSemanticRelations(item) {
+
+        return [];
+
+    },
+
+    explain(relation) {
+
+        return `${relation.label || relation.type}
+                (${relation.weight || 0})`;
+
+    }
 
 };
 

@@ -8406,17 +8406,40 @@ async function renderHealthDashboard()
         </div>
 
         <div
-        class="card"
-        style="cursor:pointer;"
-        onclick="renderIBDInsights()">
-            <h2>
-                🤖 AI Analyse
-            </h2>
+class="card"
+style="
+cursor:pointer;
+"
+onclick="
+renderIBDInsights()
+">
 
-            <br>
+    <h2>
+        🤖 AI Analyse
+    </h2>
 
-            Persoonlijke inzichten
-        </div>
+    <br>
+
+    <div
+    style="
+    font-size:18px;
+    font-weight:bold;
+    "
+    >
+
+        ${aiReliability}
+
+    </div>
+
+    <br>
+
+    AI betrouwbaarheid
+
+    <br><br>
+
+    ${aiMaturity.score}%
+
+</div>
 
     </div>
 
@@ -8425,6 +8448,33 @@ async function renderHealthDashboard()
 
 function renderStoolTracker()
 {
+
+const aiMaturity =
+    calculateAIMaturity();
+
+let aiReliability =
+    "🔴 Onvoldoende";
+
+if(aiMaturity.score >= 80)
+{
+    aiReliability =
+        "🟢 Hoog";
+}
+else if(
+    aiMaturity.score >= 60
+)
+{
+    aiReliability =
+        "🔵 Goed";
+}
+else if(
+    aiMaturity.score >= 40
+)
+{
+    aiReliability =
+        "🟡 Matig";
+}
+
     const health =
         DatabaseService.cache
         ?.healthData;
@@ -21414,6 +21464,95 @@ ${item.location || ""}
 
 }
 
+function calculateAIMaturity()
+{
+    let score = 0;
+
+    const result = {
+
+        score : 0,
+
+        level : "Starter",
+
+        completed : [],
+
+        missing : []
+
+    };
+
+    const bloodCount =
+        globalIndex.filter(
+            x => x.source === "blood"
+        ).length;
+
+    const stoolCount =
+        globalIndex.filter(
+            x => x.source === "stool"
+        ).length;
+
+    const calprotectineCount =
+        globalIndex.filter(
+            x => x.source === "calprotectine"
+        ).length;
+
+    const medicationCount =
+        globalIndex.filter(
+            x => x.source === "medication"
+        ).length;
+
+    const sleepCount =
+        globalIndex.filter(
+            x => x.source === "sleep"
+        ).length;
+
+    const stressCount =
+        globalIndex.filter(
+            x => x.source === "stress"
+        ).length;
+
+    const mealCount =
+        globalIndex.filter(
+            x => x.source === "meal"
+        ).length;
+
+    const examCount =
+        globalIndex.filter(
+            x => x.source === "exam"
+        ).length;
+
+    const healthDocuments =
+        globalIndex.filter(
+            x =>
+                x.source === "file"
+                &&
+                x.aiClassification ===
+                "health"
+        ).length;
+
+        if(score < 30)
+    {
+        result.level =
+            "Starter";
+    }
+    else if(score < 60)
+    {
+        result.level =
+            "Basis";
+    }
+    else if(score < 80)
+    {
+        result.level =
+            "Gevorderd";
+    }
+    else
+    {
+        result.level =
+            "Expert";
+    }
+
+    return result;
+}
+
 function renderMyIBDProfile()
 {
     const bloods =
@@ -21474,6 +21613,9 @@ function renderMyIBDProfile()
         globalIndex.filter(
             x => x.source === "stress"
         );
+
+    const aiMaturity =
+    calculateAIMaturity();
 
     const latestBlood =
         bloods[0];
@@ -21595,6 +21737,68 @@ renderKnowledgeOverview()
 ⬅ Terug
 
 </button>
+
+<br><br>
+
+<div class="card">
+
+<h2>
+
+🤖 AI Volwassenheidsniveau
+
+</h2>
+
+<br>
+
+Score:
+
+<b>
+
+${aiMaturity.score}%
+
+</b>
+
+<br><br>
+
+Niveau:
+
+<b>
+
+${
+aiMaturity.level === "Expert"
+
+? "🟢 Expert"
+
+: aiMaturity.level === "Gevorderd"
+
+? "🔵 Gevorderd"
+
+: aiMaturity.level === "Basis"
+
+? "🟡 Basis"
+
+: "🔴 Starter"
+}
+
+</b>
+
+<br><br>
+
+✅ Beschikbaar
+
+<br><br>
+
+${aiMaturity.completed.join("<br>")}
+
+<br><br>
+
+⚠ Ontbreekt
+
+<br><br>
+
+${aiMaturity.missing.join("<br>")}
+
+</div>
 
 <br><br>
 
@@ -21839,6 +22043,170 @@ setTimeout(
 
 }
 
+function renderAIAnalysis()
+{
+    const aiMaturity =
+        calculateAIMaturity();
+
+    const recommendations = [];
+
+if(
+    aiMaturity.missing.includes(
+        "Calprotectine"
+    )
+)
+{
+    recommendations.push(
+        "🧫 Voeg een Calprotectine-resultaat toe om ziekteactiviteit nauwkeuriger te voorspellen."
+    );
+}
+
+if(
+    aiMaturity.missing.includes(
+        "Meer stoelganggegevens"
+    )
+)
+{
+    recommendations.push(
+        "💩 Registreer meer stoelgangen zodat trends en ziekteactiviteit berekend kunnen worden."
+    );
+}
+
+if(
+    aiMaturity.missing.includes(
+        "Onderzoeken"
+    )
+)
+{
+    recommendations.push(
+        "🔬 Voeg coloscopie-, MRI- of echoverslagen toe voor completere analyses."
+    );
+}
+
+if(
+    aiMaturity.missing.includes(
+        "Gezondheidsdocumenten"
+    )
+)
+{
+    recommendations.push(
+        "📄 Laat gezondheidsdocumenten analyseren vanuit de AI Inbox."
+    );
+}
+
+if(
+    aiMaturity.missing.includes(
+        "Voeding"
+    )
+)
+{
+    recommendations.push(
+        "🍽 Voeg voedingsregistraties toe om verbanden met symptomen te detecteren."
+    );
+}
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+
+🤖 AI Analyse
+
+</div>
+
+<button
+class="action-btn"
+onclick="
+renderHealthDashboard()
+"
+>
+
+⬅ Terug
+
+</button>
+
+<br><br>
+
+<div class="card">
+
+<h2>
+
+AI Betrouwbaarheid
+
+</h2>
+
+<br>
+
+${aiMaturity.score}%
+
+<br><br>
+
+${aiMaturity.level}
+
+</div>
+
+<br><br>
+
+<div class="card">
+
+<h2>
+
+✅ Beschikbare gegevens
+
+</h2>
+
+<br>
+
+${aiMaturity.completed.join("<br>")}
+
+</div>
+
+<br><br>
+
+<div class="card">
+
+<h2>
+
+⚠ Ontbrekende gegevens
+
+</h2>
+
+<br>
+
+${aiMaturity.missing.join("<br>")}
+
+</div>
+
+<br><br>
+
+<div class="card">
+
+<h2>
+
+💡 AI Aanbevelingen
+
+</h2>
+
+<br>
+
+${
+recommendations.length
+
+?
+
+recommendations.join("<br><br>")
+
+:
+
+"✅ Er zijn momenteel geen belangrijke ontbrekende gegevens."
+}
+
+</div>
+
+`;
+
+}
 
 function drawIBDTrendChart()
 {

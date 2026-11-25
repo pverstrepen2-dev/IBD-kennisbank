@@ -22182,15 +22182,16 @@ cursor:pointer;
 
 function renderRecentDocuments()
 {
+    window.activeDocumentMonth =
+        window.activeDocumentMonth ||
+        "all";
+
     const newFiles =
-
         globalIndex
-
         .filter(
             x =>
                 x.source === "file"
         )
-
         .sort(
             (a,b) =>
                 new Date(
@@ -22199,6 +22200,45 @@ function renderRecentDocuments()
                 -
                 new Date(
                     a.lastModifiedDateTime || 0
+                )
+        );
+
+    const availableMonths =
+    [
+        ...new Set(
+            newFiles.map(
+                file =>
+                    (
+                        file.lastModifiedDateTime ||
+                        file.modified ||
+                        ""
+                    ).substring(0,7)
+            )
+        )
+    ]
+    .filter(Boolean)
+    .sort()
+    .reverse();
+
+    const visibleFiles =
+
+        activeDocumentMonth === "all"
+
+        ?
+
+        newFiles
+
+        :
+
+        newFiles.filter(
+            file =>
+                (
+                    file.lastModifiedDateTime ||
+                    file.modified ||
+                    ""
+                )
+                .startsWith(
+                    activeDocumentMonth
                 )
         );
 
@@ -22225,7 +22265,43 @@ renderAIInbox()
 
 <br><br>
 
-${newFiles.map(file=>`
+<div class="card">
+
+<button
+class="action-btn"
+onclick="
+activeDocumentMonth='all';
+renderRecentDocuments();
+"
+>
+
+Alle
+
+</button>
+
+${availableMonths.map(month => `
+
+<button
+class="action-btn"
+onclick="
+activeDocumentMonth='${month}';
+renderRecentDocuments();
+"
+>
+
+${month}
+
+</button>
+
+`).join("")}
+
+</div>
+
+<br><br>
+
+<br><br>
+
+${visibleFiles.map(file=>`
 
 <div
 class="card"
@@ -22234,8 +22310,7 @@ margin-bottom:10px;
 cursor:pointer;
 "
 onclick="
-openSearchResult(
-'file',
+renderDocumentWorkbench(
 '${file.id}'
 )
 "
@@ -22250,6 +22325,203 @@ ${file.lastModifiedDateTime || "-"}
 </div>
 
 `).join("")}
+
+`;
+
+}
+
+async function renderDocumentWorkbench(
+    fileId
+)
+{
+    const item =
+        globalIndex.find(
+            x =>
+                x.source === "file"
+                &&
+                String(x.id)
+                === String(fileId)
+        );
+
+    if(!item)
+    {
+        return;
+    }
+
+    await ensureDocumentContent(
+        item
+    );
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+
+📄 ${item.title}
+
+</div>
+
+<button
+class="action-btn"
+onclick="
+renderRecentDocuments()
+"
+>
+
+⬅ Terug
+
+</button>
+
+<br><br>
+
+<div
+style="
+display:grid;
+grid-template-columns:
+2fr 1fr;
+gap:20px;
+"
+>
+
+<div>
+
+<iframe
+src="${item.webUrl}"
+style="
+width:100%;
+height:900px;
+border:none;
+background:white;
+"
+></iframe>
+
+</div>
+
+<div
+id="documentAISidebar"
+>
+
+</div>
+
+</div>
+
+`;
+
+    renderDocumentAISidebar(
+        item
+    );
+}
+
+function renderDocumentAISidebar(
+    item
+)
+{
+    document.getElementById(
+        "documentAISidebar"
+    ).innerHTML = `
+
+<div class="card">
+
+<h3>
+
+🧠 AI Analyse
+
+</h3>
+
+<br>
+
+Classificatie:
+
+${item.aiClassification || "-"}
+
+</div>
+
+<br>
+
+<div class="card">
+
+<h3>
+
+📚 Samenvatting
+
+</h3>
+
+<br>
+
+${item.summary || "Nog geen samenvatting"}
+
+</div>
+
+<br>
+
+<div class="card">
+
+<h3>
+
+🏷 Tags
+
+</h3>
+
+<br>
+
+${(item.aiTags || [])
+.join("<br>")
+|| "-"}
+
+</div>
+
+<br>
+
+<div class="card">
+
+<h3>
+
+🔗 Relaties
+
+</h3>
+
+<br>
+
+${(item.relationships || [])
+.length}
+
+ relaties
+
+${
+item.aiClassification ===
+"health"
+
+?
+
+`
+
+<br>
+
+<div class="card">
+
+<h3>
+
+🩸 Gezondheidsinformatie
+
+</h3>
+
+<br>
+
+Dit document werd door AI
+als gezondheidsdocument
+geclassificeerd.
+
+</div>
+
+`
+
+:
+
+""
+}
+
+</div>
 
 `;
 

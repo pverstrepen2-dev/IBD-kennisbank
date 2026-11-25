@@ -22543,6 +22543,21 @@ async function renderDocumentWorkbench(
         item
     );
 
+    console.log(
+    "Document geopend:",
+    item.title
+);
+
+console.log(
+    "Classificatie:",
+    item.aiClassification
+);
+
+console.log(
+    "Inhoud lengte:",
+    item.content?.length
+);
+
     document.getElementById(
         "ccvContent"
     ).innerHTML = `
@@ -22570,7 +22585,7 @@ renderRecentDocuments()
 style="
 display:grid;
 grid-template-columns:
-2fr 1fr;
+3fr 1fr;
 gap:20px;
 "
 >
@@ -22578,7 +22593,7 @@ gap:20px;
 <div>
 
 <iframe
-src="${item.webUrl}"
+src="${item.webUrl}?download=0"
 style="
 width:100%;
 height:900px;
@@ -22591,7 +22606,10 @@ background:white;
 
 <div
 id="documentAISidebar"
+class="card"
 >
+
+Document wordt geanalyseerd...
 
 </div>
 
@@ -22624,7 +22642,11 @@ function renderDocumentAISidebar(
 
 Classificatie:
 
+<b>
+
 ${item.aiClassification || "-"}
+
+</b>
 
 </div>
 
@@ -22656,9 +22678,28 @@ ${item.summary || "Nog geen samenvatting"}
 
 <br>
 
-${(item.aiTags || [])
-.join("<br>")
-|| "-"}
+${
+(item.aiTags || [])
+.length
+
+?
+
+(item.aiTags || [])
+.map(
+    tag => `
+        <span
+        class="tag"
+        >
+        ${tag}
+        </span>
+    `
+)
+.join(" ")
+
+:
+
+"Geen tags"
+}
 
 </div>
 
@@ -22699,9 +22740,21 @@ item.aiClassification ===
 
 <br>
 
-Dit document werd door AI
-als gezondheidsdocument
-geclassificeerd.
+Dit document bevat
+gezondheidsgerelateerde informatie.
+
+<br><br>
+
+CRP
+
+Ferritine
+
+Calprotectine
+
+Medicatie
+
+worden automatisch
+gedetecteerd indien aanwezig.
 
 </div>
 
@@ -22713,7 +22766,37 @@ geclassificeerd.
 }
 
 </div>
+<br>
 
+<div class="card">
+
+<h3>
+
+🔗 Gerelateerde items
+
+</h3>
+
+<br>
+
+${
+(item.relationships || [])
+.length
+
+?
+
+(item.relationships || [])
+.map(
+    rel =>
+        `• ${rel.label || rel.id}`
+)
+.join("<br>")
+
+:
+
+"Geen relaties gevonden"
+}
+
+</div>
 `;
 
 }

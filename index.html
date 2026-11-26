@@ -13705,32 +13705,105 @@ async function saveExam()
 
 function renderIBDInsights()
 {
+    const profile =
+        MyIBDProfileBuilder.build();
+
+    const mental =
+        MentalHealthEngine.calculate();
+
+    const clinical =
+        ClinicalInsightEngine.generate();
+
     document.getElementById(
         "ccvContent"
     ).innerHTML = `
 
     <div class="page-title">
-
         🤖 AI Analyse
-
     </div>
 
     <button
-    class="action-btn"
-    onclick="
-    renderHealthDashboard()
-    "
-    >
-
-    ⬅ Terug
-
+        class="action-btn"
+        onclick="renderHealthDashboard()">
+        ⬅ Terug
     </button>
 
     <br><br>
 
     <div class="card">
 
-        Nog onvoldoende gegevens verzameld.
+        <h2>
+        ❤️ Persoonlijke Gezondheidskaart
+        </h2>
+
+        <br>
+
+        Ontsteking:
+        <br>
+        <b>${clinical.inflammation.status}</b>
+
+        <br><br>
+
+        Voeding:
+        <br>
+        <b>${clinical.nutrition.status}</b>
+
+        <br><br>
+
+        Vermoeidheid:
+        <br>
+        <b>${clinical.fatigue.status}</b>
+
+        <br><br>
+
+        Mentale gezondheid:
+        <br>
+        <b>
+        ${mental.status}
+        (${mental.score}/100)
+        </b>
+
+        <br><br>
+
+        Opstootrisico:
+        <br>
+        <b>${clinical.flareRisk.status}</b>
+
+    </div>
+
+    <br>
+
+    <div class="card">
+
+        <h2>
+        🧠 Actieve Thema's
+        </h2>
+
+        <br>
+
+        ${
+            profile.activeThemes.length
+            ? profile.activeThemes.join("<br>")
+            : "Geen actieve thema's"
+        }
+
+    </div>
+
+    <br>
+
+    <div class="card">
+
+        <h2>
+        💡 Aanbevelingen
+        </h2>
+
+        <br>
+
+        ${
+            profile.recommendations.length
+            ? profile.recommendations.join("<br>")
+            : "Geen aanbevelingen beschikbaar"
+        }
 
     </div>
 

@@ -24092,28 +24092,9 @@ style="
 height:900px;
 overflow:auto;
 padding:10px;
-">
-
-    ${
-        item.webUrl
-        ?
-        `
-        <iframe
-        src="${pdfUrl}"
-        style="
-            width:100%;
-            height:850px;
-            border:none;
-            background:white;
-        ">
-        </iframe>
-        `
-        :
-        `
-        Geen PDF URL gevonden
-        `
-    }
-
+"
+>
+PDF wordt geladen...
 </div>
 `
 :
@@ -24154,8 +24135,10 @@ if(isPdf)
 {
     setTimeout(
         () =>
-            renderPdfViewer(
-                item
+            renderPDFViewer(
+                pdfUrl,
+                item.title,
+                ""
             ),
         100
     );

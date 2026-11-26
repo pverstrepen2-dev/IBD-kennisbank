@@ -333,8 +333,15 @@ let globalIndex = [];
 let documentConnections = [];
 
 let healthIndex = [];
-let HealthCharts = {};
+let HealthCharts = {
 
+    bloodTrend : null,
+
+    mentalHealth : null,
+
+    stressChart : null
+
+};
 
 let documentKeywordIndex = {};
 let documentWordIndex = {};
@@ -379,8 +386,6 @@ const HealthService = {
 
     moodEntries : [],
 
-energyEntries : [],
-
 anxietyEntries : [],
 
 jointPainEntries : [],
@@ -412,6 +417,8 @@ gad7Results : [],
     }
 
 };
+
+
 
 const KNOWLEDGE_CATEGORIES = [
 {
@@ -10025,6 +10032,67 @@ ${item.level}/10
 `;
 }
 
+function buildMentalHealthHistory()
+{
+    return (
+        DatabaseService.cache
+        ?.healthData
+        ?.mentalHealthAssessments
+        || []
+    )
+    .sort(
+        (
+            a,
+            b
+        ) =>
+            new Date(a.date)
+            -
+            new Date(b.date)
+    );
+}
+
+function buildMentalHealthStatistics()
+{
+    const data =
+        buildMentalHealthHistory();
+
+    if(!data.length)
+    {
+        return null;
+    }
+
+    return {
+
+        latest :
+            data[data.length - 1],
+
+        first :
+            data[0],
+
+        highestWho5 :
+            Math.max(
+                ...data.map(
+                    x => x.who5 || 0
+                )
+            ),
+
+        highestGad7 :
+            Math.max(
+                ...data.map(
+                    x => x.gad7 || 0
+                )
+            ),
+
+        highestPhq9 :
+            Math.max(
+                ...data.map(
+                    x => x.phq9 || 0
+                )
+            )
+
+    };
+}
+
 function renderMentalWellbeingReport()
 {
     const health =
@@ -10185,10 +10253,248 @@ ${phqStatus}
 
 </div>
 
+<br><br>
+
+<div class="card">
+
+    <h2>
+        📈 Evolutie Mentale Gezondheid
+    </h2>
+
+    <br>
+
+    <div
+    style="
+    height:350px;
+    ">
+
+        <canvas
+        id="mentalHealthChart">
+        </canvas>
+
+    </div>
+
+</div>
+
+<br><br>
+
+<div class="card">
+
+<h2>
+📈 Evolutie Mentale Gezondheid
+</h2>
+
+<br>
+
+<div
+style="
+height:350px;
+"
+>
+
+<canvas
+id="mentalHealthChart"
+></canvas>
+
+</div>
+
+</div>
 `;
 
+setTimeout(
+    drawMentalHealthChart,
+    100
+);
 }
 
+function drawMentalHealthChart()
+{
+    if(typeof Chart === "undefined")
+    {
+        console.warn(
+            "Chart.js niet geladen"
+        );
+
+        return;
+    }
+
+    const history =
+        DatabaseService.cache
+        ?.healthData
+        ?.mentalHealthAssessments || [];
+
+    if(!history.length)
+    {
+        return;
+    }
+
+    const data =
+        history
+        .slice()
+        .reverse();
+
+    const labels =
+        data.map(
+            item =>
+                new Date(item.date)
+                .toLocaleDateString(
+                    "nl-BE"
+                )
+        );
+
+    const who5Data =
+        data.map(
+            item =>
+                item.who5 || 0
+        );
+
+    const gad7Data =
+        data.map(
+            item =>
+                item.gad7 || 0
+        );
+
+    const phq9Data =
+        data.map(
+            item =>
+                item.phq9 || 0
+        );
+
+    const mentalIndexData =
+        data.map(
+            item =>
+                item.mentalIndex || 0
+        );
+
+    if(
+        HealthCharts.mentalHealth
+    )
+    {
+        HealthCharts
+        .mentalHealth
+        .destroy();
+    }
+
+    const canvas =
+        document.getElementById(
+            "mentalHealthChart"
+        );
+
+    if(!canvas)
+    {
+        return;
+    }
+
+    HealthCharts.mentalHealth =
+        new Chart(
+            canvas,
+            {
+
+                type : "line",
+
+                data :
+                {
+                    labels,
+
+                    datasets :
+                    [
+
+                        {
+                            label :
+                                "WHO-5",
+
+                            data :
+                                who5Data,
+
+                            borderColor :
+                                "#16a34a",
+
+                            backgroundColor :
+                                "#16a34a22",
+
+                            tension : 0.3
+                        },
+
+                        {
+                            label :
+                                "GAD-7",
+
+                            data :
+                                gad7Data,
+
+                            borderColor :
+                                "#ca8a04",
+
+                            backgroundColor :
+                                "#ca8a0422",
+
+                            tension : 0.3
+                        },
+
+                        {
+                            label :
+                                "PHQ-9",
+
+                            data :
+                                phq9Data,
+
+                            borderColor :
+                                "#dc2626",
+
+                            backgroundColor :
+                                "#dc262622",
+
+                            tension : 0.3
+                        },
+
+                        {
+                            label :
+                                "Mentale Index",
+
+                            data :
+                                mentalIndexData,
+
+                            borderColor :
+                                "#2563eb",
+
+                            backgroundColor :
+                                "#2563eb22",
+
+                            borderWidth : 3,
+
+                            tension : 0.3
+                        }
+
+                    ]
+                },
+
+                options :
+                {
+                    responsive : true,
+
+                    maintainAspectRatio : false,
+
+                    plugins :
+                    {
+                        legend :
+                        {
+                            position : "top"
+                        }
+                    },
+
+                    scales :
+                    {
+                        y :
+                        {
+                            beginAtZero : true,
+
+                            max : 100
+                        }
+                    }
+                }
+            }
+        );
+}
 
 function renderMentalHealthTracker()
 {
@@ -11079,62 +11385,105 @@ async function saveWHO5Assessment()
         +
         Number(document.getElementById("gad7").value);
 
-const phq9Score =
-    Number(document.getElementById("phq1").value)
-    +
-    Number(document.getElementById("phq2").value)
-    +
-    Number(document.getElementById("phq3").value)
-    +
-    Number(document.getElementById("phq4").value)
-    +
-    Number(document.getElementById("phq5").value)
-    +
-    Number(document.getElementById("phq6").value)
-    +
-    Number(document.getElementById("phq7").value)
-    +
-    Number(document.getElementById("phq8").value)
-    +
-    Number(document.getElementById("phq9").value);
+    const phq9Score =
+        Number(document.getElementById("phq1").value)
+        +
+        Number(document.getElementById("phq2").value)
+        +
+        Number(document.getElementById("phq3").value)
+        +
+        Number(document.getElementById("phq4").value)
+        +
+        Number(document.getElementById("phq5").value)
+        +
+        Number(document.getElementById("phq6").value)
+        +
+        Number(document.getElementById("phq7").value)
+        +
+        Number(document.getElementById("phq8").value)
+        +
+        Number(document.getElementById("phq9").value);
+
+    const mentalIndex =
+        MentalHealthIndex.calculate({
+
+            who5 :
+                who5Score,
+
+            gad7 :
+                gad7Score,
+
+            phq9 :
+                phq9Score
+
+        });
 
     DatabaseService.cache
-    .healthData
-    .who5Score =
-        who5Score;
+        .healthData
+        .who5Score =
+            who5Score;
 
     DatabaseService.cache
-    .healthData
-    .gad7Score =
-        gad7Score;
+        .healthData
+        .gad7Score =
+            gad7Score;
 
     DatabaseService.cache
-.healthData
-.phq9Score =
-    phq9Score;
+        .healthData
+        .phq9Score =
+            phq9Score;
 
     DatabaseService.cache
-    .healthData
-    .mentalHealthAssessments
-    .unshift({
+        .healthData
+        .mentalHealthScore =
+            mentalIndex.score;
 
-        id :
-            Date.now(),
+    DatabaseService.cache
+        .healthData
+        .mentalHealthStatus =
+            mentalIndex.status;
 
-        date :
-            new Date()
-            .toISOString(),
+    DatabaseService.cache
+        .healthData
+        .mentalHealthAssessments
+        .unshift({
 
-        who5 :
-    who5Score,
+            id :
+                Date.now(),
 
-gad7 :
-    gad7Score,
+            date :
+                new Date()
+                .toISOString(),
 
-phq9 :
-    phq9Score
-       
-    });
+            year :
+                new Date()
+                .getFullYear(),
+
+            month :
+                new Date()
+                .getMonth() + 1,
+
+            week :
+                getWeekNumber(
+                    new Date()
+                ),
+
+            who5 :
+                who5Score,
+
+            gad7 :
+                gad7Score,
+
+            phq9 :
+                phq9Score,
+
+            mentalIndex :
+                mentalIndex.score,
+
+            status :
+                mentalIndex.status
+
+        });
 
     await DatabaseService.save();
 
@@ -14107,39 +14456,51 @@ const MentalHealthIndex = {
         who5 = 100
     })
     {
-        const depressionPart =
+        const phqPart =
             (phq9 / 27) * 100;
 
-        const anxietyPart =
+        const gadPart =
             (gad7 / 21) * 100;
 
-        const wellbeingPart =
+        const whoPart =
             100 - who5;
 
         const score =
             Math.round(
                 (
-                    depressionPart +
-                    anxietyPart +
-                    wellbeingPart
-                ) / 3
+                    phqPart * 0.40 +
+                    gadPart * 0.30 +
+                    whoPart * 0.30
+                )
             );
 
         let status =
-            "🟢 Laag";
+            "🟢 Goed";
 
-        if(score > 25)
-            status = "🟡 Verhoogd";
+        if(score >= 25)
+        {
+            status =
+                "🟡 Aandachtspunt";
+        }
 
-        if(score > 50)
-            status = "🟠 Hoog";
+        if(score >= 50)
+        {
+            status =
+                "🟠 Verhoogde belasting";
+        }
 
-        if(score > 75)
-            status = "🔴 Zeer hoog";
+        if(score >= 75)
+        {
+            status =
+                "🔴 Hoge belasting";
+        }
 
         return {
+
             score,
+
             status
+
         };
     }
 
@@ -14256,6 +14617,36 @@ const CrisisMonitor = {
     }
 
 };
+
+function getWeekNumber(date)
+{
+    const d =
+        new Date(date);
+
+    d.setHours(
+        0,0,0,0
+    );
+
+    d.setDate(
+        d.getDate() + 4 -
+        (d.getDay() || 7)
+    );
+
+    const yearStart =
+        new Date(
+            d.getFullYear(),
+            0,
+            1
+        );
+
+    return Math.ceil(
+        (
+            (
+                d - yearStart
+            ) / 86400000 + 1
+        ) / 7
+    );
+}
 
 function getLatestAbdominalPain()
 {

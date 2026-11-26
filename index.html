@@ -18809,7 +18809,10 @@ function renderKnowledgeSubCategory(
     [...categoryKeywords]
     .filter(
         keyword =>
-            text.includes(keyword)
+            tcontainsWord(
+    text,
+    keyword
+)
     );
 
 if(
@@ -19929,6 +19932,23 @@ function normalizeTags(tags){
     return [];
 }
 
+function containsWord(
+    text,
+    keyword
+)
+{
+    return new RegExp(
+        "\\b" +
+        keyword.replace(
+            /[.*+?^${}()|[\]\\]/g,
+            "\\$&"
+        ) +
+        "\\b",
+        "i"
+    )
+    .test(text);
+}
+
 function buildBloodTaxonomy(
     values
 )
@@ -20614,6 +20634,38 @@ function findRelatedWebsites(
     .map(
         x => x.site
     );
+}
+
+function getRelatedResources(
+    item
+)
+{
+    return {
+
+        knowledge:
+            findRelatedKnowledge(
+                normalizeTags(
+                    item.tags
+                ),
+                item.taxonomy || {}
+            ),
+
+        documents:
+            findRelatedDocuments(
+                normalizeTags(
+                    item.tags
+                ),
+                item.taxonomy || {}
+            ),
+
+        websites:
+            findRelatedWebsites(
+                normalizeTags(
+                    item.tags
+                ),
+                item.taxonomy || {}
+            )
+    };
 }
 
 function getTaxonomyCategoryByName(
@@ -24949,29 +25001,19 @@ function renderBloodAnalysis(id)
     }
 
 
-    const relatedKnowledge =
-    findRelatedKnowledge(
-        normalizeTags(
-            item.tags
-        ),
-        item.taxonomy || {}
+    const related =
+    getRelatedResources(
+        item
     );
+
+const relatedKnowledge =
+    related.knowledge;
 
 const relatedDocuments =
-    findRelatedDocuments(
-        normalizeTags(
-            item.tags
-        ),
-        item.taxonomy || {}
-    );
+    related.documents;
 
 const relatedWebsites =
-    findRelatedWebsites(
-        normalizeTags(
-            item.tags
-        ),
-        item.taxonomy || {}
-    );
+    related.websites;
         
     document.getElementById(
         "ccvContent"
@@ -25156,29 +25198,19 @@ function renderMedication(id)
         return;
     }
 
-    const relatedKnowledge =
-    findRelatedKnowledge(
-        normalizeTags(
-            item.tags
-        ),
-        item.taxonomy || {}
+    const related =
+    getRelatedResources(
+        item
     );
+
+const relatedKnowledge =
+    related.knowledge;
 
 const relatedDocuments =
-    findRelatedDocuments(
-        normalizeTags(
-            item.tags
-        ),
-        item.taxonomy || {}
-    );
+    related.documents;
 
 const relatedWebsites =
-    findRelatedWebsites(
-        normalizeTags(
-            item.tags
-        ),
-        item.taxonomy || {}
-    );
+    related.websites;
 
     document.getElementById(
         "ccvContent"
@@ -25341,29 +25373,19 @@ function renderExam(id)
         return;
     }
 
-    const relatedKnowledge =
-    findRelatedKnowledge(
-        normalizeTags(
-            item.tags
-        ),
-        item.taxonomy || {}
+    const related =
+    getRelatedResources(
+        item
     );
+
+const relatedKnowledge =
+    related.knowledge;
 
 const relatedDocuments =
-    findRelatedDocuments(
-        normalizeTags(
-            item.tags
-        ),
-        item.taxonomy || {}
-    );
+    related.documents;
 
 const relatedWebsites =
-    findRelatedWebsites(
-        normalizeTags(
-            item.tags
-        ),
-        item.taxonomy || {}
-    );
+    related.websites;
 
     document.getElementById(
         "ccvContent"
@@ -25508,29 +25530,19 @@ function renderCalprotectine(id)
         return;
     }
 
-    const relatedKnowledge =
-    findRelatedKnowledge(
-        normalizeTags(
-            item.tags
-        ),
-        item.taxonomy || {}
+    const related =
+    getRelatedResources(
+        item
     );
+
+const relatedKnowledge =
+    related.knowledge;
 
 const relatedDocuments =
-    findRelatedDocuments(
-        normalizeTags(
-            item.tags
-        ),
-        item.taxonomy || {}
-    );
+    related.documents;
 
 const relatedWebsites =
-    findRelatedWebsites(
-        normalizeTags(
-            item.tags
-        ),
-        item.taxonomy || {}
-    );
+    related.websites;
 
     document.getElementById(
         "ccvContent"
@@ -26153,13 +26165,35 @@ item.relationships =
 
         });
 
-        item.relationships =
-            tempRelations
-            .sort(
-                (a,b)=>
-                    b.weight - a.weight
-            )
-            .slice(0,2);
+        const existing =
+    item.relationships || [];
+
+const existingKeys =
+    new Set(
+        existing.map(
+            rel =>
+                `${rel.source}_${rel.id}`
+        )
+    );
+
+tempRelations.forEach(rel =>
+{
+    const key =
+        `${rel.source}_${rel.id}`;
+
+    if(!existingKeys.has(key))
+    {
+        existing.push(rel);
+    }
+});
+
+item.relationships =
+    existing
+        .sort(
+            (a,b) =>
+                b.weight - a.weight
+        )
+        .slice(0,20);
 
         if(
             item.relationships.length
@@ -27250,36 +27284,24 @@ const RelationshipEngine = {
             if(item.values?.CRP > 5) {
 
                 relations.push({
-
-                    id:"inflammation",
-
-                    source:"health",
-
-                    type:"health",
-
-                    label:"Ontsteking",
-
-                    weight:100
-
-                });
+    id:"knowledge_inflammation",
+    source:"knowledge",
+    type:"health",
+    label:"Ontsteking",
+    weight:100
+});
 
             }
 
             if(item.values?.Ferritine < 30) {
 
                 relations.push({
-
-                    id:"fatigue",
-
-                    source:"health",
-
-                    type:"health",
-
-                    label:"Vermoeidheid",
-
-                    weight:90
-
-                });
+    id:"knowledge_fatigue",
+    source:"knowledge",
+    type:"health",
+    label:"Vermoeidheid",
+    weight:90
+});
 
             }
 
@@ -27439,6 +27461,37 @@ function calculateContentSimilarity(
 
 }
 
+function buildSystemConcepts()
+{
+    const concepts =
+    [
+        {
+            id:"knowledge_inflammation",
+            source:"knowledge",
+            title:"Ontsteking"
+        },
+        {
+            id:"knowledge_fatigue",
+            source:"knowledge",
+            title:"Vermoeidheid"
+        }
+    ];
+
+    concepts.forEach(concept =>
+    {
+        const exists =
+            globalIndex.find(
+                x =>
+                    x.id === concept.id
+            );
+
+        if(!exists)
+        {
+            globalIndex.push(concept);
+        }
+    });
+}
+
 function buildConceptClusters(){
 
     KnowledgeHub.concepts = [
@@ -27491,8 +27544,10 @@ function detectTaxonomy(
             if(
                 keywords.some(
                     keyword =>
-                        text.includes(keyword)
-                )
+                        containsWord(
+    text,
+    keyword
+)
             )
             {
                 detected[field] = true;

@@ -8658,22 +8658,43 @@ onclick="renderMentalHealthTracker()">
 
 </div>
 
-        <div
-        class="card"
-        style="cursor:pointer;"
-        onclick="renderStressTracker()">
-            <h2>
-                😟 Stress
-            </h2>
+<div
+class="card"
+style="cursor:pointer;"
+onclick="renderMentalWellbeingReport()">
 
-            <br>
+    <h2>
+        📊 Mentaal Welzijnsrapport
+    </h2>
 
-            ${stressCount}
+    <br>
 
-            <br>
+    Trends & analyses
 
-            registraties
-        </div>
+    <br><br>
+
+    WHO-5 · GAD-7 · PHQ-9
+
+</div>
+
+<div
+class="card"
+style="cursor:pointer;"
+onclick="renderStressTracker()">
+
+    <h2>
+        😟 Stress
+    </h2>
+
+    <br>
+
+    ${stressCount}
+
+    <br><br>
+
+    registraties
+
+</div>
 
         <div
         class="card"
@@ -10004,6 +10025,171 @@ ${item.level}/10
 `;
 }
 
+function renderMentalWellbeingReport()
+{
+    const health =
+        DatabaseService.cache
+        ?.healthData || {};
+
+    const assessments =
+        health.mentalHealthAssessments || [];
+
+    const latest =
+        assessments[0];
+
+if(!latest)
+{
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+🧠 Mentaal Welzijnsrapport
+</div>
+
+<button
+class="action-btn"
+onclick="
+renderHealthDashboard()
+">
+⬅ Terug
+</button>
+
+<br><br>
+
+<div class="card">
+Nog geen mentale evaluaties beschikbaar.
+</div>
+
+`;
+
+    return;
+}
+
+let who5Status = "🔴 Laag";
+
+if(latest.who5 >= 70)
+{
+    who5Status = "🟢 Goed";
+}
+else if(latest.who5 >= 50)
+{
+    who5Status = "🟡 Matig";
+}
+
+let gadStatus = "🟢 Minimaal";
+
+if(latest.gad7 >= 15)
+{
+    gadStatus = "🔴 Ernstig";
+}
+else if(latest.gad7 >= 10)
+{
+    gadStatus = "🟠 Matig";
+}
+else if(latest.gad7 >= 5)
+{
+    gadStatus = "🟡 Licht";
+}
+
+let phqStatus = "🟢 Minimaal";
+
+if(latest.phq9 >= 20)
+{
+    phqStatus = "🔴 Ernstig";
+}
+else if(latest.phq9 >= 15)
+{
+    phqStatus = "🟠 Matig ernstig";
+}
+else if(latest.phq9 >= 10)
+{
+    phqStatus = "🟡 Matig";
+}
+else if(latest.phq9 >= 5)
+{
+    phqStatus = "🟡 Mild";
+}
+document.getElementById(
+    "ccvContent"
+).innerHTML = `
+
+<div class="page-title">
+
+🧠 Mentaal Welzijnsrapport
+
+</div>
+
+<button
+class="action-btn"
+onclick="
+renderHealthDashboard()
+">
+⬅ Terug
+</button>
+
+<br><br>
+
+<div class="card">
+
+<h2>
+🌱 WHO-5
+</h2>
+
+<br>
+
+Score:
+<b>${latest.who5}/100</b>
+
+<br><br>
+
+${who5Status}
+
+</div>
+
+<br>
+
+<div class="card">
+
+<h2>
+😟 GAD-7
+</h2>
+
+<br>
+
+Score:
+<b>${latest.gad7}/21</b>
+
+<br><br>
+
+${gadStatus}
+
+</div>
+
+<br>
+
+<div class="card">
+
+<h2>
+😔 PHQ-9
+</h2>
+
+<br>
+
+Score:
+<b>${latest.phq9}/27</b>
+
+<br><br>
+
+${phqStatus}
+
+</div>
+
+`;
+
+}
+
+
 function renderMentalHealthTracker()
 {
     const entries =
@@ -10108,6 +10294,202 @@ Hoe voelde je je de afgelopen 2 weken?
 
 <br><br>
 
+<h2>
+😟 GAD-7 Angstvragen
+</h2>
+
+<br>
+
+Hoe vaak had je hier de afgelopen 2 weken last van?
+
+<br><br>
+
+1. Nervositeit of angstgevoelens
+
+<select id="gad1">
+<option value="0">Nooit</option>
+<option value="1">Enkele dagen</option>
+<option value="2">Meer dan de helft</option>
+<option value="3">Bijna dagelijks</option>
+</select>
+
+<br><br>
+
+2. Niet kunnen stoppen met piekeren
+
+<select id="gad2">
+<option value="0">Nooit</option>
+<option value="1">Enkele dagen</option>
+<option value="2">Meer dan de helft</option>
+<option value="3">Bijna dagelijks</option>
+</select>
+
+<br><br>
+
+3. Overmatig zorgen maken
+
+<select id="gad3">
+<option value="0">Nooit</option>
+<option value="1">Enkele dagen</option>
+<option value="2">Meer dan de helft</option>
+<option value="3">Bijna dagelijks</option>
+</select>
+
+<br><br>
+
+4. Moeite met ontspannen
+
+<select id="gad4">
+<option value="0">Nooit</option>
+<option value="1">Enkele dagen</option>
+<option value="2">Meer dan de helft</option>
+<option value="3">Bijna dagelijks</option>
+</select>
+
+<br><br>
+
+5. Rusteloosheid
+
+<select id="gad5">
+<option value="0">Nooit</option>
+<option value="1">Enkele dagen</option>
+<option value="2">Meer dan de helft</option>
+<option value="3">Bijna dagelijks</option>
+</select>
+
+<br><br>
+
+6. Prikkelbaarheid
+
+<select id="gad6">
+<option value="0">Nooit</option>
+<option value="1">Enkele dagen</option>
+<option value="2">Meer dan de helft</option>
+<option value="3">Bijna dagelijks</option>
+</select>
+
+<br><br>
+
+7. Angst dat er iets ergs zal gebeuren
+
+<select id="gad7">
+<option value="0">Nooit</option>
+<option value="1">Enkele dagen</option>
+<option value="2">Meer dan de helft</option>
+<option value="3">Bijna dagelijks</option>
+</select>
+
+<br><br>
+
+<h2>
+😔 PHQ-9 Depressieve klachten
+</h2>
+
+<br>
+
+Hoe vaak had je de afgelopen 2 weken last van:
+
+<br><br>
+
+1. Weinig interesse of plezier
+
+<select id="phq1">
+<option value="0">Nooit</option>
+<option value="1">Enkele dagen</option>
+<option value="2">Meer dan de helft</option>
+<option value="3">Bijna dagelijks</option>
+</select>
+
+<br><br>
+
+2. Neerslachtigheid
+
+<select id="phq2">
+<option value="0">Nooit</option>
+<option value="1">Enkele dagen</option>
+<option value="2">Meer dan de helft</option>
+<option value="3">Bijna dagelijks</option>
+</select>
+
+<br><br>
+
+3. Slaapproblemen
+
+<select id="phq3">
+<option value="0">Nooit</option>
+<option value="1">Enkele dagen</option>
+<option value="2">Meer dan de helft</option>
+<option value="3">Bijna dagelijks</option>
+</select>
+
+<br><br>
+
+4. Vermoeidheid
+
+<select id="phq4">
+<option value="0">Nooit</option>
+<option value="1">Enkele dagen</option>
+<option value="2">Meer dan de helft</option>
+<option value="3">Bijna dagelijks</option>
+</select>
+
+<br><br>
+
+5. Veranderde eetlust
+
+<select id="phq5">
+<option value="0">Nooit</option>
+<option value="1">Enkele dagen</option>
+<option value="2">Meer dan de helft</option>
+<option value="3">Bijna dagelijks</option>
+</select>
+
+<br><br>
+
+6. Negatief zelfbeeld
+
+<select id="phq6">
+<option value="0">Nooit</option>
+<option value="1">Enkele dagen</option>
+<option value="2">Meer dan de helft</option>
+<option value="3">Bijna dagelijks</option>
+</select>
+
+<br><br>
+
+7. Concentratieproblemen
+
+<select id="phq7">
+<option value="0">Nooit</option>
+<option value="1">Enkele dagen</option>
+<option value="2">Meer dan de helft</option>
+<option value="3">Bijna dagelijks</option>
+</select>
+
+<br><br>
+
+8. Rusteloos of traag
+
+<select id="phq8">
+<option value="0">Nooit</option>
+<option value="1">Enkele dagen</option>
+<option value="2">Meer dan de helft</option>
+<option value="3">Bijna dagelijks</option>
+</select>
+
+<br><br>
+
+9. Sombere gedachten
+
+<select id="phq9">
+<option value="0">Nooit</option>
+<option value="1">Enkele dagen</option>
+<option value="2">Meer dan de helft</option>
+<option value="3">Bijna dagelijks</option>
+</select>
+
+<br><br>
+
 <button
 class="action-btn"
 onclick="
@@ -10117,7 +10499,43 @@ saveWHO5Assessment()
 </button>
 
 </div>
+<br><br>
 
+<div class="card">
+
+<h2>
+📋 Historiek
+</h2>
+
+${entries.map(item => `
+
+<div
+style="
+padding:10px;
+border-bottom:1px solid #ddd;
+">
+
+📅 ${new Date(item.date)
+    .toLocaleDateString("nl-BE")}
+
+<br>
+
+🧠 WHO-5:
+${item.who5}/100
+
+<br>
+
+😟 GAD-7:
+${item.gad7}/21
+
+😔 PHQ-9:
+${item.phq9}/27
+
+</div>
+
+`).join("")}
+
+</div>
 `;
 }
 
@@ -10633,7 +11051,7 @@ async function saveJointPainEntry()
 
 async function saveWHO5Assessment()
 {
-    const score =
+    const who5Score =
         (
             Number(document.getElementById("who1").value)
             +
@@ -10646,23 +11064,76 @@ async function saveWHO5Assessment()
             Number(document.getElementById("who5").value)
         ) * 4;
 
+    const gad7Score =
+        Number(document.getElementById("gad1").value)
+        +
+        Number(document.getElementById("gad2").value)
+        +
+        Number(document.getElementById("gad3").value)
+        +
+        Number(document.getElementById("gad4").value)
+        +
+        Number(document.getElementById("gad5").value)
+        +
+        Number(document.getElementById("gad6").value)
+        +
+        Number(document.getElementById("gad7").value);
+
+const phq9Score =
+    Number(document.getElementById("phq1").value)
+    +
+    Number(document.getElementById("phq2").value)
+    +
+    Number(document.getElementById("phq3").value)
+    +
+    Number(document.getElementById("phq4").value)
+    +
+    Number(document.getElementById("phq5").value)
+    +
+    Number(document.getElementById("phq6").value)
+    +
+    Number(document.getElementById("phq7").value)
+    +
+    Number(document.getElementById("phq8").value)
+    +
+    Number(document.getElementById("phq9").value);
+
     DatabaseService.cache
     .healthData
-    .who5Score = score;
+    .who5Score =
+        who5Score;
+
+    DatabaseService.cache
+    .healthData
+    .gad7Score =
+        gad7Score;
+
+    DatabaseService.cache
+.healthData
+.phq9Score =
+    phq9Score;
 
     DatabaseService.cache
     .healthData
     .mentalHealthAssessments
     .unshift({
 
-        id : Date.now(),
+        id :
+            Date.now(),
 
         date :
             new Date()
             .toISOString(),
 
-        who5 : score
+        who5 :
+    who5Score,
 
+gad7 :
+    gad7Score,
+
+phq9 :
+    phq9Score
+       
     });
 
     await DatabaseService.save();

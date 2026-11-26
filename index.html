@@ -2719,6 +2719,26 @@ async function buildWebsiteIndex()
     );
 }
 
+function extractHref(html)
+{
+    if(!html)
+    {
+        return "";
+    }
+
+    const match =
+        String(html).match(
+            /href="([^"]+)"/i
+        );
+
+    if(match)
+    {
+        return match[1];
+    }
+
+    return String(html);
+}
+
 async function scanDriveFolder(
     token,
     folderId,
@@ -2759,6 +2779,11 @@ async function scanDriveFolder(
             const data =
                 await response.json();
 
+            console.log(
+    "GRAPH WEBURL RAW:",
+    data.value?.[0]?.webUrl
+);
+
             const items =
                 data.value || [];
 
@@ -2781,7 +2806,12 @@ async function scanDriveFolder(
                         currentPath,
 
                     webUrl :
-                        item.webUrl || "",
+    extractHref(
+        item.webUrl
+    ),
+
+    downloadUrl :
+    item["@microsoft.graph.downloadUrl"] || "",
 
                     size :
                         item.size || 0,

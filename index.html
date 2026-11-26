@@ -383,6 +383,10 @@ energyEntries : [],
 
 anxietyEntries : [],
 
+jointPainEntries : [],
+
+abdominalPainEntries : [],
+
 wellbeingEntries : [],
 
 phq9Results : [],
@@ -7693,6 +7697,10 @@ energyEntries : [],
 
 anxietyEntries : [],
 
+jointPainEntries : [],
+
+abdominalPainEntries : [],
+
 wellbeingEntries : [],
 
 phq9Results : [],
@@ -8280,6 +8288,8 @@ async function renderHealthDashboard()
     let stoolCount = 0;
     let sleepCount = 0;
 let energyCount = 0;
+let abdominalPainCount = 0;
+let jointPainCount = 0;
 let stressCount = 0;
     let bloodCount = 0;
     let calprotectineCount = 0;
@@ -8308,6 +8318,12 @@ let stressCount = 0;
 
 energyCount =
     healthData.energyEntries?.length || 0;
+
+abdominalPainCount =
+    healthData.abdominalPainEntries?.length || 0;
+
+jointPainCount =
+    healthData.jointPainEntries?.length || 0;
 
 stressCount =
     healthData.stressEntries?.length || 0;
@@ -8570,6 +8586,44 @@ onclick="renderEnergyTracker()">
     <br>
 
     ${energyCount}
+
+    <br><br>
+
+    registraties
+
+</div>
+
+<div
+class="card"
+style="cursor:pointer;"
+onclick="renderAbdominalPainTracker()">
+
+    <h2>
+        🤕 Buikpijn
+    </h2>
+
+    <br>
+
+    ${abdominalPainCount}
+
+    <br><br>
+
+    registraties
+
+</div>
+
+<div
+class="card"
+style="cursor:pointer;"
+onclick="renderJointPainTracker()">
+
+    <h2>
+        🦴 Gewrichtspijn
+    </h2>
+
+    <br>
+
+    ${jointPainCount}
 
     <br><br>
 
@@ -9647,6 +9701,283 @@ ${item.level}/10
 `;
 }
 
+function renderAbdominalPainTracker()
+{
+    const entries =
+        DatabaseService.cache
+        ?.healthData
+        ?.abdominalPainEntries || [];
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+
+🤕 Buikpijnregistratie
+
+</div>
+
+<button
+class="action-btn"
+onclick="
+renderHealthDashboard()
+">
+
+⬅ Terug
+
+</button>
+
+<br><br>
+
+<div class="card">
+
+<label>
+📅 Datum
+</label>
+
+<input
+type="date"
+id="painDate"
+value="${
+    new Date()
+    .toISOString()
+    .split("T")[0]
+}"
+style="
+width:100%;
+padding:10px;
+margin-bottom:10px;
+">
+
+<label>
+🤕 Pijnscore
+</label>
+
+<select
+id="painLevel"
+style="
+width:100%;
+padding:10px;
+margin-bottom:10px;
+">
+
+<option value="0">0 - Geen pijn</option>
+<option value="1">1</option>
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="4">4</option>
+<option value="5" selected>5 - Matig</option>
+<option value="6">6</option>
+<option value="7">7</option>
+<option value="8">8</option>
+<option value="9">9</option>
+<option value="10">10 - Ondraaglijk</option>
+
+</select>
+
+<label>
+📝 Opmerkingen
+</label>
+
+<textarea
+id="painNotes"
+style="
+width:100%;
+height:100px;
+padding:10px;
+margin-bottom:10px;
+"></textarea>
+
+<button
+class="action-btn"
+onclick="
+saveAbdominalPainEntry()
+">
+💾 Opslaan
+</button>
+
+</div>
+
+<br>
+
+<div class="card">
+
+<h2>
+📋 Historiek
+</h2>
+
+${entries.map(item => `
+<div
+style="
+padding:10px;
+border-bottom:1px solid #ddd;
+">
+
+📅 ${item.date}
+
+<br>
+
+🤕 Buikpijn:
+${item.level}/10
+
+<br>
+
+📝 ${item.notes || "-"}
+
+</div>
+`).join("")}
+
+</div>
+
+`;
+}
+
+function renderJointPainTracker()
+{
+    const entries =
+        DatabaseService.cache
+        ?.healthData
+        ?.jointPainEntries || [];
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+
+🦴 Gewrichtspijnregistratie
+
+</div>
+
+<button
+class="action-btn"
+onclick="
+renderHealthDashboard()
+">
+
+⬅ Terug
+
+</button>
+
+<br><br>
+
+<div class="card">
+
+<label>
+📅 Datum
+</label>
+
+<input
+type="date"
+id="jointPainDate"
+value="${
+new Date()
+.toISOString()
+.split("T")[0]
+}"
+style="
+width:100%;
+padding:10px;
+margin-bottom:10px;
+">
+
+<label>
+🦴 Gewrichtspijn
+</label>
+
+<select
+id="jointPainLevel"
+style="
+width:100%;
+padding:10px;
+margin-bottom:10px;
+">
+
+<option value="0">
+0 - Geen pijn
+</option>
+
+<option value="1">1</option>
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="4">4</option>
+
+<option value="5" selected>
+5 - Matig
+</option>
+
+<option value="6">6</option>
+<option value="7">7</option>
+<option value="8">8</option>
+<option value="9">9</option>
+
+<option value="10">
+10 - Ernstig
+</option>
+
+</select>
+
+<label>
+📝 Opmerkingen
+</label>
+
+<textarea
+id="jointPainNotes"
+style="
+width:100%;
+height:100px;
+padding:10px;
+margin-bottom:10px;
+"></textarea>
+
+<button
+class="action-btn"
+onclick="
+saveJointPainEntry()
+">
+💾 Opslaan
+</button>
+
+</div>
+
+<br>
+
+<div class="card">
+
+<h2>
+📋 Historiek
+</h2>
+
+${entries.map(item=>`
+
+<div
+style="
+padding:10px;
+border-bottom:1px solid #ddd;
+">
+
+📅 ${item.date}
+
+<br>
+
+🦴 Gewrichtspijn:
+${item.level}/10
+
+<br>
+
+📝 ${item.notes || "-"}
+
+</div>
+
+`).join("")}
+
+</div>
+
+`;
+}
+
+
 function renderStressTracker()
 {
     const entries =
@@ -10080,6 +10411,81 @@ async function saveEnergyEntry()
     await DatabaseService.save();
 
     renderEnergyTracker();
+}
+
+async function saveAbdominalPainEntry()
+{
+    DatabaseService.cache
+    .healthData
+    .abdominalPainEntries
+    .unshift({
+
+        id :
+            Date.now(),
+
+        date :
+            document.getElementById(
+                "painDate"
+            ).value,
+
+        level :
+            parseInt(
+                document.getElementById(
+                    "painLevel"
+                ).value
+            ),
+
+        notes :
+            document.getElementById(
+                "painNotes"
+            ).value,
+
+        created :
+            new Date()
+            .toISOString()
+
+    });
+
+    await DatabaseService.save();
+
+    renderAbdominalPainTracker();
+}
+
+async function saveJointPainEntry()
+{
+    DatabaseService.cache
+    .healthData
+    .jointPainEntries
+    .unshift({
+
+        id:
+            Date.now(),
+
+        date:
+            document.getElementById(
+                "jointPainDate"
+            ).value,
+
+        level:
+            parseInt(
+                document.getElementById(
+                    "jointPainLevel"
+                ).value
+            ),
+
+        notes:
+            document.getElementById(
+                "jointPainNotes"
+            ).value,
+
+        created:
+            new Date()
+            .toISOString()
+    });
+
+    await DatabaseService.save();
+
+    renderJointPainTracker();
 }
 
 async function saveStressEntry()
@@ -11451,6 +11857,46 @@ const HealthTimelineEngine = {
                 });
 
             });
+
+        (health.abdominalPainEntries || [])
+    .forEach(item => {
+
+        events.push({
+
+            type : "pain",
+
+            date : item.date,
+
+            title :
+                "Buikpijn " +
+                item.level +
+                "/10",
+
+            source : item
+
+        });
+
+    });
+
+    (health.jointPainEntries || [])
+    .forEach(item => {
+
+        events.push({
+
+            type : "jointPain",
+
+            date : item.date,
+
+            title :
+                "Gewrichtspijn " +
+                item.level +
+                "/10",
+
+            source : item
+
+        });
+
+    });
 
         (health.stressEntries || [])
             .forEach(item => {
@@ -12909,7 +13355,7 @@ const IBDActivityIndex = {
     {
         const pain =
             Number(data.abdominalPain || 0);
-
+     
         const urgency =
             Number(data.urgency || 0);
 
@@ -13059,6 +13505,8 @@ const FatigueIndex = {
         const pain =
             Number(data.abdominalPain || 0);
 
+        
+
         const nightVisits =
             Number(data.nightVisits || 0);
 
@@ -13156,6 +13604,23 @@ const CrisisMonitor = {
 
 };
 
+function getLatestAbdominalPain()
+{
+    const entries =
+        DatabaseService.cache
+        ?.healthData
+        ?.abdominalPainEntries || [];
+
+    if(!entries.length)
+    {
+        return 0;
+    }
+
+    return Number(
+        entries[0].level || 0
+    );
+}
+
 /////////////////////////////////////////////////////
 // DASHBOARD BEREKENINGEN
 /////////////////////////////////////////////////////
@@ -13167,9 +13632,25 @@ function buildHealthDashboard()
             ?.healthData || {};
 
     const ibd =
-        IBDActivityIndex.calculate(
-            health
-        );
+    IBDActivityIndex.calculate({
+
+        abdominalPain :
+            getLatestAbdominalPain(),
+
+        urgency :
+            health.urgencyScore || 0,
+
+        toiletVisits :
+            health.stoolEntries?.[0]
+            ?.count || 0,
+
+        bleeding :
+            health.stoolEntries?.[0]
+            ?.blood === "ja"
+                ? 5
+                : 0
+
+    });
 
     const wellbeing =
         WellbeingIndex.calculate(
@@ -13177,9 +13658,30 @@ function buildHealthDashboard()
         );
 
     const fatigue =
-        FatigueIndex.calculate(
-            health
-        );
+    FatigueIndex.calculate({
+
+        sleep :
+            health.sleepEntries?.[0]
+            ?.quality || 0,
+
+        energy :
+            health.energyEntries?.[0]
+            ?.level || 0,
+
+        abdominalPain :
+    getLatestAbdominalPain(),
+
+        workload :
+            health.workload || 0,
+
+        nightVisits :
+            health.stoolEntries?.[0]
+            ?.night === "ja"
+                ? 3
+                : 0
+
+    });
+
 
     const mental =
         MentalHealthIndex.calculate({
@@ -13395,11 +13897,12 @@ function renderTimelineEvent(item){
     const icons = {
 
         blood : "🩸",
-medication : "💊",
-symptom : "⚠️",
-sleep : "😴",
-energy : "⚡",
-stress : "😟"
+        medication : "💊",
+        symptom : "⚠️",
+        sleep : "😴",
+        energy : "⚡",
+        pain : "🤕",
+        stress : "😟"
 
     };
 

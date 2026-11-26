@@ -12352,7 +12352,7 @@ const MyIBDProfileBuilder = {
 
         return profile;
     },
-
+   
     buildSummary()
     {
         const profile =
@@ -12397,8 +12397,248 @@ const MyIBDProfileBuilder = {
 
         return summary;
     }
+    
+};
+
+const MentalHealthEngine = {
+
+    calculate() {
+
+        const health =
+            DatabaseService.cache?.healthData || {};
+
+        const sleep =
+            (health.sleepEntries || []).at(-1);
+
+        const stress =
+            (health.stressEntries || []).at(-1);
+
+        const mood =
+            (health.moodEntries || []).at(-1);
+
+        const energy =
+            (health.energyEntries || []).at(-1);
+
+        const anxiety =
+            (health.anxietyEntries || []).at(-1);
+
+        let score = 50;
+
+        if(sleep?.hours >= 7) score += 15;
+        if(sleep?.hours < 6) score -= 15;
+
+        if(stress?.level <= 3) score += 15;
+        if(stress?.level >= 7) score -= 15;
+
+        if(mood?.score >= 7) score += 10;
+        if(mood?.score <= 4) score -= 10;
+
+        if(energy?.score >= 7) score += 10;
+        if(energy?.score <= 4) score -= 10;
+
+        if(anxiety?.score >= 7) score -= 15;
+
+        score = Math.max(
+            0,
+            Math.min(score,100)
+        );
+
+        return {
+
+            score,
+
+            status:
+                score >= 80
+                    ? "Uitstekend"
+                    : score >= 60
+                    ? "Goed"
+                    : score >= 40
+                    ? "Matig"
+                    : "Belast",
+
+            recommendations:
+                this.buildRecommendations(
+                    score,
+                    sleep,
+                    stress
+                )
+
+        };
+
+    },
+
+    buildRecommendations(
+        score,
+        sleep,
+        stress
+    ) {
+
+        const advice = [];
+
+        if(sleep?.hours < 7) {
+
+            advice.push(
+                "Probeer slaapduur te verhogen."
+            );
+
+        }
+
+        if(stress?.level > 6) {
+
+            advice.push(
+                "Stressniveau verdient aandacht."
+            );
+
+        }
+
+        if(score < 50) {
+
+            advice.push(
+                "Bespreek aanhoudende klachten met zorgverlener."
+            );
+
+        }
+
+        return advice;
+
+    }
 
 };
+
+window.MentalHealthEngine =
+    MentalHealthEngine;
+
+const ClinicalInsightEngine = {
+
+    generate() {
+
+        return {
+            inflammation: this.analyzeInflammation(),
+            nutrition: this.analyzeNutrition(),
+            fatigue: this.analyzeFatigue(),
+            mentalHealth: this.analyzeMentalHealth(),
+            flareRisk: this.analyzeFlareRisk()
+        };
+
+    },
+
+    analyzeInflammation() {
+
+        const profile = MyIBDProfileBuilder.build();
+
+        if(profile.inflammation) {
+
+            return {
+                score: 75,
+                status: "Verhoogd",
+                recommendation:
+                    "Ontstekingsactiviteit lijkt verhoogd."
+            };
+
+        }
+
+        return {
+            score: 20,
+            status: "Laag",
+            recommendation:
+                "Geen duidelijke tekenen van actieve ontsteking."
+        };
+
+    },
+
+    analyzeNutrition() {
+
+        const blood =
+            DatabaseService.cache?.healthData?.bloodResults || [];
+
+        if(!blood.length) {
+
+            return {
+                score: 0,
+                status: "Geen data"
+            };
+
+        }
+
+        const latest = blood[0];
+
+        const ferritine =
+            latest.values?.Ferritine || 0;
+
+        const b12 =
+            latest.values?.VitamineB12 || 0;
+
+        let score = 100;
+
+        if(ferritine < 50) score -= 25;
+        if(b12 < 250) score -= 25;
+
+        return {
+
+            score,
+
+            status:
+                score > 75
+                    ? "Goed"
+                    : score > 50
+                    ? "Opvolgen"
+                    : "Risico"
+
+        };
+
+    },
+
+    analyzeFatigue() {
+
+        const profile =
+            MyIBDProfileBuilder.build();
+
+        return {
+
+            score:
+                profile.fatigueRisk
+                    ? 70
+                    : 20,
+
+            status:
+                profile.fatigueRisk
+                    ? "Verhoogd"
+                    : "Laag"
+
+        };
+
+    },
+
+    analyzeMentalHealth() {
+
+        return MentalHealthEngine.calculate();
+
+    },
+
+    analyzeFlareRisk() {
+
+        const activity =
+            HealthTimelineEngine.calculateDiseaseActivity();
+
+        return {
+
+            score: activity,
+
+            status:
+                activity > 70
+                    ? "Hoog"
+                    : activity > 40
+                    ? "Matig"
+                    : "Laag"
+
+        };
+
+    }
+
+};
+
+window.ClinicalInsightEngine =
+    ClinicalInsightEngine;
 
 async function renderHealthTimeline(){
 
@@ -22120,8 +22360,11 @@ function renderMyIBDProfile()
 
     const aiMaturity =
     calculateAIMaturity();
+  
+const diseaseActivity =
+    calculateDiseaseActivity();
 
-    const latestBlood =
+const latestBlood =
         bloods[0];
 
     const latestCalprotectine =
@@ -22132,7 +22375,7 @@ function renderMyIBDProfile()
 
     const latestFerritine =
         latestBlood?.values?.Ferritine;
-
+    
     const latestHemoglobine =
         latestBlood?.values?.Hemoglobine;
 
@@ -22144,6 +22387,50 @@ function renderMyIBDProfile()
 
     const latestAlbumine =
         latestBlood?.values?.Albumine;
+
+    const mentalHealth =
+    MentalHealthEngine.calculate();
+
+const flareRisk =
+    diseaseActivity > 70
+        ? "🔴 Hoog"
+        : diseaseActivity > 40
+        ? "🟡 Matig"
+        : "🟢 Laag";
+
+const ferritineStatus =
+
+    latestFerritine == null
+
+    ? "⚪ Geen data"
+
+    : latestFerritine < 30
+
+    ? "🔴 Laag"
+
+    : latestFerritine < 50
+
+    ? "🟡 Opvolgen"
+
+    : "🟢 Goed";
+
+const sleepStatus =
+    sleeps.length
+        ? "🟢 Aanwezig"
+        : "⚪ Geen data";
+
+const stressStatus =
+    stresses.length
+        ? "🟢 Aanwezig"
+        : "⚪ Geen data";
+
+
+
+
+const clinicalInsights =
+    ClinicalInsightEngine.generate();
+
+    
 
     const latestCalprotectineValue =
 
@@ -22353,6 +22640,55 @@ insights.map(
 <div class="card">
 
 <h2>
+❤️ Persoonlijke Gezondheidskaart
+</h2>
+
+<br>
+
+Ontsteking:
+<br>
+<b>${diseaseStatus}</b>
+
+<br><br>
+
+Mentale gezondheid:
+<br>
+<b>
+${mentalHealth.status}
+(${mentalHealth.score}/100)
+</b>
+
+<br><br>
+
+Ferritine:
+<br>
+<b>${ferritineStatus}</b>
+
+<br><br>
+
+Slaap:
+<br>
+<b>${sleepStatus}</b>
+
+<br><br>
+
+Stress:
+<br>
+<b>${stressStatus}</b>
+
+<br><br>
+
+Opstootrisico:
+<br>
+<b>${flareRisk}</b>
+
+</div>
+
+<br>
+
+<div class="card">
+
+<h2>
 
 🩸 Laatste bloedanalyse
 
@@ -22410,7 +22746,7 @@ ${latestCalprotectineValue}
 
 <br><br>
 
-<<div class="card">
+<div class="card">
 
 <h2>
 

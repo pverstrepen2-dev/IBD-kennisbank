@@ -23876,6 +23876,28 @@ async function renderDocumentWorkbench(
         item
     );
 
+    window.debugItem = item;
+
+console.log(
+    "Document item:",
+    item
+);
+
+console.log(
+    "Web URL:",
+    item.webUrl
+);
+
+console.log(
+    "Download URL:",
+    item.downloadUrl
+);
+
+console.log(
+    "Keys:",
+    Object.keys(item)
+);
+
     console.log(
     "Document geopend:",
     item.title
@@ -23925,15 +23947,34 @@ gap:20px;
 
 <div>
 
-<iframe
-src="${item.webUrl}?download=0"
-style="
-width:100%;
-height:900px;
-border:none;
-background:white;
-"
-></iframe>
+console.log(
+    "Document URL:",
+    item.webUrl
+);
+
+console.log(
+    "Document item:",
+    item
+);
+<div class="card">
+
+    <h3>📄 Document openen</h3>
+
+    <br>
+
+    <button
+        class="action-btn"
+        onclick="
+            window.open(
+                '${item.webUrl}',
+                '_blank'
+            )
+        "
+    >
+        Open document
+    </button>
+
+</div>
 
 </div>
 

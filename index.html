@@ -2739,6 +2739,26 @@ function extractHref(html)
     return String(html);
 }
 
+function extractHref(value)
+{
+    if(!value)
+    {
+        return "";
+    }
+
+    const hrefMatch =
+        String(value).match(
+            /href="([^"]+)"/i
+        );
+
+    if(hrefMatch)
+    {
+        return hrefMatch[1];
+    }
+
+    return String(value);
+}
+
 async function scanDriveFolder(
     token,
     folderId,
@@ -2778,12 +2798,7 @@ async function scanDriveFolder(
 
             const data =
                 await response.json();
-
-            console.log(
-    "GRAPH WEBURL RAW:",
-    data.value?.[0]?.webUrl
-);
-
+        
             const items =
                 data.value || [];
 
@@ -2796,22 +2811,22 @@ async function scanDriveFolder(
 
                 const normalizedItem = {
 
-                    id :
-                        item.id,
+    id :
+        item.id,
 
-                    name :
-                        item.name,
+    name :
+        item.name,
 
-                    fullPath :
-                        currentPath,
+    fullPath :
+        currentPath,
 
-                    webUrl :
-    extractHref(
-        item.webUrl
-    ),
+    webUrl :
+        extractHref(
+            item.webUrl
+        ),
 
     downloadUrl :
-    item["@microsoft.graph.downloadUrl"] || "",
+        item["@microsoft.graph.downloadUrl"] || "",
 
                     size :
                         item.size || 0,

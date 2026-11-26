@@ -6513,10 +6513,13 @@ async function buildOneDriveIndex(){
         item.size || 0,
 
     webUrl :
-        item.webUrl || "",
+    item.webUrl || "",
 
-    fileType :
-        item.file?.mimeType || "",
+downloadUrl :
+    item["@microsoft.graph.downloadUrl"] || "",
+
+fileType :
+    item.file?.mimeType || "",
 
     createdDateTime :
     item.createdDateTime || "",
@@ -17663,27 +17666,66 @@ async function downloadFile(id){
 
 }
 
-async function openFile(fileId){
-
-    try{
-
+async function openFile(fileId)
+{
+    try
+    {
         const realId =
-            String(fileId || "").trim();
+            String(fileId || "")
+            .trim();
 
-        if(!realId){
-
+        if(!realId)
+        {
             console.error(
                 "Geen bestand-ID ontvangen"
             );
 
             return;
-
         }
 
         console.log(
             "OPEN FILE:",
             realId
         );
+
+        const existingFile =
+            globalIndex.find(
+                x =>
+                    x.source === "file"
+                    &&
+                    (
+                        String(x.id) === realId
+                        ||
+                        String(x.oneDriveId) === realId
+                    )
+            );
+
+        if(existingFile)
+        {
+            const isPdf =
+                (existingFile.title || "")
+                .toLowerCase()
+                .endsWith(".pdf");
+
+            if(isPdf)
+            {
+                await renderPDFViewer(
+                    existingFile.downloadUrl
+                    ||
+                    existingFile.webUrl,
+                    existingFile.title,
+                    "Documenten"
+                );
+
+                return;
+            }
+
+            renderDocumentWorkbench(
+                existingFile.id
+            );
+
+            return;
+        }
 
         const token =
             await getAccessToken();
@@ -17692,22 +17734,22 @@ async function openFile(fileId){
             await fetch(
                 `https://graph.microsoft.com/v1.0/me/drive/items/${realId}`,
                 {
-                    headers:{
+                    headers:
+                    {
                         Authorization:
                             "Bearer " + token
                     }
                 }
             );
 
-        if(!response.ok){
-
+        if(!response.ok)
+        {
             console.error(
                 "Bestand niet gevonden",
                 response.status
             );
 
             return;
-
         }
 
         const file =
@@ -17718,31 +17760,48 @@ async function openFile(fileId){
             file
         );
 
-        if(
-    file.name?.toLowerCase()
-    .endsWith(".pdf")
-){
-    renderDocumentWorkbench(
-        file.id
-    );
+        const isPdf =
+            (file.name || "")
+            .toLowerCase()
+            .endsWith(".pdf");
 
-    return;
-}
+        const directUrl =
+            file["@microsoft.graph.downloadUrl"]
+            ||
+            file.downloadUrl
+            ||
+            file.webUrl;
 
-window.location.href =
-    file.webUrl;
+        if(isPdf && directUrl)
+        {
+            await renderPDFViewer(
+                directUrl,
+                file.name,
+                "Documenten"
+            );
 
+            return;
+        }
 
+        if(directUrl)
+        {
+            location.href =
+                directUrl;
+        }
+        else
+        {
+            alert(
+                "Geen document-URL gevonden"
+            );
+        }
     }
-    catch(error){
-
+    catch(error)
+    {
         console.error(
             "OPEN FILE FOUT",
             error
         );
-
     }
-
 }
 
 async function copyFileLink(id){
@@ -23875,6 +23934,11 @@ async function renderDocumentWorkbench(
         item
     );
 
+const pdfUrl =
+    item.downloadUrl ||
+    item["@microsoft.graph.downloadUrl"] ||
+    item.webUrl;
+
     const isPdf =
         (
             item.title ||
@@ -27730,20 +27794,16 @@ function detectAITags(
     }
 
     if(
-        text.includes(
-            "opstoot"
-        )
-    ){
-        tags.push(
-            "Flare"
-        );
-    }
+    containsWord(
+        text,
+        "opstoot"
+    )
+)
+{
+    tags.push("Flare");
+}
 
-    if(
-        text.includes(
-            "remissie"
-        )
-    ){
+    {
         tags.push(
             "Remission"
         );

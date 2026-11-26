@@ -27542,16 +27542,17 @@ function detectTaxonomy(
         {
 
             if(
-                keywords.some(
-                    keyword =>
-                        containsWord(
-    text,
-    keyword
-)
+    keywords.some(
+        keyword =>
+            containsWord(
+                text,
+                keyword
             )
-            {
-                detected[field] = true;
-            }
+    )
+)
+{
+    detected[field] = true;
+}
 
         }
 

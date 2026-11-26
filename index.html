@@ -368,57 +368,43 @@ const HealthService = {
     },
 
     ensureStructure()
+{
+    const db =
+        DatabaseService.cache;
+
+    if(!db.healthData)
     {
-        const db =
-            DatabaseService.cache;
-
-        if(!db.healthData)
-        {
-            db.healthData = {
-
-                stoolEntries:[],
-
-                sleepEntries:[],
-
-                stressEntries:[],
-
-                energyEntries : [],
-
-    moodEntries : [],
-
-anxietyEntries : [],
-
-jointPainEntries : [],
-
-mentalHealthAssessments : [],
-
-abdominalPainEntries : [],
-
-wellbeingEntries : [],
-
-phq9Results : [],
-
-gad7Results : [],
-
-                meals:[],
-
-                medication:[],
-
-                symptoms:[],
-
-                bloodResults:[],
-
-                exams:[]
-
-            };
-        }
-
-        return db.healthData;
+        db.healthData = {};
     }
 
+    db.healthData.stoolEntries ||= [];
+    db.healthData.sleepEntries ||= [];
+    db.healthData.stressEntries ||= [];
+
+    db.healthData.energyEntries ||= [];
+    db.healthData.moodEntries ||= [];
+    db.healthData.anxietyEntries ||= [];
+
+    db.healthData.abdominalPainEntries ||= [];
+    db.healthData.jointPainEntries ||= [];
+
+    db.healthData.mentalHealthAssessments ||= [];
+
+    db.healthData.wellbeingEntries ||= [];
+
+    db.healthData.phq9Results ||= [];
+    db.healthData.gad7Results ||= [];
+
+    db.healthData.meals ||= [];
+    db.healthData.medication ||= [];
+    db.healthData.symptoms ||= [];
+
+    db.healthData.bloodResults ||= [];
+    db.healthData.exams ||= [];
+
+    return db.healthData;
+}
 };
-
-
 
 const KNOWLEDGE_CATEGORIES = [
 {
@@ -11442,6 +11428,17 @@ async function saveWHO5Assessment()
         .healthData
         .mentalHealthStatus =
             mentalIndex.status;
+
+if(
+    !DatabaseService.cache
+    .healthData
+    .mentalHealthAssessments
+)
+{
+    DatabaseService.cache
+    .healthData
+    .mentalHealthAssessments = [];
+}
 
     DatabaseService.cache
         .healthData

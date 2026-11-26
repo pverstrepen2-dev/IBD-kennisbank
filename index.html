@@ -17754,14 +17754,25 @@ async function openFile(fileId)
 
             if(isPdf)
             {
-                await renderPDFViewer(
-                    existingFile.downloadUrl
-                    ||
-                    existingFile.webUrl,
-                    existingFile.title,
-                    "Documenten"
-                );
+               const pdfUrl =
+    extractHref(
+        existingFile.downloadUrl
+    )
+    ||
+    extractHref(
+        existingFile.webUrl
+    );
 
+console.log(
+    "PDF URL:",
+    pdfUrl
+);
+
+await renderPDFViewer(
+    pdfUrl,
+    existingFile.title,
+    "Documenten"
+);
                 return;
             }
 
@@ -23983,7 +23994,20 @@ const pdfUrl =
     item.downloadUrl ||
     item["@microsoft.graph.downloadUrl"] ||
     item.webUrl;
+console.log(
+    "PDF URL:",
+    pdfUrl
+);
 
+console.log(
+    "DOWNLOAD URL:",
+    item.downloadUrl
+);
+
+console.log(
+    "WEB URL:",
+    item.webUrl
+);
     const isPdf =
         (
             item.title ||

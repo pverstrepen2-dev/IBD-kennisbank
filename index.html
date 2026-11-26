@@ -17718,20 +17718,20 @@ async function openFile(fileId){
             file
         );
 
-        if(file.webUrl){
+        if(
+    file.name?.toLowerCase()
+    .endsWith(".pdf")
+){
+    renderDocumentWorkbench(
+        file.id
+    );
 
-            window.open(
-                file.webUrl,
-                "_blank"
-            );
+    return;
+}
 
-        }else{
+window.location.href =
+    file.webUrl;
 
-            alert(
-                "Geen OneDrive URL gevonden"
-            );
-
-        }
 
     }
     catch(error){
@@ -26991,15 +26991,12 @@ ${
 <button
 class="action-btn"
 onclick="
-openFile(
-'${item.oneDriveId || item.id}'
+renderDocumentWorkbench(
+'${item.id}'
 )
-
 "
 >
-
 📂 Open gekoppeld document
-
 </button>
 
 <br><br>

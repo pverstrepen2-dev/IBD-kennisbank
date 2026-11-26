@@ -18220,6 +18220,26 @@ console.log(
     pdfUrl
 );
 
+console.log(
+    "existingFile:",
+    existingFile
+);
+
+console.log(
+    "downloadUrl:",
+    existingFile.downloadUrl
+);
+
+console.log(
+    "data.downloadUrl:",
+    existingFile.data?.downloadUrl
+);
+
+console.log(
+    "pdfUrl:",
+    pdfUrl
+);
+
 await renderPDFViewer(
     pdfUrl,
     existingFile.title,
@@ -24618,63 +24638,6 @@ if(isPdf)
         100
     );
 }
-}
-
-async function renderPdfViewer(
-    item
-)
-{
-    const container =
-        document.getElementById(
-            "pdfViewer"
-        );
-
-    if(!container)
-    {
-        return;
-    }
-
-    try
-    {
-        container.innerHTML =
-            "PDF laden...";
-
-        const pdfUrl =
-    item.downloadUrl ||
-    item["@microsoft.graph.downloadUrl"] ||
-    item.webUrl;
-
-if(pdfUrl)
-{
-    container.innerHTML = `
-    <iframe
-        src="${pdfUrl}"
-        style="
-            width:100%;
-            height:850px;
-            border:none;
-            background:white;
-        "
-    ></iframe>
-    `;
-}
-        
-        else
-        {
-            container.innerHTML =
-                "Geen PDF URL gevonden";
-        }
-    }
-    catch(error)
-    {
-        console.error(
-            "PDF fout:",
-            error
-        );
-
-        container.innerHTML =
-            "PDF kan niet geladen worden";
-    }
 }
 
 function renderDocumentAISidebar(

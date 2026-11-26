@@ -24099,7 +24099,7 @@ padding:10px;
         ?
         `
         <iframe
-        src="${item.webUrl}"
+        src="${pdfUrl}"
         style="
             width:100%;
             height:850px;
@@ -24181,20 +24181,26 @@ async function renderPdfViewer(
         container.innerHTML =
             "PDF laden...";
 
-        if(item.webUrl)
-        {
-            container.innerHTML = `
-            <iframe
-                src="${item.webUrl}"
-                style="
-                    width:100%;
-                    height:850px;
-                    border:none;
-                    background:white;
-                "
-            ></iframe>
-            `;
-        }
+        const pdfUrl =
+    item.downloadUrl ||
+    item["@microsoft.graph.downloadUrl"] ||
+    item.webUrl;
+
+if(pdfUrl)
+{
+    container.innerHTML = `
+    <iframe
+        src="${pdfUrl}"
+        style="
+            width:100%;
+            height:850px;
+            border:none;
+            background:white;
+        "
+    ></iframe>
+    `;
+}
+        
         else
         {
             container.innerHTML =

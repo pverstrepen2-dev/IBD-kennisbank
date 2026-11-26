@@ -8282,6 +8282,7 @@ async function renderHealthDashboard()
     let stressCount = 0;
     let bloodCount = 0;
     let calprotectineCount = 0;
+    let dashboard = null;
 
     try
     {
@@ -8314,8 +8315,13 @@ async function renderHealthDashboard()
                 healthData.calprotectineResults?.length || 0;
         }
 
-const dashboard =
+dashboard =
     buildHealthDashboard();
+
+console.log(
+    "Dashboard object:",
+    dashboard
+);
 
 console.log(
     "Dashboard:",
@@ -8331,6 +8337,38 @@ console.log(
         );
     }
 
+if(!dashboard)
+{
+    dashboard =
+    {
+        ibd:
+        {
+            status: "⚪ Geen gegevens"
+        },
+
+        wellbeing:
+        {
+            status: "⚪ Geen gegevens"
+        },
+
+        mental:
+        {
+            status: "⚪ Geen gegevens"
+        },
+
+        fatigue:
+        {
+            status: "⚪ Geen gegevens"
+        },
+
+        crisis:
+        {
+            level: "GREEN",
+            warnings: []
+        }
+    };
+}
+
 let maturityScore = 0;
 
 if (bloodCount > 0) maturityScore += 20;
@@ -8345,6 +8383,11 @@ const aiMaturity = {
 
 const aiReliability =
     maturityScore + "%";
+
+    console.log(
+    "HTML dashboard:",
+    dashboard
+);
     
     document.getElementById(
         "ccvContent"
@@ -8361,8 +8404,7 @@ const aiReliability =
         repeat(auto-fit,minmax(250px,1fr));
         gap:15px;
     ">
-
-    <div
+   <div
 class="card"
 style="
 background:#f8fafc;
@@ -8444,8 +8486,6 @@ een arts of hulpverlener.
 :
 ""
 }
-
-
         <div
         class="card"
         style="cursor:pointer;"

@@ -23956,11 +23956,29 @@ console.log(
     "Document item:",
     item
 );
+${
+(item.title || "")
+.toLowerCase()
+.endsWith(".pdf")
+?
+`
+<div id="pdfViewer">
+
+    <iframe
+        src="${item.webUrl}"
+        style="
+            width:100%;
+            height:900px;
+            border:none;
+            background:white;
+        "
+    ></iframe>
+
+</div>
+`
+:
+`
 <div class="card">
-
-    <h3>📄 Document openen</h3>
-
-    <br>
 
     <button
         class="action-btn"
@@ -23975,6 +23993,8 @@ console.log(
     </button>
 
 </div>
+`
+}
 
 </div>
 

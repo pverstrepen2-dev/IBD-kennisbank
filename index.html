@@ -23863,8 +23863,7 @@ async function renderDocumentWorkbench(
             x =>
                 x.source === "file"
                 &&
-                String(x.id)
-                === String(fileId)
+                String(x.id) === String(fileId)
         );
 
     if(!item)
@@ -23876,62 +23875,66 @@ async function renderDocumentWorkbench(
         item
     );
 
+    const isPdf =
+        (
+            item.title ||
+            item.fileName ||
+            ""
+        )
+        .toLowerCase()
+        .endsWith(".pdf");
+
     window.debugItem = item;
 
-console.log(
-    "Document item:",
-    item
-);
-
-console.log(
-    "Web URL:",
-    item.webUrl
-);
-
-console.log(
-    "Download URL:",
-    item.downloadUrl
-);
-
-console.log(
-    "Keys:",
-    Object.keys(item)
-);
+    console.log(
+        "Document item:",
+        item
+    );
 
     console.log(
-    "Document geopend:",
-    item.title
-);
+        "Web URL:",
+        item.webUrl
+    );
 
-console.log(
-    "Classificatie:",
-    item.aiClassification
-);
+    console.log(
+        "Download URL:",
+        item.downloadUrl
+    );
 
-console.log(
-    "Inhoud lengte:",
-    item.content?.length
-);
+    console.log(
+        "Keys:",
+        Object.keys(item)
+    );
+
+    console.log(
+        "Document geopend:",
+        item.title
+    );
+
+    console.log(
+        "Classificatie:",
+        item.aiClassification
+    );
+
+    console.log(
+        "Inhoud lengte:",
+        item.content?.length
+    );
 
     document.getElementById(
         "ccvContent"
     ).innerHTML = `
 
 <div class="page-title">
-
 📄 ${item.title}
-
 </div>
 
 <button
 class="action-btn"
 onclick="
 renderRecentDocuments()
-"
->
-
+">
 ⬅ Terug
-
 </button>
 
 <br><br>
@@ -23939,40 +23942,44 @@ renderRecentDocuments()
 <div
 style="
 display:grid;
-grid-template-columns:
-3fr 1fr;
+grid-template-columns:3fr 1fr;
 gap:20px;
-"
->
+">
 
 <div>
 
-console.log(
-    "Document URL:",
-    item.webUrl
-);
-
-console.log(
-    "Document item:",
-    item
-);
 ${
-(item.title || "")
-.toLowerCase()
-.endsWith(".pdf")
+isPdf
 ?
 `
-<div id="pdfViewer">
+<div
+id="pdfViewer"
+class="card"
+style="
+height:900px;
+overflow:auto;
+padding:10px;
+">
 
-    <iframe
+    ${
+        item.webUrl
+        ?
+        `
+        <iframe
         src="${item.webUrl}"
         style="
             width:100%;
-            height:900px;
+            height:850px;
             border:none;
             background:white;
-        "
-    ></iframe>
+        ">
+        </iframe>
+        `
+        :
+        `
+        Geen PDF URL gevonden
+        `
+    }
 
 </div>
 `
@@ -23981,15 +23988,11 @@ ${
 <div class="card">
 
     <button
-        class="action-btn"
-        onclick="
-            window.open(
-                '${item.webUrl}',
-                '_blank'
-            )
-        "
-    >
-        Open document
+    class="action-btn"
+    onclick="
+    location.href='${item.webUrl}'
+    ">
+    📄 Open document
     </button>
 
 </div>
@@ -24000,8 +24003,7 @@ ${
 
 <div
 id="documentAISidebar"
-class="card"
->
+class="card">
 
 Document wordt geanalyseerd...
 
@@ -24012,8 +24014,70 @@ Document wordt geanalyseerd...
 `;
 
     renderDocumentAISidebar(
-        item
+    item
+);
+
+if(isPdf)
+{
+    setTimeout(
+        () =>
+            renderPdfViewer(
+                item
+            ),
+        100
     );
+}
+}
+
+async function renderPdfViewer(
+    item
+)
+{
+    const container =
+        document.getElementById(
+            "pdfViewer"
+        );
+
+    if(!container)
+    {
+        return;
+    }
+
+    try
+    {
+        container.innerHTML =
+            "PDF laden...";
+
+        if(item.webUrl)
+        {
+            container.innerHTML = `
+            <iframe
+                src="${item.webUrl}"
+                style="
+                    width:100%;
+                    height:850px;
+                    border:none;
+                    background:white;
+                "
+            ></iframe>
+            `;
+        }
+        else
+        {
+            container.innerHTML =
+                "Geen PDF URL gevonden";
+        }
+    }
+    catch(error)
+    {
+        console.error(
+            "PDF fout:",
+            error
+        );
+
+        container.innerHTML =
+            "PDF kan niet geladen worden";
+    }
 }
 
 function renderDocumentAISidebar(

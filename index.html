@@ -23991,9 +23991,19 @@ async function renderDocumentWorkbench(
     );
 
 const pdfUrl =
-    item.downloadUrl ||
-    item["@microsoft.graph.downloadUrl"] ||
-    item.webUrl;
+    extractHref(
+        item.downloadUrl
+    )
+    ||
+    extractHref(
+        item.data?.downloadUrl
+    )
+    ||
+    item["@microsoft.graph.downloadUrl"]
+    ||
+    extractHref(
+        item.webUrl
+    );
 console.log(
     "PDF URL:",
     pdfUrl
@@ -24133,6 +24143,19 @@ Document wordt geanalyseerd...
 
 if(isPdf)
 {
+    if(
+        !item.downloadUrl &&
+        !item["@microsoft.graph.downloadUrl"]
+    )
+    {
+        window.open(
+            extractHref(item.webUrl),
+            "_blank"
+        );
+
+        return;
+    }
+
     setTimeout(
         () =>
             renderPDFViewer(

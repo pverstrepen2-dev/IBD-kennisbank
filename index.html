@@ -8279,7 +8279,8 @@ async function renderHealthDashboard()
 
     let stoolCount = 0;
     let sleepCount = 0;
-    let stressCount = 0;
+let energyCount = 0;
+let stressCount = 0;
     let bloodCount = 0;
     let calprotectineCount = 0;
     let dashboard = null;
@@ -8303,10 +8304,13 @@ async function renderHealthDashboard()
                 healthData.stoolEntries?.length || 0;
 
             sleepCount =
-                healthData.sleepEntries?.length || 0;
+    healthData.sleepEntries?.length || 0;
 
-            stressCount =
-                healthData.stressEntries?.length || 0;
+energyCount =
+    healthData.energyEntries?.length || 0;
+
+stressCount =
+    healthData.stressEntries?.length || 0;
 
             bloodCount =
                 healthData.bloodResults?.length || 0;
@@ -8553,6 +8557,25 @@ een arts of hulpverlener.
 
             registraties
         </div>
+
+<div
+class="card"
+style="cursor:pointer;"
+onclick="renderEnergyTracker()">
+
+    <h2>
+        ⚡ Energie
+    </h2>
+
+    <br>
+
+    ${energyCount}
+
+    <br><br>
+
+    registraties
+
+</div>
 
         <div
         class="card"
@@ -9491,6 +9514,139 @@ function drawSleepChart()
     );
 }
 
+function renderEnergyTracker()
+{
+    const entries =
+        DatabaseService.cache
+        ?.healthData
+        ?.energyEntries || [];
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+⚡ Energieregistratie
+</div>
+
+<button
+class="action-btn"
+onclick="
+renderHealthDashboard()
+">
+⬅ Terug
+</button>
+
+<br><br>
+
+<div class="card">
+
+<label>
+📅 Datum
+</label>
+
+<input
+type="date"
+id="energyDate"
+value="${
+    new Date()
+    .toISOString()
+    .split("T")[0]
+}"
+style="
+width:100%;
+padding:10px;
+margin-bottom:10px;
+">
+
+<label>
+⚡ Energieniveau
+</label>
+
+<select
+id="energyLevel"
+style="
+width:100%;
+padding:10px;
+margin-bottom:10px;
+">
+
+<option value="1">1 - Uitgeput</option>
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="4">4</option>
+<option value="5" selected>5 - Gemiddeld</option>
+<option value="6">6</option>
+<option value="7">7</option>
+<option value="8">8</option>
+<option value="9">9</option>
+<option value="10">10 - Uitstekend</option>
+
+</select>
+
+<label>
+📝 Opmerkingen
+</label>
+
+<textarea
+id="energyNotes"
+style="
+width:100%;
+height:100px;
+padding:10px;
+margin-bottom:10px;
+"></textarea>
+
+<button
+class="action-btn"
+onclick="
+saveEnergyEntry()
+">
+💾 Opslaan
+</button>
+
+</div>
+
+<br>
+
+<div class="card">
+
+<h2>
+📋 Historiek
+</h2>
+
+<br>
+
+${entries.map(item=>`
+
+<div
+style="
+padding:10px;
+border-bottom:1px solid #ddd;
+">
+
+📅 ${item.date}
+
+<br>
+
+⚡ Energie:
+${item.level}/10
+
+<br>
+
+📝 ${item.notes || "-"}
+
+<br><br>
+
+</div>
+
+`).join("")}
+
+</div>
+
+`;
+}
+
 function renderStressTracker()
 {
     const entries =
@@ -9886,6 +10042,44 @@ function drawStressChart()
         }
 
     );
+}
+
+async function saveEnergyEntry()
+{
+    DatabaseService.cache
+    .healthData
+    .energyEntries
+    .unshift({
+
+        id :
+            Date.now(),
+
+        date :
+            document.getElementById(
+                "energyDate"
+            ).value,
+
+        level :
+            parseInt(
+                document.getElementById(
+                    "energyLevel"
+                ).value
+            ),
+
+        notes :
+            document.getElementById(
+                "energyNotes"
+            ).value,
+
+        created :
+            new Date()
+            .toISOString()
+
+    });
+
+    await DatabaseService.save();
+
+    renderEnergyTracker();
 }
 
 async function saveStressEntry()
@@ -11279,6 +11473,26 @@ const HealthTimelineEngine = {
 
         (health.sleepEntries || [])
             .forEach(item => {
+            
+        (health.energyEntries || [])
+    .forEach(item => {
+
+        events.push({
+
+            type : "energy",
+
+            date : item.date,
+
+            title :
+                "Energie " +
+                (item.level ?? "-") +
+                "/10",
+
+            source : item
+
+        });
+
+    });
 
                 events.push({
 
@@ -13181,10 +13395,11 @@ function renderTimelineEvent(item){
     const icons = {
 
         blood : "🩸",
-        medication : "💊",
-        symptom : "⚠️",
-        sleep : "😴",
-        stress : "😟"
+medication : "💊",
+symptom : "⚠️",
+sleep : "😴",
+energy : "⚡",
+stress : "😟"
 
     };
 

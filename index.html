@@ -385,6 +385,8 @@ anxietyEntries : [],
 
 jointPainEntries : [],
 
+mentalHealthAssessments : [],
+
 abdominalPainEntries : [],
 
 wellbeingEntries : [],
@@ -7699,6 +7701,8 @@ anxietyEntries : [],
 
 jointPainEntries : [],
 
+mentalHealthAssessments : [],
+
 abdominalPainEntries : [],
 
 wellbeingEntries : [],
@@ -8291,6 +8295,7 @@ let energyCount = 0;
 let abdominalPainCount = 0;
 let jointPainCount = 0;
 let stressCount = 0;
+let mentalCount = 0;
     let bloodCount = 0;
     let calprotectineCount = 0;
     let dashboard = null;
@@ -8324,6 +8329,9 @@ abdominalPainCount =
 
 jointPainCount =
     healthData.jointPainEntries?.length || 0;
+
+mentalCount =
+    healthData.mentalHealthAssessments?.length || 0;
 
 stressCount =
     healthData.stressEntries?.length || 0;
@@ -8628,6 +8636,25 @@ onclick="renderJointPainTracker()">
     <br><br>
 
     registraties
+
+</div>
+
+<div
+class="card"
+style="cursor:pointer;"
+onclick="renderMentalHealthTracker()">
+
+    <h2>
+        🧠 Mentale Gezondheid
+    </h2>
+
+    <br>
+
+    ${mentalCount}
+
+    <br><br>
+
+    WHO-5 registraties
 
 </div>
 
@@ -9977,6 +10004,122 @@ ${item.level}/10
 `;
 }
 
+function renderMentalHealthTracker()
+{
+    const entries =
+        DatabaseService.cache
+        ?.healthData
+        ?.mentalHealthAssessments || [];
+
+    document.getElementById(
+        "ccvContent"
+    ).innerHTML = `
+
+<div class="page-title">
+
+🧠 Mentale Gezondheid
+
+</div>
+
+<button
+class="action-btn"
+onclick="
+renderHealthDashboard()
+">
+⬅ Terug
+</button>
+
+<br><br>
+
+<div class="card">
+
+<h2>
+WHO-5 Welzijnsvragen
+</h2>
+
+<br>
+
+Hoe voelde je je de afgelopen 2 weken?
+
+<br><br>
+
+1. Ik voelde mij opgewekt
+
+<select id="who1">
+<option value="0">Nooit</option>
+<option value="1">Zelden</option>
+<option value="2">Soms</option>
+<option value="3">Regelmatig</option>
+<option value="4">Meestal</option>
+<option value="5">Altijd</option>
+</select>
+
+<br><br>
+
+2. Ik voelde mij rustig
+
+<select id="who2">
+<option value="0">Nooit</option>
+<option value="1">Zelden</option>
+<option value="2">Soms</option>
+<option value="3">Regelmatig</option>
+<option value="4">Meestal</option>
+<option value="5">Altijd</option>
+</select>
+
+<br><br>
+
+3. Ik voelde mij actief
+
+<select id="who3">
+<option value="0">Nooit</option>
+<option value="1">Zelden</option>
+<option value="2">Soms</option>
+<option value="3">Regelmatig</option>
+<option value="4">Meestal</option>
+<option value="5">Altijd</option>
+</select>
+
+<br><br>
+
+4. Ik werd uitgerust wakker
+
+<select id="who4">
+<option value="0">Nooit</option>
+<option value="1">Zelden</option>
+<option value="2">Soms</option>
+<option value="3">Regelmatig</option>
+<option value="4">Meestal</option>
+<option value="5">Altijd</option>
+</select>
+
+<br><br>
+
+5. Mijn dagelijks leven was interessant
+
+<select id="who5">
+<option value="0">Nooit</option>
+<option value="1">Zelden</option>
+<option value="2">Soms</option>
+<option value="3">Regelmatig</option>
+<option value="4">Meestal</option>
+<option value="5">Altijd</option>
+</select>
+
+<br><br>
+
+<button
+class="action-btn"
+onclick="
+saveWHO5Assessment()
+">
+💾 Opslaan
+</button>
+
+</div>
+
+`;
+}
 
 function renderStressTracker()
 {
@@ -10486,6 +10629,45 @@ async function saveJointPainEntry()
     await DatabaseService.save();
 
     renderJointPainTracker();
+}
+
+async function saveWHO5Assessment()
+{
+    const score =
+        (
+            Number(document.getElementById("who1").value)
+            +
+            Number(document.getElementById("who2").value)
+            +
+            Number(document.getElementById("who3").value)
+            +
+            Number(document.getElementById("who4").value)
+            +
+            Number(document.getElementById("who5").value)
+        ) * 4;
+
+    DatabaseService.cache
+    .healthData
+    .who5Score = score;
+
+    DatabaseService.cache
+    .healthData
+    .mentalHealthAssessments
+    .unshift({
+
+        id : Date.now(),
+
+        date :
+            new Date()
+            .toISOString(),
+
+        who5 : score
+
+    });
+
+    await DatabaseService.save();
+
+    renderMentalHealthTracker();
 }
 
 async function saveStressEntry()

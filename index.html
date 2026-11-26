@@ -18203,8 +18203,17 @@ async function openFile(fileId)
     )
     ||
     extractHref(
-        existingFile.webUrl
+        existingFile.data?.downloadUrl
     );
+
+if(!pdfUrl)
+{
+    alert(
+        "Geen directe PDF downloadlink gevonden."
+    );
+
+    return;
+}
 
 console.log(
     "PDF URL:",

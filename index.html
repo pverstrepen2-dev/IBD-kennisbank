@@ -375,6 +375,20 @@ const HealthService = {
 
                 stressEntries:[],
 
+                energyEntries : [],
+
+    moodEntries : [],
+
+energyEntries : [],
+
+anxietyEntries : [],
+
+wellbeingEntries : [],
+
+phq9Results : [],
+
+gad7Results : [],
+
                 meals:[],
 
                 medication:[],
@@ -7625,6 +7639,18 @@ if(!db.healthData)
 
         stressEntries : [],
 
+moodEntries : [],
+
+energyEntries : [],
+
+anxietyEntries : [],
+
+wellbeingEntries : [],
+
+phq9Results : [],
+
+gad7Results : [],
+
         meals : [],
 
         medication : [],
@@ -11347,6 +11373,107 @@ bloodEvents.forEach(event => {
     }
 
     //------------------------------------
+    // MentalhealthEngine
+    //------------------------------------
+
+calculateMentalHealthIndex()
+{
+    let score = 100;
+
+    const sleep =
+        DatabaseService.cache
+        ?.healthData
+        ?.sleepEntries || [];
+
+    const stress =
+        DatabaseService.cache
+        ?.healthData
+        ?.stressEntries || [];
+
+    const latestBlood =
+        DatabaseService.cache
+        ?.healthData
+        ?.bloodResults?.[0];
+
+    //----------------------------------
+    // slaap
+    //----------------------------------
+
+    if(sleep.length)
+    {
+        const avgSleep =
+            sleep.reduce(
+                (s,x) =>
+                    s + (x.hours || 0),
+                0
+            ) / sleep.length;
+
+        if(avgSleep < 6)
+        {
+            score -= 25;
+        }
+    }
+
+    //----------------------------------
+    // stress
+    //----------------------------------
+
+    if(stress.length)
+    {
+        const avgStress =
+            stress.reduce(
+                (s,x)=>
+                    s+(x.level||0),
+                0
+            ) / stress.length;
+
+        score -= avgStress * 3;
+    }
+
+    //----------------------------------
+    // ontsteking
+    //----------------------------------
+
+    const crp =
+        Number(
+            latestBlood?.values?.CRP || 0
+        );
+
+    if(crp > 10)
+    {
+        score -= 15;
+    }
+
+    return Math.max(
+        0,
+        Math.min(score,100)
+    );
+}
+
+getMentalHealthLevel()
+{
+    const score =
+        this.calculateMentalHealthIndex();
+
+    if(score >= 80)
+    {
+        return "🟢 Goed";
+    }
+
+    if(score >= 60)
+    {
+        return "🟡 Matig";
+    }
+
+    if(score >= 40)
+    {
+        return "🟠 Belast";
+    }
+
+    return "🔴 Hoog risico";
+}
+
+    //------------------------------------
     // Hemoglobine
     //------------------------------------
 
@@ -11908,6 +12035,206 @@ const RelationshipGraphBuilder = {
 
         return explanation;
     },
+
+    buildHealthCausalRelations()
+{
+    const relations = [];
+
+    const blood =
+        DatabaseService.cache
+        ?.healthData
+        ?.bloodResults || [];
+
+    const sleep =
+        DatabaseService.cache
+        ?.healthData
+        ?.sleepEntries || [];
+
+    const stress =
+        DatabaseService.cache
+        ?.healthData
+        ?.stressEntries || [];
+
+    const latestBlood = blood[0];
+
+    if(!latestBlood)
+    {
+        return relations;
+    }
+
+    //-----------------------------------
+    // Ferritine
+    //-----------------------------------
+
+    const ferritine =
+        Number(
+            latestBlood.values?.Ferritine || 0
+        );
+
+    if(ferritine < 30)
+    {
+        relations.push({
+
+            source :
+                "Ferritine laag",
+
+            target :
+                "Vermoeidheid",
+
+            weight : 90
+
+        });
+
+        relations.push({
+
+            source :
+                "Vermoeidheid",
+
+            target :
+                "Slaapkwaliteit",
+
+            weight : 70
+
+        });
+
+    }
+
+    //-----------------------------------
+    // CRP
+    //-----------------------------------
+
+    const crp =
+        Number(
+            latestBlood.values?.CRP || 0
+        );
+
+    if(crp > 5)
+    {
+        relations.push({
+
+            source :
+                "Ontsteking",
+
+            target :
+                "Vermoeidheid",
+
+            weight : 80
+
+        });
+
+    }
+
+    //-----------------------------------
+    // Stress
+    //-----------------------------------
+
+    const avgStress =
+        stress.length
+
+        ?
+
+        stress.reduce(
+            (s,x)=>s+(x.level||0),
+            0
+        ) / stress.length
+
+        :
+
+        0;
+
+    if(avgStress > 7)
+    {
+        relations.push({
+
+            source :
+                "Stress",
+
+            target :
+                "Slaaptekort",
+
+            weight : 70
+
+        });
+
+    }
+
+    return relations;
+},
+
+buildIBDActivityRelations()
+{
+    const relations = [];
+
+    const blood =
+        DatabaseService.cache
+        ?.healthData
+        ?.bloodResults?.[0];
+
+    if(!blood)
+    {
+        return relations;
+    }
+
+    const crp =
+        Number(
+            blood.values?.CRP || 0
+        );
+
+    const cal =
+        Number(
+            blood.values?.Calprotectine || 0
+        );
+
+    if(crp > 5)
+    {
+        relations.push({
+
+            source :
+                "CRP stijgt",
+
+            target :
+                "Ontstekingsactiviteit",
+
+            weight : 90
+
+        });
+    }
+
+    if(cal > 100)
+    {
+        relations.push({
+
+            source :
+                "Calprotectine stijgt",
+
+            target :
+                "Ontstekingsactiviteit",
+
+            weight : 100
+
+        });
+    }
+
+    if(
+        crp > 5 &&
+        cal > 100
+    )
+    {
+        relations.push({
+
+            source :
+                "Ontstekingsactiviteit",
+
+            target :
+                "Opstootrisico",
+
+            weight : 100
+
+        });
+    }
+
+    return relations;
+},
 
     generateRelationshipMap()
     {

@@ -11306,34 +11306,30 @@ async function saveAbdominalPainEntry()
 
 async function saveJointPainEntry()
 {
-    DatabaseService.cache
-    .healthData
-    .jointPainEntries
-    .unshift({
+    DatabaseService.cache ??= {};
 
-        id:
-            Date.now(),
+    DatabaseService.cache.healthData ??= {};
 
-        date:
+    DatabaseService.cache.healthData.jointPainEntries ??= [];
+
+    DatabaseService.cache.healthData.jointPainEntries.unshift({
+        id: Date.now(),
+
+        date: document.getElementById(
+            "jointPainDate"
+        ).value,
+
+        level: parseInt(
             document.getElementById(
-                "jointPainDate"
-            ).value,
+                "jointPainLevel"
+            ).value
+        ),
 
-        level:
-            parseInt(
-                document.getElementById(
-                    "jointPainLevel"
-                ).value
-            ),
+        notes: document.getElementById(
+            "jointPainNotes"
+        ).value,
 
-        notes:
-            document.getElementById(
-                "jointPainNotes"
-            ).value,
-
-        created:
-            new Date()
-            .toISOString()
+        created: new Date().toISOString()
     });
 
     await DatabaseService.save();

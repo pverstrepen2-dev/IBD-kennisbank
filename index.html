@@ -406,6 +406,43 @@ const HealthService = {
 }
 };
 
+function ensureHealthData()
+{
+    DatabaseService.cache ??= {};
+
+    DatabaseService.cache.healthData ??= {};
+
+    const health =
+        DatabaseService.cache.healthData;
+
+    health.stoolEntries ??= [];
+    health.sleepEntries ??= [];
+    health.stressEntries ??= [];
+
+    health.energyEntries ??= [];
+    health.moodEntries ??= [];
+    health.anxietyEntries ??= [];
+
+    health.abdominalPainEntries ??= [];
+    health.jointPainEntries ??= [];
+
+    health.mentalHealthAssessments ??= [];
+
+    health.wellbeingEntries ??= [];
+
+    health.phq9Results ??= [];
+    health.gad7Results ??= [];
+
+    health.meals ??= [];
+    health.medication ??= [];
+    health.symptoms ??= [];
+
+    health.bloodResults ??= [];
+    health.exams ??= [];
+
+    return health;
+}
+
 const KNOWLEDGE_CATEGORIES = [
 {
     id: "medical",
@@ -9507,10 +9544,10 @@ setTimeout(
 
 async function saveSleepEntry()
 {
-    DatabaseService.cache
-    .healthData
-    .sleepEntries
-    .unshift({
+    const health =
+    ensureHealthData();
+
+health.sleepEntries.unshift({
 
         id:Date.now(),
 
@@ -11230,10 +11267,10 @@ function drawStressChart()
 
 async function saveEnergyEntry()
 {
-    DatabaseService.cache
-    .healthData
-    .energyEntries
-    .unshift({
+    const health =
+    ensureHealthData();
+
+health.energyEntries.unshift({
 
         id :
             Date.now(),
@@ -11268,34 +11305,32 @@ async function saveEnergyEntry()
 
 async function saveAbdominalPainEntry()
 {
-    DatabaseService.cache
-    .healthData
-    .abdominalPainEntries
-    .unshift({
+    const health =
+        ensureHealthData();
 
-        id :
-            Date.now(),
+    health.abdominalPainEntries.unshift({
 
-        date :
+        id: Date.now(),
+
+        date:
             document.getElementById(
                 "painDate"
             ).value,
 
-        level :
+        level:
             parseInt(
                 document.getElementById(
                     "painLevel"
                 ).value
             ),
 
-        notes :
+        notes:
             document.getElementById(
                 "painNotes"
             ).value,
 
-        created :
-            new Date()
-            .toISOString()
+        created:
+            new Date().toISOString()
 
     });
 
@@ -11306,13 +11341,11 @@ async function saveAbdominalPainEntry()
 
 async function saveJointPainEntry()
 {
-    DatabaseService.cache ??= {};
+    const health =
+    ensureHealthData();
 
-    DatabaseService.cache.healthData ??= {};
+health.jointPainEntries.unshift({
 
-    DatabaseService.cache.healthData.jointPainEntries ??= [];
-
-    DatabaseService.cache.healthData.jointPainEntries.unshift({
         id: Date.now(),
 
         date: document.getElementById(
